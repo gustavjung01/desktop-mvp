@@ -8,7 +8,6 @@ namespace CongTy.Desktop.Purchasing;
 
 public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
 {
-    private const string ReportingRead = "core.reporting.purchasing.read";
     private const string PurchaseOrderRead = "core.purchase-order.read";
     private const string GoodsReceiptRead = "core.goods-receipt.read";
 
@@ -48,7 +47,7 @@ public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
     public ObservableCollection<PurchasingSupplierRow> SupplierRows { get; } = [];
     public ObservableCollection<PurchasingSkuRow> SkuRows { get; } = [];
 
-    public bool CanRead => _access.HasPermission(ReportingRead);
+    public bool CanRead => _access.HasPermission("core.reporting.purchasing.read");
     public bool CanApply => CanRead && !IsBusy;
     public bool CanOpenPurchaseOrders => _access.HasPermission(PurchaseOrderRead);
     public bool CanOpenGoodsReceipts => _access.HasPermission(GoodsReceiptRead);
