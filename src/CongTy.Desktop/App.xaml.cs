@@ -164,6 +164,9 @@ public partial class App : Application
             services.AddSingleton<IAgingReportingService, AgingReportingService>();
             services.AddSingleton<AgingReportingViewModel>();
             services.AddSingleton<AgingReportingView>();
+            services.AddSingleton<ICodAccountingService, CodAccountingService>();
+            services.AddSingleton<CodAccountingViewModel>();
+            services.AddSingleton<CodAccountingView>();
             services.AddSingleton<IPurchasingReportingService, PurchasingReportingService>();
             services.AddSingleton<PurchasingReportingViewModel>();
             services.AddSingleton<PurchasingReportingView>();

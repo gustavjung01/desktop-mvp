@@ -1,0 +1,476 @@
+<UserControl x:Class="CongTy.Desktop.Accounting.CodAccountingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             Loaded="CodAccountingView_OnLoaded"
+             PreviewKeyDown="CodAccountingView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="CodCellTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="CodNumericTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="CodHandoverListItemStyle"
+               TargetType="ListBoxItem"
+               BasedOn="{StaticResource OfficeListBoxItemStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="16">
+            <Border Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <WrapPanel>
+                        <StackPanel Width="165" Margin="0,0,8,8">
+                            <TextBlock Text="Từ ngày" Margin="0,0,0,4" FontWeight="SemiBold" />
+                            <DatePicker MinHeight="30"
+                                        IsEnabled="{Binding IsNotBusy}"
+                                        SelectedDate="{Binding FromDateValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Width="165" Margin="0,0,8,8">
+                            <TextBlock Text="Đến ngày" Margin="0,0,0,4" FontWeight="SemiBold" />
+                            <DatePicker MinHeight="30"
+                                        IsEnabled="{Binding IsNotBusy}"
+                                        SelectedDate="{Binding ToDateValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Width="310" Margin="0,0,8,8">
+                            <TextBlock Text="Kho" Margin="0,0,0,4" FontWeight="SemiBold" />
+                            <ComboBox MinHeight="30"
+                                      Style="{StaticResource OfficeComboBoxStyle}"
+                                      IsEnabled="{Binding IsNotBusy}"
+                                      ItemsSource="{Binding Warehouses}"
+                                      DisplayMemberPath="Label"
+                                      SelectedValuePath="Id"
+                                      SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <Button Margin="4,20,0,8"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Click="Apply_OnClick"
+                                Content="{Binding FilterButtonText}" />
+                    </WrapPanel>
+                    <Grid Margin="0,2,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding PeriodNotice}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+                        <TextBlock Grid.Column="1"
+                                   Margin="12,0,0,0"
+                                   Text="{Binding GeneratedAtText}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Margin="0,8,0,0"
+                       Text="{Binding ReportError}"
+                       Foreground="{DynamicResource DangerBrush}"
+                       TextWrapping="Wrap"
+                       Visibility="{Binding HasReportError, Converter={StaticResource BoolToVisibility}}" />
+            <TextBlock Margin="0,8,0,0"
+                       Text="Đang tải COD và đối soát…"
+                       HorizontalAlignment="Center"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       Visibility="{Binding ShowInitialLoading, Converter={StaticResource BoolToVisibility}}" />
+
+            <Grid Margin="0,8,0,0"
+                  Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource OfficeSummaryCardStyle}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Khoản tiền tài xế đang giữ" />
+                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding CustodyCount}" />
+                        <TextBlock Margin="0,3,0,0" Text="{Binding CustodyAmountList}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource OfficeSummaryCardStyle}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Bàn giao chờ kế toán nhận" />
+                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding PendingHandoverCount}" />
+                        <TextBlock Margin="0,3,0,0" Text="Đang chờ kế toán xác nhận" Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="4" Style="{StaticResource OfficeSummaryCardStyle}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Lời hẹn thu đã quá hạn" />
+                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding OverduePromiseCount}" />
+                        <TextBlock Margin="0,3,0,0" Text="Chưa thu tiền và đã quá ngày hẹn" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="6" Style="{StaticResource OfficeSummaryCardStyle}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Cần kiểm tra / chênh lệch" />
+                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding ExceptionCount}" />
+                        <TextBlock Margin="0,3,0,0" Text="Tách riêng để đối chiếu, không tự gộp số liệu" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <TabControl Margin="0,10,0,0"
+                        Style="{StaticResource OfficeTabControlStyle}"
+                        SelectedIndex="{Binding ActiveTabIndex, Mode=TwoWay}"
+                        Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                <TabItem Header="Tài xế giữ tiền">
+                    <Border Margin="0,8,0,0" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Tiền mặt đang ở tài xế" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0" Text="Trạng thái khách đã thanh toán và tiền tài xế đang giữ được theo dõi riêng." Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <DataGrid Margin="0,8,0,0"
+                                      Height="360"
+                                      Style="{StaticResource OfficeDataGridStyle}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      ItemsSource="{Binding CustodyDrivers}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tài xế" Binding="{Binding Driver}" Width="1.5*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Loại tiền" Binding="{Binding Currency}" Width="0.7*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Số khoản thu" Binding="{Binding CollectionCount}" Width="0.8*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Đang giữ" Binding="{Binding RemainingAmount}" Width="1.1*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Cũ nhất" Binding="{Binding Oldest}" Width="1.2*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,6,0,0" HorizontalAlignment="Center" Text="{Binding CustodyEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+
+                <TabItem Header="Thu trong kỳ">
+                    <Border Margin="0,8,0,0" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Hoạt động thu trong kỳ" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0" Text="Tách theo loại tiền, phương thức và trạng thái; không cộng gộp khác loại tiền." Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <DataGrid Margin="0,8,0,0"
+                                      Height="360"
+                                      Style="{StaticResource OfficeDataGridStyle}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      ItemsSource="{Binding CollectionActivity}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Loại tiền" Binding="{Binding Currency}" Width="0.7*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Phương thức" Binding="{Binding Method}" Width="1.1*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="1*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Số lượt" Binding="{Binding Count}" Width="0.7*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Phải thu" Binding="{Binding Expected}" Width="1.1*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Đã nhận" Binding="{Binding Received}" Width="1.1*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,6,0,0" HorizontalAlignment="Center" Text="{Binding CollectionEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+
+                <TabItem Header="Bàn giao &amp; kế toán">
+                    <StackPanel Margin="0,8,0,0">
+                        <Border Style="{StaticResource OfficeCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Bàn giao trong kỳ" FontSize="16" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,3,0,0" Text="Số bàn giao và chênh lệch bàn giao theo từng loại tiền." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <DataGrid Margin="0,8,0,0" Height="220" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding HandoverActivity}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Loại tiền" Binding="{Binding Currency}" Width="*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                        <DataGridTextColumn Header="Số bàn giao" Binding="{Binding Count}" Width="*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Đã khai bàn giao" Binding="{Binding Claimed}" Width="1.2*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Chênh lệch bàn giao" Binding="{Binding Difference}" Width="1.2*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock Margin="0,6,0,0" HorizontalAlignment="Center" Text="{Binding HandoverActivityEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Kế toán tiếp nhận trong kỳ" FontSize="16" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,3,0,0" Text="Số lần kế toán nhận, tiền Công Ty đã nhận và chênh lệch theo từng loại tiền." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <DataGrid Margin="0,8,0,0" Height="220" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding AcceptanceActivity}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Loại tiền" Binding="{Binding Currency}" Width="*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                        <DataGridTextColumn Header="Số lần tiếp nhận" Binding="{Binding Count}" Width="*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Đã tiếp nhận" Binding="{Binding Accepted}" Width="1.2*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Chênh lệch" Binding="{Binding Difference}" Width="1.2*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock Margin="0,6,0,0" HorizontalAlignment="Center" Text="{Binding AcceptanceActivityEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Bàn giao chờ kế toán tiếp nhận" FontSize="16" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,3,0,0" Text="Đây là tiền tài xế đã bàn giao nhưng kế toán chưa xác nhận tiếp nhận." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <DataGrid Margin="0,8,0,0" Height="280" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding PendingHandovers}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Chuyến / tài xế" Binding="{Binding Source}" Width="1.4*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                        <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.8*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                        <DataGridTextColumn Header="Loại tiền" Binding="{Binding Currency}" Width="0.7*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                        <DataGridTextColumn Header="Chờ nhận" Binding="{Binding PendingAmount}" Width="1.1*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Bàn giao lúc" Binding="{Binding HandedOverAt}" Width="1.1*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                        <DataGridTemplateColumn Header="" Width="74">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                            CommandParameter="{Binding}"
+                                                            Click="OpenPending_OnClick"
+                                                            Content="Mở" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock Margin="0,6,0,0" HorizontalAlignment="Center" Text="{Binding PendingHandoverEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="Kế toán xác nhận">
+                    <StackPanel Margin="0,8,0,0">
+                        <Border Padding="10"
+                                Style="{StaticResource OfficeCardStyle}"
+                                Visibility="{Binding ShowReconciliationDenied, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Tài khoản chưa được cấp quyền xem đối soát COD của kế toán."
+                                       Foreground="{DynamicResource DangerBrush}"
+                                       TextWrapping="Wrap" />
+                        </Border>
+
+                        <Grid Visibility="{Binding CanReadReconciliation, Converter={StaticResource BoolToVisibility}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="43*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="57*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource OfficeCardStyle}">
+                                <DockPanel LastChildFill="True">
+                                    <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Bàn giao COD" FontSize="16" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,3,0,0" Text="Chọn bàn giao cần đối chiếu." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                                IsEnabled="{Binding IsNotBusy}"
+                                                Click="RefreshReconciliation_OnClick"
+                                                Content="Tải lại" />
+                                    </Grid>
+
+                                    <ListBox ItemsSource="{Binding Handovers}"
+                                             SelectedItem="{Binding SelectedHandoverRow, Mode=TwoWay}"
+                                             ItemContainerStyle="{StaticResource CodHandoverListItemStyle}"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             IsEnabled="{Binding IsNotBusy}"
+                                             MaxHeight="620"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="0,0,0,6" Padding="9" Style="{StaticResource OfficeCardStyle}">
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding Trip}" FontWeight="SemiBold" />
+                                                            <TextBlock Grid.Column="1" Text="{Binding Status}" FontWeight="SemiBold" />
+                                                        </Grid>
+                                                        <TextBlock Margin="0,3,0,0" Text="{Binding HandedOverAt}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                        <TextBlock Margin="0,2,0,0" Text="{Binding Driver}" />
+                                                        <TextBlock Margin="0,2,0,0" Text="{Binding Warehouse}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                        <Grid Margin="0,3,0,0">
+                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                            <StackPanel Orientation="Horizontal"><TextBlock Text="Bàn giao: " /><TextBlock Text="{Binding HandedOver}" /></StackPanel>
+                                                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right"><TextBlock Text="Chênh lệch: " /><TextBlock Text="{Binding Difference}" /></StackPanel>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <TextBlock Margin="0,8,0,0" HorizontalAlignment="Center" Text="{Binding HandoverEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </DockPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Đối chiếu và xác nhận" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,6,0,0"
+                                               Text="{Binding SelectedHandoverTitle}"
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap" />
+
+                                    <Grid Margin="0,8,0,0" Visibility="{Binding HasSelectedHandover, Converter={StaticResource BoolToVisibility}}">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource OfficeSummaryCardStyle}">
+                                            <StackPanel><TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Tài xế khai bàn giao" /><TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding SelectedHandoverClaimed}" /></StackPanel>
+                                        </Border>
+                                        <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource OfficeSummaryCardStyle}">
+                                            <StackPanel><TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Tiền thừa chưa gắn phiếu" /><TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding SelectedHandoverExcess}" /></StackPanel>
+                                        </Border>
+                                        <Border Grid.Row="1" Grid.Column="0" Margin="0,8,0,0" Style="{StaticResource OfficeSummaryCardStyle}">
+                                            <StackPanel><TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Chênh lệch lúc bàn giao" /><TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding SelectedHandoverDifference}" /></StackPanel>
+                                        </Border>
+                                        <Border Grid.Row="1" Grid.Column="2" Margin="0,8,0,0" Style="{StaticResource OfficeSummaryCardStyle}">
+                                            <StackPanel><TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Trạng thái" /><TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding SelectedHandoverStatus}" /></StackPanel>
+                                        </Border>
+                                    </Grid>
+
+                                    <DataGrid Margin="0,8,0,0"
+                                              Height="240"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              ItemsSource="{Binding HandoverLines}"
+                                              Visibility="{Binding HasSelectedHandover, Converter={StaticResource BoolToVisibility}}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Phiếu giao" Binding="{Binding DeliveryOrder}" Width="1.1*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                            <DataGridTextColumn Header="Khách hàng" Binding="{Binding Customer}" Width="1.5*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                            <DataGridTextColumn Header="Đang giữ" Binding="{Binding Expected}" Width="1*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Bàn giao" Binding="{Binding HandedOver}" Width="1*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                            <DataGridTemplateColumn Header="" Width="90">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                                IsEnabled="{Binding DataContext.CanReverseCollectionAction, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"
+                                                                CommandParameter="{Binding}"
+                                                                Click="ReverseCollection_OnClick"
+                                                                Content="Đảo thu" />
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <Border Margin="0,8,0,0"
+                                            Padding="9"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding ShowAcceptForm, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Kế toán xác nhận tiền thực nhận" FontWeight="SemiBold" />
+                                            <Grid Margin="0,7,0,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Số tiền Công Ty thực nhận" />
+                                                    <TextBox Margin="0,3,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding AcceptedAmount, UpdateSourceTrigger=PropertyChanged}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Chênh lệch so với bàn giao" />
+                                                    <TextBlock Margin="0,7,0,0" Text="{Binding AcceptanceDifference}" FontWeight="SemiBold" />
+                                                </StackPanel>
+                                            </Grid>
+                                            <TextBlock Margin="0,7,0,0" Text="Lý do chênh lệch" />
+                                            <TextBox Margin="0,3,0,0" Style="{StaticResource OfficeTextBoxStyle}" MaxLength="2000" Text="{Binding AcceptanceReason, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBlock Margin="0,7,0,0" Text="Ghi chú" />
+                                            <TextBox Margin="0,3,0,0" Style="{StaticResource OfficeTextBoxStyle}" MaxLength="2000" Text="{Binding AcceptanceNote, UpdateSourceTrigger=PropertyChanged}" />
+                                            <Button Margin="0,8,0,0"
+                                                    HorizontalAlignment="Left"
+                                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                    Visibility="{Binding CanAccept, Converter={StaticResource BoolToVisibility}}"
+                                                    IsEnabled="{Binding CanAcceptAction}"
+                                                    Click="Accept_OnClick"
+                                                    Content="{Binding AcceptButtonText}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Margin="0,8,0,0"
+                                            Padding="9"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding HasSelectedHandover, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Điều chỉnh bằng bản ghi bù" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,3,0,0" Text="Không sửa dữ liệu cũ. Nhập lý do trước khi đảo xác nhận, bàn giao hoặc khoản thu." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                            <TextBox Margin="0,7,0,0"
+                                                     Style="{StaticResource OfficeTextBoxStyle}"
+                                                     MaxLength="2000"
+                                                     Text="{Binding ReversalReason, UpdateSourceTrigger=PropertyChanged}" />
+                                            <WrapPanel Margin="0,8,0,0">
+                                                <Button Margin="0,0,8,0"
+                                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                        Visibility="{Binding CanAdjust, Converter={StaticResource BoolToVisibility}}"
+                                                        IsEnabled="{Binding CanReverseAcceptanceAction}"
+                                                        Click="ReverseAcceptance_OnClick"
+                                                        Content="{Binding ReverseAcceptanceButtonText}" />
+                                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                        Visibility="{Binding CanAdjust, Converter={StaticResource BoolToVisibility}}"
+                                                        IsEnabled="{Binding CanReverseHandoverAction}"
+                                                        Click="ReverseHandover_OnClick"
+                                                        Content="{Binding ReverseHandoverButtonText}" />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="Hẹn thu quá hạn">
+                    <Border Margin="0,8,0,0" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Lời hẹn thu đã quá hạn" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0" Text="Không biến khoản chưa thu thành tiền tài xế đang giữ." Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <DataGrid Margin="0,8,0,0" Height="360" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding OverduePromises}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Phiếu giao" Binding="{Binding DeliveryOrder}" Width="1.1*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Chuyến / tài xế" Binding="{Binding TripDriver}" Width="1.3*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Số phải thu" Binding="{Binding ExpectedAmount}" Width="1*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Hẹn bởi" Binding="{Binding PromisedBy}" Width="1*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Quá hạn" Binding="{Binding Overdue}" Width="0.8*" ElementStyle="{StaticResource CodNumericTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,6,0,0" HorizontalAlignment="Center" Text="{Binding PromiseEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+
+                <TabItem Header="Cần kiểm tra">
+                    <Border Margin="0,8,0,0" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Cần kiểm tra và chênh lệch" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0" Text="Các trường hợp lệch trạng thái hoặc không xác định được một loại tiền duy nhất được tách riêng để kiểm tra, không tự suy đoán." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <DataGrid Margin="0,8,0,0" Height="380" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding Exceptions}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Loại" Binding="{Binding Type}" Width="1*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Nguồn" Binding="{Binding Source}" Width="1.3*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.8*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTextColumn Header="Chi tiết" Binding="{Binding Detail}" Width="1.8*" ElementStyle="{StaticResource CodCellTextStyle}" />
+                                    <DataGridTemplateColumn Header="" Width="74">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                        Visibility="{Binding CanOpenAccounting, Converter={StaticResource BoolToVisibility}}"
+                                                        CommandParameter="{Binding}"
+                                                        Click="OpenException_OnClick"
+                                                        Content="Mở" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,6,0,0" HorizontalAlignment="Center" Text="{Binding ExceptionEmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+            </TabControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
