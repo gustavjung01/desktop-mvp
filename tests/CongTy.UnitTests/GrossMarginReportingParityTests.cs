@@ -67,7 +67,7 @@ public sealed class GrossMarginReportingParityTests
 
         foreach (var text in new[]
         {
-            "Từ ngày", "Đến ngày", "Kho", "Áp dụng", "Đặt lại",
+            "Từ ngày", "Đến ngày", "Kho", "Đặt lại",
             "Doanh thu thuần so sánh được", "Giá vốn", "Lãi gộp", "Biên lãi gộp",
             "Theo khách hàng", "Theo SKU", "Ngoại lệ",
             "Dòng chưa đủ điều kiện tính lãi gộp", "Mở giá vốn",
@@ -79,6 +79,7 @@ public sealed class GrossMarginReportingParityTests
         }
 
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Sales", "GrossMarginReportingViewModel.cs");
+        StringAssert.Contains(viewModel, "ApplyText => IsBusy ? \"Đang cập nhật…\" : \"Áp dụng\"");
         StringAssert.Contains(viewModel, "Đối soát:");
 
         Assert.IsFalse(view.Contains("Phase 7", StringComparison.Ordinal));
