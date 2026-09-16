@@ -177,7 +177,7 @@ public sealed class SalesReportingParityTests
     }
 
     [TestMethod]
-    public void Shell_ActivatesSalesReportingWithoutFakeGrossMarginAction()
+    public void Shell_PreservesSalesReportingHeaderActionsWithoutFakeGrossMarginNavigation()
     {
         var app = ReadRepoFile("src", "CongTy.Desktop", "App.xaml.cs");
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");
@@ -200,6 +200,8 @@ public sealed class SalesReportingParityTests
         StringAssert.Contains(xaml, "Click=\"SalesReporting_OnClick\"");
         StringAssert.Contains(xaml, "Click=\"SalesReportingExport_OnClick\"");
         StringAssert.Contains(xaml, "Click=\"SalesReportingOrders_OnClick\"");
+        StringAssert.Contains(xaml, "Content=\"Xem báo cáo lãi gộp\"");
+        StringAssert.Contains(xaml, "ToolTip=\"Màn Lãi gộp sẽ được nối khi UI-5.2 hoàn thiện.\"");
         StringAssert.Contains(xaml, "x:Name=\"SalesReportingHost\"");
         StringAssert.Contains(code, "SalesReportingHost.Content = salesReportingView");
         StringAssert.Contains(code, "_salesReportingView.OpenExportDialog()");
