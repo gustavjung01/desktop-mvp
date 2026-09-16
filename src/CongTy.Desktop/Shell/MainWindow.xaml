@@ -211,7 +211,7 @@
                                 </Grid>
                             </Button>
                             <StackPanel Margin="22,2,8,7" Visibility="{Binding IsInventoryOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Button Style="{StaticResource NavSubItemStyle}" Tag="{Binding IsInventoryReportingSelected}" Visibility="{Binding CanViewInventory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="InventoryReporting_OnClick"><TextBlock Text="Báo cáo tồn kho" /></Button>
+                                <Button Style="{StaticResource NavSubItemStyle}" Tag="{Binding IsInventoryReportingSelected}" Visibility="{Binding CanViewInventoryReporting, Converter={StaticResource BooleanToVisibilityConverter}}" Click="InventoryReporting_OnClick"><TextBlock Text="Báo cáo tồn kho" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" Tag="{Binding IsInventoryFulfillmentSelected}" Visibility="{Binding CanViewFulfillment, Converter={StaticResource BooleanToVisibilityConverter}}" Click="InventoryFulfillment_OnClick"><TextBlock Text="Chuẩn bị hàng" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}"
                                         Tag="{Binding IsInventoryTransferSelected}"
@@ -572,6 +572,25 @@
                                     IsEnabled="{Binding CanViewGoodsReceipts}"
                                     Click="PurchasingReportingReceipts_OnClick"
                                     Content="Phiếu nhận hàng" />
+
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsInventoryReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanViewInventoryBalances}"
+                                    Click="InventoryReportingBalances_OnClick"
+                                    Content="Tra cứu tồn" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsInventoryReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanViewInventoryCosting}"
+                                    Click="InventoryReportingCosting_OnClick"
+                                    Content="Giá vốn" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsInventoryReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanViewInventoryLots}"
+                                    Click="InventoryReportingLots_OnClick"
+                                    Content="Danh mục lô" />
 
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"

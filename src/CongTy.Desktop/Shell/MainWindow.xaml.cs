@@ -228,7 +228,7 @@ public partial class MainWindow : Window
                 await _viewModel.NavigateSalesAsync();
                 break;
             case "inventory.reporting":
-                await _viewModel.NavigateInventoryAsync(1, "inventory.reporting");
+                await _viewModel.NavigateInventoryReportingAsync();
                 break;
             case "inventory.balances":
                 await _viewModel.NavigateInventoryLookupAsync();
@@ -350,7 +350,16 @@ public partial class MainWindow : Window
         await _viewModel.NavigateDocumentNumberingAsync();
 
     private async void InventoryReporting_OnClick(object sender, RoutedEventArgs e) =>
-        await _viewModel.NavigateInventoryAsync(1, "inventory.reporting");
+        await _viewModel.NavigateInventoryReportingAsync();
+
+    private async void InventoryReportingBalances_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateInventoryLookupAsync();
+
+    private async void InventoryReportingCosting_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateInventoryCostingAsync();
+
+    private async void InventoryReportingLots_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateInventoryLotsAsync();
 
     private async void InventoryFulfillment_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateFulfillmentAsync();
