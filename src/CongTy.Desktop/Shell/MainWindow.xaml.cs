@@ -40,6 +40,7 @@ public partial class MainWindow : Window
     private readonly SupplierReturnView _supplierReturnView;
     private readonly SalesReportingView _salesReportingView;
     private readonly GrossMarginReportingView _grossMarginReportingView;
+    private readonly InventoryView _inventoryView;
 
     public MainWindow(
         ShellViewModel viewModel,
@@ -102,6 +103,7 @@ public partial class MainWindow : Window
         _supplierReturnView = supplierReturnView;
         _salesReportingView = salesReportingView;
         _grossMarginReportingView = grossMarginReportingView;
+        _inventoryView = inventoryView;
         DataContext = viewModel;
         HomeHost.Content = dashboardView;
         dashboardView.NavigationRequested += DashboardView_OnNavigationRequested;
@@ -228,7 +230,7 @@ public partial class MainWindow : Window
                 await _viewModel.NavigateSalesAsync();
                 break;
             case "inventory.reporting":
-                await _viewModel.NavigateInventoryAsync(1, "inventory.reporting");
+                await _viewModel.NavigateInventoryReportingAsync();
                 break;
             case "inventory.balances":
                 await _viewModel.NavigateInventoryLookupAsync();
@@ -350,7 +352,19 @@ public partial class MainWindow : Window
         await _viewModel.NavigateDocumentNumberingAsync();
 
     private async void InventoryReporting_OnClick(object sender, RoutedEventArgs e) =>
-        await _viewModel.NavigateInventoryAsync(1, "inventory.reporting");
+        await _viewModel.NavigateInventoryReportingAsync();
+
+    private void InventoryReportingExport_OnClick(object sender, RoutedEventArgs e) =>
+        _inventoryView.OpenExportDialog();
+
+    private async void InventoryReportingBalances_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateInventoryLookupAsync();
+
+    private async void InventoryReportingCosting_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateInventoryCostingAsync();
+
+    private async void InventoryReportingLots_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateInventoryLotsAsync();
 
     private async void InventoryFulfillment_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateFulfillmentAsync();

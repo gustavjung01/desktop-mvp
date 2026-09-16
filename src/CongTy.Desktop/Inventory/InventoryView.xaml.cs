@@ -1,5 +1,4 @@
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,6 +15,12 @@ public partial class InventoryView : UserControl
         _viewModel = viewModel;
         InitializeComponent();
         DataContext = viewModel;
+    }
+
+    public void OpenExportDialog()
+    {
+        _viewModel.OpenExport();
+        ExportXlsxRadio.IsChecked = true;
     }
 
     private async void RefreshBalances_OnClick(object sender, RoutedEventArgs e) => await _viewModel.RefreshBalancesAsync();
@@ -50,35 +55,71 @@ public partial class InventoryView : UserControl
 
     private void CloseReportHolds_OnClick(object sender, RoutedEventArgs e) => _viewModel.CloseReportHolds();
 
-    private void ExportReport_OnClick(object sender, RoutedEventArgs e)
+    private void CloseExport_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.CloseExport();
+
+    private void ExportXlsx_OnChecked(object sender, RoutedEventArgs e)
     {
+        if (DataContext is InventoryViewModel) _viewModel.ExportFormat = "xlsx";
+    }
+
+    private void ExportCsv_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is InventoryViewModel) _viewModel.ExportFormat = "csv";
+    }
+
+    private void SelectAllExportColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.SelectAllExportColumns();
+
+    private void ClearExportColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.ClearExportColumns();
+
+    private void DefaultExportColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.ResetExportColumns();
+
+    private async void ExportReportFile_OnClick(object sender, RoutedEventArgs e)
+    {
+        var file = await _viewModel.ExportReportAsync().ConfigureAwait(true);
+        if (file is null) return;
+
+        var extension = Path.GetExtension(file.FileName);
+        var dialog = new SaveFileDialog
+        {
+            Title = "Lưu Báo cáo tồn kho",
+            FileName = file.FileName,
+            DefaultExt = string.IsNullOrWhiteSpace(extension) ? $".{_viewModel.ExportFormat}" : extension,
+            Filter = _viewModel.ExportFormat == "csv"
+                ? "CSV (*.csv)|*.csv|Tất cả tệp (*.*)|*.*"
+                : "Excel (*.xlsx)|*.xlsx|Tất cả tệp (*.*)|*.*",
+            AddExtension = true,
+            OverwritePrompt = true
+        };
+
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true) return;
+
         try
         {
-            var dialog = new SaveFileDialog
-            {
-                Title = "Xuất báo cáo tồn kho",
-                Filter = "Tệp CSV (*.csv)|*.csv",
-                DefaultExt = ".csv",
-                AddExtension = true,
-                FileName = $"bao-cao-ton-kho-{DateTime.Now:yyyyMMdd-HHmm}.csv"
-            };
-            if (dialog.ShowDialog(Window.GetWindow(this)) != true) return;
-
-            File.WriteAllText(dialog.FileName, _viewModel.BuildReportExportCsv(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
-            MessageBox.Show(
-                $"Đã xuất {_viewModel.ExportDescription} vào tệp đã chọn.",
-                "Xuất báo cáo tồn kho",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            await File.WriteAllBytesAsync(dialog.FileName, file.Content).ConfigureAwait(true);
         }
         catch (Exception exception)
         {
-            MessageBox.Show(exception.Message, "Không xuất được báo cáo", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(
+                $"Không lưu được file báo cáo.\n\n{exception.Message}",
+                "Không lưu được báo cáo",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
     }
 
     private async void InventoryView_OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key == Key.Escape && _viewModel.IsExportOpen)
+        {
+            e.Handled = true;
+            _viewModel.CloseExport();
+            return;
+        }
+
         if (e.Key == Key.Escape && _viewModel.IsHoldDetailOpen)
         {
             e.Handled = true;

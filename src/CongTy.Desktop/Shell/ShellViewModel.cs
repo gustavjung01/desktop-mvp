@@ -291,6 +291,18 @@ public sealed class ShellViewModel : INotifyPropertyChanged
             {
                 RaiseActiveNotice();
             }
+
+            if (args.PropertyName == nameof(InventoryViewModel.CanReadReporting))
+            {
+                OnPropertyChanged(nameof(CanViewInventoryReporting));
+                OnPropertyChanged(nameof(CanViewInventory));
+            }
+
+            if (args.PropertyName is nameof(InventoryViewModel.CanReadReporting)
+                or nameof(InventoryViewModel.CanExportReport))
+            {
+                OnPropertyChanged(nameof(CanExportInventoryReporting));
+            }
         };
         _inventory.PropertyChanged += (_, args) =>
         {
@@ -1179,7 +1191,13 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         _grossMarginReporting.CanOpenExport;
 
     public bool CanViewInventory =>
-        _access.CanNavigate("inventory") || _stocktake.CanRead || _adjustment.CanRead || _manualInbound.CanOpen || _inventoryCosting.CanOpen || _inventoryLookup.CanRead || _inventoryTrackingPolicy.CanRead || _inventoryLots.CanRead || _openingBalance.CanImport;
+        _access.CanNavigate("inventory") || _inventory.CanReadReporting || _stocktake.CanRead || _adjustment.CanRead || _manualInbound.CanOpen || _inventoryCosting.CanOpen || _inventoryLookup.CanRead || _inventoryTrackingPolicy.CanRead || _inventoryLots.CanRead || _openingBalance.CanImport;
+
+    public bool CanViewInventoryReporting =>
+        _inventory.CanReadReporting;
+
+    public bool CanExportInventoryReporting =>
+        _inventory.CanExportReport;
 
     public bool CanViewFulfillment =>
         _access.CanNavigate("fulfillment");
@@ -1582,6 +1600,23 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         WorkspaceMessage = string.Empty;
         SelectedWorkspaceIndex = 33;
         await _grossMarginReporting.EnsureLoadedAsync().ConfigureAwait(true);
+    }
+
+    public async Task NavigateInventoryReportingAsync()
+    {
+        SetSelectedNavigation("inventory.reporting");
+        IsInventoryOpen = true;
+
+        if (!_inventory.CanReadReporting)
+        {
+            WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Báo cáo tồn kho.";
+            return;
+        }
+
+        WorkspaceMessage = string.Empty;
+        SelectedWorkspaceIndex = 4;
+        await _inventory.EnsureLoadedAsync().ConfigureAwait(true);
+        _inventory.MainTabIndex = 1;
     }
 
     public async Task NavigateInventoryAsync(int mainTabIndex = 0, string navigationKey = "inventory.balances")
@@ -2160,6 +2195,8 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanViewGrossMargin));
         OnPropertyChanged(nameof(CanExportGrossMargin));
         OnPropertyChanged(nameof(CanViewInventory));
+        OnPropertyChanged(nameof(CanViewInventoryReporting));
+        OnPropertyChanged(nameof(CanExportInventoryReporting));
         OnPropertyChanged(nameof(CanViewFulfillment));
         OnPropertyChanged(nameof(CanViewInventoryTransfer));
         OnPropertyChanged(nameof(CanCreateTransferTopbar));

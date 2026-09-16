@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
 using CongTy.ApiClient;
 using CongTy.Contracts;
@@ -39,12 +38,25 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
     private bool _isHoldBusy;
     private string _holdSummary = string.Empty;
     private string _holdStatus = string.Empty;
+    private DateTime? _appliedFrom;
+    private DateTime? _appliedTo;
+    private string _appliedWarehouseId = string.Empty;
+    private int _appliedSlowDays = 90;
+    private bool _isExportOpen;
+    private bool _isExporting;
+    private string _exportError = string.Empty;
+    private string _selectedExportDimension = "overview";
+    private string _exportFormat = "xlsx";
 
     public InventoryViewModel(IInventoryService service, IAccessStateService access)
     {
         _service = service;
         _access = access;
-        _access.Changed += (_, _) => RunOnUiThread(RaisePermissions);
+        _access.Changed += (_, _) => RunOnUiThread(() =>
+        {
+            RaisePermissions();
+            if (!CanExportReport) IsExportOpen = false;
+        });
         WarehouseOptions.Add(new InventoryWarehouseOption(string.Empty, "Tất cả kho được cấp quyền"));
     }
 
@@ -62,6 +74,8 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
     public ObservableCollection<InventoryExpiryRow> ExpiryRows { get; } = [];
     public ObservableCollection<InventoryExceptionRow> ExceptionRows { get; } = [];
     public ObservableCollection<InventoryHoldOrderRow> HoldOrders { get; } = [];
+    public ObservableCollection<InventoryExportColumnOption> ExportColumns { get; } = [];
+    public IReadOnlyList<InventoryExportDimensionOption> ExportDimensions => InventoryPresentation.ExportDimensions;
 
     public IReadOnlyList<InventorySlowDayOption> SlowDayOptions { get; } =
     [
@@ -72,7 +86,10 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
     public bool CanReadBalances => _access.HasPermission("core.inventory.read");
     public bool CanReadLots => _access.HasPermission("core.inventory.lot.read");
     public bool CanReadReporting => _access.HasPermission("core.reporting.inventory.read");
-    public bool CanExportReport => CanReadReporting && _access.HasPermission("core.reporting.export") && _report is not null && IsNotBusy;
+    public bool CanExportReport =>
+        CanReadReporting && _access.HasPermission("core.reporting.export") && _report is not null && IsNotBusy && !IsExporting;
+    public bool CanSubmitExport => CanExportReport && IsExportOpen && ExportColumns.Any(column => column.IsSelected);
+    public bool CanCloseExport => !IsExporting;
 
     public bool IsBusy
     {
@@ -84,6 +101,7 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsNotBusy));
                 OnPropertyChanged(nameof(IsReportLoading));
                 OnPropertyChanged(nameof(CanExportReport));
+                OnPropertyChanged(nameof(CanSubmitExport));
             }
         }
     }
@@ -98,6 +116,7 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
             {
                 OnPropertyChanged(nameof(IsReportLoading));
                 OnPropertyChanged(nameof(CanExportReport));
+                OnPropertyChanged(nameof(CanSubmitExport));
             }
         }
     }
@@ -112,6 +131,63 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
         }
     }
     public bool HasReportError => !string.IsNullOrWhiteSpace(ReportError);
+
+    public bool IsExportOpen
+    {
+        get => _isExportOpen;
+        private set
+        {
+            if (!SetField(ref _isExportOpen, value)) return;
+            OnPropertyChanged(nameof(CanSubmitExport));
+        }
+    }
+
+    public bool IsExporting
+    {
+        get => _isExporting;
+        private set
+        {
+            if (!SetField(ref _isExporting, value)) return;
+            OnPropertyChanged(nameof(CanExportReport));
+            OnPropertyChanged(nameof(CanSubmitExport));
+            OnPropertyChanged(nameof(CanCloseExport));
+            OnPropertyChanged(nameof(ExportButtonText));
+        }
+    }
+
+    public string ExportError
+    {
+        get => _exportError;
+        private set => SetField(ref _exportError, value ?? string.Empty);
+    }
+
+    public string SelectedExportDimension
+    {
+        get => _selectedExportDimension;
+        set
+        {
+            var normalized = InventoryPresentation.ExportDimensions.Any(option => option.Key == value)
+                ? value
+                : "overview";
+            if (!SetField(ref _selectedExportDimension, normalized)) return;
+            ReplaceExportColumns();
+        }
+    }
+
+    public string ExportFormat
+    {
+        get => _exportFormat;
+        set
+        {
+            var normalized = string.Equals(value, "csv", StringComparison.Ordinal) ? "csv" : "xlsx";
+            if (!SetField(ref _exportFormat, normalized)) return;
+            OnPropertyChanged(nameof(ExportButtonText));
+        }
+    }
+
+    public string ExportButtonText => IsExporting ? "Đang tạo file…" : ExportFormat == "csv" ? "Xuất CSV" : "Xuất Excel";
+    public string SelectedExportCountText => $"{ExportColumns.Count(column => column.IsSelected)}/{ExportColumns.Count} cột";
+
     public bool IsHoldDetailOpen { get => _isHoldDetailOpen; private set => SetField(ref _isHoldDetailOpen, value); }
     public bool IsHoldBusy { get => _isHoldBusy; private set => SetField(ref _isHoldBusy, value); }
     public string HoldSummary { get => _holdSummary; private set => SetField(ref _holdSummary, value ?? string.Empty); }
@@ -375,47 +451,93 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
         HoldOrders.Clear();
     }
 
-    public string BuildReportExportCsv()
+    public void OpenExport()
     {
-        if (_report is null) throw new InvalidOperationException("Chưa có báo cáo tồn kho để xuất.");
-        if (!CanExportReport) throw new InvalidOperationException("Tài khoản chưa được cấp quyền xuất báo cáo.");
-
-        var lines = new List<string>();
-        void Header(params string[] cells) => lines.Add(string.Join(';', cells.Select(Csv)));
-        void Row(params string[] cells) => lines.Add(string.Join(';', cells.Select(Csv)));
-
-        switch (ReportTabIndex)
+        if (!CanExportReport) return;
+        SelectedExportDimension = ReportTabIndex switch
         {
-            case 0:
-                Header("STT", "Kho", "Mã hàng có tồn", "Mã hàng có giữ", "Giá trị", "Cần kiểm tra", "Cập nhật tồn");
-                foreach (var x in WarehouseSummaryRows) Row(x.Stt.ToString(), x.Warehouse, x.StockedSku, x.ReservedSku, x.Value, x.Exceptions, x.UpdatedAt);
-                break;
-            case 1:
-                Header("STT", "Kho", "Sản phẩm / mã hàng", "Tồn kho", "Quy đổi", "Đã giữ", "Có thể xuất", "Giá trị", "Giá bình quân", "Tình trạng giá vốn");
-                foreach (var x in PositionRows) Row(x.Stt.ToString(), x.Warehouse, x.ProductSku, x.OnHand, x.PackageBreakdown, x.Reserved, x.Available, x.Value, x.AverageCost, x.CostingStatus);
-                break;
-            case 2:
-                Header("STT", "Kho", "Sản phẩm / mã hàng", "Đầu kỳ", "Nhập", "Xuất", "Cuối kỳ", "Dòng nghiệp vụ");
-                foreach (var x in FlowRows) Row(x.Stt.ToString(), x.Warehouse, x.ProductSku, x.Opening, x.Inbound, x.Outbound, x.Closing, x.Lines);
-                lines.Add(string.Empty);
-                Header("STT", "Loại nghiệp vụ", "Chứng từ", "Dòng", "Mã hàng");
-                foreach (var x in MovementTypeRows) Row(x.Stt.ToString(), x.Movement, x.Documents, x.Lines, x.Skus);
-                break;
-            case 3:
-                Header("STT", "Kho", "Sản phẩm / mã hàng", "Tồn kho", "Có thể xuất", "Lần xuất cuối", "Số ngày", "Giá trị");
-                foreach (var x in SlowRows) Row(x.Stt.ToString(), x.Warehouse, x.ProductSku, x.OnHand, x.Available, x.LastOut, x.Days, x.Value);
-                break;
-            case 4:
-                Header("STT", "Kho", "Sản phẩm / mã hàng", "Lô", "Ngày sản xuất", "Hạn dùng", "Tồn kho", "Có thể xuất", "Trạng thái");
-                foreach (var x in ExpiryRows) Row(x.Stt.ToString(), x.Warehouse, x.ProductSku, x.Lot, x.Manufactured, x.Expiry, x.OnHand, x.Available, x.Status);
-                break;
-            default:
-                Header("STT", "Kho", "Sản phẩm / mã hàng", "Số lượng sổ kho", "Số lượng tính giá", "Chênh lệch", "Trạng thái", "Số cảnh báo");
-                foreach (var x in ExceptionRows) Row(x.Stt.ToString(), x.Warehouse, x.ProductSku, x.Ledger, x.Costing, x.Difference, x.Status, x.Alerts);
-                break;
-        }
+            1 => "positions",
+            2 => "movement",
+            3 => "slow-moving",
+            4 => "lots",
+            5 => "exceptions",
+            _ => "overview"
+        };
+        ExportFormat = "xlsx";
+        ExportError = string.Empty;
+        ReplaceExportColumns();
+        IsExportOpen = true;
+    }
 
-        return string.Join(Environment.NewLine, lines);
+    public void CloseExport()
+    {
+        if (IsExporting) return;
+        IsExportOpen = false;
+        ExportError = string.Empty;
+    }
+
+    public void SelectAllExportColumns()
+    {
+        foreach (var column in ExportColumns) column.IsSelected = true;
+        RaiseExportSelection();
+    }
+
+    public void ClearExportColumns()
+    {
+        foreach (var column in ExportColumns) column.IsSelected = false;
+        RaiseExportSelection();
+    }
+
+    public void ResetExportColumns() => ReplaceExportColumns();
+
+    public async Task<ApiDownloadFile?> ExportReportAsync()
+    {
+        if (!CanSubmitExport) return null;
+
+        var columns = ExportColumns
+            .Where(column => column.IsSelected)
+            .Select(column => column.Key)
+            .ToArray();
+
+        IsExporting = true;
+        ExportError = string.Empty;
+        try
+        {
+            var file = await _service.ExportReportAsync(
+                _appliedFrom,
+                _appliedTo,
+                _appliedWarehouseId,
+                _appliedSlowDays,
+                SelectedExportDimension,
+                ExportFormat,
+                columns).ConfigureAwait(true);
+
+            if (!CanReadReporting || !_access.HasPermission("core.reporting.export")) return null;
+
+            IsExportOpen = false;
+            Message = $"Đã tạo file {file.FileName}.";
+            return file;
+        }
+        catch (CanonicalApiException exception)
+        {
+            ExportError = CanonicalErrorMessages.WithRequestId(
+                CanonicalErrorMessages.ToOfficeMessage(exception),
+                exception.RequestId);
+            Message = ExportError;
+            return null;
+        }
+        catch (Exception exception)
+        {
+            ExportError = string.IsNullOrWhiteSpace(exception.Message)
+                ? "Không xuất được Báo cáo tồn kho."
+                : exception.Message;
+            Message = ExportError;
+            return null;
+        }
+        finally
+        {
+            IsExporting = false;
+        }
     }
 
     private async Task LoadBalancesAsync()
@@ -491,6 +613,10 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
         if (DateTime.TryParse(report.Filters.From, out var from)) FromDate = from;
         if (DateTime.TryParse(report.Filters.To, out var to)) ToDate = to;
         SlowDays = report.Filters.SlowDays;
+        _appliedFrom = FromDate?.Date;
+        _appliedTo = ToDate?.Date;
+        _appliedWarehouseId = report.Filters.WarehouseId ?? string.Empty;
+        _appliedSlowDays = report.Filters.SlowDays;
 
         var selectedWarehouse = SelectedWarehouseId;
         if (WarehouseOptions.Count <= 1 || string.IsNullOrWhiteSpace(selectedWarehouse))
@@ -683,14 +809,38 @@ public sealed class InventoryViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanReadLots));
         OnPropertyChanged(nameof(CanReadReporting));
         OnPropertyChanged(nameof(CanExportReport));
+        OnPropertyChanged(nameof(CanSubmitExport));
         OnPropertyChanged(nameof(CanOpenHistory));
     }
 
-    private static string Csv(string value)
+    private void ReplaceExportColumns()
     {
-        var normalized = (value ?? string.Empty).Replace(Environment.NewLine, " ", StringComparison.Ordinal);
-        var quote = '"';
-        return string.Concat(quote, normalized.Replace(quote.ToString(), new string(quote, 2), StringComparison.Ordinal), quote);
+        foreach (var existing in ExportColumns) existing.PropertyChanged -= ExportColumn_OnPropertyChanged;
+        ExportColumns.Clear();
+
+        foreach (var definition in InventoryPresentation.ExportColumns(SelectedExportDimension))
+        {
+            var option = new InventoryExportColumnOption(
+                definition.Key,
+                definition.Label,
+                definition.DefaultSelected);
+            option.PropertyChanged += ExportColumn_OnPropertyChanged;
+            ExportColumns.Add(option);
+        }
+
+        RaiseExportSelection();
+    }
+
+    private void ExportColumn_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(InventoryExportColumnOption.IsSelected))
+            RaiseExportSelection();
+    }
+
+    private void RaiseExportSelection()
+    {
+        OnPropertyChanged(nameof(SelectedExportCountText));
+        OnPropertyChanged(nameof(CanSubmitExport));
     }
 
     private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> rows)

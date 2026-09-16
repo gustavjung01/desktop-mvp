@@ -769,6 +769,66 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
+    public void Ui54_InventoryReporting_UsesDedicatedPermissionNavigationAndHeaderContract()
+    {
+        var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
+        var shellCode = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml.cs");
+        var shellViewModel = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");
+        var service = ReadRepoFile("src", "CongTy.ApiClient", "InventoryService.cs");
+        var presentation = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryPresentation.cs");
+        var view = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryView.xaml");
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryViewModel.cs");
+
+        StringAssert.Contains(viewModel, "_access.HasPermission(\"core.reporting.inventory.read\")");
+        StringAssert.Contains(viewModel, "_access.HasPermission(\"core.reporting.export\")");
+        StringAssert.Contains(shellViewModel, "public bool CanViewInventoryReporting =>");
+        StringAssert.Contains(shellViewModel, "_inventory.CanReadReporting;");
+        StringAssert.Contains(shellViewModel, "public bool CanExportInventoryReporting =>");
+        StringAssert.Contains(shellViewModel, "_inventory.CanExportReport;");
+        StringAssert.Contains(shellViewModel, "public async Task NavigateInventoryReportingAsync()");
+        StringAssert.Contains(shellViewModel, "if (!_inventory.CanReadReporting)");
+        StringAssert.Contains(shellViewModel, "SelectedWorkspaceIndex = 4;");
+        StringAssert.Contains(shellViewModel, "_inventory.MainTabIndex = 1;");
+
+        StringAssert.Contains(
+            shell,
+            "Visibility=\"{Binding CanViewInventoryReporting, Converter={StaticResource BooleanToVisibilityConverter}}\" Click=\"InventoryReporting_OnClick\"");
+        StringAssert.Contains(shell, "Click=\"InventoryReportingExport_OnClick\"");
+        StringAssert.Contains(shell, "IsEnabled=\"{Binding CanExportInventoryReporting}\"");
+        StringAssert.Contains(shell, "Content=\"Xuất báo cáo\"");
+        StringAssert.Contains(shell, "Click=\"InventoryReportingBalances_OnClick\"");
+        StringAssert.Contains(shell, "Content=\"Tra cứu tồn\"");
+        StringAssert.Contains(shell, "Click=\"InventoryReportingCosting_OnClick\"");
+        StringAssert.Contains(shell, "Content=\"Giá vốn\"");
+        StringAssert.Contains(shell, "Click=\"InventoryReportingLots_OnClick\"");
+        StringAssert.Contains(shell, "Content=\"Danh mục lô\"");
+
+        Assert.AreEqual(2, CountOccurrences(shellCode, "await _viewModel.NavigateInventoryReportingAsync();"));
+        StringAssert.Contains(shellCode, "InventoryReportingExport_OnClick");
+        StringAssert.Contains(shellCode, "_inventoryView.OpenExportDialog()");
+        StringAssert.Contains(shellCode, "InventoryReportingBalances_OnClick");
+        StringAssert.Contains(shellCode, "InventoryReportingCosting_OnClick");
+        StringAssert.Contains(shellCode, "InventoryReportingLots_OnClick");
+
+        Assert.IsGreaterThanOrEqualTo(
+            34,
+            CountOccurrences(view, "HeaderStyle=\"{StaticResource OfficeDataGridNumericHeaderStyle}\""));
+        StringAssert.Contains(view, "Header=\"Chi tiết\" Width=\"70\" HeaderStyle=\"{StaticResource OfficeDataGridActionHeaderStyle}\"");
+        StringAssert.Contains(view, "Header=\"Số lượng sổ kho\" Binding=\"{Binding Ledger}\" Width=\"*\" HeaderStyle=\"{StaticResource OfficeDataGridNumericHeaderStyle}\"");
+        StringAssert.Contains(view, "Header=\"Giá trị (đ)\" Binding=\"{Binding Value}\" Width=\"1.2*\" HeaderStyle=\"{StaticResource OfficeDataGridNumericHeaderStyle}\"");
+
+        StringAssert.Contains(service, "/api/inventory/reporting-export");
+        StringAssert.Contains(service, "\"overview\", \"positions\", \"movement\", \"slow-moving\", \"lots\", \"exceptions\"");
+        StringAssert.Contains(presentation, "new(\"overview\", \"Tổng quan theo kho\")");
+        StringAssert.Contains(presentation, "new(\"exceptions\", \"Cần kiểm tra\")");
+        StringAssert.Contains(view, "Text=\"Xuất Báo cáo tồn kho\"");
+        StringAssert.Contains(view, "ItemsSource=\"{Binding ExportDimensions}\"");
+        StringAssert.Contains(view, "ItemsSource=\"{Binding ExportColumns}\"");
+        StringAssert.Contains(viewModel, "public async Task<ApiDownloadFile?> ExportReportAsync()");
+        Assert.IsFalse(viewModel.Contains("BuildReportExportCsv", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
     public void MasterPlan_RequiresBusinessLayoutParityWithoutPixelCopy()
     {
         var masterPlan = ReadRepoFile("DESKTOP_MASTER_PLAN.md");
