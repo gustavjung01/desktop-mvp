@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Data;
 using Microsoft.Win32;
 
 namespace CongTy.Desktop.Sales;
@@ -15,7 +16,26 @@ public partial class SalesReportingView : UserControl
         _viewModel = viewModel;
         InitializeComponent();
         DataContext = viewModel;
+        BindDynamicColumnHeaders(viewModel);
     }
+
+    private void BindDynamicColumnHeaders(SalesReportingViewModel viewModel)
+    {
+        BindHeader(AnalysisGrid.Columns[1], viewModel, nameof(SalesReportingViewModel.SelectedDimensionLabel));
+        BindHeader(AnalysisGrid.Columns[3], viewModel, nameof(SalesReportingViewModel.MetricHeader));
+        BindHeader(TotalGrid.Columns[0], viewModel, nameof(SalesReportingViewModel.SelectedDimensionLabel));
+        BindHeader(TotalGrid.Columns[2], viewModel, nameof(SalesReportingViewModel.MetricHeader));
+    }
+
+    private static void BindHeader(DataGridColumn column, SalesReportingViewModel viewModel, string propertyName) =>
+        BindingOperations.SetBinding(
+            column,
+            DataGridColumn.HeaderProperty,
+            new Binding(propertyName)
+            {
+                Source = viewModel,
+                Mode = BindingMode.OneWay
+            });
 
     public void OpenExportDialog()
     {

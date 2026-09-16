@@ -1,5 +1,4 @@
 <UserControl x:Class="CongTy.Desktop.Sales.SalesReportingView"
-             x:Name="SalesReportingRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Focusable="True"
@@ -125,7 +124,8 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
-                            <DataGrid Grid.Row="2"
+                            <DataGrid x:Name="AnalysisGrid"
+                                      Grid.Row="2"
                                       Margin="0,8,0,0"
                                       Style="{StaticResource OfficeDataGridStyle}"
                                       AutoGenerateColumns="False"
@@ -134,10 +134,7 @@
                                       ItemsSource="{Binding AnalysisRows}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                    <DataGridTemplateColumn Width="1.6*">
-                                        <DataGridTemplateColumn.Header>
-                                            <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, Source={x:Reference SalesReportingRoot}}" />
-                                        </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn Header="" Width="1.6*">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel VerticalAlignment="Center">
@@ -148,10 +145,7 @@
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                    <DataGridTemplateColumn Width="1.05*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}">
-                                        <DataGridTemplateColumn.Header>
-                                            <TextBlock Text="{Binding DataContext.MetricHeader, Source={x:Reference SalesReportingRoot}}" />
-                                        </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn Header="" Width="1.05*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding Metric}" Style="{StaticResource SalesReportNumericTextStyle}" />
@@ -182,7 +176,8 @@
 
                             <StackPanel Grid.Row="4" Margin="0,10,0,0">
                                 <TextBlock Text="Tổng theo tiền tệ" FontSize="11" FontWeight="SemiBold" />
-                                <DataGrid Margin="0,5,0,0"
+                                <DataGrid x:Name="TotalGrid"
+                                          Margin="0,5,0,0"
                                           MaxHeight="165"
                                           Style="{StaticResource OfficeDataGridStyle}"
                                           AutoGenerateColumns="False"
@@ -190,10 +185,7 @@
                                           RowHeight="38"
                                           ItemsSource="{Binding TotalRows}">
                                     <DataGrid.Columns>
-                                        <DataGridTemplateColumn Width="1.35*">
-                                            <DataGridTemplateColumn.Header>
-                                                <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, Source={x:Reference SalesReportingRoot}}" />
-                                            </DataGridTemplateColumn.Header>
+                                        <DataGridTemplateColumn Header="" Width="1.35*">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Name}" Style="{StaticResource SalesReportCellTextStyle}" />
@@ -201,10 +193,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                        <DataGridTemplateColumn Width="1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}">
-                                            <DataGridTemplateColumn.Header>
-                                                <TextBlock Text="{Binding DataContext.MetricHeader, Source={x:Reference SalesReportingRoot}}" />
-                                            </DataGridTemplateColumn.Header>
+                                        <DataGridTemplateColumn Header="" Width="1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Metric}" Style="{StaticResource SalesReportNumericTextStyle}" />
