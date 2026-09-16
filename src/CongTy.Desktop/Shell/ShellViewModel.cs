@@ -1920,6 +1920,18 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         await _purchaseOrders.EnsureLoadedAsync().ConfigureAwait(true);
     }
 
+    public async Task NavigatePurchaseOrdersSearchAsync(string searchText)
+    {
+        if (!_purchaseOrders.CanRead)
+        {
+            WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Đơn mua hàng.";
+            return;
+        }
+
+        await NavigatePurchaseOrdersAsync().ConfigureAwait(true);
+        _purchaseOrders.SearchText = searchText?.Trim() ?? string.Empty;
+    }
+
     public async Task NavigatePurchasePricesAsync()
     {
         SetSelectedNavigation("purchasing.purchase-prices");

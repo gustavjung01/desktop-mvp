@@ -562,6 +562,19 @@
 
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsPurchasingReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanViewPurchaseOrders}"
+                                    Click="PurchasingReportingOrders_OnClick"
+                                    Content="Đơn mua hàng" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsPurchasingReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanViewGoodsReceipts}"
+                                    Click="PurchasingReportingReceipts_OnClick"
+                                    Content="Phiếu nhận hàng" />
+
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Visibility="{Binding IsInventoryTransferSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     IsEnabled="{Binding CanUseTransferTopbarActions}"
                                     Click="InventoryTransferRefresh_OnClick"

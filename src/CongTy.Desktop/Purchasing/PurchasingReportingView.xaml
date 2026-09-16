@@ -209,10 +209,10 @@
                                   RowHeight="36"
                                   ItemsSource="{Binding CurrencyRows}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
                                 <DataGridTextColumn Header="Tiền tệ" Binding="{Binding CurrencyCode}" Width="*" ElementStyle="{StaticResource ReportCellTextStyle}" />
-                                <DataGridTextColumn Header="Chứng từ hiệu lực" Binding="{Binding DocumentCount}" Width="1.2*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
-                                <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.25*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="Chứng từ hiệu lực" Binding="{Binding DocumentCount}" Width="1.2*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.25*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
                             </DataGrid.Columns>
                         </DataGrid>
                         <TextBlock Grid.Row="2"
@@ -328,11 +328,11 @@
                               RowHeight="36"
                               ItemsSource="{Binding TrendRows}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
                             <DataGridTextColumn Header="Ngày" Binding="{Binding Date}" Width="*" ElementStyle="{StaticResource ReportCellTextStyle}" />
                             <DataGridTextColumn Header="Tiền tệ" Binding="{Binding CurrencyCode}" Width="*" ElementStyle="{StaticResource ReportCellTextStyle}" />
-                            <DataGridTextColumn Header="Số chứng từ" Binding="{Binding DocumentCount}" Width="*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
-                            <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.25*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                            <DataGridTextColumn Header="Số chứng từ" Binding="{Binding DocumentCount}" Width="*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                            <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.25*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
                         </DataGrid.Columns>
                     </DataGrid>
                     <TextBlock Grid.Row="2"
@@ -375,7 +375,7 @@
                                   RowHeight="48"
                                   ItemsSource="{Binding SupplierRows}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="45" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="45" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
                                 <DataGridTemplateColumn Header="Nhà cung cấp" Width="1.6*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -387,8 +387,20 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Tiền tệ" Binding="{Binding CurrencyCode}" Width="0.75*" ElementStyle="{StaticResource ReportCellTextStyle}" />
-                                <DataGridTextColumn Header="Chứng từ" Binding="{Binding DocumentCount}" Width="0.75*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
-                                <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.05*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="Chứng từ" Binding="{Binding DocumentCount}" Width="0.75*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.05*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTemplateColumn Header="Chi tiết" Width="82" HeaderStyle="{StaticResource OfficeDataGridActionHeaderStyle}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button VerticalAlignment="Center"
+                                                    Style="{StaticResource OfficeMiniButtonStyle}"
+                                                    IsEnabled="{Binding DataContext.CanOpenPurchaseOrders, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                    Tag="{Binding}"
+                                                    Click="OpenSupplierOrders_OnClick"
+                                                    Content="Xem đơn" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                         <TextBlock Grid.Row="2"
@@ -425,7 +437,7 @@
                                   RowHeight="48"
                                   ItemsSource="{Binding SkuRows}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="45" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="45" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
                                 <DataGridTemplateColumn Header="SKU" Width="1.55*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -436,9 +448,21 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="SL cơ sở" Binding="{Binding BaseQuantity}" Width="0.8*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
-                                <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.05*" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="SL cơ sở" Binding="{Binding BaseQuantity}" Width="0.8*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
+                                <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1.05*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource ReportNumericTextStyle}" />
                                 <DataGridTextColumn Header="Nguồn" Binding="{Binding SourceDocument}" Width="0.95*" ElementStyle="{StaticResource ReportCellTextStyle}" />
+                                <DataGridTemplateColumn Header="Chi tiết" Width="82" HeaderStyle="{StaticResource OfficeDataGridActionHeaderStyle}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button VerticalAlignment="Center"
+                                                    Style="{StaticResource OfficeMiniButtonStyle}"
+                                                    IsEnabled="{Binding DataContext.CanOpenPurchaseOrders, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                    Tag="{Binding}"
+                                                    Click="OpenSkuOrders_OnClick"
+                                                    Content="Xem đơn" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                         <TextBlock Grid.Row="2"
