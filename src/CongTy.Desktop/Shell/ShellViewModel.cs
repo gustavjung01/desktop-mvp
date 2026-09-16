@@ -297,6 +297,12 @@ public sealed class ShellViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(CanViewInventoryReporting));
                 OnPropertyChanged(nameof(CanViewInventory));
             }
+
+            if (args.PropertyName is nameof(InventoryViewModel.CanReadReporting)
+                or nameof(InventoryViewModel.CanExportReport))
+            {
+                OnPropertyChanged(nameof(CanExportInventoryReporting));
+            }
         };
         _inventory.PropertyChanged += (_, args) =>
         {
@@ -1189,6 +1195,9 @@ public sealed class ShellViewModel : INotifyPropertyChanged
 
     public bool CanViewInventoryReporting =>
         _inventory.CanReadReporting;
+
+    public bool CanExportInventoryReporting =>
+        _inventory.CanExportReport;
 
     public bool CanViewFulfillment =>
         _access.CanNavigate("fulfillment");
@@ -2187,6 +2196,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanExportGrossMargin));
         OnPropertyChanged(nameof(CanViewInventory));
         OnPropertyChanged(nameof(CanViewInventoryReporting));
+        OnPropertyChanged(nameof(CanExportInventoryReporting));
         OnPropertyChanged(nameof(CanViewFulfillment));
         OnPropertyChanged(nameof(CanViewInventoryTransfer));
         OnPropertyChanged(nameof(CanCreateTransferTopbar));

@@ -9,6 +9,15 @@ public interface IInventoryService
     Task<IReadOnlyList<InventoryHistoryData>> ListHistoryAsync(string warehouseId, string baseVariantId, int page, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<InventoryLotData>> ListLotsAsync(CancellationToken cancellationToken = default);
     Task<InventoryReportingDashboardData> GetReportAsync(DateTime? from, DateTime? to, string? warehouseId, int slowDays, CancellationToken cancellationToken = default);
+    Task<ApiDownloadFile> ExportReportAsync(
+        DateTime? from,
+        DateTime? to,
+        string? warehouseId,
+        int slowDays,
+        string dimension,
+        string format,
+        IReadOnlyCollection<string> columns,
+        CancellationToken cancellationToken = default);
     Task<InventoryHoldBreakdownData> GetHoldBreakdownAsync(string warehouseId, string baseVariantId, CancellationToken cancellationToken = default);
 }
 
@@ -18,6 +27,14 @@ public sealed class InventoryService(
 {
     private const int PageSize = 1000;
     private const int HistoryPageSize = 50;
+    private static readonly HashSet<string> ReportExportDimensions = new(StringComparer.Ordinal)
+    {
+        "overview", "positions", "movement", "slow-moving", "lots", "exceptions"
+    };
+    private static readonly HashSet<string> ReportExportFormats = new(StringComparer.Ordinal)
+    {
+        "xlsx", "csv"
+    };
 
     public Task<IReadOnlyList<InventoryBalanceData>> ListBalancesAsync(CancellationToken cancellationToken = default) =>
         ReadAllAsync<InventoryBalanceData>("/api/inventory/balances", cancellationToken);
@@ -51,6 +68,42 @@ public sealed class InventoryService(
         query.Add($"slowDays={Math.Clamp(slowDays, 30, 365)}");
         return apiClient.GetDataAsync<InventoryReportingDashboardData>(
             $"/api/reporting/inventory?{string.Join("&", query)}",
+            RequireToken(),
+            cancellationToken);
+    }
+
+
+    public Task<ApiDownloadFile> ExportReportAsync(
+        DateTime? from,
+        DateTime? to,
+        string? warehouseId,
+        int slowDays,
+        string dimension,
+        string format,
+        IReadOnlyCollection<string> columns,
+        CancellationToken cancellationToken = default)
+    {
+        if (!ReportExportDimensions.Contains(dimension))
+            throw new ArgumentException("Nội dung xuất báo cáo không hợp lệ.", nameof(dimension));
+        if (!ReportExportFormats.Contains(format))
+            throw new ArgumentException("Định dạng xuất file không hợp lệ.", nameof(format));
+        if (columns.Count == 0)
+            throw new ArgumentException("Cần chọn ít nhất một cột để xuất.", nameof(columns));
+        if (slowDays is < 30 or > 365)
+            throw new ArgumentOutOfRangeException(nameof(slowDays), "Ngưỡng hàng chậm luân chuyển phải từ 30 đến 365 ngày.");
+
+        var query = new List<string>();
+        if (from is not null) query.Add($"from={Uri.EscapeDataString(from.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))}");
+        if (to is not null) query.Add($"to={Uri.EscapeDataString(to.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))}");
+        if (!string.IsNullOrWhiteSpace(warehouseId)) query.Add($"warehouseId={Uri.EscapeDataString(RequireId(warehouseId))}");
+        query.Add($"slowDays={slowDays}");
+        query.Add($"dimension={Uri.EscapeDataString(dimension)}");
+        query.Add($"format={Uri.EscapeDataString(format)}");
+        foreach (var column in columns.Where(value => !string.IsNullOrWhiteSpace(value)))
+            query.Add($"column={Uri.EscapeDataString(column.Trim())}");
+
+        return apiClient.GetFileAsync(
+            $"/api/inventory/reporting-export?{string.Join("&", query)}",
             RequireToken(),
             cancellationToken);
     }

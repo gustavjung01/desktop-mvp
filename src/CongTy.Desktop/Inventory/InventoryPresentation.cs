@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Globalization;
 using CongTy.Contracts;
 
@@ -52,9 +53,153 @@ public sealed record InventoryExpiryRow(int Stt, string Warehouse, string Produc
 public sealed record InventoryExceptionRow(int Stt, string Warehouse, string ProductSku, string Ledger, string Costing, string Difference, string Status, string Alerts);
 public sealed record InventoryHoldOrderRow(int Stt, string OrderNumber, string Customer, string ProductSku, string Warehouse, string Flow, string HeldQuantity);
 
+
+public sealed record InventoryExportDimensionOption(string Key, string Label);
+public sealed record InventoryExportColumnDefinition(string Key, string Label, bool DefaultSelected);
+
+public sealed class InventoryExportColumnOption : INotifyPropertyChanged
+{
+    private bool _isSelected;
+
+    public InventoryExportColumnOption(string key, string label, bool isSelected)
+    {
+        Key = key;
+        Label = label;
+        _isSelected = isSelected;
+    }
+
+    public string Key { get; }
+    public string Label { get; }
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (_isSelected == value) return;
+            _isSelected = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+}
+
 public static class InventoryPresentation
 {
     private static readonly CultureInfo Vi = CultureInfo.GetCultureInfo("vi-VN");
+
+
+    public static readonly IReadOnlyList<InventoryExportDimensionOption> ExportDimensions =
+    [
+        new("overview", "Tổng quan theo kho"),
+        new("positions", "Tồn hiện tại"),
+        new("movement", "Nhập – xuất – tồn theo kỳ"),
+        new("slow-moving", "Hàng chậm luân chuyển"),
+        new("lots", "Lô & hạn dùng"),
+        new("exceptions", "Cần kiểm tra")
+    ];
+
+    private static readonly IReadOnlyDictionary<string, InventoryExportColumnDefinition[]> ExportDefinitions =
+        new Dictionary<string, InventoryExportColumnDefinition[]>(StringComparer.Ordinal)
+        {
+            ["overview"] =
+            [
+                new("warehouseCode", "Mã kho", true),
+                new("warehouseName", "Tên kho", true),
+                new("stockedSkuCount", "Mã hàng có tồn", true),
+                new("reservedSkuCount", "Mã hàng có giữ", true),
+                new("inventoryValueVnd", "Giá trị tồn (VND)", true),
+                new("costingExceptionCount", "Cần kiểm tra giá vốn", true),
+                new("quantityProjectedThrough", "Cập nhật tồn đến", true)
+            ],
+            ["positions"] =
+            [
+                new("warehouseCode", "Mã kho", true),
+                new("warehouseName", "Tên kho", false),
+                new("productCode", "Mã sản phẩm", true),
+                new("productName", "Tên sản phẩm", true),
+                new("sku", "SKU", true),
+                new("unitName", "Đơn vị tính", true),
+                new("onHandQuantity", "Tồn kho", true),
+                new("reservedQuantity", "Đã giữ cho đơn", true),
+                new("availableQuantity", "Có thể xuất", true),
+                new("inventoryValue", "Giá trị tồn", true),
+                new("averageUnitCost", "Giá bình quân", true),
+                new("costingStatus", "Tình trạng giá vốn", true),
+                new("projectedThrough", "Dữ liệu tồn đến", false)
+            ],
+            ["movement"] =
+            [
+                new("warehouseCode", "Mã kho", true),
+                new("warehouseName", "Tên kho", false),
+                new("productCode", "Mã sản phẩm", true),
+                new("productName", "Tên sản phẩm", true),
+                new("sku", "SKU", true),
+                new("unitName", "Đơn vị tính", true),
+                new("openingQuantity", "Đầu kỳ", true),
+                new("inboundQuantity", "Nhập", true),
+                new("outboundQuantity", "Xuất", true),
+                new("closingQuantity", "Cuối kỳ", true),
+                new("movementLineCount", "Dòng nghiệp vụ", true),
+                new("lastPostedAt", "Phát sinh gần nhất", false)
+            ],
+            ["slow-moving"] =
+            [
+                new("warehouseCode", "Mã kho", true),
+                new("warehouseName", "Tên kho", false),
+                new("productCode", "Mã sản phẩm", true),
+                new("productName", "Tên sản phẩm", true),
+                new("sku", "SKU", true),
+                new("unitName", "Đơn vị tính", true),
+                new("onHandQuantity", "Tồn kho", true),
+                new("reservedQuantity", "Đã giữ cho đơn", false),
+                new("availableQuantity", "Có thể xuất", true),
+                new("lastOutDate", "Lần xuất cuối", true),
+                new("daysSinceOutbound", "Số ngày chưa xuất", true),
+                new("inventoryValueVnd", "Giá trị tồn (VND)", true)
+            ],
+            ["lots"] =
+            [
+                new("warehouseCode", "Mã kho", true),
+                new("warehouseName", "Tên kho", false),
+                new("productCode", "Mã sản phẩm", true),
+                new("productName", "Tên sản phẩm", true),
+                new("sku", "SKU", true),
+                new("unitName", "Đơn vị tính", true),
+                new("lotCode", "Mã lô", true),
+                new("manufacturedDate", "Ngày sản xuất", true),
+                new("expiryDate", "Hạn sử dụng", true),
+                new("onHandQuantity", "Tồn kho", true),
+                new("reservedQuantity", "Đã giữ cho đơn", false),
+                new("availableQuantity", "Có thể xuất", true),
+                new("manufacturedAgeDays", "Tuổi lô (ngày)", false),
+                new("daysToExpiry", "Còn lại đến hạn (ngày)", false),
+                new("expiryStatus", "Trạng thái hạn dùng", true)
+            ],
+            ["exceptions"] =
+            [
+                new("warehouseCode", "Mã kho", true),
+                new("warehouseName", "Tên kho", false),
+                new("productCode", "Mã sản phẩm", true),
+                new("productName", "Tên sản phẩm", true),
+                new("sku", "SKU", true),
+                new("unitName", "Đơn vị tính", true),
+                new("ledgerQuantity", "Số lượng sổ kho", true),
+                new("costingQuantity", "Số lượng tính giá", true),
+                new("quantityDifference", "Chênh lệch", true),
+                new("inventoryValueVnd", "Giá trị tồn (VND)", false),
+                new("averageUnitCost", "Giá bình quân", false),
+                new("costingStatus", "Tình trạng giá vốn", true),
+                new("anomalyCount", "Số cảnh báo", true),
+                new("reconciliationStatus", "Trạng thái đối soát", true)
+            ]
+        };
+
+    public static IReadOnlyList<InventoryExportColumnDefinition> ExportColumns(string dimension) =>
+        ExportDefinitions.TryGetValue(dimension, out var columns)
+            ? columns
+            : ExportDefinitions["overview"];
 
     public static string Quantity(string? value)
     {

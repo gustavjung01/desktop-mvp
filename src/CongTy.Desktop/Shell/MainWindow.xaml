@@ -576,6 +576,12 @@
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Visibility="{Binding IsInventoryReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanExportInventoryReporting}"
+                                    Click="InventoryReportingExport_OnClick"
+                                    Content="Xuất báo cáo" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsInventoryReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     IsEnabled="{Binding CanViewInventoryBalances}"
                                     Click="InventoryReportingBalances_OnClick"
                                     Content="Tra cứu tồn" />

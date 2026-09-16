@@ -352,6 +352,9 @@ public partial class MainWindow : Window
     private async void InventoryReporting_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateInventoryReportingAsync();
 
+    private void InventoryReportingExport_OnClick(object sender, RoutedEventArgs e) =>
+        _inventoryView.OpenExportDialog();
+
     private async void InventoryReportingBalances_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateInventoryLookupAsync();
 

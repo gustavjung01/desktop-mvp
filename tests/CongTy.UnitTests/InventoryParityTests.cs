@@ -45,6 +45,10 @@ public sealed class InventoryParityTests
         StringAssert.Contains(service, "scope=warehouse");
         StringAssert.Contains(service, "/api/inventory/lots");
         StringAssert.Contains(service, "/api/reporting/inventory");
+        StringAssert.Contains(service, "/api/inventory/reporting-export");
+        StringAssert.Contains(service, "dimension=");
+        StringAssert.Contains(service, "format=");
+        StringAssert.Contains(service, "column=");
         StringAssert.Contains(service, "/api/inventory/holds");
 
         var expected = new[] { "Tổng quan", "Tồn hiện tại", "Luân chuyển", "Chậm luân chuyển", "Lô &amp; hạn dùng", "Cần kiểm tra" };
@@ -60,7 +64,10 @@ public sealed class InventoryParityTests
         StringAssert.Contains(xaml, "DisplayMemberPath=\"Label\"");
         StringAssert.Contains(xaml, "SelectedValuePath=\"Days\"");
         StringAssert.Contains(xaml, "IsDefault=\"True\"");
-        StringAssert.Contains(xaml, "Content=\"Xuất file\"");
+        StringAssert.Contains(xaml, "Text=\"Xuất Báo cáo tồn kho\"");
+        StringAssert.Contains(xaml, "Content=\"Excel (.xlsx)\"");
+        StringAssert.Contains(xaml, "Content=\"CSV (.csv)\"");
+        StringAssert.Contains(xaml, "ItemsSource=\"{Binding ExportColumns}\"");
 
         StringAssert.Contains(xaml, "Đếm mã hàng có số tồn thực tế lớn hơn 0.");
         StringAssert.Contains(xaml, "Theo kho và mã hàng sau khi gộp vị trí, lô.");
@@ -92,6 +99,11 @@ public sealed class InventoryParityTests
         StringAssert.Contains(viewModel, "InventoryPresentation.PackageBreakdown(x.OnHandQuantity, metadata)");
         StringAssert.Contains(viewModel, "GetHoldBreakdownAsync(row.WarehouseId, row.VariantId)");
         StringAssert.Contains(viewModel, "Đang tải báo cáo tồn kho");
+        StringAssert.Contains(viewModel, "InventoryPresentation.ExportColumns(SelectedExportDimension)");
+        StringAssert.Contains(viewModel, "_service.ExportReportAsync(");
+        StringAssert.Contains(viewModel, "_appliedWarehouseId");
+        StringAssert.Contains(viewModel, "_appliedSlowDays");
+        Assert.IsFalse(viewModel.Contains("BuildReportExportCsv", StringComparison.Ordinal));
 
         StringAssert.Contains(code, "Key.F5");
         StringAssert.Contains(code, "Key.Enter");
@@ -100,6 +112,10 @@ public sealed class InventoryParityTests
         StringAssert.Contains(code, "ReportWarehouseBox.IsDropDownOpen = true");
         StringAssert.Contains(code, "OpenReportHoldsAsync(position)");
         StringAssert.Contains(code, "CloseReportHolds()");
+        StringAssert.Contains(code, "public void OpenExportDialog()");
+        StringAssert.Contains(code, "_viewModel.ExportReportAsync()");
+        StringAssert.Contains(code, "File.WriteAllBytesAsync");
+        StringAssert.Contains(code, "_viewModel.CloseExport()");
     }
 
     private static string ReadRepoFile(params string[] parts)
