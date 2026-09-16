@@ -135,7 +135,7 @@
                                     <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                     <DataGridTemplateColumn Width="1.6*">
                                         <DataGridTemplateColumn.Header>
-                                            <TextBlock Text="{Binding SelectedDimensionLabel}" />
+                                            <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
                                         </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
@@ -149,7 +149,7 @@
                                     <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.1*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                     <DataGridTemplateColumn Width="1.05*">
                                         <DataGridTemplateColumn.Header>
-                                            <TextBlock Text="{Binding MetricHeader}" />
+                                            <TextBlock Text="{Binding DataContext.MetricHeader, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
                                         </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
@@ -191,7 +191,7 @@
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Width="1.35*">
                                             <DataGridTemplateColumn.Header>
-                                                <TextBlock Text="{Binding SelectedDimensionLabel}" />
+                                                <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
                                             </DataGridTemplateColumn.Header>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
@@ -202,7 +202,7 @@
                                         <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                         <DataGridTemplateColumn Width="1*">
                                             <DataGridTemplateColumn.Header>
-                                                <TextBlock Text="{Binding MetricHeader}" />
+                                                <TextBlock Text="{Binding DataContext.MetricHeader, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
                                             </DataGridTemplateColumn.Header>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
