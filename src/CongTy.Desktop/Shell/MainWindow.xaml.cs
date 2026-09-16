@@ -71,6 +71,7 @@ public partial class MainWindow : Window
         TripReconciliationView tripReconciliationView,
         CustomerReturnView customerReturnView,
         AgingReportingView agingReportingView,
+        CodAccountingView codAccountingView,
         PurchasingReportingView purchasingReportingView,
         PurchaseOrderView purchaseOrderView,
         PurchasePriceView purchasePriceView,
@@ -136,6 +137,7 @@ public partial class MainWindow : Window
         CustomerReturnHost.Content = customerReturnView;
         customerReturnView.TripReconciliationRequested += CustomerReturnView_OnTripReconciliationRequested;
         AgingReportingHost.Content = agingReportingView;
+        CodAccountingHost.Content = codAccountingView;
         PurchasingReportingHost.Content = purchasingReportingView;
         PurchaseOrderHost.Content = purchaseOrderView;
         PurchasePriceHost.Content = purchasePriceView;
@@ -441,6 +443,9 @@ public partial class MainWindow : Window
 
     private async void AccountingAging_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateAgingAsync();
+
+    private async void AccountingCod_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateCodAccountingAsync();
 
     private async void PurchasingReporting_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigatePurchasingReportingAsync();

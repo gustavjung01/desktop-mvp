@@ -59,6 +59,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
     private readonly TripReconciliationViewModel _tripReconciliation;
     private readonly CustomerReturnViewModel _customerReturns;
     private readonly AgingReportingViewModel _agingReporting;
+    private readonly CodAccountingViewModel _codAccounting;
     private readonly PurchasingReportingViewModel _purchasingReporting;
     private readonly PurchaseOrderViewModel _purchaseOrders;
     private readonly PurchasePriceViewModel _purchasePrices;
@@ -126,6 +127,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         TripReconciliationViewModel tripReconciliation,
         CustomerReturnViewModel customerReturns,
         AgingReportingViewModel agingReporting,
+        CodAccountingViewModel codAccounting,
         PurchasingReportingViewModel purchasingReporting,
         PurchaseOrderViewModel purchaseOrders,
         PurchasePriceViewModel purchasePrices,
@@ -166,6 +168,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         _tripReconciliation = tripReconciliation;
         _customerReturns = customerReturns;
         _agingReporting = agingReporting;
+        _codAccounting = codAccounting;
         _purchasingReporting = purchasingReporting;
         _purchaseOrders = purchaseOrders;
         _purchasePrices = purchasePrices;
@@ -560,6 +563,20 @@ public sealed class ShellViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(CanViewAging));
             }
         };
+        _codAccounting.PropertyChanged += (_, args) =>
+        {
+            if (SelectedWorkspaceIndex == 34
+                && (args.PropertyName == nameof(CodAccountingViewModel.Message)
+                    || args.PropertyName == nameof(CodAccountingViewModel.MessageIsError)))
+            {
+                RaiseActiveNotice();
+            }
+
+            if (args.PropertyName == nameof(CodAccountingViewModel.CanReadReport))
+            {
+                OnPropertyChanged(nameof(CanViewCodAccounting));
+            }
+        };
         _purchasingReporting.PropertyChanged += (_, args) =>
         {
             if (SelectedWorkspaceIndex == 20
@@ -787,6 +804,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
                 31 => _agingReporting.Message,
                 32 => _salesReporting.Message,
                 33 => _grossMarginReporting.Message,
+                34 => _codAccounting.Message,
                 _ => string.Empty
             };
 
@@ -826,6 +844,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
             31 => _agingReporting.MessageIsError,
             32 => _salesReporting.MessageIsError,
             33 => _grossMarginReporting.MessageIsError,
+            34 => _codAccounting.MessageIsError,
             _ => false
         });
 
@@ -937,6 +956,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         "purchasing.goods-receipts" => "Phiếu nhận hàng",
         "purchasing.supplier-returns" => "Phiếu trả nhà cung cấp",
         "accounting.aging" => "Tuổi nợ phải thu / phải trả",
+        "accounting.cod-reporting" => "COD & đối soát",
         "desktop.settings" => "Cài đặt ứng dụng",
         _ => "Tổng quan điều hành"
     };
@@ -981,6 +1001,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         "purchasing.goods-receipts" => "Nhập hàng từ đơn mua hàng, ghi sổ tồn kho và đảo phiếu khi cần.",
         "purchasing.supplier-returns" => "Lập phiếu trả từ hàng đã nhận, duyệt, ghi sổ xuất kho và đảo chứng từ khi cần.",
         "accounting.aging" => "Theo dõi số dư công nợ hiện tại trong phạm vi kho được cấp. Phải thu phân tuổi theo ngày chứng từ; phải trả theo ngày đến hạn trên chứng từ.",
+        "accounting.cod-reporting" => "Theo dõi tiền khách đã trả, tiền tài xế đang giữ, bàn giao và kế toán tiếp nhận từ cùng một nguồn dữ liệu COD chính thức.",
         "desktop.settings" => "Tài khoản, kết nối và giao diện ứng dụng máy tính",
         _ => "Thông tin tổng hợp phục vụ điều hành"
     };
@@ -1019,6 +1040,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         "purchasing.goods-receipts" => "MUA HÀNG",
         "purchasing.supplier-returns" => "MUA HÀNG",
         "accounting.aging" => "KẾ TOÁN & CÔNG NỢ",
+        "accounting.cod-reporting" => "KẾ TOÁN & CÔNG NỢ",
         _ => "HỆ THỐNG CÔNG TY"
     };
 
@@ -1074,6 +1096,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
     public bool IsGoodsReceiptsSelected => _selectedNavigationKey == "purchasing.goods-receipts";
     public bool IsSupplierReturnsSelected => _selectedNavigationKey == "purchasing.supplier-returns";
     public bool IsAgingSelected => _selectedNavigationKey == "accounting.aging";
+    public bool IsCodAccountingSelected => _selectedNavigationKey == "accounting.cod-reporting";
 
     public bool IsCatalogOpen { get => _isCatalogOpen; private set { if (SetField(ref _isCatalogOpen, value)) OnPropertyChanged(nameof(CatalogChevron)); } }
     public bool IsInventoryOpen { get => _isInventoryOpen; private set { if (SetField(ref _isInventoryOpen, value)) OnPropertyChanged(nameof(InventoryChevron)); } }
@@ -1244,6 +1267,9 @@ public sealed class ShellViewModel : INotifyPropertyChanged
 
     public bool CanViewAging =>
         _agingReporting.CanRead;
+
+    public bool CanViewCodAccounting =>
+        _codAccounting.CanReadReport;
 
     public bool CanRunCostingRebuild =>
         IsInventoryCostingSelected && _inventoryCosting.CanRunRebuild;
@@ -1846,6 +1872,22 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         await _agingReporting.EnsureLoadedAsync().ConfigureAwait(true);
     }
 
+    public async Task NavigateCodAccountingAsync()
+    {
+        SetSelectedNavigation("accounting.cod-reporting");
+        IsAccountingOpen = true;
+
+        if (!_codAccounting.CanReadReport)
+        {
+            WorkspaceMessage = "Tài khoản chưa được cấp quyền xem COD và đối soát.";
+            return;
+        }
+
+        WorkspaceMessage = string.Empty;
+        SelectedWorkspaceIndex = 34;
+        await _codAccounting.EnsureLoadedAsync().ConfigureAwait(true);
+    }
+
     public async Task NavigatePurchasingReportingAsync()
     {
         SetSelectedNavigation("purchasing.reporting");
@@ -2000,6 +2042,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsGoodsReceiptsSelected));
         OnPropertyChanged(nameof(IsSupplierReturnsSelected));
         OnPropertyChanged(nameof(IsAgingSelected));
+        OnPropertyChanged(nameof(IsCodAccountingSelected));
     }
 
     private void CloseNavigationGroups()
@@ -2134,6 +2177,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanViewGoodsReceipts));
         OnPropertyChanged(nameof(CanViewSupplierReturns));
         OnPropertyChanged(nameof(CanViewAging));
+        OnPropertyChanged(nameof(CanViewCodAccounting));
         OnPropertyChanged(nameof(CanRunCostingRebuild));
         OnPropertyChanged(nameof(CostingRebuildActionText));
     }

@@ -374,7 +374,10 @@
                                         Tag="{Binding IsAgingSelected}"
                                         Visibility="{Binding CanViewAging, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="AccountingAging_OnClick"><TextBlock Text="Tuổi nợ" /></Button>
-                                <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="COD và đối soát" /></Button>
+                                <Button Style="{StaticResource NavSubItemStyle}"
+                                        Tag="{Binding IsCodAccountingSelected}"
+                                        Visibility="{Binding CanViewCodAccounting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Click="AccountingCod_OnClick"><TextBlock Text="COD và đối soát" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Công nợ phải thu" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Thu tiền khách hàng" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Điều chỉnh công nợ hàng trả" /></Button>
@@ -613,6 +616,13 @@
                                     Visibility="{Binding IsTripDispatchSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     Click="TripDispatchBack_OnClick"
                                     Content="Quay lại lập kế hoạch" />
+
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsCodAccountingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="False"
+                                    ToolTip="Màn Đối soát tổng hợp là nghiệp vụ kế toán riêng và sẽ được nối khi màn đó được triển khai."
+                                    Content="Đối soát tổng hợp" />
 
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
@@ -893,6 +903,10 @@
 
                     <TabItem>
                         <ContentControl x:Name="GrossMarginReportingHost" />
+                    </TabItem>
+
+                    <TabItem>
+                        <ContentControl x:Name="CodAccountingHost" />
                     </TabItem>
                 </TabControl>
             </Grid>
