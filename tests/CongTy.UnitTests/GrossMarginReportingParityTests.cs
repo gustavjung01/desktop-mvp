@@ -69,7 +69,7 @@ public sealed class GrossMarginReportingParityTests
         {
             "Từ ngày", "Đến ngày", "Kho", "Áp dụng", "Đặt lại",
             "Doanh thu thuần so sánh được", "Giá vốn", "Lãi gộp", "Biên lãi gộp",
-            "Đối soát:", "Theo khách hàng", "Theo SKU", "Ngoại lệ",
+            "Theo khách hàng", "Theo SKU", "Ngoại lệ",
             "Dòng chưa đủ điều kiện tính lãi gộp", "Mở giá vốn",
             "Xuất báo cáo lãi gộp", "Excel (.xlsx)", "CSV (.csv)",
             "Chọn tất cả", "Bỏ chọn", "Mặc định"
@@ -77,6 +77,9 @@ public sealed class GrossMarginReportingParityTests
         {
             StringAssert.Contains(view, text);
         }
+
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Sales", "GrossMarginReportingViewModel.cs");
+        StringAssert.Contains(viewModel, "Đối soát:");
 
         Assert.IsFalse(view.Contains("Phase 7", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("cost fact", StringComparison.OrdinalIgnoreCase));
