@@ -530,6 +530,12 @@
                                     Visibility="{Binding IsSalesReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     Click="SalesReportingOrders_OnClick"
                                     Content="Mở đơn bán hàng" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsSalesReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="False"
+                                    ToolTip="Màn Lãi gộp sẽ được nối khi UI-5.2 hoàn thiện."
+                                    Content="Xem báo cáo lãi gộp" />
 
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
