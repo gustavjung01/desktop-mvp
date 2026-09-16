@@ -40,6 +40,7 @@ public partial class MainWindow : Window
     private readonly SupplierReturnView _supplierReturnView;
     private readonly SalesReportingView _salesReportingView;
     private readonly GrossMarginReportingView _grossMarginReportingView;
+    private readonly InventoryView _inventoryView;
 
     public MainWindow(
         ShellViewModel viewModel,
@@ -102,6 +103,7 @@ public partial class MainWindow : Window
         _supplierReturnView = supplierReturnView;
         _salesReportingView = salesReportingView;
         _grossMarginReportingView = grossMarginReportingView;
+        _inventoryView = inventoryView;
         DataContext = viewModel;
         HomeHost.Content = dashboardView;
         dashboardView.NavigationRequested += DashboardView_OnNavigationRequested;
