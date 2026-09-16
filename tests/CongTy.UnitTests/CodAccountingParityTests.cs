@@ -89,11 +89,11 @@ public sealed class CodAccountingParityTests
         var promises = view.IndexOf("Header=\"Hẹn thu quá hạn\"", StringComparison.Ordinal);
         var exceptions = view.IndexOf("Header=\"Cần kiểm tra\"", StringComparison.Ordinal);
 
-        Assert.IsLessThan(custody, collections);
-        Assert.IsLessThan(collections, handover);
-        Assert.IsLessThan(handover, accounting);
-        Assert.IsLessThan(accounting, promises);
-        Assert.IsLessThan(promises, exceptions);
+        Assert.IsTrue(custody < collections);
+        Assert.IsTrue(collections < handover);
+        Assert.IsTrue(handover < accounting);
+        Assert.IsTrue(accounting < promises);
+        Assert.IsTrue(promises < exceptions);
     }
 
     [TestMethod]
@@ -164,7 +164,6 @@ public sealed class CodAccountingParityTests
         StringAssert.Contains(shell, "\"accounting.cod-reporting\" => \"COD & đối soát\"");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 31");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 32");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex = 33");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 34");
         StringAssert.Contains(shell, "CanViewCodAccounting");
         StringAssert.Contains(shell, "IsAccountingOpen = true");
@@ -172,11 +171,9 @@ public sealed class CodAccountingParityTests
         StringAssert.Contains(xaml, "Tag=\"{Binding IsAgingSelected}\"");
         StringAssert.Contains(xaml, "Tag=\"{Binding IsCodAccountingSelected}\"");
         StringAssert.Contains(xaml, "Tag=\"{Binding IsSalesReportingSelected}\"");
-        StringAssert.Contains(xaml, "Tag=\"{Binding IsGrossMarginSelected}\"");
         StringAssert.Contains(xaml, "Click=\"AccountingCod_OnClick\"");
         StringAssert.Contains(xaml, "x:Name=\"AgingReportingHost\"");
         StringAssert.Contains(xaml, "x:Name=\"SalesReportingHost\"");
-        StringAssert.Contains(xaml, "x:Name=\"GrossMarginReportingHost\"");
         StringAssert.Contains(xaml, "x:Name=\"CodAccountingHost\"");
         StringAssert.Contains(xaml, "Content=\"Đối soát tổng hợp\"");
         StringAssert.Contains(code, "CodAccountingHost.Content = codAccountingView");

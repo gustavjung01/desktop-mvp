@@ -5,8 +5,7 @@ Ngày audit: 2026-09-16
 ## Baseline thực tế
 
 - Desktop repo: `gustavjung01/desktop-mvp`.
-- Desktop main khi bắt đầu: `36332eb79727a16f9adee5d6656c75fc546e3715`.
-- UI-7.2 được stack trên UI-5.2 branch `agent/ui5-2-gross-margin@61f911a4c9a8df57fe4099f17e62b51b6bb4f902` để giữ workspace 33 của Lãi gộp và dùng 34 cho COD. PR 7.2 phải base branch UI-5.2 cho tới khi UI-5.2 merge.
+- Desktop baseline: `main@36332eb79727a16f9adee5d6656c75fc546e3715`.
 - Baseline CI: run #5 — PASS.
 - Công Ty Web/backend audit ban đầu: `binhnxwjfjxm/NPP-Platform@0f645e584378e6763720594bd3604828644cb583`. Trước commit source tiến tới `13e2b94a1d24956082500e0f4e9e13aefab2a242`; compare xác nhận thay đổi chỉ thuộc xuất/hiển thị điều chỉnh tồn kho, không chạm COD Web/backend/permission.
 - Web chuẩn: `/accounting/cod-reporting`.
