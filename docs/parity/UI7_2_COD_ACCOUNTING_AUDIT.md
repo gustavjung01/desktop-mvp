@@ -185,3 +185,19 @@ UI-7.2 chủ động tránh index 33 sau khi audit branch UI-5.2 trước commit
 ## Ngôn ngữ văn phòng
 
 UI dùng: bàn giao, tiền thực nhận, chênh lệch, bản ghi bù, khoản thu, hẹn thu. Không hiển thị UUID, API path, permission key, idempotency, canonical hay tên bảng.
+
+
+## Refresh parity baseline trước CI cuối
+
+Ngay trước CI cuối, Công Ty source tiến tới `d0b992757f9d055bb2896f0448d4c1d891310596`.
+
+Đã đối chiếu delta từ `13e2b94`:
+- thêm `npp-core/web/app/api/inventory/export/route.ts`;
+- thêm action/model xuất dữ liệu tồn kho;
+- sửa `app-shell.tsx`;
+- **không thêm screen**: vẫn 73 screen;
+- Web route tăng từ 286 lên 287 do Next runtime route mới;
+- không đổi backend API routes, permission catalog, shared contract hay idempotency;
+- không chạm Web/backend COD.
+
+Theo policy Desktop, Next runtime route là `not_applicable` vì Desktop gọi Công Ty backend trực tiếp, nên refresh `SCREEN_MANIFEST`, `WEB_ROUTE_MANIFEST` và `DESKTOP_PARITY_MATRIX` sang exact source hiện tại; không thay đổi mapping nghiệp vụ UI-7.2.
