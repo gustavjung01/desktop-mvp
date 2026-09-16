@@ -5,6 +5,8 @@ namespace CongTy.ApiClient;
 public interface ISalesOrderService
 {
     Task<IReadOnlyList<SalesOrderData>> ListAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<SalesOrderData>> ListOperationsDraftsAsync(int limit = 20, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CustomerOnboardingRequestData>> ListOperationsCustomerOnboardingAsync(string status, int limit = 20, CancellationToken cancellationToken = default);
     Task<SalesOrderData> GetAsync(string id, CancellationToken cancellationToken = default);
     Task<SalesOrderEntrySettingsData> GetEntrySettingsAsync(CancellationToken cancellationToken = default);
     Task<SalesOrderEntrySettingsData> UpdateEntrySettingsAsync(SalesOrderEntrySettingsUpdateRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
@@ -42,6 +44,29 @@ public sealed class SalesOrderService(
 {
     public async Task<IReadOnlyList<SalesOrderData>> ListAsync(CancellationToken cancellationToken = default) =>
         await apiClient.GetDataAsync<SalesOrderData[]>("/api/sales-orders?limit=1000&offset=0", RequireToken(), cancellationToken).ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<SalesOrderData>> ListOperationsDraftsAsync(int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var safeLimit = Math.Clamp(limit, 1, 1000);
+        return await apiClient.GetDataAsync<SalesOrderData[]>(
+            $"/api/sales-orders?status=draft&limit={safeLimit}&offset=0",
+            RequireToken(),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<CustomerOnboardingRequestData>> ListOperationsCustomerOnboardingAsync(string status, int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var normalizedStatus = status?.Trim() ?? string.Empty;
+        if (normalizedStatus is not ("submitted" or "under_review" or "need_more_info"))
+            throw new ArgumentException("Trạng thái đề nghị khách hàng không hợp lệ.", nameof(status));
+
+        var safeLimit = Math.Clamp(limit, 1, 100);
+        var data = await apiClient.GetDataAsync<CustomerOnboardingListData>(
+            $"/api/customer-onboarding-requests?status={Uri.EscapeDataString(normalizedStatus)}&limit={safeLimit}&offset=0",
+            RequireToken(),
+            cancellationToken).ConfigureAwait(false);
+        return data.CustomerOnboardingRequests;
+    }
 
     public Task<SalesOrderData> GetAsync(string id, CancellationToken cancellationToken = default) =>
         apiClient.GetDataAsync<SalesOrderData>($"/api/sales-orders/{RequireId(id)}", RequireToken(), cancellationToken);
