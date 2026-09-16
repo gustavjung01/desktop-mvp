@@ -26,8 +26,8 @@ public sealed class CodAccountingParityTests
         var service = ReadRepoFile("src", "CongTy.ApiClient", "CodAccountingService.cs");
 
         StringAssert.Contains(service, "\"/api/reporting/cod\"");
-        StringAssert.Contains(service, "from=");
-        StringAssert.Contains(service, "to=");
+        StringAssert.Contains(service, "AddDate(query, \"from\", from);");
+        StringAssert.Contains(service, "AddDate(query, \"to\", to);");
         StringAssert.Contains(service, "warehouseId=");
         StringAssert.Contains(service, "\"/api/cod-reconciliation?limit=1000\"");
         StringAssert.Contains(service, "/accept");
@@ -89,11 +89,11 @@ public sealed class CodAccountingParityTests
         var promises = view.IndexOf("Header=\"Hẹn thu quá hạn\"", StringComparison.Ordinal);
         var exceptions = view.IndexOf("Header=\"Cần kiểm tra\"", StringComparison.Ordinal);
 
-        Assert.IsLessThan(custody, collections);
-        Assert.IsLessThan(collections, handover);
-        Assert.IsLessThan(handover, accounting);
-        Assert.IsLessThan(accounting, promises);
-        Assert.IsLessThan(promises, exceptions);
+        Assert.IsLessThan(collections, custody);
+        Assert.IsLessThan(handover, collections);
+        Assert.IsLessThan(accounting, handover);
+        Assert.IsLessThan(promises, accounting);
+        Assert.IsLessThan(exceptions, promises);
     }
 
     [TestMethod]
