@@ -1,4 +1,5 @@
 <UserControl x:Class="CongTy.Desktop.Sales.SalesReportingView"
+             x:Name="SalesReportingRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Focusable="True"
@@ -132,10 +133,10 @@
                                       RowHeight="48"
                                       ItemsSource="{Binding AnalysisRows}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                     <DataGridTemplateColumn Width="1.6*">
                                         <DataGridTemplateColumn.Header>
-                                            <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                                            <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, Source={x:Reference SalesReportingRoot}}" />
                                         </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
@@ -146,10 +147,10 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.1*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                    <DataGridTemplateColumn Width="1.05*">
+                                    <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTemplateColumn Width="1.05*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}">
                                         <DataGridTemplateColumn.Header>
-                                            <TextBlock Text="{Binding DataContext.MetricHeader, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                                            <TextBlock Text="{Binding DataContext.MetricHeader, Source={x:Reference SalesReportingRoot}}" />
                                         </DataGridTemplateColumn.Header>
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
@@ -157,10 +158,10 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Tỷ trọng" Binding="{Binding Share}" Width="0.8*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                    <DataGridTextColumn Header="Kỳ trước" Binding="{Binding Previous}" Width="1.25*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Tỷ trọng" Binding="{Binding Share}" Width="0.8*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Kỳ trước" Binding="{Binding Previous}" Width="1.25*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                     <DataGridTextColumn Header="Thay đổi" Binding="{Binding Change}" Width="1*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
-                                    <DataGridTemplateColumn Header="Chi tiết" Width="70">
+                                    <DataGridTemplateColumn Header="Chi tiết" Width="70" HeaderStyle="{StaticResource OfficeDataGridActionHeaderStyle}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Button Style="{StaticResource OfficeMiniButtonStyle}"
@@ -191,7 +192,7 @@
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Width="1.35*">
                                             <DataGridTemplateColumn.Header>
-                                                <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                                                <TextBlock Text="{Binding DataContext.SelectedDimensionLabel, Source={x:Reference SalesReportingRoot}}" />
                                             </DataGridTemplateColumn.Header>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
@@ -199,10 +200,10 @@
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
-                                        <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                        <DataGridTemplateColumn Width="1*">
+                                        <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                        <DataGridTemplateColumn Width="1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}">
                                             <DataGridTemplateColumn.Header>
-                                                <TextBlock Text="{Binding DataContext.MetricHeader, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                                                <TextBlock Text="{Binding DataContext.MetricHeader, Source={x:Reference SalesReportingRoot}}" />
                                             </DataGridTemplateColumn.Header>
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
@@ -210,8 +211,8 @@
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
-                                        <DataGridTextColumn Header="Tỷ trọng" Binding="{Binding Share}" Width="0.75*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                        <DataGridTextColumn Header="Kỳ trước" Binding="{Binding Previous}" Width="1.15*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Tỷ trọng" Binding="{Binding Share}" Width="0.75*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Kỳ trước" Binding="{Binding Previous}" Width="1.15*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                         <DataGridTextColumn Header="Thay đổi" Binding="{Binding Change}" Width="0.9*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
@@ -499,11 +500,11 @@
                                       RowHeight="38"
                                       ItemsSource="{Binding TrendRows}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="44" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="44" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                     <DataGridTextColumn Header="Ngày" Binding="{Binding Date}" Width="0.9*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
                                     <DataGridTextColumn Header="Tiền tệ" Binding="{Binding CurrencyCode}" Width="0.75*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
-                                    <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.05*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
-                                    <DataGridTextColumn Header="Kỳ trước" Binding="{Binding PreviousRevenue}" Width="1.05*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.05*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Kỳ trước" Binding="{Binding PreviousRevenue}" Width="1.05*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
                                     <DataGridTextColumn Header="Thay đổi" Binding="{Binding Change}" Width="1*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
                                 </DataGrid.Columns>
                             </DataGrid>

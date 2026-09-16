@@ -699,6 +699,31 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
+    public void ReportingGrids_KeepDynamicHeadersAndNumericAlignmentContract()
+    {
+        var controls = ReadRepoFile("src", "CongTy.Desktop", "Themes", "Controls.xaml");
+        var sales = ReadRepoFile("src", "CongTy.Desktop", "Sales", "SalesReportingView.xaml");
+        var inventory = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryView.xaml");
+
+        StringAssert.Contains(controls, "x:Key=\"OfficeDataGridNumericHeaderStyle\"");
+        StringAssert.Contains(controls, "x:Key=\"OfficeDataGridActionHeaderStyle\"");
+        StringAssert.Contains(controls, "<Setter Property=\"HorizontalContentAlignment\" Value=\"Right\" />");
+        StringAssert.Contains(controls, "<Setter Property=\"HorizontalContentAlignment\" Value=\"Center\" />");
+
+        StringAssert.Contains(sales, "x:Name=\"SalesReportingRoot\"");
+        Assert.AreEqual(4, CountOccurrences(sales, "Source={x:Reference SalesReportingRoot}"));
+        StringAssert.Contains(sales, "DataContext.SelectedDimensionLabel, Source={x:Reference SalesReportingRoot}");
+        StringAssert.Contains(sales, "DataContext.MetricHeader, Source={x:Reference SalesReportingRoot}");
+        StringAssert.Contains(sales, "HeaderStyle=\"{StaticResource OfficeDataGridNumericHeaderStyle}\"");
+        StringAssert.Contains(sales, "HeaderStyle=\"{StaticResource OfficeDataGridActionHeaderStyle}\"");
+
+        StringAssert.Contains(inventory, "Header=\"Đã giữ\"");
+        StringAssert.Contains(inventory, "Header=\"Chi tiết\" Width=\"70\" HeaderStyle=\"{StaticResource OfficeDataGridActionHeaderStyle}\"");
+        StringAssert.Contains(inventory, "Header=\"Có thể xuất\" Binding=\"{Binding Available}\" Width=\"0.8*\" HeaderStyle=\"{StaticResource OfficeDataGridNumericHeaderStyle}\"");
+        StringAssert.Contains(inventory, "Header=\"Giá bình quân\" Binding=\"{Binding AverageCost}\" Width=\"1*\" HeaderStyle=\"{StaticResource OfficeDataGridNumericHeaderStyle}\"");
+    }
+
+    [TestMethod]
     public void MasterPlan_RequiresBusinessLayoutParityWithoutPixelCopy()
     {
         var masterPlan = ReadRepoFile("DESKTOP_MASTER_PLAN.md");
