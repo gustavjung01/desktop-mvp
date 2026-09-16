@@ -357,6 +357,7 @@
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <Button HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
                                                                 Style="{StaticResource OfficeMiniButtonStyle}"
                                                                 Tag="{Binding}"
                                                                 ToolTip="Xem các đơn đang giữ hàng"
