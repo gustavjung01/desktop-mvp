@@ -89,11 +89,11 @@ public sealed class CodAccountingParityTests
         var promises = view.IndexOf("Header=\"Hẹn thu quá hạn\"", StringComparison.Ordinal);
         var exceptions = view.IndexOf("Header=\"Cần kiểm tra\"", StringComparison.Ordinal);
 
-        Assert.IsTrue(custody < collections);
-        Assert.IsTrue(collections < handover);
-        Assert.IsTrue(handover < accounting);
-        Assert.IsTrue(accounting < promises);
-        Assert.IsTrue(promises < exceptions);
+        Assert.IsLessThan(custody, collections);
+        Assert.IsLessThan(collections, handover);
+        Assert.IsLessThan(handover, accounting);
+        Assert.IsLessThan(accounting, promises);
+        Assert.IsLessThan(promises, exceptions);
     }
 
     [TestMethod]
