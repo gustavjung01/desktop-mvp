@@ -40,6 +40,7 @@ public sealed class InventoryParityTests
         var xaml = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryView.xaml");
         var code = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryView.xaml.cs");
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryViewModel.cs");
+        var presentation = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryPresentation.cs");
 
         StringAssert.Contains(service, "/api/inventory/balances/history");
         StringAssert.Contains(service, "scope=warehouse");
@@ -94,7 +95,7 @@ public sealed class InventoryParityTests
         StringAssert.Contains(xaml, "Không có chênh lệch giá vốn hiện tại.");
         StringAssert.Contains(xaml, "Nguyên tắc số liệu:");
 
-        StringAssert.Contains(viewModel, "\"Quy đổi\", \"Đã giữ\"");
+        StringAssert.Contains(presentation, "new(\"reservedQuantity\", \"Đã giữ cho đơn\", true)");
         StringAssert.Contains(viewModel, "InventoryPresentation.DateWithAge");
         StringAssert.Contains(viewModel, "InventoryPresentation.PackageBreakdown(x.OnHandQuantity, metadata)");
         StringAssert.Contains(viewModel, "GetHoldBreakdownAsync(row.WarehouseId, row.VariantId)");
