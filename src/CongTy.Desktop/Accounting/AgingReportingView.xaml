@@ -1,0 +1,373 @@
+<UserControl x:Class="CongTy.Desktop.Accounting.AgingReportingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             Loaded="AgingReportingView_OnLoaded"
+             PreviewKeyDown="AgingReportingView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="AgingCellTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="AgingNumericTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Kho"
+                                   Margin="0,0,0,4"
+                                   FontWeight="SemiBold" />
+                        <ComboBox Width="360"
+                                  MinHeight="30"
+                                  Style="{StaticResource OfficeComboBoxStyle}"
+                                  ItemsSource="{Binding Warehouses}"
+                                  DisplayMemberPath="Label"
+                                  SelectedValuePath="Id"
+                                  SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay}"
+                                  IsEnabled="{Binding CanApply}" />
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                            Margin="12,18,0,0"
+                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                            IsEnabled="{Binding CanApply}"
+                            Click="Apply_OnClick"
+                            Content="{Binding ApplyText}" />
+
+                    <Button Grid.Column="2"
+                            Margin="8,18,0,0"
+                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                            IsEnabled="{Binding CanApply}"
+                            Click="Reset_OnClick"
+                            Content="Đặt lại" />
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="0,8,0,0">
+                <TextBlock Text="{Binding ReportError}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding HasReportError, Converter={StaticResource BoolToVisibility}}" />
+
+                <TextBlock Text="Đang tải tuổi nợ…"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Visibility="{Binding ShowInitialLoading, Converter={StaticResource BoolToVisibility}}" />
+
+                <Border Margin="0,6,0,0"
+                        Padding="10"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding BasisNotice}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Grid.Column="1"
+                                   Margin="14,0,0,0"
+                                   Text="{Binding GeneratedAtText}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Top" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <TabControl Grid.Row="2"
+                        Grid.RowSpan="2"
+                        Margin="0,10,0,0"
+                        Style="{StaticResource OfficeTabControlStyle}"
+                        SelectedIndex="{Binding ActiveTabIndex, Mode=TwoWay}"
+                        Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                <TabItem Header="Phải thu">
+                    <StackPanel Margin="0,8,0,0">
+                        <Border Style="{StaticResource OfficeCardStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Phải thu khách hàng"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0"
+                                                   Text="Tuổi khoản phải thu tính từ ngày chứng từ nguồn trên số dư hiện còn phải thu."
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                            IsEnabled="False"
+                                            ToolTip="Màn Công nợ phải thu sẽ được nối khi UI-7.3 hoàn thiện."
+                                            Content="Mở công nợ phải thu" />
+                                </Grid>
+
+                                <DataGrid Grid.Row="1"
+                                          Margin="0,8,0,0"
+                                          Height="220"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="36"
+                                          ItemsSource="{Binding ReceivableSummary}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Tiền tệ"
+                                                            Binding="{Binding CurrencyCode}"
+                                                            Width="*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Tuổi khoản phải thu"
+                                                            Binding="{Binding Bucket}"
+                                                            Width="1.35*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Chứng từ"
+                                                            Binding="{Binding DocumentCount}"
+                                                            Width="0.8*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Còn phải thu"
+                                                            Binding="{Binding RemainingAmount}"
+                                                            Width="1.2*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Grid.Row="2"
+                                           Margin="0,6,0,0"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding ReceivableSummaryEmptyText}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Margin="0,10,0,0"
+                                Style="{StaticResource OfficeCardStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="Khách hàng còn công nợ"
+                                               FontSize="16"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Xếp theo số dư còn phải thu, giữ nguyên từng đồng tiền."
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+
+                                <DataGrid Grid.Row="1"
+                                          Margin="0,8,0,0"
+                                          Height="320"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="42"
+                                          ItemsSource="{Binding ReceivableCustomers}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Khách hàng"
+                                                            Binding="{Binding Party}"
+                                                            Width="1.6*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Tiền tệ"
+                                                            Binding="{Binding CurrencyCode}"
+                                                            Width="0.7*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Chứng từ"
+                                                            Binding="{Binding DocumentCount}"
+                                                            Width="0.7*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Còn phải thu"
+                                                            Binding="{Binding RemainingAmount}"
+                                                            Width="1.1*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Chứng từ cũ nhất"
+                                                            Binding="{Binding ReferenceDate}"
+                                                            Width="1*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Tuổi lớn nhất"
+                                                            Binding="{Binding MaximumDays}"
+                                                            Width="0.9*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Grid.Row="2"
+                                           Margin="0,6,0,0"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding ReceivableCustomersEmptyText}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="Phải trả">
+                    <StackPanel Margin="0,8,0,0">
+                        <Border Style="{StaticResource OfficeCardStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Phải trả nhà cung cấp"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0"
+                                                   Text="Quá hạn tính từ ngày đến hạn đã ghi trên chứng từ phải trả."
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                            IsEnabled="False"
+                                            ToolTip="Màn Công nợ phải trả sẽ được nối khi UI-7.6 hoàn thiện."
+                                            Content="Mở công nợ phải trả" />
+                                </Grid>
+
+                                <DataGrid Grid.Row="1"
+                                          Margin="0,8,0,0"
+                                          Height="240"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="36"
+                                          ItemsSource="{Binding PayableSummary}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Tiền tệ"
+                                                            Binding="{Binding CurrencyCode}"
+                                                            Width="*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Trạng thái hạn"
+                                                            Binding="{Binding Bucket}"
+                                                            Width="1.35*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Chứng từ"
+                                                            Binding="{Binding DocumentCount}"
+                                                            Width="0.8*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Còn phải trả"
+                                                            Binding="{Binding RemainingAmount}"
+                                                            Width="1.2*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Grid.Row="2"
+                                           Margin="0,6,0,0"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding PayableSummaryEmptyText}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Margin="0,10,0,0"
+                                Style="{StaticResource OfficeCardStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="Nhà cung cấp còn công nợ"
+                                               FontSize="16"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Ưu tiên số dư lớn và cho biết mức quá hạn lớn nhất."
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+
+                                <DataGrid Grid.Row="1"
+                                          Margin="0,8,0,0"
+                                          Height="320"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="42"
+                                          ItemsSource="{Binding PayableSuppliers}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nhà cung cấp"
+                                                            Binding="{Binding Party}"
+                                                            Width="1.6*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Tiền tệ"
+                                                            Binding="{Binding CurrencyCode}"
+                                                            Width="0.7*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Chứng từ"
+                                                            Binding="{Binding DocumentCount}"
+                                                            Width="0.7*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Còn phải trả"
+                                                            Binding="{Binding RemainingAmount}"
+                                                            Width="1.1*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Hạn sớm nhất"
+                                                            Binding="{Binding ReferenceDate}"
+                                                            Width="1*"
+                                                            ElementStyle="{StaticResource AgingCellTextStyle}" />
+                                        <DataGridTextColumn Header="Quá hạn lớn nhất"
+                                                            Binding="{Binding MaximumDays}"
+                                                            Width="0.9*"
+                                                            ElementStyle="{StaticResource AgingNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Grid.Row="2"
+                                           Margin="0,6,0,0"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding PayableSuppliersEmptyText}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CongTy.ApiClient\CongTy.ApiClient.csproj" />
+    <ProjectReference Include="..\..\src\CongTy.Contracts\CongTy.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\CongTy.Windows\CongTy.Windows.csproj" />
+    <ProjectReference Include="..\..\src\CongTy.Desktop\CongTy.Desktop.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.0.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.0.1" />
+  </ItemGroup>
+</Project>

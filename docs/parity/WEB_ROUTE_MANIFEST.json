@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "name": "WEB_ROUTE_MANIFEST",
+  "source": {
+    "repository": "binhnxwjfjxm/NPP-Platform",
+    "baselineRevision": "698324a530f4c1741cd20ab0ba1ee0596fc862d8",
+    "fingerprints": {
+      "webAppTree": "95099220976589246ae25d47912d499fd760e80e"
+    }
+  },
+  "snapshot": {
+    "webRoutes": {
+      "count": 283,
+      "sha256": "ca39f1800e226d93ba15d759b6c82d18fef921c7fe71769e277299132bfc7fdc"
+    }
+  },
+  "discovery": {
+    "root": "npp-core/web/app",
+    "include": [
+      "**/page.tsx",
+      "**/route.ts"
+    ],
+    "rules": [
+      {
+        "file": "page.tsx",
+        "status": "planned",
+        "desktopMapping": "native-screen"
+      },
+      {
+        "file": "route.ts",
+        "status": "not_applicable",
+        "desktopMapping": "none",
+        "reason": "Desktop calls Công Ty backend directly over HTTPS and does not depend on Next/Vercel runtime routes."
+      }
+    ],
+    "classificationForChangedSource": "unclassified"
+  },
+  "allowedStatuses": [
+    "implemented",
+    "planned",
+    "not_applicable",
+    "blocked"
+  ]
+}

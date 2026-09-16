@@ -1,0 +1,81 @@
+<UserControl x:Class="CongTy.Desktop.Products.ProductUnitWorkspaceView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <UserControl.Resources><BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/></UserControl.Resources>
+ <ScrollViewer x:Name="PageScrollViewer" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto" PreviewMouseWheel="PageScrollViewer_OnPreviewMouseWheel">
+  <StackPanel>
+   <Border Style="{StaticResource OfficeCardStyle}">
+    <StackPanel><TextBlock Text="THIẾT LẬP HÀNG HÓA" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/><TextBlock Margin="0,4,0,0" Text="Đơn vị tính, quy đổi &amp; mã vạch" FontSize="18" FontWeight="SemiBold"/><TextBlock Margin="0,3,0,0" Text="Quản lý đơn vị dùng chung và cấu hình theo từng SKU." Foreground="{DynamicResource TextSecondaryBrush}"/></StackPanel>
+   </Border>
+   <TabControl x:Name="UnitTabs" Margin="0,10,0,0" Style="{StaticResource OfficeTabControlStyle}" SelectedIndex="{Binding UnitWorkspaceTabIndex, Mode=TwoWay}">
+    <TabItem Header="Danh mục đơn vị">
+     <Grid Margin="0,10,0,0">
+      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <TextBlock Text="Danh mục đơn vị" FontSize="15" FontWeight="SemiBold"/>
+       <Button Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="Refresh_OnClick" Content="Làm mới"/>
+       <Button Grid.Column="2" Margin="8,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanWrite}" Click="AddUnit_OnClick" Content="Thêm đơn vị"/>
+      </Grid>
+      <DataGrid Grid.Row="1" Margin="0,10,0,0" MinHeight="280" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding UnitRows}" AutoGenerateColumns="False" IsReadOnly="True">
+       <DataGrid.Columns>
+        <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="54"/><DataGridTextColumn Header="Mã" Binding="{Binding Code}" Width="110"/><DataGridTextColumn Header="Tên" Binding="{Binding Name}" Width="*"/><DataGridTextColumn Header="Ký hiệu" Binding="{Binding Symbol}" Width="90"/><DataGridTextColumn Header="Loại" Binding="{Binding Kind}" Width="110"/><DataGridTextColumn Header="Cho phép lẻ" Binding="{Binding Fractional}" Width="100"/><DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="115"/>
+        <DataGridTemplateColumn Header="Thao tác" Width="190"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Orientation="Horizontal"><Button Style="{StaticResource OfficeMiniButtonStyle}" Tag="{Binding Id}" Click="EditUnit_OnClick" Content="Sửa"/><Button Style="{StaticResource OfficeMiniButtonStyle}" Tag="{Binding Id}" Click="ToggleUnit_OnClick" Content="{Binding ToggleAction}"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+       </DataGrid.Columns>
+      </DataGrid>
+      <Border Grid.Row="2" Margin="0,10,0,0" Padding="10" Background="{DynamicResource SurfaceMutedBrush}" Visibility="{Binding IsUnitEditor, Converter={StaticResource BooleanToVisibilityConverter}}">
+       <StackPanel>
+        <TextBlock Text="{Binding EditorTitle}" FontWeight="SemiBold"/>
+        <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+         <StackPanel Margin="0,0,4,0"><TextBlock Text="Mã đơn vị"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" IsEnabled="{Binding IsCreateMode}" Text="{Binding DraftCode}"/></StackPanel>
+         <StackPanel Grid.Column="1" Margin="4,0"><TextBlock Text="Tên đơn vị"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding DraftName}"/></StackPanel>
+         <StackPanel Grid.Column="2" Margin="4,0,0,0"><TextBlock Text="Ký hiệu"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding DraftSymbol}"/></StackPanel>
+        </Grid>
+        <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+         <ComboBox Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding UnitKindOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding DraftUnitKind}"/>
+         <WrapPanel Grid.Column="1" Margin="8,4,0,0"><CheckBox Margin="0,0,14,0" Content="Cho phép số lẻ" IsChecked="{Binding DraftAllowsFractional}"/><CheckBox Content="Đang sử dụng" IsChecked="{Binding DraftActive}"/></WrapPanel>
+        </Grid>
+        <StackPanel Margin="0,8,0,0" Orientation="Horizontal" HorizontalAlignment="Right"><Button Style="{StaticResource OfficeSecondaryButtonStyle}" Click="CancelUnit_OnClick" Content="Hủy"/><Button Margin="8,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" Click="SaveUnit_OnClick" Content="{Binding EditorPrimaryText}"/></StackPanel>
+       </StackPanel>
+      </Border>
+     </Grid>
+    </TabItem>
+    <TabItem Header="Thiết lập theo SKU">
+     <StackPanel Margin="0,10,0,0">
+      <Border Style="{StaticResource OfficeCardStyle}">
+       <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <StackPanel Margin="0,0,4,0"><TextBlock Text="Sản phẩm"/><ComboBox x:Name="ProductCombo" Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding ProductOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding UnitProductId, Mode=OneWay}" SelectionChanged="Product_OnSelectionChanged"/></StackPanel>
+        <StackPanel Grid.Column="1" Margin="4,0,0,0"><TextBlock Text="SKU"/><ComboBox x:Name="VariantCombo" Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding UnitVariants}" DisplayMemberPath="Sku" SelectedValuePath="Id" SelectedValue="{Binding UnitVariantId, Mode=OneWay}" SelectionChanged="Variant_OnSelectionChanged"/></StackPanel>
+       </Grid>
+      </Border>
+      <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border Margin="0,0,5,0" Style="{StaticResource OfficeCardStyle}">
+        <StackPanel>
+         <TextBlock Text="Đơn vị và hệ số quy đổi" FontWeight="SemiBold"/>
+         <TextBlock Margin="0,8,0,4" Text="Đơn vị tính"/><ComboBox Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding UnitOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding UnitUnitId}"/>
+         <TextBlock Margin="0,8,0,4" Text="Hệ số về tồn chuẩn"/><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding UnitConversion}"/>
+         <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding UnitNetContentValue}"/><ComboBox Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding NetContentUnitOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding UnitNetContentUnit}"/></Grid>
+         <TextBlock Margin="0,8,0,4" Text="Tên đơn vị theo nguồn"/><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding UnitSourceLabel}"/>
+         <TextBlock Margin="0,8,0,4" Text="Mô tả quy cách nguồn"/><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding UnitPackageDescription}"/>
+         <CheckBox Margin="0,8,0,0" Content="Có thể mua hàng" IsChecked="{Binding UnitPurchasable}"/>
+         <Button Margin="0,10,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanWrite}" Click="SaveSetup_OnClick" Content="Lưu thiết lập"/>
+        </StackPanel>
+       </Border>
+       <Border Grid.Column="1" Margin="5,0,0,0" Style="{StaticResource OfficeCardStyle}">
+        <StackPanel>
+         <TextBlock Text="Mã vạch và kiểm tra quy đổi" FontWeight="SemiBold"/>
+         <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding UnitBarcode}"/><Button Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="AddBarcode_OnClick" Content="Thêm mã vạch"/></Grid>
+         <DataGrid Margin="0,8,0,0" MaxHeight="190" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding BarcodeRows}" AutoGenerateColumns="False" IsReadOnly="True">
+          <DataGrid.Columns><DataGridTextColumn Header="Mã vạch" Binding="{Binding Barcode}" Width="*"/><DataGridTextColumn Header="Chính" Binding="{Binding Primary}" Width="65"/><DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="110"/><DataGridTemplateColumn Header="" Width="105"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Style="{StaticResource OfficeMiniButtonStyle}" Tag="{Binding Id}" Click="ToggleBarcode_OnClick" Content="{Binding ToggleAction}"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
+         </DataGrid>
+         <Separator Margin="0,12"/><TextBlock Text="Kiểm tra quy đổi số lượng" FontWeight="SemiBold"/>
+         <Grid Margin="0,6,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding NormalizeQuantity}"/><Button Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="Normalize_OnClick" Content="Kiểm tra"/></Grid>
+         <TextBlock Margin="0,8,0,0" Text="{Binding NormalizeResult}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}"/>
+        </StackPanel>
+       </Border>
+      </Grid>
+     </StackPanel>
+    </TabItem>
+   </TabControl>
+  </StackPanel>
+ </ScrollViewer>
+</UserControl>

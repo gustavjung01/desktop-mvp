@@ -1,0 +1,162 @@
+<UserControl x:Class="CongTy.Desktop.Products.ProductQuickSetupView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <ScrollViewer x:Name="PageScrollViewer" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto" PreviewMouseWheel="PageScrollViewer_OnPreviewMouseWheel">
+  <StackPanel>
+   <Border Style="{StaticResource OfficeCardStyle}">
+    <Grid>
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <StackPanel>
+      <TextBlock Text="Thiết lập nhanh sản phẩm &amp; SKU" FontSize="18" FontWeight="SemiBold"/>
+      <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}"
+                 Text="Tạo sản phẩm → tạo SKU → chọn lô/hạn cho SKU tồn chuẩn → gắn đơn vị/quy đổi → mã vạch → giá."/>
+     </StackPanel>
+     <Button Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center"
+             Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}"
+             Click="Refresh_OnClick" Content="Làm mới"/>
+    </Grid>
+   </Border>
+
+   <Grid Margin="0,10,0,0">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Border Grid.Column="0" Margin="0,0,5,0" Style="{StaticResource OfficeCardStyle}">
+     <StackPanel>
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <TextBlock Text="Sản phẩm" FontSize="15" FontWeight="SemiBold"/>
+       <Button Grid.Column="1" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanWrite}" Click="NewProduct_OnClick" Content="+ Tạo sản phẩm"/>
+      </Grid>
+      <TextBlock Margin="0,10,0,4" Text="Tìm sản phẩm" FontWeight="SemiBold"/>
+      <TextBox x:Name="ProductSearchBox"
+               Style="{StaticResource OfficeTextBoxStyle}"
+               Text="{Binding QuickSearch, UpdateSourceTrigger=PropertyChanged}"
+               TextChanged="ProductSearchBox_OnTextChanged"
+               PreviewKeyDown="ProductSearchBox_OnPreviewKeyDown"
+               ToolTip="Gõ mã hoặc tên sản phẩm để chọn nhanh."/>
+      <Popup x:Name="ProductSearchPopup"
+             PlacementTarget="{Binding ElementName=ProductSearchBox}"
+             Placement="Bottom"
+             AllowsTransparency="True"
+             StaysOpen="False">
+       <Border Style="{StaticResource OfficeCardStyle}" Padding="0" MaxHeight="300">
+        <ListBox x:Name="ProductSearchResults"
+                 ItemsSource="{Binding ProductOptions}"
+                 DisplayMemberPath="Label"
+                 MaxHeight="290"
+                 PreviewKeyDown="ProductSearchResults_OnPreviewKeyDown"
+                 PreviewMouseLeftButtonUp="ProductSearchResults_OnPreviewMouseLeftButtonUp"/>
+       </Border>
+      </Popup>
+      <Grid Margin="0,8,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <StackPanel Margin="0,0,4,0"><TextBlock Text="Mã sản phẩm"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" IsEnabled="{Binding QuickCreatingProduct}" Text="{Binding QuickProductCode}"/></StackPanel>
+       <StackPanel Grid.Column="1" Margin="4,0,0,0"><TextBlock Text="Tên sản phẩm"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickProductName}"/></StackPanel>
+      </Grid>
+      <Grid Margin="0,8,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <StackPanel Margin="0,0,4,0"><TextBlock Text="Loại sản phẩm"/><ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding CategoryOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding QuickCategoryId}"/></StackPanel>
+       <StackPanel Grid.Column="1" Margin="4,0,0,0"><TextBlock Text="Nhãn hàng"/><ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding BrandOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding QuickBrandId}"/></StackPanel>
+      </Grid>
+      <TextBlock Margin="0,8,0,4" Text="Tên hiển thị bán hàng"/><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickCatalogName}"/>
+      <WrapPanel Margin="0,8,0,0">
+       <CheckBox Margin="0,0,12,0" Content="Hiển thị bán hàng" IsChecked="{Binding QuickCatalogVisible}"/>
+       <CheckBox Margin="0,0,12,0" Content="Cho phép đặt hàng" IsEnabled="{Binding CanEnableQuickOrderable}" IsChecked="{Binding QuickOrderable}" ToolTip="Cần ít nhất một SKU đang sử dụng, được phép bán và đã gắn đơn vị/quy đổi."/>
+       <CheckBox Content="Quản lý tồn kho" IsChecked="{Binding QuickInventoryManaged}"/>
+      </WrapPanel>
+      <Button Margin="0,10,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanWrite}" Click="SaveProduct_OnClick" Content="Lưu sản phẩm"/>
+     </StackPanel>
+    </Border>
+
+    <Border Grid.Column="1" Margin="5,0,0,0" Style="{StaticResource OfficeCardStyle}">
+     <StackPanel>
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <TextBlock Text="SKU &amp; quy cách" FontSize="15" FontWeight="SemiBold"/>
+       <Button Grid.Column="1" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding HasQuickProduct}" Click="NewVariant_OnClick" Content="+ Thêm SKU"/>
+      </Grid>
+      <ComboBox x:Name="VariantCombo" Margin="0,10,0,0" Style="{StaticResource OfficeComboBoxStyle}"
+                ItemsSource="{Binding QuickVariants}" DisplayMemberPath="Sku" SelectedValuePath="Id"
+                SelectedValue="{Binding QuickVariantId, Mode=OneWay}" SelectionChanged="Variant_OnSelectionChanged"/>
+      <Grid Margin="0,8,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <StackPanel Margin="0,0,4,0"><TextBlock Text="Mã SKU"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" IsEnabled="{Binding QuickCreatingVariant}" Text="{Binding QuickSku}"/></StackPanel>
+       <StackPanel Grid.Column="1" Margin="4,0,0,0"><TextBlock Text="Tên SKU"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickVariantName}"/></StackPanel>
+      </Grid>
+      <Grid Margin="0,8,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="105"/></Grid.ColumnDefinitions>
+       <StackPanel Margin="0,0,4,0"><TextBlock Text="Loại quy cách"/><ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding VariantKindOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding QuickVariantKind}"/></StackPanel>
+       <StackPanel Grid.Column="1" Margin="4,0"><TextBlock Text="Khối lượng"/><TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickWeightValue}"/></StackPanel>
+       <StackPanel Grid.Column="2" Margin="4,0,0,0"><TextBlock Text="Đơn vị"/><ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding WeightUnitOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding QuickWeightUomCode}"/></StackPanel>
+      </Grid>
+      <Grid Margin="0,8,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <StackPanel Margin="0,0,4,0"><TextBlock Text="Quản lý lô"/><ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding QuickLotTrackingMode}"><ComboBoxItem Tag="NONE" Content="Không quản lý"/><ComboBoxItem Tag="REQUIRED" Content="Bắt buộc ghi nhận"/></ComboBox></StackPanel>
+       <StackPanel Grid.Column="1" Margin="4,0,0,0"><TextBlock Text="Hạn sử dụng"/><ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" SelectedValuePath="Tag" SelectedValue="{Binding QuickExpiryTrackingMode}"><ComboBoxItem Tag="NONE" Content="Không quản lý"/><ComboBoxItem Tag="OPTIONAL" Content="Cho phép ghi nhận"/><ComboBoxItem Tag="REQUIRED" Content="Bắt buộc ghi nhận"/></ComboBox></StackPanel>
+      </Grid>
+      <WrapPanel Margin="0,8,0,0">
+       <CheckBox Margin="0,0,12,0" Content="Tồn chuẩn" IsChecked="{Binding QuickInventoryBase}"/>
+       <CheckBox Margin="0,0,12,0" Content="Dùng để bán" IsChecked="{Binding QuickSellable}"/>
+       <CheckBox Content="Hiển thị bán hàng" IsChecked="{Binding QuickVariantCatalogVisible}"/>
+      </WrapPanel>
+      <Button Margin="0,10,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding HasQuickProduct}" Click="SaveVariant_OnClick" Content="Lưu SKU"/>
+     </StackPanel>
+    </Border>
+   </Grid>
+
+   <Grid Margin="0,10,0,0">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+    <Border Margin="0,0,5,0" Style="{StaticResource OfficeCardStyle}">
+     <StackPanel>
+      <TextBlock Text="Đơn vị &amp; quy đổi" FontSize="15" FontWeight="SemiBold"/>
+      <TextBlock Margin="0,8,0,4" Text="Đơn vị tính"/><ComboBox Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding UnitOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding QuickUnitId}"/>
+      <TextBlock Margin="0,8,0,4" Text="Hệ số về tồn chuẩn"/><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickConversion}"/>
+      <Grid Margin="0,8,0,0">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
+       <TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickNetContentValue}"/>
+       <ComboBox Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding NetContentUnitOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding QuickNetContentUnit}"/>
+      </Grid>
+      <CheckBox Margin="0,8,0,0" Content="Có thể mua hàng" IsChecked="{Binding QuickPurchasable}"/>
+      <Button Margin="0,8,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding HasQuickVariant}" Click="SaveUnit_OnClick" Content="Lưu quy đổi"/>
+      <Separator Margin="0,10"/>
+      <TextBlock Text="Mã vạch" FontWeight="SemiBold"/>
+      <Grid Margin="0,4,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickBarcode}"/><Button Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="AddBarcode_OnClick" Content="Thêm"/></Grid>
+      <ItemsControl Margin="0,6,0,0" ItemsSource="{Binding BarcodeRows}">
+       <ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,2"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock VerticalAlignment="Center" Text="{Binding Barcode}"/><Button Grid.Column="1" Style="{StaticResource OfficeMiniButtonStyle}" Tag="{Binding Id}" Click="ToggleBarcode_OnClick" Content="{Binding ToggleAction}"/></Grid></DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+     </StackPanel>
+    </Border>
+
+    <Border Grid.Column="1" Margin="5,0" Style="{StaticResource OfficeCardStyle}">
+     <StackPanel>
+      <TextBlock Text="Giá bán" FontSize="15" FontWeight="SemiBold"/>
+      <TextBlock Margin="0,8,0,4" Text="Bảng giá"/><ComboBox x:Name="PriceListCombo" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding PriceListOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding QuickPriceListId, Mode=OneWay}" SelectionChanged="PriceList_OnSelectionChanged"/>
+      <TextBlock Margin="0,8,0,4" Text="Giá SKU (VND)"/><TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding QuickPriceAmount}"/>
+      <Button Margin="0,8,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanWritePrice}" Click="SavePrice_OnClick" Content="Lưu giá SKU"/>
+      <Separator Margin="0,10"/>
+      <TextBlock Text="Ảnh sản phẩm" FontSize="15" FontWeight="SemiBold"/>
+      <TextBlock Margin="0,4,0,0" Text="{Binding QuickImageStatus}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+      <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+       <Button Style="{StaticResource OfficeSecondaryButtonStyle}" Click="UploadImage_OnClick" Content="Chọn ảnh"/>
+       <Button Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="DeleteImage_OnClick" Content="Xóa ảnh"/>
+      </StackPanel>
+     </StackPanel>
+    </Border>
+
+    <Border Grid.Column="2" Margin="5,0,0,0" Style="{StaticResource OfficeCardStyle}">
+     <StackPanel>
+      <TextBlock Text="Tồn kho" FontSize="15" FontWeight="SemiBold"/>
+      <TextBlock Margin="0,3,0,8" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Text="Chỉ xem dữ liệu tồn chuẩn hiện có; không sửa tồn từ màn thiết lập SKU."/>
+      <DataGrid MinHeight="220" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding QuickInventoryRows}" AutoGenerateColumns="False" IsReadOnly="True">
+       <DataGrid.Columns>
+        <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="*"/>
+        <DataGridTextColumn Header="Vị trí" Binding="{Binding Location}" Width="*"/>
+        <DataGridTextColumn Header="Tồn" Binding="{Binding OnHand}" Width="70"/>
+        <DataGridTextColumn Header="Có thể dùng" Binding="{Binding Available}" Width="90"/>
+       </DataGrid.Columns>
+      </DataGrid>
+     </StackPanel>
+    </Border>
+   </Grid>
+  </StackPanel>
+ </ScrollViewer>
+</UserControl>

@@ -1,0 +1,84 @@
+name: Desktop CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/**'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Desktop
+        uses: actions/checkout@v4
+
+      - name: Secret scan
+        shell: pwsh
+        run: ./tools/secret-scan.ps1
+
+      - name: Checkout Công Ty source
+        uses: actions/checkout@v4
+        with:
+          repository: binhnxwjfjxm/NPP-Platform
+          ref: main
+          path: _source/NPP-Platform
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Parity drift self-test
+        run: node ./tools/parity-self-test.mjs
+
+      - name: Parity baseline
+        run: node ./tools/parity-check.mjs --source ./_source/NPP-Platform --report ./artifacts/parity-report.json
+
+      - name: Upload parity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-parity-report
+          path: artifacts/parity-report.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore CongTy.Desktop.sln
+
+      - name: Build
+        run: dotnet build CongTy.Desktop.sln --configuration Release --no-restore
+
+      - name: Unit tests
+        run: dotnet test tests/CongTy.UnitTests/CongTy.UnitTests.csproj --configuration Release --no-build --no-restore
+
+      - name: Native startup smoke
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path "src/CongTy.Desktop/bin/Release/net10.0-windows/CongTy.Desktop.exe"
+          $process = Start-Process -FilePath $exe -ArgumentList "--startup-smoke" -PassThru -Wait
+          if ($process.ExitCode -ne 0) {
+            $diagnostic = Join-Path (Split-Path $exe) "startup-smoke-error.txt"
+            if (Test-Path $diagnostic) {
+              Write-Host "----- startup-smoke-error.txt -----"
+              Get-Content $diagnostic | Write-Host
+              Write-Host "-----------------------------------"
+            }
+            throw "Ứng dụng Windows không khởi tạo được WPF/DI. ExitCode=$($process.ExitCode)"
+          }
+          Write-Host "Native startup smoke PASS"

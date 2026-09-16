@@ -1,0 +1,425 @@
+<UserControl x:Class="CongTy.Desktop.Logistics.TripDispatchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             Loaded="TripDispatchView_OnLoaded"
+             PreviewKeyDown="TripDispatchView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="DispatchTripListItemStyle"
+               TargetType="ListBoxItem"
+               BasedOn="{StaticResource OfficeListBoxItemStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="10" Margin="0,0,0,8">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasMessage}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource OfficeCardStyle}">
+                <DockPanel LastChildFill="True">
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="HÀNG ĐỢI BÀN GIAO"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="Chuyến đã khóa và đã xuất phát"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Click="Refresh_OnClick"
+                                Content="{Binding RefreshButtonText}" />
+                    </Grid>
+
+                    <ListBox ItemsSource="{Binding Trips}"
+                             SelectedItem="{Binding SelectedTripRow, Mode=TwoWay}"
+                             IsEnabled="{Binding IsNotBusy}"
+                             ItemContainerStyle="{StaticResource DispatchTripListItemStyle}"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,0,6" Padding="9" Style="{StaticResource OfficeCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Number}" FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0"
+                                                   Text="{Binding WarehouseStatus}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Text="{Binding Workload}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Text="{Binding VehicleDriver}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <TextBlock Margin="0,10,0,0"
+                               HorizontalAlignment="Center"
+                               Text="Chưa có chuyến chờ bàn giao hoặc đã xuất phát."
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasTrips}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource OfficeCardStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="CHI TIẾT BÀN GIAO"
+                                           FontSize="10"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <TextBlock Margin="0,3,0,0"
+                                           Text="{Binding SelectedTripNumber}"
+                                           FontSize="17"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeMiniButtonStyle}"
+                                        Visibility="{Binding HasSelectedTrip, Converter={StaticResource BoolToVisibility}}"
+                                        IsEnabled="{Binding CanPrintSelected}"
+                                        Click="Print_OnClick"
+                                        Content="In" />
+                                <TextBlock Text="{Binding SelectedTripStatus}"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Visibility="{Binding HasSelectedTrip, Converter={StaticResource BoolToVisibility}}">
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource OfficeSummaryCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Kho" />
+                                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding WarehouseText}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2" Style="{StaticResource OfficeSummaryCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Xe" />
+                                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding VehicleText}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="4" Style="{StaticResource OfficeSummaryCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Tài xế chính" />
+                                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding DriverText}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="6" Style="{StaticResource OfficeSummaryCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource OfficeSummaryLabelStyle}" Text="Khối lượng việc" />
+                                        <TextBlock Style="{StaticResource OfficeSummaryValueStyle}" Text="{Binding WorkloadText}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <Border Margin="0,0,0,10"
+                                    Style="{StaticResource OfficeCardStyle}"
+                                    Visibility="{Binding ShowDispatchForm, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel IsEnabled="{Binding CanEditDispatchForm}">
+                                    <TextBlock Text="Tài xế chính đã chốt trong kế hoạch"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,3,0,8"
+                                               Text="{Binding DriverIdentityText}"
+                                               FontWeight="SemiBold" />
+
+                                    <TextBlock Margin="0,0,0,4"
+                                               Text="Người nhận bàn giao thực tế"
+                                               FontWeight="SemiBold" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+                                        <RadioButton Margin="0,0,18,0"
+                                                     GroupName="ReceiverMode"
+                                                     Content="Tài xế chính"
+                                                     IsChecked="{Binding IsPrimaryReceiverMode, Mode=OneWay}"
+                                                     IsEnabled="{Binding CanChoosePrimaryReceiver}"
+                                                     Click="PrimaryReceiver_OnClick" />
+                                        <RadioButton GroupName="ReceiverMode"
+                                                     Content="Người nhận khác"
+                                                     IsChecked="{Binding IsOtherReceiverMode, Mode=OneWay}"
+                                                     IsEnabled="{Binding CanChooseOtherReceiver}"
+                                                     Click="OtherReceiver_OnClick" />
+                                    </StackPanel>
+
+                                    <TextBlock Margin="0,0,0,8"
+                                               Text="Người nhận bàn giao sẽ ghi nhận theo tài xế chính; không cần nhập lại tên."
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Visibility="{Binding ShowPrimaryReceiverHint, Converter={StaticResource BoolToVisibility}}"
+                                               TextWrapping="Wrap" />
+
+                                    <StackPanel Margin="0,0,0,8"
+                                                Visibility="{Binding ShowOtherReceiverField, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Margin="0,0,0,3"
+                                                   Text="Người nhận bàn giao khác"
+                                                   FontWeight="SemiBold" />
+                                        <TextBox Style="{StaticResource OfficeTextBoxStyle}"
+                                                 MaxLength="256"
+                                                 Text="{Binding OtherReceiverName, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+
+                                    <TextBlock Margin="0,0,0,3"
+                                               Text="Thời điểm xe xuất phát"
+                                               FontWeight="SemiBold" />
+                                    <TextBox Style="{StaticResource OfficeTextBoxStyle}"
+                                             ToolTip="yyyy-MM-dd HH:mm"
+                                             Text="{Binding DispatchedAtText, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <TextBlock Margin="0,8,0,3"
+                                               Text="Ghi chú bàn giao"
+                                               FontWeight="SemiBold" />
+                                    <TextBox Style="{StaticResource OfficeTextBoxStyle}"
+                                             MaxLength="2000"
+                                             MinHeight="68"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Text="{Binding HandoverNote, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <Border Margin="0,10,0,8" Padding="9" Style="{StaticResource OfficeCardStyle}">
+                                        <StackPanel>
+                                            <TextBlock Text="Trước khi xác nhận" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,5,0,0" Text="✓ Chuyến đã khóa, không còn sửa xe/tài xế/điểm giao" TextWrapping="Wrap" />
+                                            <TextBlock Margin="0,3,0,0" Text="✓ Toàn bộ phiếu sẽ xuất kho trong một giao dịch" TextWrapping="Wrap" />
+                                            <TextBlock Margin="0,3,0,0" Text="✓ Có lỗi ở một phiếu thì toàn chuyến không thay đổi" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Button HorizontalAlignment="Left"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            Visibility="{Binding CanDispatch, Converter={StaticResource BoolToVisibility}}"
+                                            IsEnabled="{Binding CanSubmitDispatch}"
+                                            Click="Dispatch_OnClick"
+                                            Content="{Binding DispatchButtonText}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="0,0,0,10"
+                                    Style="{StaticResource OfficeCardStyle}"
+                                    Visibility="{Binding ShowDispatchedSummary, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <TextBlock Text="CHUYẾN ĐÃ XUẤT PHÁT"
+                                               FontSize="10"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <Grid Margin="0,7,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="Xuất phát" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding DispatchedAtDisplay}" FontWeight="SemiBold" />
+                                        <TextBlock Grid.Row="1" Margin="0,5,0,0" Text="Người nhận" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,5,0,0" Text="{Binding HandoverReceiverDisplay}" FontWeight="SemiBold" />
+                                        <TextBlock Grid.Row="2" Margin="0,5,0,0" Text="Mã bàn giao" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,5,0,0" Text="{Binding DispatchReferenceDisplay}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <TextBlock Grid.Row="3" Margin="0,5,0,0" Text="Ghi chú" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,5,0,0" Text="{Binding HandoverNoteDisplay}" TextWrapping="Wrap" />
+                                    </Grid>
+                                    <TextBlock Margin="0,9,0,0"
+                                               Text="Chuyến đã xuất phát. Kế hoạch và phiếu được gán chỉ đọc; kết quả giao và bằng chứng giao hàng thuộc bước tiếp theo."
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding Stops}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,0,0,7" Padding="9" Style="{StaticResource OfficeCardStyle}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                                <ItemsControl Margin="0,5,0,0" ItemsSource="{Binding Assignments}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Margin="0,3,0,0" Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding Number}" FontWeight="SemiBold" />
+                                                                <TextBlock Margin="8,0,0,0"
+                                                                           Text="{Binding Customer}"
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Margin="0,8,0,0"
+                                       HorizontalAlignment="Center"
+                                       Text="Chuyến chưa có điểm giao."
+                                       Foreground="{DynamicResource TextSecondaryBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasStops}" Value="False">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <Border Margin="0,10,0,0"
+                                    Style="{StaticResource OfficeCardStyle}"
+                                    Visibility="{Binding ShowDispatchedSummary, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <TextBlock Text="XUẤT KHO ĐÃ GHI"
+                                               FontSize="10"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,3,0,7"
+                                               Text="Các phiếu đã rời kho"
+                                               FontSize="15"
+                                               FontWeight="SemiBold" />
+                                    <ItemsControl ItemsSource="{Binding Movements}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,0,0,7">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="220" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Number}" FontWeight="SemiBold" />
+                                                        <TextBlock Margin="0,2,0,0"
+                                                                   Text="{Binding Customer}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="Mã ghi xuất kho"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                        <TextBlock Margin="0,2,0,0"
+                                                                   Text="{Binding MovementReference}"
+                                                                   TextWrapping="Wrap" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <TextBlock Margin="0,8,0,0"
+                                               Text="Không tìm thấy thông tin ghi xuất kho để đối chiếu."
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasMovements}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <TextBlock Margin="0,16,0,0"
+                                   HorizontalAlignment="Center"
+                                   Text="Chọn chuyến bên trái để kiểm tra và bàn giao."
+                                   Foreground="{DynamicResource TextSecondaryBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasSelectedTrip}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

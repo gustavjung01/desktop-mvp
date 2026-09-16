@@ -1,0 +1,703 @@
+<UserControl x:Class="CongTy.Desktop.Inventory.InventoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             PreviewKeyDown="InventoryView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="InventoryRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource OfficeDataGridRowStyle}">
+            <Setter Property="Height" Value="Auto" />
+            <Setter Property="MinHeight" Value="42" />
+        </Style>
+        <Style x:Key="InventoryCellTextStyle" TargetType="TextBlock" BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="Padding" Value="0,5" />
+        </Style>
+        <Style x:Key="NumericCellTextStyle" TargetType="TextBlock" BasedOn="{StaticResource InventoryCellTextStyle}">
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <TabControl Style="{StaticResource OfficeTabControlStyle}"
+                    SelectedIndex="{Binding MainTabIndex, Mode=TwoWay}">
+            <TabItem Header="Tra cứu tồn kho" IsEnabled="{Binding CanReadBalances}">
+                <TabControl Margin="0,8,0,0"
+                            Style="{StaticResource OfficeTabControlStyle}"
+                            SelectedIndex="{Binding LookupTabIndex, Mode=TwoWay}">
+                    <TabItem Header="Tồn kho">
+                        <Grid Margin="0,8,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="BalanceSearchBox"
+                                         Width="430"
+                                         HorizontalAlignment="Left"
+                                         Style="{StaticResource OfficeTextBoxStyle}"
+                                         Text="{Binding BalanceSearch, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Tìm theo sản phẩm, SKU, kho, vị trí hoặc lô" />
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        IsEnabled="{Binding IsNotBusy}"
+                                        Click="RefreshBalances_OnClick"
+                                        Content="Làm mới dữ liệu" />
+                            </Grid>
+
+                            <TextBlock Grid.Row="1"
+                                       Margin="0,7,0,7"
+                                       Text="Tìm theo sản phẩm, SKU, kho, vị trí hoặc lô. Số tồn, số đã giữ cho đơn và số có thể xuất lấy trực tiếp từ hệ thống Công Ty."
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+
+                            <DataGrid x:Name="BalanceGrid"
+                                      Grid.Row="2"
+                                      Style="{StaticResource OfficeDataGridStyle}"
+                                      RowStyle="{StaticResource InventoryRowStyle}"
+                                      ItemsSource="{Binding Balances}"
+                                      SelectedItem="{Binding SelectedBalance, Mode=TwoWay}"
+                                      MouseDoubleClick="BalanceGrid_OnMouseDoubleClick">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="54" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                    <DataGridTextColumn Header="Kho / vị trí" Binding="{Binding WarehouseLocation}" Width="1.45*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Sản phẩm / SKU" Binding="{Binding ProductSku}" Width="1.65*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Lô" Binding="{Binding Lot}" Width="0.8*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Hạn dùng" Binding="{Binding Expiry}" Width="0.85*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Tồn kho" Binding="{Binding OnHand}" Width="0.95*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Đã giữ cho đơn" Binding="{Binding Reserved}" Width="0.95*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Có thể xuất" Binding="{Binding Available}" Width="0.95*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTemplateColumn Header="" Width="102">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button VerticalAlignment="Center" Style="{StaticResource OfficeMiniButtonStyle}"
+                                                        Tag="{Binding}"
+                                                        Click="OpenHistory_OnClick"
+                                                        Content="Xem lịch sử" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
+
+                    <TabItem Header="Lịch sử kho">
+                        <Grid Margin="0,8,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding HistoryContext}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                            IsEnabled="{Binding HistoryHasPrevious}"
+                                            Click="HistoryPrevious_OnClick"
+                                            Content="Trang trước" />
+                                    <TextBlock MinWidth="58"
+                                               Margin="6,0"
+                                               VerticalAlignment="Center"
+                                               TextAlignment="Center"
+                                               Text="{Binding HistoryPageText}" />
+                                    <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                            IsEnabled="{Binding HistoryHasNext}"
+                                            Click="HistoryNext_OnClick"
+                                            Content="Trang sau" />
+                                    <Button Margin="8,0,0,0"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            IsEnabled="{Binding CanOpenHistory}"
+                                            Click="RefreshHistory_OnClick"
+                                            Content="Làm mới lịch sử" />
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Grid.Row="1"
+                                       Margin="0,7,0,7"
+                                       Text="Lịch sử luôn xem theo SKU trong toàn kho được cấp quyền; không tự thu hẹp theo vị trí hoặc lô của một dòng tồn."
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+
+                            <DataGrid x:Name="HistoryGrid"
+                                      Grid.Row="2"
+                                      Style="{StaticResource OfficeDataGridStyle}"
+                                      RowStyle="{StaticResource InventoryRowStyle}"
+                                      ItemsSource="{Binding HistoryRows}"
+                                      SelectedItem="{Binding SelectedHistory, Mode=TwoWay}"
+                                      MouseDoubleClick="HistoryGrid_OnMouseDoubleClick">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="52" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                    <DataGridTextColumn Header="Thời gian" Binding="{Binding PostedAt}" Width="1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Nghiệp vụ" Binding="{Binding Movement}" Width="1.25*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Chứng từ" Binding="{Binding Document}" Width="1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Thay đổi" Binding="{Binding Quantity}" Width="0.9*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Tồn sau" Binding="{Binding StockAfter}" Width="0.9*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Vị trí / lô" Binding="{Binding LocationLot}" Width="1.25*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                    <DataGridTextColumn Header="Người ghi" Binding="{Binding PostedBy}" Width="1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+
+            <TabItem Header="Báo cáo tồn kho" IsEnabled="{Binding CanReadReporting}">
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource OfficeCardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="145" />
+                                <ColumnDefinition Width="250" />
+                                <ColumnDefinition Width="180" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Margin="0,0,8,0">
+                                <TextBlock Text="Từ ngày" FontWeight="SemiBold" />
+                                <DatePicker Margin="0,4,0,0" SelectedDate="{Binding FromDate, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                <TextBlock Text="Đến ngày" FontWeight="SemiBold" />
+                                <DatePicker Margin="0,4,0,0" SelectedDate="{Binding ToDate, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Margin="0,0,8,0">
+                                <TextBlock Text="Kho" FontWeight="SemiBold" />
+                                <ComboBox x:Name="ReportWarehouseBox"
+                                          Margin="0,4,0,0"
+                                          Style="{StaticResource OfficeComboBoxStyle}"
+                                          ItemsSource="{Binding WarehouseOptions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Margin="0,0,8,0">
+                                <TextBlock Text="Chậm luân chuyển" FontWeight="SemiBold" />
+                                <ComboBox Margin="0,4,0,0"
+                                          Style="{StaticResource OfficeComboBoxStyle}"
+                                          ItemsSource="{Binding SlowDayOptions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Days"
+                                          SelectedValue="{Binding SlowDays, Mode=TwoWay}" />
+                            </StackPanel>
+                            <Button Grid.Column="4"
+                                    Margin="0,20,6,0"
+                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    IsEnabled="{Binding IsNotBusy}"
+                                    IsDefault="True"
+                                    Click="ApplyReport_OnClick"
+                                    Content="Áp dụng" />
+                            <Button Grid.Column="5"
+                                    Margin="0,20,6,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding IsNotBusy}"
+                                    Click="ResetReport_OnClick"
+                                    Content="Đặt lại" />
+                            <Button Grid.Column="7"
+                                    Margin="8,20,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding CanExportReport}"
+                                    Click="ExportReport_OnClick"
+                                    Content="Xuất file" />
+                        </Grid>
+                    </Border>
+
+                    <WrapPanel Grid.Row="2" Margin="0,6,0,0"
+                               Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                        <Border Width="180" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                                ToolTip="Đếm mã hàng có số tồn thực tế lớn hơn 0.">
+                            <StackPanel>
+                                <TextBlock Text="Mã hàng đang có tồn" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding StockedSkuCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Width="180" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                                ToolTip="Theo kho và mã hàng sau khi gộp vị trí, lô.">
+                            <StackPanel>
+                                <TextBlock Text="Vị thế tồn hiện tại" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding StockPositionCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Width="180" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                                ToolTip="Số vị thế đang có hàng được giữ cho đơn.">
+                            <StackPanel>
+                                <TextBlock Text="Có giữ hàng" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding ReservedPositionCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Width="180" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                                ToolTip="Chỉ tính các lô còn số lượng thực tế.">
+                            <StackPanel>
+                                <TextBlock Text="Lô đang còn hàng" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding LotScopeCount}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Width="210" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                                ToolTip="Chỉ cộng các vị thế đã tính được giá vốn.">
+                            <StackPanel>
+                                <TextBlock Text="Giá trị tồn hiện tại" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding InventoryValue}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Width="190" Margin="0,0,0,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                                ToolTip="Số vị thế có chênh lệch số lượng hoặc chưa tính đủ giá vốn.">
+                            <StackPanel>
+                                <TextBlock Text="Cần kiểm tra giá vốn" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding CostingExceptionCount}" />
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+
+                    <TextBlock Grid.Row="3"
+                               Margin="0,1,0,7"
+                               Text="{Binding ReportStatus}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+
+                    <TabControl Grid.Row="4"
+                                Style="{StaticResource OfficeTabControlStyle}"
+                                SelectedIndex="{Binding ReportTabIndex, Mode=TwoWay}"
+                                Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                        <TabItem Header="Tổng quan">
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Tổng quan theo kho" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Đếm mã hàng và giá trị tiền theo từng kho; không cộng lẫn số lượng giữa các mã hàng khác đơn vị."
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <DataGrid Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource InventoryRowStyle}" ItemsSource="{Binding WarehouseSummaryRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="52" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="2*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Mã hàng có tồn" Binding="{Binding StockedSku}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Mã hàng có giữ" Binding="{Binding ReservedSku}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Giá trị (đ)" Binding="{Binding Value}" Width="1.2*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Cần kiểm tra" Binding="{Binding Exceptions}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Cập nhật tồn" Binding="{Binding UpdatedAt}" Width="1.3*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Chưa có dữ liệu tồn trong phạm vi."
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding WarehouseSummaryRows.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Tồn hiện tại">
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Tồn khả dụng &amp; giá trị hiện tại" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Số tồn, số đã giữ cho đơn và số có thể xuất lấy từ dữ liệu tồn kho chuẩn; giá trị và giá bình quân lấy từ dữ liệu giá vốn."
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <DataGrid x:Name="PositionGrid" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource InventoryRowStyle}" ItemsSource="{Binding PositionRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.65*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Sản phẩm / mã hàng" Binding="{Binding ProductSku}" Width="1.7*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Tồn kho" Binding="{Binding OnHand}" Width="0.75*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Quy đổi" Binding="{Binding PackageBreakdown}" Width="1.1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTemplateColumn Header="Đã giữ" Width="1*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Grid VerticalAlignment="Center">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding Reserved}" Style="{StaticResource NumericCellTextStyle}" VerticalAlignment="Center" />
+                                                            <Button Grid.Column="1"
+                                                                    Margin="6,0,0,0"
+                                                                    Style="{StaticResource OfficeMiniButtonStyle}"
+                                                                    Tag="{Binding}"
+                                                                    ToolTip="Xem các đơn đang giữ hàng"
+                                                                    Click="OpenReportHolds_OnClick"
+                                                                    Content="Xem" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTextColumn Header="Có thể xuất" Binding="{Binding Available}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Giá bình quân" Binding="{Binding AverageCost}" Width="1*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Tình trạng giá vốn" Binding="{Binding CostingStatus}" Width="1.15*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Không có vị thế tồn hiện tại."
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PositionRows.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Luân chuyển">
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="2*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Nhập – xuất – tồn theo kỳ" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="{Binding PeriodFlowDescription}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <DataGrid Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource InventoryRowStyle}" ItemsSource="{Binding FlowRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.75*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Sản phẩm / mã hàng" Binding="{Binding ProductSku}" Width="1.6*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Đầu kỳ" Binding="{Binding Opening}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Nhập" Binding="{Binding Inbound}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Xuất" Binding="{Binding Outbound}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Cuối kỳ" Binding="{Binding Closing}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Dòng nghiệp vụ" Binding="{Binding Lines}" Width="0.9*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Không có phát sinh trong kỳ và không có số dư cuối kỳ."
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding FlowRows.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                                <StackPanel Grid.Row="2" Margin="0,10,0,8">
+                                    <TextBlock Text="Loại nghiệp vụ trong kỳ" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="Đếm chứng từ, dòng và mã hàng theo từng loại nghiệp vụ kho." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Grid Grid.Row="3">
+                                    <DataGrid Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding MovementTypeRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Loại nghiệp vụ" Binding="{Binding Movement}" Width="2*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Chứng từ" Binding="{Binding Documents}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Dòng" Binding="{Binding Lines}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Mã hàng" Binding="{Binding Skus}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Không có nghiệp vụ kho trong kỳ."
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding MovementTypeRows.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Chậm luân chuyển">
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Hàng chậm luân chuyển" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="{Binding SlowMovingDescription}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <DataGrid Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource InventoryRowStyle}" ItemsSource="{Binding SlowRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.7*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Sản phẩm / mã hàng" Binding="{Binding ProductSku}" Width="1.6*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Tồn kho" Binding="{Binding OnHand}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Có thể xuất" Binding="{Binding Available}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Lần xuất cuối" Binding="{Binding LastOut}" Width="1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Số ngày" Binding="{Binding Days}" Width="0.7*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Giá trị (đ)" Binding="{Binding Value}" Width="1*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Không có mã hàng chậm luân chuyển theo ngưỡng đã chọn."
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding SlowRows.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Lô &amp; hạn dùng">
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Lô, tuổi hàng &amp; hạn dùng" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Tuổi lô chỉ tính khi có ngày sản xuất. Không tự suy diễn tuổi hàng cho mặt hàng không quản lý lô."
+                                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <DataGrid Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource InventoryRowStyle}" ItemsSource="{Binding ExpiryRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.65*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Sản phẩm / mã hàng" Binding="{Binding ProductSku}" Width="1.5*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Lô" Binding="{Binding Lot}" Width="0.8*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Ngày sản xuất" Binding="{Binding Manufactured}" Width="1.05*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Hạn dùng" Binding="{Binding Expiry}" Width="0.9*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Tồn kho" Binding="{Binding OnHand}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Có thể xuất" Binding="{Binding Available}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="1.1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Không có lô còn hàng trong phạm vi."
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding ExpiryRows.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Cần kiểm tra">
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="Cần kiểm tra số lượng &amp; giá vốn" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Đối chiếu số lượng trong sổ kho với số lượng đang dùng để tính giá vốn. Chỉ hiện các dòng cần kiểm tra."
+                                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <DataGrid Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource InventoryRowStyle}" ItemsSource="{Binding ExceptionRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.7*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Sản phẩm / mã hàng" Binding="{Binding ProductSku}" Width="1.5*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Số lượng sổ kho" Binding="{Binding Ledger}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Số lượng tính giá" Binding="{Binding Costing}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Chênh lệch" Binding="{Binding Difference}" Width="*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="1.1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                                            <DataGridTextColumn Header="Số cảnh báo" Binding="{Binding Alerts}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="Không có chênh lệch giá vốn hiện tại."
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding ExceptionRows.Count}" Value="0"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                    <Border Grid.Row="5" Margin="0,8,0,0" Padding="10,7" Style="{StaticResource OfficeCardStyle}"
+                            Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Nguyên tắc số liệu: số lượng lấy từ sổ kho và dữ liệu tồn kho chuẩn; giá trị lấy từ dữ liệu giá vốn. Báo cáo không tạo nguồn tồn kho riêng."
+                                   TextWrapping="Wrap" />
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Danh mục lô" IsEnabled="{Binding CanReadLots}">
+                <Grid Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <TextBox x:Name="LotSearchBox"
+                                 Width="430"
+                                 HorizontalAlignment="Left"
+                                 Style="{StaticResource OfficeTextBoxStyle}"
+                                 Text="{Binding LotSearch, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="Tìm theo SKU, mã lô hoặc hạn dùng" />
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Click="RefreshLots_OnClick"
+                                Content="Làm mới dữ liệu" />
+                    </Grid>
+                    <TextBlock Grid.Row="1"
+                               Margin="0,7"
+                               Text="Tìm theo SKU, mã lô hoặc hạn dùng. Danh mục lô là dữ liệu hàng hóa; sơ đồ/vị trí kho vẫn được quản lý tại Tổ chức nội bộ."
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+                    <DataGrid Grid.Row="2"
+                              Style="{StaticResource OfficeDataGridStyle}"
+                              RowStyle="{StaticResource InventoryRowStyle}"
+                              ItemsSource="{Binding Lots}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="52" />
+                            <DataGridTextColumn Header="Sản phẩm / SKU" Binding="{Binding ProductSku}" Width="2*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                            <DataGridTextColumn Header="Mã lô" Binding="{Binding LotCode}" Width="1*" />
+                            <DataGridTextColumn Header="Ngày sản xuất" Binding="{Binding ManufacturedDate}" Width="1*" />
+                            <DataGridTextColumn Header="Hạn dùng" Binding="{Binding ExpiryDate}" Width="1*" />
+                            <DataGridTextColumn Header="Lô nhà cung cấp" Binding="{Binding SupplierReference}" Width="1.2*" />
+                            <DataGridTextColumn Header="Ngày tạo" Binding="{Binding CreatedAt}" Width="1.1*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Border Background="#72000000"
+                Visibility="{Binding IsHistoryDetailOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="620"
+                    MaxHeight="520"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock FontSize="17" FontWeight="SemiBold" Text="Chi tiết biến động kho" />
+                            <TextBlock Margin="0,3,0,0" Foreground="{DynamicResource TextSecondaryBrush}" Text="{Binding SelectedHistory.Movement}" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource OfficeMiniButtonStyle}" Click="CloseHistoryDetail_OnClick" Content="Đóng" />
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="0,14,0,12">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="160" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Thời gian" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Column="1" Text="{Binding SelectedHistory.PostedAt}" />
+                        <TextBlock Grid.Row="1" Margin="0,7,0,0" Text="Chứng từ" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Row="1" Grid.Column="1" Margin="0,7,0,0" Text="{Binding SelectedHistory.Document}" />
+                        <TextBlock Grid.Row="2" Margin="0,7,0,0" Text="Thay đổi" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Row="2" Grid.Column="1" Margin="0,7,0,0" Text="{Binding SelectedHistory.Quantity}" />
+                        <TextBlock Grid.Row="3" Margin="0,7,0,0" Text="Tồn sau" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Row="3" Grid.Column="1" Margin="0,7,0,0" Text="{Binding SelectedHistory.StockAfter}" />
+                        <TextBlock Grid.Row="4" Margin="0,7,0,0" Text="Vị trí / lô" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Row="4" Grid.Column="1" Margin="0,7,0,0" Text="{Binding SelectedHistory.LocationLot}" TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="5" Margin="0,7,0,0" Text="Người ghi" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Row="5" Grid.Column="1" Margin="0,7,0,0" Text="{Binding SelectedHistory.PostedBy}" />
+                        <TextBlock Grid.Row="6" Margin="0,7,0,0" Text="Lý do / ghi chú" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Row="6" Grid.Column="1" Margin="0,7,0,0" Text="{Binding SelectedHistory.Reason}" TextWrapping="Wrap" />
+                        <TextBlock Grid.Row="7" Margin="0,7,0,0" Text="Mã biến động" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Grid.Row="7" Grid.Column="1" Margin="0,7,0,0" Text="{Binding SelectedHistory.Data.MovementId}" TextWrapping="Wrap" />
+                    </Grid>
+                    <TextBlock Grid.Row="2"
+                               Text="Esc để đóng · Enter trên dòng lịch sử để mở chi tiết"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Grid>
+            </Border>
+        </Border>
+
+        <Border Background="#72000000"
+                Panel.ZIndex="60"
+                Visibility="{Binding IsHoldDetailOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="760"
+                    MaxHeight="560"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock FontSize="17" FontWeight="SemiBold" Text="Đơn đang giữ hàng" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="{Binding HoldSummary}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                Click="CloseReportHolds_OnClick"
+                                Content="Đóng" />
+                    </Grid>
+
+                    <TextBlock Grid.Row="1"
+                               Margin="0,10,0,0"
+                               Text="Đang tải…"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Visibility="{Binding IsHoldBusy, Converter={StaticResource BoolToVisibility}}" />
+
+                    <TextBlock Grid.Row="2"
+                               Margin="0,8,0,8"
+                               Text="{Binding HoldStatus}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+
+                    <DataGrid Grid.Row="3"
+                              MinHeight="220"
+                              Style="{StaticResource OfficeDataGridStyle}"
+                              RowStyle="{StaticResource InventoryRowStyle}"
+                              ItemsSource="{Binding HoldOrders}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                            <DataGridTextColumn Header="Đơn hàng" Binding="{Binding OrderNumber}" Width="1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                            <DataGridTextColumn Header="Khách hàng" Binding="{Binding Customer}" Width="1.4*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                            <DataGridTextColumn Header="Mã hàng" Binding="{Binding ProductSku}" Width="1.1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                            <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.9*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                            <DataGridTextColumn Header="Hình thức" Binding="{Binding Flow}" Width="1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
+                            <DataGridTextColumn Header="Số lượng giữ" Binding="{Binding HeldQuantity}" Width="0.95*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Grid.Row="4"
+                               Margin="0,10,0,0"
+                               Text="Esc để đóng · Enter trên dòng Tồn hiện tại để mở danh sách giữ hàng"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+                </Grid>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

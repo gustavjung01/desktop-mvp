@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "name": "SCREEN_MANIFEST",
+  "source": {
+    "repository": "binhnxwjfjxm/NPP-Platform",
+    "baselineRevision": "698324a530f4c1741cd20ab0ba1ee0596fc862d8",
+    "fingerprints": {
+      "webAppTree": "95099220976589246ae25d47912d499fd760e80e"
+    }
+  },
+  "snapshot": {
+    "screens": {
+      "count": 72,
+      "sha256": "2949874a6d892893a6aa52a36eecd1b57b52513fe34ca105668fddf1728a4d27"
+    }
+  },
+  "discovery": {
+    "root": "npp-core/web/app",
+    "include": [
+      "**/page.tsx"
+    ],
+    "classificationForExactBaseline": "planned",
+    "classificationForChangedSource": "unclassified"
+  },
+  "requiredScreenFields": [
+    "screenId",
+    "route",
+    "purpose",
+    "dataSource",
+    "inputOutputFields",
+    "validation",
+    "permissionsRoles",
+    "states",
+    "businessErrors",
+    "shortcuts",
+    "printerUsage",
+    "exportReport",
+    "status"
+  ],
+  "allowedStatuses": [
+    "implemented",
+    "planned",
+    "not_applicable",
+    "blocked"
+  ],
+  "policy": "Every user-visible page in the exact audited Công Ty web tree is classified as planned until its Desktop lot supplies the full screen contract. Any source-tree or exact screen identity change is unclassified and fails CI."
+}

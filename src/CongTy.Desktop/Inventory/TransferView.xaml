@@ -1,0 +1,693 @@
+<UserControl x:Class="CongTy.Desktop.Inventory.TransferView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             Loaded="TransferView_OnLoaded"
+             PreviewKeyDown="TransferView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="TransferSegmentStyle" TargetType="Button" BasedOn="{StaticResource OfficeSecondaryButtonStyle}">
+            <Setter Property="MinWidth" Value="145" />
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TransferCardButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,10,10" />
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="MinHeight" Value="150" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.55" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TransferGridRowStyle"
+               TargetType="DataGridRow"
+               BasedOn="{StaticResource OfficeDataGridRowStyle}">
+            <Setter Property="Height" Value="Auto" />
+            <Setter Property="MinHeight" Value="42" />
+        </Style>
+
+        <Style x:Key="TransferCellTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="Padding" Value="0,4" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="TransferNumericTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource TransferCellTextStyle}">
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="16">
+            <UniformGrid Columns="4">
+                <Border Margin="0,0,10,0" Padding="14,10" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Phiếu nháp" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0" Text="{Binding SummaryDraft}" FontSize="20" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+                <Border Margin="0,0,10,0" Padding="14,10" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Chờ xuất kho" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0" Text="{Binding SummaryApproved}" FontSize="20" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+                <Border Margin="0,0,10,0" Padding="14,10" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Đã xuất chuyển" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0" Text="{Binding SummaryDispatched}" FontSize="20" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+                <Border Padding="14,10" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Dòng đang đi đường" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0" Text="{Binding SummaryInTransitLines}" FontSize="20" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Border Margin="0,10,0,0"
+                    Padding="12"
+                    Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="210" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                        <Button Style="{StaticResource TransferSegmentStyle}"
+                                Tag="{Binding IsTransfersMode}"
+                                Click="TransfersMode_OnClick"
+                                Content="Phiếu chuyển kho" />
+                        <Button Margin="4,0,0,0"
+                                Style="{StaticResource TransferSegmentStyle}"
+                                Tag="{Binding IsTransitMode}"
+                                Click="TransitMode_OnClick"
+                                Content="Hàng đang đi đường" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="TÌM KIẾM" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBox x:Name="TransferSearchBox"
+                                 Margin="0,4,0,0"
+                                 Style="{StaticResource OfficeTextBoxStyle}"
+                                 Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="Số phiếu, kho, SKU hoặc lô" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4"
+                                Visibility="{Binding IsTransfersMode, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="TRẠNG THÁI CHỨNG TỪ" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <ComboBox Margin="0,4,0,0"
+                                  Style="{StaticResource OfficeComboBoxStyle}"
+                                  ItemsSource="{Binding StatusOptions}"
+                                  DisplayMemberPath="Label"
+                                  SelectedValuePath="Id"
+                                  SelectedValue="{Binding StatusFilter, Mode=TwoWay}" />
+                    </StackPanel>
+
+                    <Button Grid.Column="6"
+                            VerticalAlignment="Bottom"
+                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                            Click="ResetFilters_OnClick"
+                            Content="Đặt lại" />
+                </Grid>
+            </Border>
+
+            <Border Margin="0,10,0,0"
+                    Style="{StaticResource OfficeCardStyle}"
+                    Visibility="{Binding IsCreateOpen, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="PHIẾU MỚI" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="Tạo phiếu chuyển kho" FontSize="17" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                Click="CloseCreate_OnClick"
+                                Content="Đóng" />
+                    </Grid>
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="NGÀY CHUYỂN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <DatePicker Margin="0,4,0,0"
+                                        SelectedDate="{Binding TransferDate, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="KHO XUẤT" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <ComboBox Margin="0,4,0,0"
+                                      Style="{StaticResource OfficeComboBoxStyle}"
+                                      ItemsSource="{Binding WarehouseOptions}"
+                                      DisplayMemberPath="Label"
+                                      SelectedValuePath="Id"
+                                      SelectedValue="{Binding SourceWarehouseId, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="KHO NHẬN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <ComboBox Margin="0,4,0,0"
+                                      Style="{StaticResource OfficeComboBoxStyle}"
+                                      ItemsSource="{Binding DestinationWarehouseOptions}"
+                                      DisplayMemberPath="Label"
+                                      SelectedValuePath="Id"
+                                      SelectedValue="{Binding DestinationWarehouseId, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Margin="0,10,0,0">
+                        <TextBlock Text="GHI CHÚ" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBox Margin="0,4,0,0"
+                                 MinHeight="62"
+                                 Style="{StaticResource OfficeTextBoxStyle}"
+                                 Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <Grid Margin="0,12,0,6">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Hàng chuyển" FontSize="15" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,2,0,0"
+                                       Text="Chọn từ số tồn khả dụng thực tế của kho xuất."
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanAddDraftLine}"
+                                Click="AddDraftLine_OnClick"
+                                Content="Thêm dòng" />
+                    </Grid>
+
+                    <DataGrid ItemsSource="{Binding DraftLines}"
+                              Style="{StaticResource OfficeDataGridStyle}"
+                              RowStyle="{StaticResource TransferGridRowStyle}"
+                              MaxHeight="320">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Hàng tồn" Width="2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox Margin="0,2"
+                                                  Style="{StaticResource OfficeComboBoxStyle}"
+                                                  ItemsSource="{Binding Options}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Key"
+                                                  SelectedValue="{Binding SelectedKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Số lượng" Width="130">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Margin="0,2"
+                                                 Style="{StaticResource OfficeTextBoxStyle}"
+                                                 Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Khả dụng" Binding="{Binding Available}" Width="120" ElementStyle="{StaticResource TransferNumericTextStyle}" />
+                            <DataGridTemplateColumn Header="Thao tác" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                IsEnabled="{Binding DataContext.CanRemoveDraftLine, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                Tag="{Binding}"
+                                                Click="RemoveDraftLine_OnClick"
+                                                Content="Xóa dòng" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CancelCreate_OnClick"
+                                Content="Hủy nhập" />
+                        <Button Margin="6,0,0,0"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanCreateTransfer}"
+                                Click="SaveCreate_OnClick"
+                                Content="{Binding CreateButtonText}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Margin="0,10,0,0"
+                    Style="{StaticResource OfficeCardStyle}"
+                    Visibility="{Binding HasSelectedTransfer, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="{Binding DetailStatus}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailNumber}" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailRouteDate}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                            <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding CanPrintSelected}"
+                                    Click="PrintTransfer_OnClick"
+                                    Content="In phiếu" />
+                            <Button Margin="6,0,0,0"
+                                    Style="{StaticResource OfficeMiniButtonStyle}"
+                                    Click="CloseDetail_OnClick"
+                                    Content="Đóng" />
+                        </StackPanel>
+                    </Grid>
+
+                    <UniformGrid Margin="0,12,0,0" Columns="3">
+                        <Border Margin="0,0,8,8" Padding="10" Background="{DynamicResource SurfaceMutedBrush}">
+                            <StackPanel><TextBlock Text="Kho xuất" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,3,0,0" Text="{Binding DetailSourceWarehouse}" FontWeight="SemiBold" TextWrapping="Wrap" /></StackPanel>
+                        </Border>
+                        <Border Margin="0,0,8,8" Padding="10" Background="{DynamicResource SurfaceMutedBrush}">
+                            <StackPanel><TextBlock Text="Kho nhận" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,3,0,0" Text="{Binding DetailDestinationWarehouse}" FontWeight="SemiBold" TextWrapping="Wrap" /></StackPanel>
+                        </Border>
+                        <Border Margin="0,0,0,8" Padding="10" Background="{DynamicResource SurfaceMutedBrush}">
+                            <StackPanel><TextBlock Text="Số dòng" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,3,0,0" Text="{Binding DetailLineCount}" FontWeight="SemiBold" /></StackPanel>
+                        </Border>
+                        <Border Margin="0,0,8,0" Padding="10" Background="{DynamicResource SurfaceMutedBrush}">
+                            <StackPanel><TextBlock Text="Tổng lượng cơ sở" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,3,0,0" Text="{Binding DetailBaseQuantity}" FontWeight="SemiBold" /></StackPanel>
+                        </Border>
+                        <Border Margin="0,0,8,0" Padding="10" Background="{DynamicResource SurfaceMutedBrush}">
+                            <StackPanel><TextBlock Text="Ghi sổ kho nguồn" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,3,0,0" Text="{Binding DetailMovementState}" FontWeight="SemiBold" /></StackPanel>
+                        </Border>
+                        <Border Padding="10" Background="{DynamicResource SurfaceMutedBrush}">
+                            <StackPanel><TextBlock Text="Cập nhật" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,3,0,0" Text="{Binding DetailUpdatedAt}" FontWeight="SemiBold" /></StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <ItemsControl Margin="0,12,0,0" ItemsSource="{Binding DetailLines}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,8,8"
+                                        Padding="12"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="7">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Product}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        <UniformGrid Margin="0,8,0,0" Columns="3">
+                                            <StackPanel><TextBlock Text="Số lượng xuất" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,2,0,0" Text="{Binding Quantity}" FontWeight="SemiBold" /></StackPanel>
+                                            <StackPanel><TextBlock Text="Lô" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,2,0,0" Text="{Binding Lot}" FontWeight="SemiBold" /></StackPanel>
+                                            <StackPanel><TextBlock Text="Hạn dùng" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Margin="0,2,0,0" Text="{Binding Expiry}" FontWeight="SemiBold" /></StackPanel>
+                                        </UniformGrid>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid Margin="0,10,0,0"
+                          Visibility="{Binding IsDraftSelected, Converter={StaticResource BoolToVisibility}}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="LÝ DO HỦY" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBox Margin="0,4,12,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding CancelReason, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Margin="0,18,6,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanCancelSelected}"
+                                Click="CancelTransfer_OnClick"
+                                Content="Hủy phiếu" />
+                        <Button Grid.Column="2"
+                                Margin="0,18,0,0"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanApproveSelected}"
+                                Click="ApproveTransfer_OnClick"
+                                Content="{Binding ApproveButtonText}" />
+                    </Grid>
+
+                    <Grid Margin="0,10,0,0"
+                          Visibility="{Binding IsApprovedSelected, Converter={StaticResource BoolToVisibility}}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="LÝ DO HỦY" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBox Margin="0,4,12,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding CancelReason, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Margin="0,18,6,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanCancelSelected}"
+                                Click="CancelTransfer_OnClick"
+                                Content="Hủy phiếu" />
+                        <Button Grid.Column="2"
+                                Margin="0,18,0,0"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanDispatchSelected}"
+                                Click="DispatchTransfer_OnClick"
+                                Content="{Binding DispatchButtonText}" />
+                    </Grid>
+
+                    <StackPanel Margin="0,16,0,0"
+                                Visibility="{Binding HasReceiptWorkspace, Converter={StaticResource BoolToVisibility}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Nhận hàng tại kho đích" FontSize="16" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,0,0"
+                                           Text="Nhận đạt mới vào tồn khả dụng; hư hỏng và thừa được giữ riêng để xử lý."
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    IsEnabled="{Binding CanReceiveSelected}"
+                                    Click="OpenReceiptForm_OnClick"
+                                    Content="Lập lần nhận" />
+                        </Grid>
+
+                        <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding ResolutionRows}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,8,8" Padding="11" Style="{StaticResource OfficeCardStyle}">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Product}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock Margin="0,2,0,0" Text="{Binding Unit}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                            <UniformGrid Margin="0,8,0,0" Columns="2">
+                                                <StackPanel Margin="0,0,6,5"><TextBlock Text="Đã xuất" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding Dispatched}" FontWeight="SemiBold" /></StackPanel>
+                                                <StackPanel Margin="0,0,0,5"><TextBlock Text="Nhận đạt" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding Accepted}" FontWeight="SemiBold" /></StackPanel>
+                                                <StackPanel Margin="0,0,6,5"><TextBlock Text="Hư hỏng" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding Damaged}" FontWeight="SemiBold" /></StackPanel>
+                                                <StackPanel Margin="0,0,0,5"><TextBlock Text="Thiếu đã đóng" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding Short}" FontWeight="SemiBold" /></StackPanel>
+                                                <StackPanel Margin="0,0,6,0"><TextBlock Text="Thừa chờ xác minh" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding Over}" FontWeight="SemiBold" /></StackPanel>
+                                                <StackPanel><TextBlock Text="Còn đi đường" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding Remaining}" FontWeight="SemiBold" /></StackPanel>
+                                            </UniformGrid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Margin="0,4,0,0"
+                                Padding="12"
+                                Background="{DynamicResource SurfaceMutedBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding IsReceiptFormOpen, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="LẦN NHẬN MỚI" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Margin="0,2,0,0" Text="Ghi nhận kiểm đếm tại kho đích" FontSize="15" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Style="{StaticResource OfficeMiniButtonStyle}" Click="CloseReceiptForm_OnClick" Content="Đóng" />
+                                </Grid>
+
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="180" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="NGÀY NHẬN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <DatePicker Margin="0,4,0,0" SelectedDate="{Binding ReceiptDate, Mode=TwoWay}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="GHI CHÚ LẦN NHẬN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding ReceiptNote, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <DataGrid Margin="0,10,0,0"
+                                          ItemsSource="{Binding ReceiptDraftRows}"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          RowStyle="{StaticResource TransferGridRowStyle}"
+                                          MaxHeight="330"
+                                          HorizontalScrollBarVisibility="Auto">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Sản phẩm" Binding="{Binding Product}" Width="210" ElementStyle="{StaticResource TransferCellTextStyle}" />
+                                        <DataGridTextColumn Header="Còn đi đường" Binding="{Binding Remaining}" Width="115" ElementStyle="{StaticResource TransferNumericTextStyle}" />
+                                        <DataGridTemplateColumn Header="Vị trí nhập hàng đạt" Width="190">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ComboBox Margin="0,2"
+                                                              Style="{StaticResource OfficeComboBoxStyle}"
+                                                              ItemsSource="{Binding Locations}"
+                                                              DisplayMemberPath="Label"
+                                                              SelectedValuePath="Id"
+                                                              SelectedValue="{Binding DestinationLocationId, Mode=TwoWay}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Nhận đạt" Width="92">
+                                            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Margin="0,2" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding AcceptedQuantity, UpdateSourceTrigger=PropertyChanged}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Hư hỏng" Width="92">
+                                            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Margin="0,2" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding DamagedQuantity, UpdateSourceTrigger=PropertyChanged}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Thừa chờ xác minh" Width="118">
+                                            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Margin="0,2" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding OverQuantity, UpdateSourceTrigger=PropertyChanged}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Ghi chú dòng" Width="180">
+                                            <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Margin="0,2" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}" /></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <Border Margin="0,8,0,0" Padding="10" Background="{DynamicResource AccentSoftBrush}">
+                                    <TextBlock Text="Hàng thừa không tự cộng tồn. Hàng hư hỏng không vào tồn bán được và cần quản lý kho duyệt biên bản."
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               TextWrapping="Wrap" />
+                                </Border>
+
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Style="{StaticResource OfficeSecondaryButtonStyle}" Click="CloseReceiptForm_OnClick" Content="Hủy nhập" />
+                                    <Button Margin="6,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="SubmitReceipt_OnClick" Content="{Binding ReceiveButtonText}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Margin="0,12,0,0">
+                            <TextBlock Text="Lịch sử nhận và xử lý" FontSize="15" FontWeight="SemiBold" />
+                            <ItemsControl Margin="0,6,0,0" ItemsSource="{Binding ReceiptHistoryRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,0,0,8" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                            <StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Header}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                        <TextBlock Margin="0,2,0,0" Text="{Binding DateStatus}" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="1" Text="{Binding State}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" />
+                                                </Grid>
+                                                <TextBlock Margin="0,8,0,0" Text="{Binding LineSummary}" TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,6,0,0"
+                                                           Text="{Binding ApprovalText}"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           Visibility="{Binding HasApproval, Converter={StaticResource BoolToVisibility}}" />
+                                                <TextBlock Margin="0,6,0,0"
+                                                           Text="{Binding ReversalText}"
+                                                           Foreground="{DynamicResource DangerBrush}"
+                                                           Visibility="{Binding IsReversed, Converter={StaticResource BoolToVisibility}}" />
+
+                                                <Grid Margin="0,8,0,0"
+                                                      Visibility="{Binding CanApproveDamage, Converter={StaticResource BoolToVisibility}}">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                    <TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding DamageNote, UpdateSourceTrigger=PropertyChanged}" ToolTip="Ghi chú duyệt hư hỏng" />
+                                                    <Button Grid.Column="1" Margin="6,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                            IsEnabled="{Binding DataContext.IsNotBusy, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            Tag="{Binding}" Click="ApproveDamage_OnClick" Content="Duyệt hư hỏng" />
+                                                </Grid>
+
+                                                <Grid Margin="0,8,0,0"
+                                                      Visibility="{Binding CanReverse, Converter={StaticResource BoolToVisibility}}">
+                                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                    <TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding ReverseReason, UpdateSourceTrigger=PropertyChanged}" ToolTip="Lý do đảo lần nhận" />
+                                                    <Button Grid.Column="1" Margin="6,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                            IsEnabled="{Binding DataContext.IsNotBusy, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            Tag="{Binding}" Click="ReverseReceipt_OnClick" Content="Đảo lần nhận" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="Chưa có lần nhận nào cho phiếu này."
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers><DataTrigger Binding="{Binding HasReceipts}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <Border Margin="0,10,0,0"
+                                Padding="12"
+                                Background="{DynamicResource AccentSoftBrush}"
+                                Visibility="{Binding HasShortClosure, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="{Binding ShortClosureText}" TextWrapping="Wrap" />
+                        </Border>
+
+                        <Grid Margin="0,10,0,0"
+                              Visibility="{Binding HasRemainingTransfer, Converter={StaticResource BoolToVisibility}}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Đóng phần thiếu" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,2,10,0"
+                                           Text="Chỉ dùng khi đã xác minh phần còn lại sẽ không về. Phiếu xuất gốc vẫn được giữ nguyên."
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="LÝ DO BẮT BUỘC" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <TextBox Margin="0,4,10,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding ShortReason, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <Button Grid.Column="2"
+                                    VerticalAlignment="Bottom"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding CanCloseShortSelected}"
+                                    Click="CloseShort_OnClick"
+                                    Content="{Binding CloseShortButtonText}" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,10,0,0"
+                  Visibility="{Binding IsBrowse, Converter={StaticResource BoolToVisibility}}">
+                <ItemsControl ItemsSource="{Binding TransferCards}"
+                              Visibility="{Binding IsTransfersMode, Converter={StaticResource BoolToVisibility}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource TransferCardButtonStyle}"
+                                    Tag="{Binding TransferId}"
+                                    Click="OpenTransfer_OnClick">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Status}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Date}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </Grid>
+                                    <TextBlock Margin="0,9,0,0" Text="{Binding Stt, StringFormat={}{0}.}" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,2,0,0" Text="{Binding Number}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                    <TextBlock Margin="0,5,0,0" Text="{Binding Route}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <UniformGrid Margin="0,9,0,0" Columns="2">
+                                        <StackPanel><TextBlock Text="Số dòng" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding LineCount}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel><TextBlock Text="Lượng cơ sở" FontSize="9.5" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding Quantity}" FontWeight="SemiBold" /></StackPanel>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <ItemsControl ItemsSource="{Binding TransitCards}"
+                              Visibility="{Binding IsTransitMode, Converter={StaticResource BoolToVisibility}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="3" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource TransferCardButtonStyle}"
+                                    Tag="{Binding TransferId}"
+                                    Click="OpenTransfer_OnClick">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Status}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding DispatchedAt}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </Grid>
+                                    <TextBlock Margin="0,9,0,0" Text="{Binding Stt, StringFormat={}{0}.}" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,2,0,0" Text="{Binding Product}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                    <TextBlock Margin="0,5,0,0" Text="{Binding Route}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,8,0,0" Text="{Binding Number, StringFormat=Số phiếu: {0}}" />
+                                    <TextBlock Margin="0,2,0,0" Text="{Binding Remaining, StringFormat=Còn lại: {0}}" />
+                                    <TextBlock Margin="0,2,0,0" Text="{Binding Lot, StringFormat=Lô: {0}}" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="Chưa có dữ liệu phù hợp bộ lọc."
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="0,35"
+                           Foreground="{DynamicResource TextSecondaryBrush}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasBrowseRows}" Value="False" />
+                                        <Condition Binding="{Binding IsLoading}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

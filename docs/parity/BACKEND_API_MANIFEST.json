@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "name": "BACKEND_API_MANIFEST",
+  "source": {
+    "repository": "binhnxwjfjxm/NPP-Platform",
+    "baselineRevision": "698324a530f4c1741cd20ab0ba1ee0596fc862d8",
+    "fingerprints": {
+      "apiRoutesTree": "05b607cb4d1cafc56a9a295aba5296445865b3f1",
+      "serverBlob": "68d7329c8f6f551838b98b81e74f874a889c76ee",
+      "contractsJsBlob": "d7e564a37017400bb316826d5511a4291cd4c1d5",
+      "contractsTypesBlob": "5295cf3621425de771daede736284b5d6f329010",
+      "idempotencyBlob": "faba39af51fd81d0b8d778b20f669a17825da3f7"
+    }
+  },
+  "snapshot": {
+    "apiRouteSources": {
+      "count": 88,
+      "sha256": "2ac799344da77b444235ccf2be9fea73c35be20e9a7f7d52c824c0b730588075"
+    },
+    "endpointCandidates": {
+      "count": 388,
+      "sha256": "f9e91c31ab0d9e8dc5ee04a2dbfd8d4f3ac995464dd77af0b4c54ca2f5220678"
+    },
+    "mutationCandidates": {
+      "count": 280,
+      "sha256": "b6a967e437398e1d9c68e4a8fdebcfc5af4d5f181702793e0a3f355fc1181d9f"
+    }
+  },
+  "authorityOwner": "Công Ty backend",
+  "discovery": {
+    "entrypoint": "npp-core/api/src/server.js",
+    "routeRoot": "npp-core/api/src/routes",
+    "endpointPrefixes": [
+      "/api",
+      "/health"
+    ],
+    "classificationForExactBaseline": "planned",
+    "classificationForChangedSource": "unclassified",
+    "unknownMethodRule": "Any route candidate whose HTTP method cannot be proven statically is treated as a potential mutation and must stay mapped until reviewed."
+  },
+  "requiredEndpointFields": [
+    "method",
+    "path",
+    "auth",
+    "permissions",
+    "inputSchema",
+    "outputSchema",
+    "errorCodes",
+    "retryBehavior",
+    "idempotencyBehavior",
+    "auditImpact",
+    "authorityOwner",
+    "desktopMapping",
+    "status"
+  ],
+  "contractDiffFoundation": {
+    "canonicalEnvelopeSources": [
+      "packages/contracts/index.js",
+      "packages/contracts/index.d.ts"
+    ],
+    "canonicalIdempotencySources": [
+      "packages/contracts/index.js",
+      "npp-core/api/src/idempotency.js"
+    ],
+    "idempotencyKeyCharacters": "[A-Za-z0-9._-]",
+    "idempotencyKeyMaxLength": 128,
+    "retryRule": "Retry of the same logical operation must reuse the same Idempotency-Key."
+  },
+  "allowedStatuses": [
+    "implemented",
+    "planned",
+    "not_applicable",
+    "blocked"
+  ]
+}

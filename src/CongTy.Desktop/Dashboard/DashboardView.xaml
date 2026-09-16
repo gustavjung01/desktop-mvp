@@ -1,0 +1,334 @@
+<UserControl x:Class="CongTy.Desktop.Dashboard.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="760"
+             MinHeight="520">
+    <UserControl.Resources>
+        <Style x:Key="DashboardSectionStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+
+        <Style x:Key="DashboardKpiCardStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="Width" Value="176" />
+            <Setter Property="MinHeight" Value="90" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+        </Style>
+
+        <Style x:Key="DashboardShortcutStyle" TargetType="Button" BasedOn="{StaticResource OfficeSecondaryButtonStyle}">
+            <Setter Property="Width" Value="184" />
+            <Setter Property="MinHeight" Value="50" />
+            <Setter Property="Padding" Value="9,6" />
+            <Setter Property="Margin" Value="0,0,7,7" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+
+        <Style x:Key="DashboardMeasurementCardStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="MinHeight" Value="164" />
+            <Setter Property="Padding" Value="12" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+        </Style>
+
+        <Style x:Key="DashboardEyebrowStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="16">
+            <Border Style="{StaticResource DashboardSectionStyle}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="NHỊP VẬN HÀNH" Style="{StaticResource DashboardEyebrowStyle}" />
+                            <TextBlock Margin="0,2,0,0"
+                                       Text="Chỉ số cần nhìn ngay"
+                                       FontSize="17"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1"
+                                   VerticalAlignment="Bottom"
+                                   Text="Cơ cấu và số liệu vận hành theo đúng quyền hiện tại"
+                                   FontSize="10.5"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Kpis}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource DashboardKpiCardStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="38" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="34"
+                                                Height="34"
+                                                CornerRadius="10"
+                                                Background="{DynamicResource AccentSoftBrush}"
+                                                VerticalAlignment="Top">
+                                            <TextBlock Text="▦"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       FontSize="14" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                            <TextBlock Text="{Binding Label}"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Margin="0,3,0,0"
+                                                       Text="{Binding Value}"
+                                                       FontSize="20"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Margin="0,4,0,0"
+                                                       Text="{Binding Hint}"
+                                                       FontSize="9"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource DashboardSectionStyle}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="TRUY CẬP NHANH" Style="{StaticResource DashboardEyebrowStyle}" />
+                            <TextBlock Margin="0,2,0,0"
+                                       Text="Mở đúng việc, không qua màn trung gian"
+                                       FontSize="17"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1"
+                                   VerticalAlignment="Bottom"
+                                   Text="Giữ đúng tên và nhóm công việc như Công Ty Web"
+                                   FontSize="10.5"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </Grid>
+
+                    <WrapPanel>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.operations" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Điều hành bán hàng" FontWeight="SemiBold" /><TextBlock Text="Bán hàng và khách hàng" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.orders" IsEnabled="{Binding CanOpenSalesOrders}" Click="Shortcut_OnClick">
+                            <StackPanel><TextBlock Text="Đơn bán hàng" FontWeight="SemiBold" /><TextBlock Text="Bán hàng và khách hàng" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="catalog.customers" IsEnabled="{Binding CanOpenCustomers}" Click="Shortcut_OnClick">
+                            <StackPanel><TextBlock Text="Khách hàng" FontWeight="SemiBold" /><TextBlock Text="Bán hàng và khách hàng" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.customer-onboarding" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Mở/liên kết mã khách" FontWeight="SemiBold" /><TextBlock Text="Bán hàng và khách hàng" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.orders" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Đơn mua hàng" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.receipts" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Phiếu nhận hàng" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="inventory.fulfillment" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Chuẩn bị hàng" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="inventory.balances" IsEnabled="{Binding CanOpenInventory}" Click="Shortcut_OnClick">
+                            <StackPanel><TextBlock Text="Tra cứu tồn kho" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.delivery-orders" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Phiếu giao hàng" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.trips" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Lập và xếp chuyến" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.receivables" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Công nợ phải thu" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.customer-payments" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Thu tiền khách hàng" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.reporting" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Báo cáo bán hàng" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.reporting" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Báo cáo mua hàng" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="inventory.reporting" IsEnabled="{Binding CanOpenInventory}" Click="Shortcut_OnClick">
+                            <StackPanel><TextBlock Text="Báo cáo tồn kho" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.reporting" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Hiệu suất giao hàng" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.aging" IsEnabled="False">
+                            <StackPanel><TextBlock Text="Tuổi nợ" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
+                        </Button>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource DashboardSectionStyle}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="ĐO LƯỜNG VẬN HÀNH" Style="{StaticResource DashboardEyebrowStyle}" />
+                            <TextBlock Margin="0,2,0,0"
+                                       Text="Theo dõi xu hướng và điểm cần chú ý"
+                                       FontSize="17"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="Số liệu đọc theo đúng quyền và phạm vi của tài khoản hiện tại, không tạo nguồn dữ liệu riêng."
+                                       FontSize="10.5"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Margin="0,0,8,0"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding GeneratedText}"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding IsNotBusy}"
+                                    Click="Refresh_OnClick"
+                                    Content="Cập nhật" />
+                        </StackPanel>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Measurements}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource DashboardMeasurementCardStyle}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Eyebrow}" Style="{StaticResource DashboardEyebrowStyle}" />
+                                            <TextBlock Margin="0,3,0,0"
+                                                       Text="{Binding Title}"
+                                                       FontSize="15"
+                                                       FontWeight="SemiBold" />
+                                        </StackPanel>
+                                        <Grid Grid.Row="1" Margin="0,14,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding PrimaryValue}"
+                                                           FontSize="25"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Margin="0,4,0,0"
+                                                           Text="{Binding Detail}"
+                                                           FontSize="9.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <Border Grid.Column="1"
+                                                    Margin="10,0,0,0"
+                                                    Padding="10"
+                                                    CornerRadius="9"
+                                                    Background="{DynamicResource AccentSoftBrush}">
+                                                <TextBlock Text="{Binding SecondaryValue}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           TextAlignment="Center"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" />
+                                            </Border>
+                                        </Grid>
+                                        <Border Grid.Row="2"
+                                                Height="5"
+                                                CornerRadius="3"
+                                                Background="{DynamicResource AccentSoftBrush}">
+                                            <Border Width="86"
+                                                    HorizontalAlignment="Left"
+                                                    CornerRadius="3"
+                                                    Background="{DynamicResource AccentBrush}" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <ItemsControl Margin="0,4,0,0" ItemsSource="{Binding Activities}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="6" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Margin="0,0,5,0">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Label}"
+                                                   FontSize="9"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Margin="0,3,0,0"
+                                                   Text="{Binding Value}"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Text="{Binding Hint}"
+                                                   FontSize="8"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Margin="2,0,2,6"
+                       FontSize="9"
+                       Foreground="{DynamicResource TextSecondaryBrush}">
+                <Run Text="Chỉ số cơ cấu: " />
+                <Run Text="{Binding StructureActiveText, Mode=OneWay}" FontWeight="SemiBold" />
+                <Run Text=". Các thẻ đo lường chỉ hiển thị dữ liệu mà tài khoản hiện tại được phép đọc." />
+            </TextBlock>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,530 @@
+<UserControl x:Class="CongTy.Desktop.Inventory.InventoryLookupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             Loaded="InventoryLookupView_OnLoaded"
+             PreviewKeyDown="InventoryLookupView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="LookupTabButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource OfficeSecondaryButtonStyle}">
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="MinWidth" Value="120" />
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="True">
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="LookupGridRowStyle"
+               TargetType="DataGridRow"
+               BasedOn="{StaticResource OfficeDataGridRowStyle}">
+            <Setter Property="Height" Value="Auto" />
+            <Setter Property="MinHeight" Value="48" />
+        </Style>
+
+        <Style x:Key="LookupCellTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="Padding" Value="0,4" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="16">
+                <Border Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource LookupTabButtonStyle}"
+                                        Tag="{Binding IsBalancesTab}"
+                                        Click="BalancesTab_OnClick"
+                                        Content="Tồn kho" />
+                                <Button Style="{StaticResource LookupTabButtonStyle}"
+                                        Tag="{Binding IsHistoryTab}"
+                                        Click="HistoryTab_OnClick"
+                                        Content="Lịch sử kho" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding IsBalancesTab, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Margin="0,0,8,0"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding PageSummary}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <Button Margin="0,0,6,0"
+                                        Style="{StaticResource OfficeMiniButtonStyle}"
+                                        IsEnabled="{Binding HasPreviousPage}"
+                                        Click="PreviousPage_OnClick"
+                                        Content="Trang trước" />
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeMiniButtonStyle}"
+                                        IsEnabled="{Binding HasNextPage}"
+                                        Click="NextPage_OnClick"
+                                        Content="Trang sau" />
+                                <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        IsEnabled="{Binding IsNotBusy}"
+                                        Click="RefreshBalances_OnClick"
+                                        Content="Làm mới dữ liệu" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding IsHistoryTab, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Margin="0,0,8,0"
+                                           VerticalAlignment="Center"
+                                           Text="50 dòng/trang"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        IsEnabled="{Binding CanRefreshHistory}"
+                                        Click="RefreshHistory_OnClick"
+                                        Content="Làm mới lịch sử" />
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Margin="0,12,0,0"
+                                    Visibility="{Binding IsBalancesTab, Converter={StaticResource BoolToVisibility}}">
+                            <TextBox x:Name="SearchBox"
+                                     Style="{StaticResource OfficeTextBoxStyle}"
+                                     Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Tìm theo sản phẩm, SKU, kho, vị trí hoặc lô" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="Tìm theo sản phẩm, SKU, kho, vị trí hoặc lô"
+                                       FontSize="10.5"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+
+                        <TextBlock Margin="0,12,0,0"
+                                   Text="{Binding HistoryContext}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Visibility="{Binding IsHistoryTab, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,10,0,0"
+                        Padding="10">
+                    <Border.Style>
+                        <Style TargetType="Border"
+                               BasedOn="{StaticResource OfficeCardStyle}">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Message}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding Message}"
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <Border Margin="0,10,0,0"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding IsBalancesTab, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <DataGrid ItemsSource="{Binding Balances}"
+                                  Style="{StaticResource OfficeDataGridStyle}"
+                                  RowStyle="{StaticResource LookupGridRowStyle}"
+                                  IsReadOnly="True"
+                                  MaxHeight="650">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="STT"
+                                                    Binding="{Binding Sequence}"
+                                                    Width="55"
+                                                    ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                <DataGridTemplateColumn Header="Kho / vị trí"
+                                                        Width="1.25*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,3">
+                                                <TextBlock Text="{Binding Warehouse}"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,2,0,0"
+                                                           Text="{Binding Location}"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Sản phẩm / SKU"
+                                                        Width="1.55*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,3">
+                                                <TextBlock Text="{Binding Product}"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,2,0,0"
+                                                           Text="{Binding BaseSku}" />
+                                                <TextBlock Text="{Binding PackageSku}"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding Variant}"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding PackageRule}"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Lô"
+                                                    Binding="{Binding Lot}"
+                                                    Width="105"
+                                                    ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                <DataGridTextColumn Header="Hạn dùng"
+                                                    Binding="{Binding Expiry}"
+                                                    Width="105"
+                                                    ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                <DataGridTemplateColumn Header="Tồn kho"
+                                                        Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,3">
+                                                <TextBlock Text="{Binding OnHand}"
+                                                           FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding OnHandBreakdown}"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Đã giữ cho đơn"
+                                                        Width="125">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,3">
+                                                <TextBlock Text="{Binding Reserved}"
+                                                           FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding ReservedBreakdown}"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Có thể xuất"
+                                                        Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,3">
+                                                <TextBlock Text="{Binding Available}"
+                                                           FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding AvailableBreakdown}"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header=""
+                                                        Width="105">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                    Click="OpenHistory_OnClick"
+                                                    Content="Xem lịch sử" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Margin="0,10,0,0"
+                                   Text="Chưa có dữ liệu tồn kho."
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondaryBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FilteredCount}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Margin="0,10,0,0"
+                            Visibility="{Binding IsHistoryTab, Converter={StaticResource BoolToVisibility}}">
+                    <Border Style="{StaticResource OfficeCardStyle}">
+                        <Grid>
+                            <TextBlock Text="Chưa chọn SKU và kho. Mở tab Tồn kho, chọn dòng cần xem rồi bấm “Xem lịch sử”."
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedBalance}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <StackPanel>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedBalance}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="LỊCH SỬ KHO"
+                                                   FontSize="9.5"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   Text="{Binding HistoryProduct}"
+                                                   FontSize="17"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Text="{Binding HistorySku}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Text="{Binding HistoryWarehouse}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1"
+                                                HorizontalAlignment="Right">
+                                        <TextBlock Text="TỒN HIỆN TẠI TẠI KHO"
+                                                   FontSize="9"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   HorizontalAlignment="Right" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   Text="{Binding HistoryWarehouseTotal}"
+                                                   FontSize="17"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Right" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Mỗi biến động kho là một dòng, sắp theo thời điểm ghi nhận."
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal">
+                                        <TextBlock Margin="0,0,8,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding HistoryPageText}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <Button Margin="0,0,6,0"
+                                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                                IsEnabled="{Binding HistoryHasPrevious}"
+                                                Click="HistoryPrevious_OnClick"
+                                                Content="Trang trước" />
+                                        <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                IsEnabled="{Binding HistoryHasNext}"
+                                                Click="HistoryNext_OnClick"
+                                                Content="Trang sau" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <DataGrid Margin="0,10,0,0"
+                                          ItemsSource="{Binding HistoryRows}"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          RowStyle="{StaticResource LookupGridRowStyle}"
+                                          IsReadOnly="True"
+                                          MaxHeight="560">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Ngày ghi nhận"
+                                                            Binding="{Binding PostedAt}"
+                                                            Width="130"
+                                                            ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                        <DataGridTextColumn Header="Nhân viên"
+                                                            Binding="{Binding Employee}"
+                                                            Width="1*"
+                                                            ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                        <DataGridTextColumn Header="Thao tác"
+                                                            Binding="{Binding Movement}"
+                                                            Width="1.2*"
+                                                            ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                        <DataGridTextColumn Header="Số lượng thay đổi"
+                                                            Binding="{Binding Quantity}"
+                                                            Width="125"
+                                                            ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                        <DataGridTextColumn Header="Tồn kho"
+                                                            Binding="{Binding StockAfter}"
+                                                            Width="115"
+                                                            ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                        <DataGridTemplateColumn Header="Mã chứng từ"
+                                                                Width="125">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                                Visibility="{Binding HasDocument, Converter={StaticResource BoolToVisibility}}"
+                                                                Click="OpenHistoryDetail_OnClick"
+                                                                Content="{Binding DocumentNumber}" />
+                                                        <TextBlock Text="—"
+                                                                   VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding HasDocument}" Value="False">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Kho"
+                                                            Binding="{Binding Warehouse}"
+                                                            Width="1.2*"
+                                                            ElementStyle="{StaticResource LookupCellTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Margin="0,10,0,0"
+                                           Text="Chưa có giao dịch nào của SKU này tại kho đã chọn."
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Visibility="{Binding HasNoHistoryRows, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Panel.ZIndex="20"
+                Background="#66000000"
+                Visibility="{Binding IsHistoryDetailOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="720"
+                    Margin="40"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="{Binding DetailDocumentType}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="{Binding DetailDocumentNumber}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CloseHistoryDetail_OnClick"
+                                Content="Đóng" />
+                    </Grid>
+
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Margin="0,0,12,10">
+                            <TextBlock Text="NGÀY GHI NHẬN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailPostedAt}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,0,10">
+                            <TextBlock Text="NHÂN VIÊN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailEmployee}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Margin="0,0,12,10">
+                            <TextBlock Text="THAO TÁC" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailMovement}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                            <TextBlock Text="SỐ LƯỢNG THAY ĐỔI" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailQuantity}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Margin="0,0,12,10">
+                            <TextBlock Text="TỒN SAU GIAO DỊCH" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailStockAfter}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,10">
+                            <TextBlock Text="KHO" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailWarehouse}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="3" Margin="0,0,12,0">
+                            <TextBlock Text="VỊ TRÍ" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailLocation}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="3" Grid.Column="1">
+                            <TextBlock Text="LÔ" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailLot}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Margin="0,14,0,0"
+                                Visibility="{Binding HasDetailReason, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="GHI CHÚ"
+                                   FontSize="9"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Text="{Binding DetailReason}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

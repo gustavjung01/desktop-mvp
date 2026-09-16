@@ -1,0 +1,289 @@
+<UserControl x:Class="CongTy.Desktop.Logistics.LogisticsReportingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             Loaded="LogisticsReportingView_OnLoaded"
+             PreviewKeyDown="LogisticsReportingView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="LogisticsRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource OfficeDataGridRowStyle}">
+            <Setter Property="Height" Value="Auto" />
+            <Setter Property="MinHeight" Value="44" />
+        </Style>
+        <Style x:Key="LogisticsCellTextStyle" TargetType="TextBlock" BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Padding" Value="0,5" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="LogisticsNumericTextStyle" TargetType="TextBlock" BasedOn="{StaticResource LogisticsCellTextStyle}">
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="16">
+            <Border Margin="0,0,0,10" Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="14" />
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="14" />
+                        <ColumnDefinition Width="280" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Margin="0,0,0,4" Text="Từ ngày" FontWeight="SemiBold" />
+                        <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}" IsEnabled="{Binding IsNotBusy}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Margin="0,0,0,4" Text="Đến ngày" FontWeight="SemiBold" />
+                        <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}" IsEnabled="{Binding IsNotBusy}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Margin="0,0,0,4" Text="Kho" FontWeight="SemiBold" />
+                        <ComboBox Style="{StaticResource OfficeComboBoxStyle}"
+                                  ItemsSource="{Binding Warehouses}"
+                                  DisplayMemberPath="Label"
+                                  SelectedValuePath="Id"
+                                  SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay}"
+                                  IsEnabled="{Binding IsNotBusy}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
+                        <Button Margin="0,0,6,0"
+                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                IsEnabled="False"
+                                Content="Mở chuyến giao" />
+                        <Button Margin="0,0,12,0"
+                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                IsEnabled="False"
+                                Content="Kết quả lần giao" />
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Click="ApplyFilters_OnClick"
+                                Content="Áp dụng" />
+                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Click="CurrentMonth_OnClick"
+                                Content="Tháng hiện tại" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Padding="10" Margin="0,0,0,10">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Message}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Border>
+
+            <TextBlock Margin="0,10"
+                       HorizontalAlignment="Center"
+                       Text="Đang tải hiệu suất giao hàng…"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       Visibility="{Binding ShowInitialLoading, Converter={StaticResource BoolToVisibility}}" />
+
+            <StackPanel Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Margin="0,0,0,8"
+                           Text="Tỷ lệ đúng hạn chỉ tính các phiếu giao đủ có giờ dự kiến tại điểm giao. Phiếu thiếu giờ dự kiến được tách riêng để đối chiếu, không tự coi là đúng hạn."
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+
+                <WrapPanel Margin="0,0,0,8">
+                    <Border Width="180" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                            ToolTip="Tính theo giờ bắt đầu kế hoạch của chuyến.">
+                        <StackPanel>
+                            <TextBlock Text="Chuyến trong kỳ" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding TripCount}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Width="200" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                            ToolTip="Tổng điểm giao và phiếu được xếp vào chuyến.">
+                        <StackPanel>
+                            <TextBlock Text="Điểm giao / phiếu giao" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding StopsOrders}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Width="170" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                            ToolTip="{Binding DeliveredFullHint}">
+                        <StackPanel>
+                            <TextBlock Text="Giao đủ" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding DeliveredFullCount}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Width="180" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                            ToolTip="{Binding SlaCoverageHint}">
+                        <StackPanel>
+                            <TextBlock Text="Đủ dữ liệu SLA" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding SlaCoverage}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Width="245" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                            ToolTip="Không gộp vào tỷ lệ giao đủ đúng hạn.">
+                        <StackPanel>
+                            <TextBlock Text="Giao một phần / thất bại / hẹn lại" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding OtherResults}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Width="210" Margin="0,0,8,4" Style="{StaticResource OfficeSummaryCardStyle}"
+                            ToolTip="Từ lúc xuất phát đến khi đóng chuyến; không suy diễn phần trăm tải xe khi chưa có dữ liệu thực tế.">
+                        <StackPanel>
+                            <TextBlock Text="Thời lượng chuyến đã đóng" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding AverageClosedTrip}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <TabControl Style="{StaticResource OfficeTabControlStyle}"
+                            SelectedIndex="{Binding ActiveTabIndex, Mode=TwoWay}">
+                    <TabItem Header="Tài xế">
+                        <StackPanel Margin="0,8,0,0">
+                            <TextBlock Text="Hiệu suất theo tài xế" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,8" Text="Khối lượng thực tế theo hồ sơ tài xế đã được hệ thống xác định; không suy diễn từ tên hiển thị." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <DataGrid ItemsSource="{Binding Drivers}" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource LogisticsRowStyle}" IsReadOnly="True" MaxHeight="500" HorizontalScrollBarVisibility="Auto">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Tài xế" Binding="{Binding Identity}" Width="1.35*" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Chuyến" Binding="{Binding Trips}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Điểm" Binding="{Binding Stops}" Width="70" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Phiếu" Binding="{Binding Orders}" Width="70" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Giao đủ" Binding="{Binding Full}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Giao một phần" Binding="{Binding Partial}" Width="98" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Thất bại" Binding="{Binding Failed}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Hẹn lại" Binding="{Binding Rescheduled}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Đúng hạn" Binding="{Binding OnTime}" Width="82" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="TB chuyến đóng" Binding="{Binding AverageClosedTrip}" Width="110" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,12,0,0" HorizontalAlignment="Center" Text="Không có chuyến trong kỳ." Foreground="{DynamicResource TextSecondaryBrush}" Visibility="{Binding HasNoDrivers, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+                    </TabItem>
+
+                    <TabItem Header="Phương tiện">
+                        <StackPanel Margin="0,8,0,0">
+                            <TextBlock Text="Hiệu suất theo phương tiện" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,8" Text="Chỉ hiển thị khối lượng sử dụng và thời lượng thực tế; chưa tính phần trăm tải/công suất khi chưa có dữ liệu tải thực tế." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <DataGrid ItemsSource="{Binding Vehicles}" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource LogisticsRowStyle}" IsReadOnly="True" MaxHeight="500" HorizontalScrollBarVisibility="Auto">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Xe" Binding="{Binding Identity}" Width="1.35*" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Chuyến" Binding="{Binding Trips}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Điểm" Binding="{Binding Stops}" Width="70" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Phiếu" Binding="{Binding Orders}" Width="70" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Giao đủ" Binding="{Binding Full}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Giao một phần" Binding="{Binding Partial}" Width="98" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Thất bại" Binding="{Binding Failed}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Hẹn lại" Binding="{Binding Rescheduled}" Width="78" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Đúng hạn" Binding="{Binding OnTime}" Width="82" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="TB chuyến đóng" Binding="{Binding AverageClosedTrip}" Width="110" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,12,0,0" HorizontalAlignment="Center" Text="Không có phương tiện trong kỳ." Foreground="{DynamicResource TextSecondaryBrush}" Visibility="{Binding HasNoVehicles, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+                    </TabItem>
+
+                    <TabItem Header="Kết quả giao">
+                        <StackPanel Margin="0,8,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Lý do giao thất bại / hẹn lại" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="Chỉ dùng lý do đã được ghi nhận cùng kết quả giao chính thức." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="False" Content="Mở kết quả lần giao" />
+                            </Grid>
+                            <DataGrid Margin="0,8,0,0" ItemsSource="{Binding FailureReasons}" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource LogisticsRowStyle}" IsReadOnly="True" MaxHeight="420">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Kết quả" Binding="{Binding Result}" Width="1.2*" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Lý do" Binding="{Binding Reason}" Width="2*" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Số lần" Binding="{Binding Count}" Width="100" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,12,0,0" HorizontalAlignment="Center" Text="Không có lần giao thất bại hoặc hẹn lại trong kỳ." Foreground="{DynamicResource TextSecondaryBrush}" Visibility="{Binding HasNoFailureReasons, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+                    </TabItem>
+
+                    <TabItem Header="Chuyến gần nhất">
+                        <StackPanel Margin="0,8,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="100 chuyến gần nhất trong bộ lọc" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="Dùng số chuyến và dữ liệu nghiệp vụ chính thức; các màn chi tiết sẽ được mở từ nhóm Giao nhận và điều phối." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Margin="0,0,6,0" Style="{StaticResource OfficeMiniButtonStyle}" IsEnabled="False" Content="Chuyến giao" />
+                                    <Button Margin="0,0,6,0" Style="{StaticResource OfficeMiniButtonStyle}" IsEnabled="False" Content="Phiếu giao hàng" />
+                                    <Button Style="{StaticResource OfficeMiniButtonStyle}" IsEnabled="False" Content="Đối soát cuối chuyến" />
+                                </StackPanel>
+                            </Grid>
+                            <DataGrid Margin="0,8,0,0" ItemsSource="{Binding Trips}" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource LogisticsRowStyle}" IsReadOnly="True" MaxHeight="540" HorizontalScrollBarVisibility="Auto">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Chuyến" Binding="{Binding Trip}" Width="110" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="1.2*" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Tài xế / xe" Binding="{Binding DriverVehicle}" Width="1.5*" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Thời gian" Binding="{Binding Time}" Width="1.6*" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="115" ElementStyle="{StaticResource LogisticsCellTextStyle}" />
+                                    <DataGridTextColumn Header="Điểm / phiếu" Binding="{Binding StopsOrders}" Width="95" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Đủ / một phần" Binding="{Binding FullPartial}" Width="100" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Thất bại / hẹn" Binding="{Binding FailedRescheduled}" Width="105" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Đúng hạn" Binding="{Binding OnTime}" Width="85" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Chưa kết quả" Binding="{Binding Pending}" Width="95" ElementStyle="{StaticResource LogisticsNumericTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Margin="0,12,0,0" HorizontalAlignment="Center" Text="Không có chuyến có giờ bắt đầu kế hoạch trong kỳ." Foreground="{DynamicResource TextSecondaryBrush}" Visibility="{Binding HasNoTrips, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+                    </TabItem>
+
+                    <TabItem Header="Ngoại lệ">
+                        <StackPanel Margin="0,8,0,0">
+                            <TextBlock Text="Ngoại lệ và đối soát" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,8" Text="Thiếu giờ dự kiến và phiếu đã xuất chuyến chưa có kết quả được hiển thị riêng. Phiếu nhận hàng trả chỉ đếm chứng từ đã ghi nhận." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                            <ItemsControl ItemsSource="{Binding ExceptionCards}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="220" Margin="0,0,8,6"
+                                                Style="{StaticResource OfficeSummaryCardStyle}"
+                                                ToolTip="{Binding Hint}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Label}" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                                                <TextBlock Text="{Binding Value}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
+
+                <TextBlock Margin="0,10,0,0"
+                           Text="{Binding SourceNote}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

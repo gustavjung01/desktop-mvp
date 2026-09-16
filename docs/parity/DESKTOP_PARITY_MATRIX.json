@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "name": "DESKTOP_PARITY_MATRIX",
+  "source": {
+    "repository": "binhnxwjfjxm/NPP-Platform",
+    "baselineRevision": "698324a530f4c1741cd20ab0ba1ee0596fc862d8",
+    "fingerprints": {
+      "webAppTree": "95099220976589246ae25d47912d499fd760e80e",
+      "apiRoutesTree": "05b607cb4d1cafc56a9a295aba5296445865b3f1",
+      "accessTree": "6156db21006867891127560bb96f0b82da362bad",
+      "serverBlob": "68d7329c8f6f551838b98b81e74f874a889c76ee",
+      "contractsJsBlob": "d7e564a37017400bb316826d5511a4291cd4c1d5",
+      "contractsTypesBlob": "5295cf3621425de771daede736284b5d6f329010",
+      "idempotencyBlob": "faba39af51fd81d0b8d778b20f669a17825da3f7"
+    }
+  },
+  "mappingRules": [
+    {
+      "sourceKind": "company-screen",
+      "status": "planned",
+      "desktopTarget": "native WPF screen in the matching business lot"
+    },
+    {
+      "sourceKind": "next-runtime-route",
+      "status": "not_applicable",
+      "desktopTarget": "none",
+      "reason": "No Vercel runtime dependency in Desktop."
+    },
+    {
+      "sourceKind": "backend-endpoint",
+      "status": "planned",
+      "desktopTarget": "typed HTTPS client; backend remains business authority"
+    },
+    {
+      "sourceKind": "permission",
+      "status": "planned",
+      "desktopTarget": "canonical authorization state; deny by default"
+    },
+    {
+      "sourceKind": "mutation",
+      "status": "planned",
+      "desktopTarget": "typed HTTPS mutation with canonical Idempotency-Key and audit-aware backend contract"
+    }
+  ],
+  "allowedStatuses": [
+    "implemented",
+    "planned",
+    "not_applicable",
+    "blocked"
+  ],
+  "driftErrors": [
+    "UNCLASSIFIED_BACKEND_API",
+    "UNCLASSIFIED_WEB_ROUTE",
+    "UNCLASSIFIED_COMPANY_SCREEN",
+    "UNCLASSIFIED_PERMISSION",
+    "API_CONTRACT_DRIFT",
+    "PERMISSION_CONTRACT_DRIFT",
+    "IDEMPOTENCY_CONTRACT_DRIFT",
+    "UNMAPPED_MUTATION"
+  ]
+}

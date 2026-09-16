@@ -1,0 +1,638 @@
+<UserControl x:Class="CongTy.Desktop.Sales.SalesReportingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             PreviewKeyDown="SalesReportingView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="SalesReportCellTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="SalesReportNumericTextStyle"
+               TargetType="TextBlock"
+               BasedOn="{StaticResource OfficeGridTextStyle}">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <WrapPanel>
+                            <StackPanel Width="150" Margin="0,0,8,8">
+                                <TextBlock Text="Kỳ nhanh" Margin="0,0,0,4" />
+                                <ComboBox x:Name="PeriodPresetCombo"
+                                          MinHeight="30"
+                                          ItemsSource="{Binding Presets}"
+                                          SelectedIndex="0"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectionChanged="PeriodPreset_OnSelectionChanged" />
+                            </StackPanel>
+
+                            <StackPanel Width="150" Margin="0,0,8,8">
+                                <TextBlock Text="Từ ngày" Margin="0,0,0,4" />
+                                <DatePicker x:Name="FromDatePicker"
+                                            MinHeight="30"
+                                            IsEnabled="{Binding CanApply}"
+                                            SelectedDate="{Binding FromDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="150" Margin="0,0,8,8">
+                                <TextBlock Text="Đến ngày" Margin="0,0,0,4" />
+                                <DatePicker MinHeight="30"
+                                            IsEnabled="{Binding CanApply}"
+                                            SelectedDate="{Binding ToDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="245" Margin="0,0,8,8">
+                                <TextBlock Text="Kho" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          IsEnabled="{Binding CanApply}"
+                                          ItemsSource="{Binding Warehouses}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="190" Margin="0,0,8,8">
+                                <TextBlock Text="Chiều phân tích" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          ItemsSource="{Binding Dimensions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedDimensionKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="245"
+                                        Margin="0,0,8,8"
+                                        Visibility="{Binding IsCustomersDimension, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Nhóm khách" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          IsEnabled="{Binding CanApply}"
+                                          ItemsSource="{Binding CustomerGroups}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedCustomerGroupId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="245"
+                                        Margin="0,0,8,8"
+                                        Visibility="{Binding IsProductsDimension, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Nhóm sản phẩm" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          IsEnabled="{Binding CanApply}"
+                                          ItemsSource="{Binding ProductGroups}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedProductGroupId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <CheckBox Margin="0,22,12,8"
+                                      VerticalAlignment="Center"
+                                      IsEnabled="{Binding CanApply}"
+                                      IsChecked="{Binding IncludeZeroProducts, Mode=TwoWay}"
+                                      Content="Hiện mã không phát sinh"
+                                      Visibility="{Binding IsProductsDimension, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                            <StackPanel Width="125" Margin="0,0,8,8">
+                                <TextBlock Text="Tiền tệ" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          ItemsSource="{Binding Currencies}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedCurrency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="190" Margin="0,0,8,8">
+                                <TextBlock Text="So với kỳ trước" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          ItemsSource="{Binding Comparisons}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedComparison, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="220" Margin="0,0,8,8">
+                                <TextBlock Text="Tìm trong danh sách" Margin="0,0,0,4" />
+                                <TextBox x:Name="AnalysisSearchBox"
+                                         MinHeight="30"
+                                         MaxLength="80"
+                                         Text="{Binding AnalysisSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,22,0,8" VerticalAlignment="Top">
+                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanApply}"
+                                        Click="Reset_OnClick"
+                                        Content="Xóa lọc" />
+                                <Button Margin="8,0,0,0"
+                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        IsEnabled="{Binding CanApply}"
+                                        Click="Apply_OnClick"
+                                        Content="{Binding ApplyText}" />
+                            </StackPanel>
+                        </WrapPanel>
+
+                        <Grid Margin="0,2,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding PeriodText}"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource OfficeMiniButtonStyle}"
+                                    Click="SaveView_OnClick"
+                                    Content="Lưu chế độ xem" />
+                            <TextBlock Grid.Column="2"
+                                       Margin="8,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Text="{Binding SavedNotice}"
+                                       Visibility="{Binding HasSavedNotice, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Grid Grid.Row="1" Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding ReportError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding HasReportError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding GeneratedAtText}"
+                               Margin="12,0,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Grid>
+
+                <WrapPanel Grid.Row="2" Margin="0,8,0,0">
+                    <Border Width="330" Margin="0,0,8,6" Style="{StaticResource OfficeSummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Doanh thu" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <ItemsControl ItemsSource="{Binding RevenueRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding Revenue}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                                            <TextBlock Text="{Binding Comparison}" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Width="190" Margin="0,0,8,6" Style="{StaticResource OfficeSummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Đơn đã chốt" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding EffectiveOrderCount}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Width="190" Margin="0,0,8,6" Style="{StaticResource OfficeSummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Khách mua" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding BuyerCount}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Width="190" Margin="0,0,8,6" Style="{StaticResource OfficeSummaryCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Mặt hàng đã bán" Style="{StaticResource OfficeSummaryLabelStyle}" />
+                            <TextBlock Text="{Binding SoldProductCount}" Style="{StaticResource OfficeSummaryValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Grid Grid.Row="3" Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.65*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource OfficeCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding AnalysisTitle}" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding AnalysisCountText}"
+                                               Margin="0,2,0,0"
+                                               FontSize="10.5"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding ReconciliationText}" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                                    <TextBlock Text="{Binding ReconciliationDetailText}"
+                                               Margin="0,2,0,0"
+                                               FontSize="10.5"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Right" />
+                                    <TextBlock Text="{Binding DataQualityText}"
+                                               Margin="0,2,0,0"
+                                               FontSize="10.5"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Right" />
+                                </StackPanel>
+                            </Grid>
+
+                            <ItemsControl Grid.Row="1"
+                                          Margin="0,6,0,0"
+                                          ItemsSource="{Binding Warnings}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   Margin="0,1"
+                                                   FontSize="10.5"
+                                                   Foreground="{DynamicResource DangerBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <DataGrid Grid.Row="2"
+                                      Margin="0,8,0,0"
+                                      Height="360"
+                                      Style="{StaticResource OfficeDataGridStyle}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      RowHeight="48"
+                                      ItemsSource="{Binding AnalysisRows}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTemplateColumn Width="1.6*">
+                                        <DataGridTemplateColumn.Header>
+                                            <TextBlock Text="{Binding SelectedDimensionLabel}" />
+                                        </DataGridTemplateColumn.Header>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding CodeCurrency}" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.1*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTemplateColumn Width="1.05*">
+                                        <DataGridTemplateColumn.Header>
+                                            <TextBlock Text="{Binding MetricHeader}" />
+                                        </DataGridTemplateColumn.Header>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Metric}" Style="{StaticResource SalesReportNumericTextStyle}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Tỷ trọng" Binding="{Binding Share}" Width="0.8*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Kỳ trước" Binding="{Binding Previous}" Width="1.25*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Thay đổi" Binding="{Binding Change}" Width="1*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
+                                    <DataGridTemplateColumn Header="Chi tiết" Width="70">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                        Tag="{Binding}"
+                                                        Click="AnalysisDetail_OnClick"
+                                                        Content="Xem" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock Grid.Row="3"
+                                       Margin="0,5,0,0"
+                                       Text="{Binding AnalysisEmptyText}"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+
+                            <StackPanel Grid.Row="4" Margin="0,10,0,0">
+                                <TextBlock Text="Tổng theo tiền tệ" FontSize="11" FontWeight="SemiBold" />
+                                <DataGrid Margin="0,5,0,0"
+                                          MaxHeight="165"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="38"
+                                          ItemsSource="{Binding TotalRows}">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="1.35*">
+                                            <DataGridTemplateColumn.Header>
+                                                <TextBlock Text="{Binding SelectedDimensionLabel}" />
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Name}" Style="{StaticResource SalesReportCellTextStyle}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                        <DataGridTemplateColumn Width="1*">
+                                            <DataGridTemplateColumn.Header>
+                                                <TextBlock Text="{Binding MetricHeader}" />
+                                            </DataGridTemplateColumn.Header>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Metric}" Style="{StaticResource SalesReportNumericTextStyle}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Tỷ trọng" Binding="{Binding Share}" Width="0.75*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Kỳ trước" Binding="{Binding Previous}" Width="1.15*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Thay đổi" Binding="{Binding Change}" Width="0.9*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock Text="{Binding TotalEmptyText}"
+                                           Margin="0,5,0,0"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+
+                            <Border Grid.RowSpan="5"
+                                    Margin="20"
+                                    Padding="16"
+                                    Background="{DynamicResource SurfaceBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding HasSelectedAnalysisRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="CHI TIẾT" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                            <TextBlock Text="{Binding SelectedAnalysisRow.Name}" Margin="0,2,0,0" FontSize="17" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding SelectedAnalysisRow.CodeCurrency}" Margin="0,2,0,0" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Style="{StaticResource OfficeMiniButtonStyle}" Click="CloseDetail_OnClick" Content="Đóng" />
+                                    </Grid>
+                                    <UniformGrid Grid.Row="1" Columns="4" Margin="0,12,0,0">
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Doanh thu" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedAnalysisRow.Revenue}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Kỳ trước" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedAnalysisRow.Previous}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Thay đổi" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedAnalysisRow.Change}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Tỷ trọng" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedAnalysisRow.Share}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Số đơn" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedDetailOrderCount}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Số khách" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedDetailCustomerCount}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Số sản phẩm" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedDetailProductCount}" FontWeight="SemiBold" /></StackPanel>
+                                        <StackPanel Margin="0,0,8,8"><TextBlock Text="Sản lượng" Foreground="{DynamicResource TextSecondaryBrush}" /><TextBlock Text="{Binding SelectedDetailQuantity}" FontWeight="SemiBold" /></StackPanel>
+                                    </UniformGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource OfficeCardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Doanh thu theo ngày" FontSize="16" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding PreviousPeriodText}"
+                                           Margin="0,2,0,0"
+                                           FontSize="10.5"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+
+                            <ItemsControl Grid.Row="1" Margin="0,8,0,0" ItemsSource="{Binding TrendSeries}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,0,0,7"
+                                                Padding="9"
+                                                Background="{DynamicResource SurfaceBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="7">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="90" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding CurrencyCode}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding DayCountText}" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="1" Text="{Binding LatestRevenue}" FontWeight="SemiBold" />
+                                                </Grid>
+                                                <Canvas Grid.Row="1" Height="90" Width="300" ClipToBounds="True">
+                                                    <Line X1="0" Y1="86" X2="300" Y2="86" Stroke="{DynamicResource BorderBrush}" StrokeThickness="1" />
+                                                    <Polyline Points="{Binding PreviousPoints}" Stroke="{DynamicResource TextSecondaryBrush}" StrokeThickness="1.5" />
+                                                    <Polyline Points="{Binding CurrentPoints}" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2" />
+                                                </Canvas>
+                                                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                                    <TextBlock Text="Kỳ này" Margin="0,0,12,0" FontSize="10" />
+                                                    <TextBlock Text="Kỳ trước" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <DataGrid Grid.Row="2"
+                                      Margin="0,4,0,0"
+                                      Height="300"
+                                      Style="{StaticResource OfficeDataGridStyle}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      RowHeight="38"
+                                      ItemsSource="{Binding TrendRows}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="44" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Ngày" Binding="{Binding Date}" Width="0.9*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
+                                    <DataGridTextColumn Header="Tiền tệ" Binding="{Binding CurrencyCode}" Width="0.75*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
+                                    <DataGridTextColumn Header="Doanh thu" Binding="{Binding Revenue}" Width="1.05*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Kỳ trước" Binding="{Binding PreviousRevenue}" Width="1.05*" ElementStyle="{StaticResource SalesReportNumericTextStyle}" />
+                                    <DataGridTextColumn Header="Thay đổi" Binding="{Binding Change}" Width="1*" ElementStyle="{StaticResource SalesReportCellTextStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Grid.Row="3"
+                                       Text="{Binding TrendEmptyText}"
+                                       Margin="0,5,0,0"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <TextBlock Grid.Row="4"
+                           Margin="2,10,2,0"
+                           Text="{Binding LineageText}"
+                           FontSize="10.5"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </Grid>
+        </ScrollViewer>
+
+        <Grid Visibility="{Binding IsExportOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Background="#99000000">
+            <Border Width="760"
+                    MaxHeight="760"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Xuất Báo cáo bán hàng" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Text="{Binding SelectedDimensionLabel}" Margin="0,2,0,0" FontSize="19" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                IsEnabled="{Binding CanCloseExport}"
+                                Click="CloseExport_OnClick"
+                                Content="Đóng" />
+                    </Grid>
+
+                    <TextBlock Grid.Row="1"
+                               Margin="0,10,0,0"
+                               Text="Xuất toàn bộ dữ liệu theo kỳ, kho và bộ lọc của mục đang xem, không phụ thuộc số dòng đang hiển thị trên màn hình."
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+
+                    <StackPanel Grid.Row="2" Margin="0,12,0,0">
+                        <TextBlock Text="Định dạng file" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <RadioButton x:Name="ExportXlsxRadio"
+                                         IsChecked="True"
+                                         GroupName="SalesExportFormat"
+                                         Checked="ExportXlsx_OnChecked"
+                                         Content="Excel (.xlsx)" />
+                            <RadioButton Margin="18,0,0,0"
+                                         GroupName="SalesExportFormat"
+                                         Checked="ExportCsv_OnChecked"
+                                         Content="CSV (.csv)" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Grid Grid.Row="3" Margin="0,14,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Cột cần xuất" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding SelectedExportCountText}" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Style="{StaticResource OfficeMiniButtonStyle}" Click="SelectAllColumns_OnClick" Content="Chọn tất cả" />
+                                <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="ClearColumns_OnClick" Content="Bỏ chọn" />
+                                <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="DefaultColumns_OnClick" Content="Mặc định" />
+                            </StackPanel>
+                        </Grid>
+                        <ScrollViewer Grid.Row="1" Margin="0,8,0,0" MaxHeight="350" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding ExportColumns}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Width="230"
+                                                  Margin="0,0,8,8"
+                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                  Content="{Binding Label}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <TextBlock Grid.Row="4"
+                               Margin="0,8,0,0"
+                               Text="{Binding ExportError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding HasExportError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <StackPanel Grid.Row="5"
+                                Margin="0,14,0,0"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanCloseExport}"
+                                Click="CloseExport_OnClick"
+                                Content="Hủy" />
+                        <Button Margin="8,0,0,0"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanSubmitExport}"
+                                Click="Export_OnClick"
+                                Content="{Binding ExportButtonText}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

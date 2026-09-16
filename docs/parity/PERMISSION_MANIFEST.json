@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "name": "PERMISSION_MANIFEST",
+  "source": {
+    "repository": "binhnxwjfjxm/NPP-Platform",
+    "baselineRevision": "698324a530f4c1741cd20ab0ba1ee0596fc862d8",
+    "fingerprints": {
+      "accessTree": "6156db21006867891127560bb96f0b82da362bad"
+    }
+  },
+  "snapshot": {
+    "permissions": {
+      "count": 205,
+      "sha256": "25f558dbadfd28e4d65fd74fa16b243f6c7d92ba77c6e41186d36b0c9f31b2dd"
+    }
+  },
+  "discovery": {
+    "root": "npp-core/api/src/access",
+    "keyPrefixes": [
+      "core.",
+      "mcp."
+    ],
+    "classificationForExactBaseline": "planned",
+    "classificationForChangedSource": "unclassified"
+  },
+  "desktopRule": "Desktop never invents permission semantics. It consumes the canonical Công Ty authorization contract and keeps deny-by-default behavior.",
+  "allowedStatuses": [
+    "implemented",
+    "planned",
+    "not_applicable",
+    "blocked"
+  ]
+}
