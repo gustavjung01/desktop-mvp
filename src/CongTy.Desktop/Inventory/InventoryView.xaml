@@ -349,23 +349,20 @@
                                             <DataGridTextColumn Header="Sản phẩm / mã hàng" Binding="{Binding ProductSku}" Width="1.7*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
                                             <DataGridTextColumn Header="Tồn kho" Binding="{Binding OnHand}" Width="0.75*" ElementStyle="{StaticResource NumericCellTextStyle}" />
                                             <DataGridTextColumn Header="Quy đổi" Binding="{Binding PackageBreakdown}" Width="1.1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
-                                            <DataGridTemplateColumn Header="Đã giữ" Width="1*">
+                                            <DataGridTextColumn Header="Đã giữ"
+                                                                Binding="{Binding Reserved}"
+                                                                Width="0.65*"
+                                                                ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTemplateColumn Header="Chi tiết" Width="70">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Grid VerticalAlignment="Center">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="Auto" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Text="{Binding Reserved}" Style="{StaticResource NumericCellTextStyle}" VerticalAlignment="Center" />
-                                                            <Button Grid.Column="1"
-                                                                    Margin="6,0,0,0"
-                                                                    Style="{StaticResource OfficeMiniButtonStyle}"
-                                                                    Tag="{Binding}"
-                                                                    ToolTip="Xem các đơn đang giữ hàng"
-                                                                    Click="OpenReportHolds_OnClick"
-                                                                    Content="Xem" />
-                                                        </Grid>
+                                                        <Button HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Style="{StaticResource OfficeMiniButtonStyle}"
+                                                                Tag="{Binding}"
+                                                                ToolTip="Xem các đơn đang giữ hàng"
+                                                                Click="OpenReportHolds_OnClick"
+                                                                Content="Xem" />
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
