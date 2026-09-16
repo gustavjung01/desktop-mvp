@@ -153,3 +153,16 @@ Audit diff xác nhận:
 - Shared contracts và canonical Idempotency-Key không đổi.
 - Rebaseline chỉ cập nhật fingerprint `apiRoutesTree`; không thay đổi Desktop contract của UI-3.9 Chính sách lô.
 
+
+
+## Rebaseline 2026-09-16 — Điều chỉnh tồn: màn và route xuất dữ liệu
+
+Baseline Web được audit lại khi `NPP-Platform/main` tiến tới `13e2b94a1d24956082500e0f4e9e13aefab2a242` trong lúc CI UI-5.2 chạy.
+
+Audit compare từ `0f645e584378e6763720594bd3604828644cb583` xác nhận thay đổi chỉ thuộc `inventory/adjustments` và in kiểm kê:
+- thêm `inventory/adjustments/export/page.tsx`;
+- thêm Next route xuất dữ liệu Điều chỉnh tồn;
+- không chạm `sales/gross-margin`, gross-margin gateway/backend route, permission catalog hoặc idempotency contract;
+- API/permission/mutation inventory giữ nguyên 88 / 388 / 205 / 280.
+
+Snapshot Web mới: 73 screens / 286 routes. Chỉ Web screen/route fingerprint được rebaseline; UI-5.2 không đổi contract.

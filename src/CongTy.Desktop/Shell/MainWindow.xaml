@@ -311,7 +311,10 @@
                                         Tag="{Binding IsSalesReportingSelected}"
                                         Visibility="{Binding CanViewSalesReporting, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="SalesReporting_OnClick"><TextBlock Text="Báo cáo bán hàng" /></Button>
-                                <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Lãi gộp" /></Button>
+                                <Button Style="{StaticResource NavSubItemStyle}"
+                                        Tag="{Binding IsGrossMarginSelected}"
+                                        Visibility="{Binding CanViewGrossMargin, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Click="GrossMargin_OnClick"><TextBlock Text="Lãi gộp" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Điều hành bán hàng" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Đề xuất" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" Tag="{Binding IsSalesOrdersSelected}" Visibility="{Binding CanViewSales, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Sales_OnClick"><TextBlock Text="Đơn bán hàng" /></Button>
@@ -533,9 +536,26 @@
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Visibility="{Binding IsSalesReportingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    IsEnabled="False"
-                                    ToolTip="Màn Lãi gộp sẽ được nối khi UI-5.2 hoàn thiện."
+                                    IsEnabled="{Binding CanViewGrossMargin}"
+                                    Click="SalesGrossMargin_OnClick"
                                     Content="Xem báo cáo lãi gộp" />
+
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsGrossMarginSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanExportGrossMargin}"
+                                    Click="GrossMarginExport_OnClick"
+                                    Content="Xuất báo cáo" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsGrossMarginSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Click="GrossMarginOrders_OnClick"
+                                    Content="Đơn bán hàng" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsGrossMarginSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Click="GrossMarginCosting_OnClick"
+                                    Content="Giá vốn" />
 
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
@@ -869,6 +889,10 @@
 
                     <TabItem>
                         <ContentControl x:Name="SalesReportingHost" />
+                    </TabItem>
+
+                    <TabItem>
+                        <ContentControl x:Name="GrossMarginReportingHost" />
                     </TabItem>
                 </TabControl>
             </Grid>
