@@ -344,16 +344,17 @@
                                 <Grid Grid.Row="1">
                                     <DataGrid x:Name="PositionGrid" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource InventoryRowStyle}" ItemsSource="{Binding PositionRows}">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="STT" Binding="{Binding Stt}" Width="48" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource NumericCellTextStyle}" />
                                             <DataGridTextColumn Header="Kho" Binding="{Binding Warehouse}" Width="0.65*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
                                             <DataGridTextColumn Header="Sản phẩm / mã hàng" Binding="{Binding ProductSku}" Width="1.7*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
-                                            <DataGridTextColumn Header="Tồn kho" Binding="{Binding OnHand}" Width="0.75*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Tồn kho" Binding="{Binding OnHand}" Width="0.75*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource NumericCellTextStyle}" />
                                             <DataGridTextColumn Header="Quy đổi" Binding="{Binding PackageBreakdown}" Width="1.1*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
                                             <DataGridTextColumn Header="Đã giữ"
                                                                 Binding="{Binding Reserved}"
                                                                 Width="0.65*"
+                                                                HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}"
                                                                 ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                            <DataGridTemplateColumn Header="Chi tiết" Width="70">
+                                            <DataGridTemplateColumn Header="Chi tiết" Width="70" HeaderStyle="{StaticResource OfficeDataGridActionHeaderStyle}">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <Button HorizontalAlignment="Center"
@@ -366,9 +367,9 @@
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
-                                            <DataGridTextColumn Header="Có thể xuất" Binding="{Binding Available}" Width="0.8*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                            <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1*" ElementStyle="{StaticResource NumericCellTextStyle}" />
-                                            <DataGridTextColumn Header="Giá bình quân" Binding="{Binding AverageCost}" Width="1*" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Có thể xuất" Binding="{Binding Available}" Width="0.8*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Giá trị" Binding="{Binding Value}" Width="1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource NumericCellTextStyle}" />
+                                            <DataGridTextColumn Header="Giá bình quân" Binding="{Binding AverageCost}" Width="1*" HeaderStyle="{StaticResource OfficeDataGridNumericHeaderStyle}" ElementStyle="{StaticResource NumericCellTextStyle}" />
                                             <DataGridTextColumn Header="Tình trạng giá vốn" Binding="{Binding CostingStatus}" Width="1.15*" ElementStyle="{StaticResource InventoryCellTextStyle}" />
                                         </DataGrid.Columns>
                                     </DataGrid>

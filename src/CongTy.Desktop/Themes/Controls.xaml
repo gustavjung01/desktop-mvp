@@ -187,6 +187,18 @@
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
+    <Style x:Key="OfficeDataGridNumericHeaderStyle"
+           TargetType="DataGridColumnHeader"
+           BasedOn="{StaticResource OfficeDataGridHeaderStyle}">
+        <Setter Property="HorizontalContentAlignment" Value="Right" />
+    </Style>
+
+    <Style x:Key="OfficeDataGridActionHeaderStyle"
+           TargetType="DataGridColumnHeader"
+           BasedOn="{StaticResource OfficeDataGridHeaderStyle}">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
     <Style x:Key="OfficeGridTextStyle" TargetType="TextBlock">
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
