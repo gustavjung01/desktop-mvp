@@ -39,6 +39,7 @@ public partial class MainWindow : Window
     private readonly CustomerReturnView _customerReturnView;
     private readonly SupplierReturnView _supplierReturnView;
     private readonly SalesReportingView _salesReportingView;
+    private readonly GrossMarginReportingView _grossMarginReportingView;
 
     public MainWindow(
         ShellViewModel viewModel,
@@ -50,6 +51,7 @@ public partial class MainWindow : Window
         DocumentNumberingView documentNumberingView,
         SalesView salesView,
         SalesReportingView salesReportingView,
+        GrossMarginReportingView grossMarginReportingView,
         InventoryView inventoryView,
         FulfillmentView fulfillmentView,
         TransferView transferView,
@@ -98,6 +100,7 @@ public partial class MainWindow : Window
         _customerReturnView = customerReturnView;
         _supplierReturnView = supplierReturnView;
         _salesReportingView = salesReportingView;
+        _grossMarginReportingView = grossMarginReportingView;
         DataContext = viewModel;
         HomeHost.Content = dashboardView;
         dashboardView.NavigationRequested += DashboardView_OnNavigationRequested;
@@ -109,6 +112,8 @@ public partial class MainWindow : Window
         DocumentNumberingHost.Content = documentNumberingView;
         SalesHost.Content = salesView;
         SalesReportingHost.Content = salesReportingView;
+        GrossMarginReportingHost.Content = grossMarginReportingView;
+        grossMarginReportingView.CostingRequested += GrossMarginView_OnCostingRequested;
         InventoryHost.Content = inventoryView;
         FulfillmentHost.Content = fulfillmentView;
         TransferHost.Content = transferView;
@@ -489,6 +494,24 @@ public partial class MainWindow : Window
 
     private async void SalesReportingOrders_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateSalesAsync();
+
+    private async void SalesGrossMargin_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateGrossMarginAsync();
+
+    private async void GrossMargin_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateGrossMarginAsync();
+
+    private void GrossMarginExport_OnClick(object sender, RoutedEventArgs e) =>
+        _grossMarginReportingView.OpenExportDialog();
+
+    private async void GrossMarginOrders_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateSalesAsync();
+
+    private async void GrossMarginCosting_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateInventoryCostingAsync();
+
+    private async void GrossMarginView_OnCostingRequested(object? sender, EventArgs e) =>
+        await _viewModel.NavigateInventoryCostingAsync();
 
     private async void Sales_OnClick(object sender, RoutedEventArgs e)
     {

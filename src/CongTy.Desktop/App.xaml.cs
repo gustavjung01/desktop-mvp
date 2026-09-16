@@ -106,6 +106,9 @@ public partial class App : Application
             services.AddSingleton<ISalesReportingViewStateStore, SalesReportingViewStateStore>();
             services.AddSingleton<SalesReportingViewModel>();
             services.AddSingleton<SalesReportingView>();
+            services.AddSingleton<IGrossMarginReportingService, GrossMarginReportingService>();
+            services.AddSingleton<GrossMarginReportingViewModel>();
+            services.AddSingleton<GrossMarginReportingView>();
             services.AddSingleton<IInventoryService, InventoryService>();
             services.AddSingleton<InventoryViewModel>();
             services.AddSingleton<InventoryView>();
