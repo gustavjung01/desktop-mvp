@@ -20,174 +20,22 @@
     </UserControl.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
-            <Grid Margin="16">
+        <Grid Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.65*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="4" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Style="{StaticResource OfficeCardStyle}">
-                    <StackPanel>
-                        <WrapPanel>
-                            <StackPanel Width="150" Margin="0,0,8,8">
-                                <TextBlock Text="Kỳ nhanh" Margin="0,0,0,4" />
-                                <ComboBox x:Name="PeriodPresetCombo"
-                                          MinHeight="30"
-                                          ItemsSource="{Binding Presets}"
-                                          SelectedIndex="0"
-                                          DisplayMemberPath="Label"
-                                          SelectedValuePath="Key"
-                                          SelectionChanged="PeriodPreset_OnSelectionChanged" />
-                            </StackPanel>
-
-                            <StackPanel Width="150" Margin="0,0,8,8">
-                                <TextBlock Text="Từ ngày" Margin="0,0,0,4" />
-                                <DatePicker x:Name="FromDatePicker"
-                                            MinHeight="30"
-                                            IsEnabled="{Binding CanApply}"
-                                            SelectedDate="{Binding FromDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Width="150" Margin="0,0,8,8">
-                                <TextBlock Text="Đến ngày" Margin="0,0,0,4" />
-                                <DatePicker MinHeight="30"
-                                            IsEnabled="{Binding CanApply}"
-                                            SelectedDate="{Binding ToDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Width="245" Margin="0,0,8,8">
-                                <TextBlock Text="Kho" Margin="0,0,0,4" />
-                                <ComboBox MinHeight="30"
-                                          IsEnabled="{Binding CanApply}"
-                                          ItemsSource="{Binding Warehouses}"
-                                          DisplayMemberPath="Label"
-                                          SelectedValuePath="Id"
-                                          SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Width="190" Margin="0,0,8,8">
-                                <TextBlock Text="Chiều phân tích" Margin="0,0,0,4" />
-                                <ComboBox MinHeight="30"
-                                          ItemsSource="{Binding Dimensions}"
-                                          DisplayMemberPath="Label"
-                                          SelectedValuePath="Key"
-                                          SelectedValue="{Binding SelectedDimensionKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Width="245"
-                                        Margin="0,0,8,8"
-                                        Visibility="{Binding IsCustomersDimension, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="Nhóm khách" Margin="0,0,0,4" />
-                                <ComboBox MinHeight="30"
-                                          IsEnabled="{Binding CanApply}"
-                                          ItemsSource="{Binding CustomerGroups}"
-                                          DisplayMemberPath="Label"
-                                          SelectedValuePath="Id"
-                                          SelectedValue="{Binding SelectedCustomerGroupId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Width="245"
-                                        Margin="0,0,8,8"
-                                        Visibility="{Binding IsProductsDimension, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="Nhóm sản phẩm" Margin="0,0,0,4" />
-                                <ComboBox MinHeight="30"
-                                          IsEnabled="{Binding CanApply}"
-                                          ItemsSource="{Binding ProductGroups}"
-                                          DisplayMemberPath="Label"
-                                          SelectedValuePath="Id"
-                                          SelectedValue="{Binding SelectedProductGroupId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <CheckBox Margin="0,22,12,8"
-                                      VerticalAlignment="Center"
-                                      IsEnabled="{Binding CanApply}"
-                                      IsChecked="{Binding IncludeZeroProducts, Mode=TwoWay}"
-                                      Content="Hiện mã không phát sinh"
-                                      Visibility="{Binding IsProductsDimension, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                            <StackPanel Width="125" Margin="0,0,8,8">
-                                <TextBlock Text="Tiền tệ" Margin="0,0,0,4" />
-                                <ComboBox MinHeight="30"
-                                          ItemsSource="{Binding Currencies}"
-                                          DisplayMemberPath="Label"
-                                          SelectedValuePath="Key"
-                                          SelectedValue="{Binding SelectedCurrency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Width="190" Margin="0,0,8,8">
-                                <TextBlock Text="So với kỳ trước" Margin="0,0,0,4" />
-                                <ComboBox MinHeight="30"
-                                          ItemsSource="{Binding Comparisons}"
-                                          DisplayMemberPath="Label"
-                                          SelectedValuePath="Key"
-                                          SelectedValue="{Binding SelectedComparison, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Width="220" Margin="0,0,8,8">
-                                <TextBlock Text="Tìm trong danh sách" Margin="0,0,0,4" />
-                                <TextBox x:Name="AnalysisSearchBox"
-                                         MinHeight="30"
-                                         MaxLength="80"
-                                         Text="{Binding AnalysisSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,22,0,8" VerticalAlignment="Top">
-                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                        IsEnabled="{Binding CanApply}"
-                                        Click="Reset_OnClick"
-                                        Content="Xóa lọc" />
-                                <Button Margin="8,0,0,0"
-                                        Style="{StaticResource OfficePrimaryButtonStyle}"
-                                        IsEnabled="{Binding CanApply}"
-                                        Click="Apply_OnClick"
-                                        Content="{Binding ApplyText}" />
-                            </StackPanel>
-                        </WrapPanel>
-
-                        <Grid Margin="0,2,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding PeriodText}"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondaryBrush}" />
-                            <Button Grid.Column="1"
-                                    Style="{StaticResource OfficeMiniButtonStyle}"
-                                    Click="SaveView_OnClick"
-                                    Content="Lưu chế độ xem" />
-                            <TextBlock Grid.Column="2"
-                                       Margin="8,0,0,0"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Text="{Binding SavedNotice}"
-                                       Visibility="{Binding HasSavedNotice, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <Grid Grid.Row="1" Margin="0,8,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding ReportError}"
-                               Foreground="{DynamicResource DangerBrush}"
-                               TextWrapping="Wrap"
-                               Visibility="{Binding HasReportError, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding GeneratedAtText}"
-                               Margin="12,0,0,0"
-                               Foreground="{DynamicResource TextSecondaryBrush}" />
-                </Grid>
-
-                <WrapPanel Grid.Row="2" Margin="0,8,0,0">
+                <WrapPanel Grid.Row="0" Margin="0">
                     <Border Width="330" Margin="0,0,8,6" Style="{StaticResource OfficeSummaryCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Doanh thu" Style="{StaticResource OfficeSummaryLabelStyle}" />
@@ -225,20 +73,12 @@
                         </StackPanel>
                     </Border>
                 </WrapPanel>
-
-                <Grid Grid.Row="3" Margin="0,4,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.65*" />
-                        <ColumnDefinition Width="10" />
-                        <ColumnDefinition Width="1*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource OfficeCardStyle}">
+                    <Border Grid.Row="2" Style="{StaticResource OfficeCardStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
@@ -286,7 +126,6 @@
 
                             <DataGrid Grid.Row="2"
                                       Margin="0,8,0,0"
-                                      Height="360"
                                       Style="{StaticResource OfficeDataGridStyle}"
                                       AutoGenerateColumns="False"
                                       IsReadOnly="True"
@@ -423,8 +262,178 @@
                             </Border>
                         </Grid>
                     </Border>
+                <TextBlock Grid.Row="3"
+                           Margin="2,10,2,0"
+                           Text="{Binding LineageText}"
+                           FontSize="10.5"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </Grid>
 
-                    <Border Grid.Column="2" Style="{StaticResource OfficeCardStyle}">
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="4" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <WrapPanel>
+                            <StackPanel Width="122" Margin="0,0,8,8">
+                                <TextBlock Text="Kỳ nhanh" Margin="0,0,0,4" />
+                                <ComboBox x:Name="PeriodPresetCombo"
+                                          MinHeight="30"
+                                          ItemsSource="{Binding Presets}"
+                                          SelectedIndex="0"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectionChanged="PeriodPreset_OnSelectionChanged" />
+                            </StackPanel>
+
+                            <StackPanel Width="122" Margin="0,0,8,8">
+                                <TextBlock Text="Từ ngày" Margin="0,0,0,4" />
+                                <DatePicker x:Name="FromDatePicker"
+                                            MinHeight="30"
+                                            IsEnabled="{Binding CanApply}"
+                                            SelectedDate="{Binding FromDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="122" Margin="0,0,8,8">
+                                <TextBlock Text="Đến ngày" Margin="0,0,0,4" />
+                                <DatePicker MinHeight="30"
+                                            IsEnabled="{Binding CanApply}"
+                                            SelectedDate="{Binding ToDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="160" Margin="0,0,8,8">
+                                <TextBlock Text="Kho" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          IsEnabled="{Binding CanApply}"
+                                          ItemsSource="{Binding Warehouses}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="135" Margin="0,0,8,8">
+                                <TextBlock Text="Chiều phân tích" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          ItemsSource="{Binding Dimensions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedDimensionKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="160"
+                                        Margin="0,0,8,8"
+                                        Visibility="{Binding IsCustomersDimension, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Nhóm khách" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          IsEnabled="{Binding CanApply}"
+                                          ItemsSource="{Binding CustomerGroups}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedCustomerGroupId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="160"
+                                        Margin="0,0,8,8"
+                                        Visibility="{Binding IsProductsDimension, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Nhóm sản phẩm" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          IsEnabled="{Binding CanApply}"
+                                          ItemsSource="{Binding ProductGroups}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding SelectedProductGroupId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <CheckBox Margin="0,22,12,8"
+                                      VerticalAlignment="Center"
+                                      IsEnabled="{Binding CanApply}"
+                                      IsChecked="{Binding IncludeZeroProducts, Mode=TwoWay}"
+                                      Content="Hiện mã không phát sinh"
+                                      Visibility="{Binding IsProductsDimension, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                            <StackPanel Width="100" Margin="0,0,8,8">
+                                <TextBlock Text="Tiền tệ" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          ItemsSource="{Binding Currencies}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedCurrency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="135" Margin="0,0,8,8">
+                                <TextBlock Text="So với kỳ trước" Margin="0,0,0,4" />
+                                <ComboBox MinHeight="30"
+                                          ItemsSource="{Binding Comparisons}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedComparison, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Width="155" Margin="0,0,8,8">
+                                <TextBlock Text="Tìm trong danh sách" Margin="0,0,0,4" />
+                                <TextBox x:Name="AnalysisSearchBox"
+                                         MinHeight="30"
+                                         MaxLength="80"
+                                         Text="{Binding AnalysisSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,22,0,8" VerticalAlignment="Top">
+                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanApply}"
+                                        Click="Reset_OnClick"
+                                        Content="Xóa lọc" />
+                                <Button Margin="8,0,0,0"
+                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        IsEnabled="{Binding CanApply}"
+                                        Click="Apply_OnClick"
+                                        Content="{Binding ApplyText}" />
+                            </StackPanel>
+                        </WrapPanel>
+
+                        <Grid Margin="0,2,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding PeriodText}"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource OfficeMiniButtonStyle}"
+                                    Click="SaveView_OnClick"
+                                    Content="Lưu chế độ xem" />
+                            <TextBlock Grid.Column="2"
+                                       Margin="8,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Text="{Binding SavedNotice}"
+                                       Visibility="{Binding HasSavedNotice, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                <Grid Grid.Row="2" Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding ReportError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding HasReportError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding GeneratedAtText}"
+                               Margin="12,0,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Grid>
+                    <Border Grid.Row="4" Style="{StaticResource OfficeCardStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -505,16 +514,8 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}" />
                         </Grid>
                     </Border>
-                </Grid>
-
-                <TextBlock Grid.Row="4"
-                           Margin="2,10,2,0"
-                           Text="{Binding LineageText}"
-                           FontSize="10.5"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           TextWrapping="Wrap" />
             </Grid>
-        </ScrollViewer>
+        </Grid>
 
         <Grid Visibility="{Binding IsExportOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
               Background="#99000000">
