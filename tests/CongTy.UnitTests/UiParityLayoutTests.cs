@@ -732,6 +732,43 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
+    public void Ui53_PurchasingReporting_UsesCurrentOperationalDrillAndHeaderContract()
+    {
+        var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
+        var shellCode = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml.cs");
+        var shellViewModel = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");
+        var view = ReadRepoFile("src", "CongTy.Desktop", "Purchasing", "PurchasingReportingView.xaml");
+        var viewCode = ReadRepoFile("src", "CongTy.Desktop", "Purchasing", "PurchasingReportingView.xaml.cs");
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Purchasing", "PurchasingReportingViewModel.cs");
+
+        StringAssert.Contains(viewModel, "core.reporting.purchasing.read");
+        StringAssert.Contains(viewModel, "core.purchase-order.read");
+        StringAssert.Contains(viewModel, "core.goods-receipt.read");
+        StringAssert.Contains(viewModel, "public bool CanOpenPurchaseOrders");
+        StringAssert.Contains(viewModel, "public bool CanOpenGoodsReceipts");
+
+        Assert.IsGreaterThanOrEqualTo(
+            12,
+            CountOccurrences(view, "HeaderStyle=\"{StaticResource OfficeDataGridNumericHeaderStyle}\""));
+        Assert.AreEqual(2, CountOccurrences(view, "Content=\"Xem đơn\""));
+        Assert.AreEqual(2, CountOccurrences(view, "Header=\"Chi tiết\" Width=\"82\" HeaderStyle=\"{StaticResource OfficeDataGridActionHeaderStyle}\""));
+        StringAssert.Contains(view, "OpenSupplierOrders_OnClick");
+        StringAssert.Contains(view, "OpenSkuOrders_OnClick");
+
+        StringAssert.Contains(viewCode, "PurchaseOrdersRequested");
+        StringAssert.Contains(viewCode, "new PurchaseOrderSearchRequestedEventArgs(row.Code)");
+        StringAssert.Contains(viewCode, "new PurchaseOrderSearchRequestedEventArgs(row.SourceDocument)");
+
+        StringAssert.Contains(shell, "Click=\"PurchasingReportingOrders_OnClick\"");
+        StringAssert.Contains(shell, "Content=\"Đơn mua hàng\"");
+        StringAssert.Contains(shell, "Click=\"PurchasingReportingReceipts_OnClick\"");
+        StringAssert.Contains(shell, "Content=\"Phiếu nhận hàng\"");
+        StringAssert.Contains(shellCode, "purchasingReportingView.PurchaseOrdersRequested += PurchasingReportingView_OnPurchaseOrdersRequested;");
+        StringAssert.Contains(shellViewModel, "NavigatePurchaseOrdersSearchAsync");
+        StringAssert.Contains(shellViewModel, "_purchaseOrders.SearchText = searchText?.Trim() ?? string.Empty;");
+    }
+
+    [TestMethod]
     public void MasterPlan_RequiresBusinessLayoutParityWithoutPixelCopy()
     {
         var masterPlan = ReadRepoFile("DESKTOP_MASTER_PLAN.md");

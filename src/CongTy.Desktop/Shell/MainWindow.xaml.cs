@@ -139,6 +139,7 @@ public partial class MainWindow : Window
         AgingReportingHost.Content = agingReportingView;
         CodAccountingHost.Content = codAccountingView;
         PurchasingReportingHost.Content = purchasingReportingView;
+        purchasingReportingView.PurchaseOrdersRequested += PurchasingReportingView_OnPurchaseOrdersRequested;
         PurchaseOrderHost.Content = purchaseOrderView;
         PurchasePriceHost.Content = purchasePriceView;
         GoodsReceiptHost.Content = goodsReceiptView;
@@ -449,6 +450,17 @@ public partial class MainWindow : Window
 
     private async void PurchasingReporting_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigatePurchasingReportingAsync();
+
+    private async void PurchasingReportingOrders_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigatePurchaseOrdersAsync();
+
+    private async void PurchasingReportingReceipts_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateGoodsReceiptsAsync();
+
+    private async void PurchasingReportingView_OnPurchaseOrdersRequested(
+        object? sender,
+        PurchaseOrderSearchRequestedEventArgs e) =>
+        await _viewModel.NavigatePurchaseOrdersSearchAsync(e.SearchText);
 
     private async void PurchaseOrders_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigatePurchaseOrdersAsync();

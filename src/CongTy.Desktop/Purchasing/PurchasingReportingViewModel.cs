@@ -8,6 +8,10 @@ namespace CongTy.Desktop.Purchasing;
 
 public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
 {
+    private const string ReportingRead = "core.reporting.purchasing.read";
+    private const string PurchaseOrderRead = "core.purchase-order.read";
+    private const string GoodsReceiptRead = "core.goods-receipt.read";
+
     private readonly IPurchasingReportingService _service;
     private readonly IAccessStateService _access;
     private PurchasingReportingDashboardData? _report;
@@ -30,6 +34,8 @@ public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
             _loaded = false;
             OnPropertyChanged(nameof(CanRead));
             OnPropertyChanged(nameof(CanApply));
+            OnPropertyChanged(nameof(CanOpenPurchaseOrders));
+            OnPropertyChanged(nameof(CanOpenGoodsReceipts));
         };
     }
 
@@ -42,8 +48,10 @@ public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
     public ObservableCollection<PurchasingSupplierRow> SupplierRows { get; } = [];
     public ObservableCollection<PurchasingSkuRow> SkuRows { get; } = [];
 
-    public bool CanRead => _access.HasPermission("core.reporting.purchasing.read");
+    public bool CanRead => _access.HasPermission(ReportingRead);
     public bool CanApply => CanRead && !IsBusy;
+    public bool CanOpenPurchaseOrders => _access.HasPermission(PurchaseOrderRead);
+    public bool CanOpenGoodsReceipts => _access.HasPermission(GoodsReceiptRead);
 
     public bool IsBusy
     {
