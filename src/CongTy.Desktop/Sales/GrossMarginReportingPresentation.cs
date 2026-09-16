@@ -82,12 +82,19 @@ public static class GrossMarginReportingPresentation
     {
         var normalized = string.IsNullOrWhiteSpace(value) ? "0" : value.Trim();
         if (!decimal.TryParse(normalized, NumberStyles.Float, Invariant, out var number)) return normalized;
+
         var decimals = Math.Clamp(maxFractionDigits, 0, 12);
+        var factor = 1m;
+        for (var index = 0; index < decimals; index++) factor *= 10m;
+        number = decimals == 0
+            ? decimal.Truncate(number)
+            : decimal.Truncate(number * factor) / factor;
+
         var format = decimals == 0 ? "#,##0" : $"#,##0.{new string('#', decimals)}";
         return number.ToString(format, Vietnamese);
     }
 
-    public static string Money(string? value) => $"{Number(value, 2)} ₫";
+    public static string Money(string? value) => $"{Number(value, 0)} ₫";
 
     public static string Percent(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "—" : $"{Number(value, 2)}%";

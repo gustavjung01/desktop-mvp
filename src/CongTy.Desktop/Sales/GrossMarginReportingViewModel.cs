@@ -63,6 +63,10 @@ public sealed class GrossMarginReportingViewModel : INotifyPropertyChanged
             _appliedFrom = null;
             _appliedTo = null;
             _appliedWarehouseId = string.Empty;
+            FromDate = null;
+            ToDate = null;
+            SelectedWarehouseId = string.Empty;
+            ActiveTabIndex = 0;
             Warehouses.Clear();
             CustomerRows.Clear();
             SkuRows.Clear();
@@ -437,17 +441,18 @@ public sealed class GrossMarginReportingViewModel : INotifyPropertyChanged
         {
             FromDate = _appliedFrom;
             ToDate = _appliedTo;
-            SelectedWarehouseId = _appliedWarehouseId;
+            SelectedWarehouseId = string.Empty;
+
+            var warehouseOptions = report.Lines
+                .Concat(report.Exceptions)
+                .Where(row => !string.IsNullOrWhiteSpace(row.WarehouseId) && !string.IsNullOrWhiteSpace(row.WarehouseCode))
+                .GroupBy(row => row.WarehouseId, StringComparer.Ordinal)
+                .Select(group => new GrossMarginWarehouseOption(group.Key, group.First().WarehouseCode))
+                .OrderBy(row => row.Label, StringComparer.CurrentCultureIgnoreCase);
+
+            Replace(Warehouses, new[] { new GrossMarginWarehouseOption(string.Empty, "Tất cả kho được cấp quyền") }.Concat(warehouseOptions));
         }
 
-        var warehouseOptions = report.Lines
-            .Concat(report.Exceptions)
-            .Where(row => !string.IsNullOrWhiteSpace(row.WarehouseId) && !string.IsNullOrWhiteSpace(row.WarehouseCode))
-            .GroupBy(row => row.WarehouseId, StringComparer.Ordinal)
-            .Select(group => new GrossMarginWarehouseOption(group.Key, group.First().WarehouseCode))
-            .OrderBy(row => row.Label, StringComparer.CurrentCultureIgnoreCase);
-
-        Replace(Warehouses, new[] { new GrossMarginWarehouseOption(string.Empty, "Tất cả kho được cấp quyền") }.Concat(warehouseOptions));
         Replace(CustomerRows, report.TopCustomers.Select(GrossMarginReportingPresentation.CustomerRow));
         Replace(SkuRows, report.TopSkus.Select(GrossMarginReportingPresentation.SkuRow));
         Replace(ExceptionRows, report.Exceptions.Select(GrossMarginReportingPresentation.ExceptionRow));

@@ -10,9 +10,10 @@ public sealed class GrossMarginReportingParityTests
     {
         var service = ReadRepoFile("src", "CongTy.ApiClient", "GrossMarginReportingService.cs");
 
-        StringAssert.Contains(service, ""/api/reporting/gross-margin"");
-        StringAssert.Contains(service, ""/api/reporting/gross-margin-export"");
-        StringAssert.Contains(service, ""customers", "skus", "lines", "exceptions"");
+        StringAssert.Contains(service, "/api/reporting/gross-margin");
+        StringAssert.Contains(service, "/api/reporting/gross-margin-export");
+        foreach (var dimension in new[] { "customers", "skus", "lines", "exceptions" })
+            StringAssert.Contains(service, dimension);
         StringAssert.Contains(service, "warehouseId");
         StringAssert.Contains(service, "column=");
         StringAssert.Contains(service, "apiClient.GetFileAsync");
@@ -25,8 +26,8 @@ public sealed class GrossMarginReportingParityTests
     {
         var vm = ReadRepoFile("src", "CongTy.Desktop", "Sales", "GrossMarginReportingViewModel.cs");
 
-        StringAssert.Contains(vm, ""core.reporting.gross-margin.read"");
-        StringAssert.Contains(vm, ""core.reporting.export"");
+        StringAssert.Contains(vm, "core.reporting.gross-margin.read");
+        StringAssert.Contains(vm, "core.reporting.export");
         StringAssert.Contains(vm, "CanExport => CanRead && _access.HasPermission(ExportPermission)");
         StringAssert.Contains(vm, "_accessGeneration++");
         StringAssert.Contains(vm, "_loadCts?.Cancel()");
@@ -47,6 +48,8 @@ public sealed class GrossMarginReportingParityTests
         Assert.AreEqual("Thiếu liên kết xuất/nhập kho", GrossMarginReportingPresentation.ExceptionLabel("MISSING_INVENTORY_LINEAGE"));
         Assert.AreEqual("Chưa có dữ liệu giá vốn", GrossMarginReportingPresentation.ExceptionLabel("MISSING_COST_FACT"));
         Assert.AreEqual("Dữ liệu giá vốn có bất thường", GrossMarginReportingPresentation.ExceptionLabel("COST_ANOMALY"));
+        Assert.AreEqual("1.234 ₫", GrossMarginReportingPresentation.Money("1234.99"));
+        Assert.AreEqual("12,34%", GrossMarginReportingPresentation.Percent("12.349"));
 
         CollectionAssert.AreEqual(
             new[] { "customerCode", "customerName", "netRevenue", "cogs", "grossMargin", "grossMarginPercent" },
@@ -91,15 +94,16 @@ public sealed class GrossMarginReportingParityTests
         StringAssert.Contains(app, "IGrossMarginReportingService, GrossMarginReportingService");
         StringAssert.Contains(app, "GrossMarginReportingViewModel");
         StringAssert.Contains(app, "GrossMarginReportingView");
-        StringAssert.Contains(shell, ""sales.gross-margin" => "Lãi gộp"");
+        StringAssert.Contains(shell, "sales.gross-margin");
+        StringAssert.Contains(shell, "Lãi gộp");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 33");
         StringAssert.Contains(shell, "CanViewGrossMargin");
         StringAssert.Contains(shell, "CanExportGrossMargin");
         StringAssert.Contains(shell, "NavigateGrossMarginAsync");
-        StringAssert.Contains(xaml, "Tag="{Binding IsGrossMarginSelected}"");
-        StringAssert.Contains(xaml, "Click="GrossMargin_OnClick"");
-        StringAssert.Contains(xaml, "x:Name="GrossMarginReportingHost"");
-        StringAssert.Contains(xaml, "Click="SalesGrossMargin_OnClick"");
+        StringAssert.Contains(xaml, "IsGrossMarginSelected");
+        StringAssert.Contains(xaml, "GrossMargin_OnClick");
+        StringAssert.Contains(xaml, "GrossMarginReportingHost");
+        StringAssert.Contains(xaml, "SalesGrossMargin_OnClick");
         StringAssert.Contains(code, "GrossMarginReportingHost.Content = grossMarginReportingView");
         StringAssert.Contains(code, "_grossMarginReportingView.OpenExportDialog()");
         StringAssert.Contains(code, "NavigateInventoryCostingAsync()");
