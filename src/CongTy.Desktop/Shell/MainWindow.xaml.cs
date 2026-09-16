@@ -40,6 +40,7 @@ public partial class MainWindow : Window
     private readonly SupplierReturnView _supplierReturnView;
     private readonly SalesReportingView _salesReportingView;
     private readonly GrossMarginReportingView _grossMarginReportingView;
+    private readonly SalesOperationsView _salesOperationsView;
     private readonly InventoryView _inventoryView;
 
     public MainWindow(
@@ -103,6 +104,7 @@ public partial class MainWindow : Window
         _supplierReturnView = supplierReturnView;
         _salesReportingView = salesReportingView;
         _grossMarginReportingView = grossMarginReportingView;
+        _salesOperationsView = new SalesOperationsView(viewModel.SalesOperations);
         _inventoryView = inventoryView;
         DataContext = viewModel;
         HomeHost.Content = dashboardView;
@@ -117,6 +119,8 @@ public partial class MainWindow : Window
         SalesReportingHost.Content = salesReportingView;
         GrossMarginReportingHost.Content = grossMarginReportingView;
         grossMarginReportingView.CostingRequested += GrossMarginView_OnCostingRequested;
+        SalesOperationsHost.Content = _salesOperationsView;
+        _salesOperationsView.SalesOrdersRequested += SalesOperationsView_OnSalesOrdersRequested;
         InventoryHost.Content = inventoryView;
         FulfillmentHost.Content = fulfillmentView;
         TransferHost.Content = transferView;
@@ -543,6 +547,15 @@ public partial class MainWindow : Window
 
     private async void GrossMarginView_OnCostingRequested(object? sender, EventArgs e) =>
         await _viewModel.NavigateInventoryCostingAsync();
+
+    private async void SalesOperations_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateSalesOperationsAsync();
+
+    private async void SalesOperationsOrders_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateSalesAsync();
+
+    private async void SalesOperationsView_OnSalesOrdersRequested(object? sender, EventArgs e) =>
+        await _viewModel.NavigateSalesAsync();
 
     private async void Sales_OnClick(object sender, RoutedEventArgs e)
     {

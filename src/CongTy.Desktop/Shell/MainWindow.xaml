@@ -315,7 +315,10 @@
                                         Tag="{Binding IsGrossMarginSelected}"
                                         Visibility="{Binding CanViewGrossMargin, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="GrossMargin_OnClick"><TextBlock Text="Lãi gộp" /></Button>
-                                <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Điều hành bán hàng" /></Button>
+                                <Button Style="{StaticResource NavSubItemStyle}"
+                                        Tag="{Binding IsSalesOperationsSelected}"
+                                        Visibility="{Binding CanViewSalesOperations, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Click="SalesOperations_OnClick"><TextBlock Text="Điều hành bán hàng" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Đề xuất" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" Tag="{Binding IsSalesOrdersSelected}" Visibility="{Binding CanViewSales, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Sales_OnClick"><TextBlock Text="Đơn bán hàng" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Quản lý đơn hàng" /></Button>
@@ -559,6 +562,19 @@
                                     Visibility="{Binding IsGrossMarginSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
                                     Click="GrossMarginCosting_OnClick"
                                     Content="Giá vốn" />
+
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsSalesOperationsSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="False"
+                                    ToolTip="Chức năng Đề xuất sẽ được mở ở lô nghiệp vụ riêng."
+                                    Content="Gửi Đề xuất" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsSalesOperationsSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanViewSales}"
+                                    Click="SalesOperationsOrders_OnClick"
+                                    Content="Xem đơn bán hàng" />
 
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
@@ -945,6 +961,10 @@
 
                     <TabItem>
                         <ContentControl x:Name="CodAccountingHost" />
+                    </TabItem>
+
+                    <TabItem>
+                        <ContentControl x:Name="SalesOperationsHost" />
                     </TabItem>
                 </TabControl>
             </Grid>
