@@ -10,6 +10,8 @@ namespace CongTy.Desktop.Sales;
 
 internal static class SalesOrderPrintPreview
 {
+    private const double DefaultColumnWidth=720;
+
     public static void Show(Window? owner,SalesOrderData order,SalesOrderVersionData version)
     {
         try
@@ -99,7 +101,7 @@ internal static class SalesOrderPrintPreview
         FontFamily=new FontFamily("Segoe UI"),
         FontSize=11,
         PagePadding=new Thickness(36),
-        ColumnWidth=double.PositiveInfinity
+        ColumnWidth=DefaultColumnWidth
     };
 
     private static void AppendOrder(FlowDocument document,SalesOrderData order,SalesOrderVersionData version,bool pageBreak)
@@ -248,10 +250,13 @@ internal static class SalesOrderPrintPreview
 
     private static void ApplyPrintableArea(FlowDocument document,PrintDialog dialog)
     {
-        if(IsUsablePageSize(dialog.PrintableAreaWidth))document.PageWidth=dialog.PrintableAreaWidth;
-        if(IsUsablePageSize(dialog.PrintableAreaHeight))document.PageHeight=dialog.PrintableAreaHeight;
         document.PagePadding=new Thickness(36);
-        document.ColumnWidth=double.PositiveInfinity;
+        if(IsUsablePageSize(dialog.PrintableAreaWidth))
+        {
+            document.PageWidth=dialog.PrintableAreaWidth;
+            document.ColumnWidth=Math.Max(1,dialog.PrintableAreaWidth-document.PagePadding.Left-document.PagePadding.Right);
+        }
+        if(IsUsablePageSize(dialog.PrintableAreaHeight))document.PageHeight=dialog.PrintableAreaHeight;
     }
 
     private static bool IsUsablePageSize(double value) => value>0&&!double.IsNaN(value)&&!double.IsInfinity(value);

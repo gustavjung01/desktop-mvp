@@ -36,6 +36,9 @@ public sealed class SalesOrderPrintParityTests
         StringAssert.Contains(source,"JoinCodeName(version.WarehouseCode,version.WarehouseName)");
         StringAssert.Contains(source,"IsUsablePageSize(dialog.PrintableAreaWidth)");
         StringAssert.Contains(source,"IsUsablePageSize(dialog.PrintableAreaHeight)");
+        StringAssert.Contains(source,"DefaultColumnWidth=720");
+        StringAssert.Contains(source,"document.ColumnWidth=Math.Max(1,dialog.PrintableAreaWidth-document.PagePadding.Left-document.PagePadding.Right)");
+        Assert.IsFalse(source.Contains("double.PositiveInfinity",StringComparison.Ordinal));
     }
 
     private static int Count(string source,string value)
