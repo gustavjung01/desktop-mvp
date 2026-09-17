@@ -54,7 +54,7 @@ internal static class SalesOrderPrintPreview
             PagePadding=new Thickness(36),
             ColumnWidth=double.PositiveInfinity
         };
-        document.Blocks.Add(new Paragraph(new Run("ĐƠN BÁN HÀNG")) { FontSize=22,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,Margin=new Thickness(0,0,0,4) });
+        document.Blocks.Add(new Paragraph(new Run("PHIẾU XUẤT KHO")) { FontSize=22,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,Margin=new Thickness(0,0,0,4) });
         document.Blocks.Add(new Paragraph(new Run($"Số đơn: {SalesPresentation.Number(order.Number)}")) { TextAlignment=TextAlignment.Center,Margin=new Thickness(0,0,0,14) });
 
         var customer=version.CustomerMode=="WALK_IN"
@@ -172,7 +172,7 @@ internal static class SalesOrderPrintPreview
         if(IsUsablePageSize(dialog.PrintableAreaHeight))document.PageHeight=dialog.PrintableAreaHeight;
         document.PagePadding=new Thickness(36);
         document.ColumnWidth=double.PositiveInfinity;
-        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,$"Đơn bán hàng {SalesPresentation.Number(number)}");
+        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,$"Phiếu xuất kho {SalesPresentation.Number(number)}");
     }
 
     private static bool IsUsablePageSize(double value) => value>0&&!double.IsNaN(value)&&!double.IsInfinity(value);

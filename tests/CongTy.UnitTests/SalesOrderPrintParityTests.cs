@@ -4,14 +4,14 @@ namespace CongTy.UnitTests;
 public sealed class SalesOrderPrintParityTests
 {
     [TestMethod]
-    public void PrintPreview_UsesSalesOrderLanguageInsteadOfWarehouseSlip()
+    public void PrintPreview_PreservesWarehouseSlipDocumentContract()
     {
         var source=ReadRepoFile("src","CongTy.Desktop","Sales","SalesOrderPrintPreview.cs");
 
-        StringAssert.Contains(source,"ĐƠN BÁN HÀNG");
-        StringAssert.Contains(source,"Đơn bán hàng {SalesPresentation.Number(number)}");
-        Assert.IsFalse(source.Contains("PHIẾU XUẤT KHO",StringComparison.Ordinal));
-        Assert.IsFalse(source.Contains("Phiếu xuất kho",StringComparison.Ordinal));
+        StringAssert.Contains(source,"PHIẾU XUẤT KHO");
+        StringAssert.Contains(source,"Phiếu xuất kho {SalesPresentation.Number(number)}");
+        StringAssert.Contains(source,"DocumentViewer");
+        StringAssert.Contains(source,"PrintDialog");
     }
 
     [TestMethod]
