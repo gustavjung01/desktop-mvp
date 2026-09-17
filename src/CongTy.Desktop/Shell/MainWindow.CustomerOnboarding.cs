@@ -18,6 +18,7 @@ public partial class MainWindow
                 .Any(text => text.Text == "Mở/liên kết mã khách"));
         if (sidebarButton is null) return;
 
+        _viewModel.InitializeCustomerOnboardingShell();
         sidebarButton.IsEnabled = true;
         BindingOperations.SetBinding(sidebarButton, Button.TagProperty, new Binding(nameof(ShellViewModel.IsCustomerOnboardingSelected)));
         BindingOperations.SetBinding(sidebarButton, UIElement.VisibilityProperty, new Binding(nameof(ShellViewModel.CanViewCustomerOnboarding))
