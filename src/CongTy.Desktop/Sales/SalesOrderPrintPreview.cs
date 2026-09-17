@@ -11,6 +11,7 @@ namespace CongTy.Desktop.Sales;
 internal static class SalesOrderPrintPreview
 {
     private const double DefaultColumnWidth=720;
+    // FlowDocumentPageViewer is intentional: DocumentViewer is for fixed-document content.
 
     public static void Show(Window? owner,SalesOrderData order,SalesOrderVersionData version)
     {
@@ -31,7 +32,7 @@ internal static class SalesOrderPrintPreview
         try
         {
             var document=BuildBatchDocument(items);
-            var viewer=new DocumentViewer { Document=document,Margin=new Thickness(8) };
+            var viewer=new FlowDocumentPageViewer { Document=document,Margin=new Thickness(8) };
             var printButton=new Button { Content="In…",MinWidth=90,Margin=new Thickness(4) };
             var closeButton=new Button { Content="Đóng",MinWidth=90,Margin=new Thickness(4) };
             var actions=new StackPanel { Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(8,6,8,2) };
@@ -59,7 +60,7 @@ internal static class SalesOrderPrintPreview
     private static void ShowCore(Window? owner,SalesOrderData order,SalesOrderVersionData version)
     {
         var document=BuildDocument(order,version);
-        var viewer=new DocumentViewer { Document=document,Margin=new Thickness(8) };
+        var viewer=new FlowDocumentPageViewer { Document=document,Margin=new Thickness(8) };
         var printButton=new Button { Content="In…",MinWidth=90,Margin=new Thickness(4) };
         var closeButton=new Button { Content="Đóng",MinWidth=90,Margin=new Thickness(4) };
         var actions=new StackPanel { Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(8,6,8,2) };
