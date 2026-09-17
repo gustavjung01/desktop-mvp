@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Windows.Input;
 
 namespace CongTy.Desktop.Shell;
 
@@ -9,7 +8,6 @@ public sealed partial class ShellViewModel
 
     public bool CanViewOrderManagement=>CanViewSales;
     public bool IsOrderManagementSelected=>SelectedWorkspaceIndex==37;
-    public ICommand NavigateOrderManagementCommand=>new ShellAsyncCommand(NavigateOrderManagementAsync,()=>CanViewOrderManagement);
 
     public Task NavigateOrderManagementAsync()
     {

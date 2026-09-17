@@ -86,17 +86,20 @@ public sealed class OrderManagementParityTests
     }
 
     [TestMethod]
-    public void Shell_WiresUi56AsDedicatedSalesWorkspace()
+    public void Shell_WiresUi56WithoutRewritingMainShellXaml()
     {
         var shell=ReadRepoFile("src","CongTy.Desktop","Shell","ShellViewModel.OrderManagement.cs");
+        var host=ReadRepoFile("src","CongTy.Desktop","Shell","MainWindow.OrderManagement.cs");
         var xaml=ReadRepoFile("src","CongTy.Desktop","Shell","MainWindow.xaml");
         StringAssert.Contains(shell,"sales.order-management");
         StringAssert.Contains(shell,"SelectedWorkspaceIndex=37");
         StringAssert.Contains(shell,"NavigateOrderManagementAsync");
         StringAssert.Contains(shell,"IsOrderManagementSelected");
-        StringAssert.Contains(xaml,"OrderManagementView");
-        StringAssert.Contains(xaml,"NavigateOrderManagementCommand");
-        Assert.IsFalse(xaml.Contains("IsEnabled=\"False\"><TextBlock Text=\"Quản lý đơn hàng\"",StringComparison.Ordinal));
+        StringAssert.Contains(host,"Text==\"Quản lý đơn hàng\"");
+        StringAssert.Contains(host,"sidebarButton.IsEnabled=true");
+        StringAssert.Contains(host,"new OrderManagementView()");
+        StringAssert.Contains(host,"workspaceTabs.Items[37]");
+        StringAssert.Contains(xaml,"IsEnabled=\"False\"><TextBlock Text=\"Quản lý đơn hàng\" /></Button>");
     }
 
     private static string ReadRepoFile(params string[] parts)
