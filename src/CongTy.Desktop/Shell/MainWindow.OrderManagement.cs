@@ -14,6 +14,7 @@ public partial class MainWindow
     {
         base.OnContentRendered(e);
         WireOrderManagementWorkspace();
+        WireCustomerOnboardingWorkspace();
     }
 
     private void WireOrderManagementWorkspace()
