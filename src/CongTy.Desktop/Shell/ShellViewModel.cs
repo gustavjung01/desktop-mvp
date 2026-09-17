@@ -18,7 +18,7 @@ using CongTy.Windows;
 
 namespace CongTy.Desktop.Shell;
 
-public sealed class ShellViewModel : INotifyPropertyChanged
+public sealed partial class ShellViewModel : INotifyPropertyChanged
 {
     private enum ShellStage
     {

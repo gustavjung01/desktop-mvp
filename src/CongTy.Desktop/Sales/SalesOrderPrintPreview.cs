@@ -23,6 +23,37 @@ internal static class SalesOrderPrintPreview
         }
     }
 
+    public static void ShowBatch(Window? owner,IReadOnlyList<(SalesOrderData Order,SalesOrderVersionData Version)> items)
+    {
+        if(items.Count==0)return;
+        try
+        {
+            var document=BuildBatchDocument(items);
+            var viewer=new DocumentViewer { Document=document,Margin=new Thickness(8) };
+            var printButton=new Button { Content="In…",MinWidth=90,Margin=new Thickness(4) };
+            var closeButton=new Button { Content="Đóng",MinWidth=90,Margin=new Thickness(4) };
+            var actions=new StackPanel { Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(8,6,8,2) };
+            actions.Children.Add(printButton); actions.Children.Add(closeButton);
+            var layout=new DockPanel();
+            DockPanel.SetDock(actions,Dock.Top); layout.Children.Add(actions); layout.Children.Add(viewer);
+            var window=new Window
+            {
+                Title=$"Xem trước in · {items.Count:N0} đơn",
+                Width=980,Height=760,MinWidth=760,MinHeight=560,
+                Content=layout,WindowStartupLocation=WindowStartupLocation.CenterOwner
+            };
+            if(owner is not null)window.Owner=owner;
+            printButton.Click+=(_,_)=>TryPrintBatch(window,document,items.Count);
+            closeButton.Click+=(_,_)=>window.Close();
+            window.ShowDialog();
+        }
+        catch(Exception exception)
+        {
+            Debug.WriteLine(exception);
+            ShowWarning(owner,"Không mở được bản xem trước các đơn đã chọn. Vui lòng thử lại.");
+        }
+    }
+
     private static void ShowCore(Window? owner,SalesOrderData order,SalesOrderVersionData version)
     {
         var document=BuildDocument(order,version);
@@ -47,14 +78,37 @@ internal static class SalesOrderPrintPreview
 
     private static FlowDocument BuildDocument(SalesOrderData order,SalesOrderVersionData version)
     {
-        var document=new FlowDocument
+        var document=CreateDocument();
+        AppendOrder(document,order,version,false);
+        return document;
+    }
+
+    private static FlowDocument BuildBatchDocument(IReadOnlyList<(SalesOrderData Order,SalesOrderVersionData Version)> items)
+    {
+        var document=CreateDocument();
+        for(var index=0;index<items.Count;index++)
         {
-            FontFamily=new FontFamily("Segoe UI"),
-            FontSize=11,
-            PagePadding=new Thickness(36),
-            ColumnWidth=double.PositiveInfinity
-        };
-        document.Blocks.Add(new Paragraph(new Run("PHIẾU XUẤT KHO")) { FontSize=22,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,Margin=new Thickness(0,0,0,4) });
+            var item=items[index];
+            AppendOrder(document,item.Order,item.Version,index>0);
+        }
+        return document;
+    }
+
+    private static FlowDocument CreateDocument()=>new()
+    {
+        FontFamily=new FontFamily("Segoe UI"),
+        FontSize=11,
+        PagePadding=new Thickness(36),
+        ColumnWidth=double.PositiveInfinity
+    };
+
+    private static void AppendOrder(FlowDocument document,SalesOrderData order,SalesOrderVersionData version,bool pageBreak)
+    {
+        document.Blocks.Add(new Paragraph(new Run("PHIẾU XUẤT KHO"))
+        {
+            FontSize=22,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,
+            Margin=new Thickness(0,0,0,4),BreakPageBefore=pageBreak
+        });
         document.Blocks.Add(new Paragraph(new Run($"Số đơn: {SalesPresentation.Number(order.Number)}")) { TextAlignment=TextAlignment.Center,Margin=new Thickness(0,0,0,14) });
 
         var customer=version.CustomerMode=="WALK_IN"
@@ -87,7 +141,6 @@ internal static class SalesOrderPrintPreview
         var group=new TableRowGroup();var row=new TableRow();
         foreach(var label in new[]{"Người lập","Kho giao hàng","Khách hàng"})row.Cells.Add(new TableCell(new Paragraph(new Run(label)){TextAlignment=TextAlignment.Center,FontWeight=FontWeights.SemiBold}){Padding=new Thickness(6)});
         group.Rows.Add(row);signatures.RowGroups.Add(group);document.Blocks.Add(signatures);
-        return document;
     }
 
     private static Table BuildLines(SalesOrderVersionData version)
@@ -164,15 +217,41 @@ internal static class SalesOrderPrintPreview
         }
     }
 
+    private static void TryPrintBatch(Window owner,FlowDocument document,int count)
+    {
+        try
+        {
+            PrintBatch(document,count);
+        }
+        catch(Exception exception)
+        {
+            Debug.WriteLine(exception);
+            ShowWarning(owner,"Không in được các đơn đã chọn. Vui lòng kiểm tra máy in rồi thử lại.");
+        }
+    }
+
     private static void Print(FlowDocument document,string? number)
     {
         var dialog=new PrintDialog();
         if(dialog.ShowDialog()!=true)return;
+        ApplyPrintableArea(document,dialog);
+        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,$"Phiếu xuất kho {SalesPresentation.Number(number)}");
+    }
+
+    private static void PrintBatch(FlowDocument document,int count)
+    {
+        var dialog=new PrintDialog();
+        if(dialog.ShowDialog()!=true)return;
+        ApplyPrintableArea(document,dialog);
+        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,$"Phiếu xuất kho · {count:N0} đơn");
+    }
+
+    private static void ApplyPrintableArea(FlowDocument document,PrintDialog dialog)
+    {
         if(IsUsablePageSize(dialog.PrintableAreaWidth))document.PageWidth=dialog.PrintableAreaWidth;
         if(IsUsablePageSize(dialog.PrintableAreaHeight))document.PageHeight=dialog.PrintableAreaHeight;
         document.PagePadding=new Thickness(36);
         document.ColumnWidth=double.PositiveInfinity;
-        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,$"Phiếu xuất kho {SalesPresentation.Number(number)}");
     }
 
     private static bool IsUsablePageSize(double value) => value>0&&!double.IsNaN(value)&&!double.IsInfinity(value);
