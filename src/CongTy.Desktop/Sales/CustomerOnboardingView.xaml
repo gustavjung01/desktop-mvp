@@ -29,7 +29,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Margin="0,0,12,0" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}">
-                    <Run Text="Đang chờ: " /><Run Text="{Binding PendingCount}" FontWeight="SemiBold" />
+                    <Run Text="Đang chờ: " /><Run Text="{Binding PendingCount, Mode=OneWay}" FontWeight="SemiBold" />
                 </TextBlock>
                 <Button Padding="14,8"
                         IsEnabled="{Binding IsNotBusy}"
