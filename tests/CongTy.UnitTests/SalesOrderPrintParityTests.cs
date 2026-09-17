@@ -23,7 +23,7 @@ public sealed class SalesOrderPrintParityTests
         StringAssert.Contains(source,"printButton.Click+=(_,_)=>TryPrint(window,document,order.Number)");
         StringAssert.Contains(source,"Không mở được bản xem trước của đơn bán hàng");
         StringAssert.Contains(source,"Không in được đơn bán hàng");
-        Assert.IsTrue(Count(source,"catch(Exception exception)")>=2);
+        Assert.IsGreaterThanOrEqualTo(Count(source,"catch(Exception exception)"),2);
         Assert.IsFalse(source.Contains("exception.Message",StringComparison.Ordinal));
     }
 
