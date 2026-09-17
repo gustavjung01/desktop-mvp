@@ -256,8 +256,8 @@
                                 <StackPanel>
                                     <TextBlock Text="{Binding SelectedDocumentNumber}" FontSize="18" FontWeight="Bold" />
                                     <TextBlock Margin="0,3,0,0" Text="{Binding SelectedCustomerText}" />
-                                    <TextBlock Margin="0,3,0,0"><Run Text="Nhân viên nộp: " /><Run Text="{Binding SelectedEmployeeText}" /></TextBlock>
-                                    <TextBlock Margin="0,3,0,0"><Run Text="Tiền chưa gắn với đơn: " /><Run Text="{Binding SelectedRemainingText}" /></TextBlock>
+                                    <TextBlock Margin="0,3,0,0"><Run Text="Nhân viên nộp: " /><Run Text="{Binding SelectedEmployeeText, Mode=OneWay}" /></TextBlock>
+                                    <TextBlock Margin="0,3,0,0"><Run Text="Tiền chưa gắn với đơn: " /><Run Text="{Binding SelectedRemainingText, Mode=OneWay}" /></TextBlock>
                                 </StackPanel>
                                 <Button Grid.Column="1"
                                         Style="{StaticResource OfficeSecondaryButtonStyle}"
