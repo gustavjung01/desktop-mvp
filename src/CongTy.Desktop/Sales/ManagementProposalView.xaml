@@ -1,0 +1,299 @@
+<UserControl x:Class="CongTy.Desktop.Sales.ManagementProposalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             PreviewKeyDown="ManagementProposalView_OnPreviewKeyDown">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="PHIẾU ĐỀ XUẤT" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Text="Nội dung cần Admin quyết định" Margin="0,3,0,0" FontSize="16" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Border Grid.Column="1" Padding="9,4" Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="12" VerticalAlignment="Top">
+                            <TextBlock Text="Nguồn: Công Ty" FontWeight="SemiBold" />
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Margin="0,14,0,0">
+                        <TextBlock Text="Tiêu đề" FontWeight="SemiBold" />
+                        <TextBox Margin="0,5,0,0"
+                                 Style="{StaticResource OfficeTextBoxStyle}"
+                                 Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="240"
+                                 ToolTip="Ví dụ: Xin điều chỉnh điều kiện thanh toán cho khách hàng A" />
+                    </StackPanel>
+
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Nội dung đề xuất" FontWeight="SemiBold" />
+                        <TextBox Margin="0,5,0,0"
+                                 MinHeight="110"
+                                 Style="{StaticResource OfficeTextBoxStyle}"
+                                 Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="4000"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 ToolTip="Nêu việc cần Admin xem xét và quyết định. Chỉ hai trường này là bắt buộc." />
+                    </StackPanel>
+
+                    <Expander Margin="0,12,0,0" Header="Thêm thông tin liên quan (không bắt buộc)">
+                        <Border Margin="0,8,0,0" Padding="12" Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="8">
+                            <StackPanel>
+                                <TextBlock Text="Chỉ bổ sung khi thông tin này giúp Admin hiểu hoặc kiểm tra đề xuất nhanh hơn."
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Nhóm xử lý" FontWeight="SemiBold" />
+                                        <ComboBox Margin="0,5,0,0"
+                                                  Style="{StaticResource OfficeComboBoxStyle}"
+                                                  ItemsSource="{Binding Domains}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Value"
+                                                  SelectedValue="{Binding Domain}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Mức ưu tiên" FontWeight="SemiBold" />
+                                        <ComboBox Margin="0,5,0,0"
+                                                  Style="{StaticResource OfficeComboBoxStyle}"
+                                                  ItemsSource="{Binding Priorities}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Value"
+                                                  SelectedValue="{Binding Priority}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,10,0,0">
+                                        <TextBlock Text="Liên quan đến" FontWeight="SemiBold" />
+                                        <ComboBox Margin="0,5,0,0"
+                                                  Style="{StaticResource OfficeComboBoxStyle}"
+                                                  ItemsSource="{Binding EntityTypes}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Value"
+                                                  SelectedValue="{Binding EntityType}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,10,0,0">
+                                        <TextBlock Text="Mã liên quan (nếu có)" FontWeight="SemiBold" />
+                                        <TextBox Margin="0,5,0,0"
+                                                 Style="{StaticResource OfficeTextBoxStyle}"
+                                                 Text="{Binding EntityId, UpdateSourceTrigger=PropertyChanged}"
+                                                 MaxLength="240"
+                                                 ToolTip="Mã khách, số đơn, số chứng từ..." />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Margin="0,10,0,0">
+                                    <TextBlock Text="Tên khách / đơn / tuyến (nếu có)" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0"
+                                             Style="{StaticResource OfficeTextBoxStyle}"
+                                             Text="{Binding EntityLabel, UpdateSourceTrigger=PropertyChanged}"
+                                             MaxLength="240"
+                                             ToolTip="Tên dễ nhận biết để Admin tra cứu" />
+                                </StackPanel>
+                                <StackPanel Margin="0,10,0,0">
+                                    <TextBlock Text="Lý do / bối cảnh" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0" MinHeight="70"
+                                             Style="{StaticResource OfficeTextBoxStyle}"
+                                             Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}"
+                                             MaxLength="4000" AcceptsReturn="True" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Margin="0,10,0,0">
+                                    <TextBlock Text="Tác động dự kiến" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0" MinHeight="54"
+                                             Style="{StaticResource OfficeTextBoxStyle}"
+                                             Text="{Binding Impact, UpdateSourceTrigger=PropertyChanged}"
+                                             MaxLength="1000" AcceptsReturn="True" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Margin="0,10,0,0">
+                                    <TextBlock Text="Điều kiện cần lưu ý" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0" MinHeight="54"
+                                             Style="{StaticResource OfficeTextBoxStyle}"
+                                             Text="{Binding Rule, UpdateSourceTrigger=PropertyChanged}"
+                                             MaxLength="1000" AcceptsReturn="True" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <StackPanel Margin="0,10,0,0">
+                                    <TextBlock Text="Bằng chứng / ghi chú" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0" MinHeight="70"
+                                             Style="{StaticResource OfficeTextBoxStyle}"
+                                             Text="{Binding EvidenceText, UpdateSourceTrigger=PropertyChanged}"
+                                             MaxLength="4000" AcceptsReturn="True" TextWrapping="Wrap"
+                                             ToolTip="Mỗi dòng một thông tin, số liệu hoặc nguồn kiểm tra." />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Expander>
+
+                    <TextBlock Margin="0,10,0,0"
+                               Text="{Binding CreateError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding HasCreateError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="{Binding LoadingText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <Button Grid.Column="1"
+                                MinWidth="118"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanSubmit}"
+                                Click="Submit_OnClick"
+                                Content="{Binding SubmitButtonText}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Margin="0,10,0,0"
+                    Padding="10"
+                    Background="{DynamicResource SurfaceMutedBrush}"
+                    CornerRadius="8"
+                    Visibility="{Binding HasMessage, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Border>
+
+            <Border Grid.Row="2" Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="PHẢN HỒI TỪ ADMIN" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Text="Đề xuất của tôi" Margin="0,3,0,0" FontSize="16" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding CountText}" VerticalAlignment="Top" Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </Grid>
+
+                    <TextBlock Margin="0,12,0,0" Text="{Binding EmptyText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+
+                    <ItemsControl Margin="0,8,0,0" ItemsSource="{Binding Proposals}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="0,12" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,12,0">
+                                                <TextBlock Text="{Binding Meta}" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding Title}" Margin="0,3,0,0" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Padding="8,3" CornerRadius="12" Background="{DynamicResource SurfaceMutedBrush}" VerticalAlignment="Top">
+                                                <TextBlock Text="{Binding StatusLabel}" FontWeight="SemiBold" />
+                                            </Border>
+                                        </Grid>
+
+                                        <TextBlock Margin="0,8,0,0" Text="{Binding Content}" TextWrapping="Wrap" />
+
+                                        <Grid Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Visibility="{Binding HasImpact, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <TextBlock Text="Tác động" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding Impact}" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="Cập nhật" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                <TextBlock Text="{Binding UpdatedAt}" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Border Margin="0,8,0,0"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="3,0,0,0"
+                                                Visibility="{Binding HasDecisionNote, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Margin="8,0,0,0" TextWrapping="Wrap">
+                                                <Run Text="Phản hồi Admin: " FontWeight="SemiBold" />
+                                                <Run Text="{Binding DecisionNote}" />
+                                            </TextBlock>
+                                        </Border>
+
+                                        <Border Margin="0,10,0,0"
+                                                Padding="10"
+                                                Background="{DynamicResource SurfaceMutedBrush}"
+                                                CornerRadius="8"
+                                                Visibility="{Binding CanResubmit, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <StackPanel>
+                                                <TextBlock Text="Nội dung bổ sung" FontWeight="SemiBold" />
+                                                <TextBox Margin="0,5,0,0" MinHeight="82"
+                                                         Style="{StaticResource OfficeTextBoxStyle}"
+                                                         Text="{Binding ResubmitContent, UpdateSourceTrigger=PropertyChanged}"
+                                                         MaxLength="4000" AcceptsReturn="True" TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,9,0,0" Text="Lý do / giải trình (nếu cần)" FontWeight="SemiBold" />
+                                                <TextBox Margin="0,5,0,0" MinHeight="58"
+                                                         Style="{StaticResource OfficeTextBoxStyle}"
+                                                         Text="{Binding ResubmitReason, UpdateSourceTrigger=PropertyChanged}"
+                                                         MaxLength="4000" AcceptsReturn="True" TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,9,0,0" Text="Bằng chứng / ghi chú (nếu có)" FontWeight="SemiBold" />
+                                                <TextBox Margin="0,5,0,0" MinHeight="58"
+                                                         Style="{StaticResource OfficeTextBoxStyle}"
+                                                         Text="{Binding ResubmitEvidence, UpdateSourceTrigger=PropertyChanged}"
+                                                         MaxLength="4000" AcceptsReturn="True" TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,8,0,0"
+                                                           Text="{Binding Error}"
+                                                           Foreground="{DynamicResource DangerBrush}"
+                                                           TextWrapping="Wrap"
+                                                           Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                <Button Margin="0,10,0,0"
+                                                        HorizontalAlignment="Right"
+                                                        MinWidth="106"
+                                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                        IsEnabled="{Binding CanSubmitResubmission}"
+                                                        Click="Resubmit_OnClick"
+                                                        Content="{Binding ResubmitButtonText}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Grid.Row="3" Margin="0,9,0,0" Text="F5 · Cập nhật danh sách" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+        </Grid>
+    </ScrollViewer>
+</UserControl>

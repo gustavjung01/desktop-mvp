@@ -105,7 +105,7 @@ public sealed class SalesOperationsParityTests
         StringAssert.Contains(code, "new SalesOperationsView(viewModel.SalesOperations)");
         StringAssert.Contains(code, "SalesOperationsHost.Content = _salesOperationsView");
         StringAssert.Contains(code, "SalesOperationsView_OnSalesOrdersRequested");
-        Assert.IsFalse(shell.Contains("sales.proposals", StringComparison.Ordinal));
+        StringAssert.Contains(shell, "sales.proposals");
     }
 
     private static string ReadRepoFile(params string[] parts)

@@ -319,7 +319,10 @@
                                         Tag="{Binding IsSalesOperationsSelected}"
                                         Visibility="{Binding CanViewSalesOperations, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="SalesOperations_OnClick"><TextBlock Text="Điều hành bán hàng" /></Button>
-                                <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Đề xuất" /></Button>
+                                <Button Style="{StaticResource NavSubItemStyle}"
+                                        Tag="{Binding IsManagementProposalsSelected}"
+                                        Visibility="{Binding CanViewManagementProposals, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Click="ManagementProposals_OnClick"><TextBlock Text="Đề xuất" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" Tag="{Binding IsSalesOrdersSelected}" Visibility="{Binding CanViewSales, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Sales_OnClick"><TextBlock Text="Đơn bán hàng" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Quản lý đơn hàng" /></Button>
                                 <Button Style="{StaticResource NavSubItemStyle}" IsEnabled="False"><TextBlock Text="Mở/liên kết mã khách" /></Button>
@@ -566,8 +569,8 @@
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Visibility="{Binding IsSalesOperationsSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    IsEnabled="False"
-                                    ToolTip="Chức năng Đề xuất sẽ được mở ở lô nghiệp vụ riêng."
+                                    IsEnabled="{Binding CanViewManagementProposals}"
+                                    Click="ManagementProposals_OnClick"
                                     Content="Gửi Đề xuất" />
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
@@ -575,6 +578,12 @@
                                     IsEnabled="{Binding CanViewSales}"
                                     Click="SalesOperationsOrders_OnClick"
                                     Content="Xem đơn bán hàng" />
+                            <Button Margin="8,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding IsManagementProposalsSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    IsEnabled="{Binding CanViewSalesOperations}"
+                                    Click="ManagementProposalsBack_OnClick"
+                                    Content="Quay lại Điều hành bán hàng" />
 
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
@@ -965,6 +974,10 @@
 
                     <TabItem>
                         <ContentControl x:Name="SalesOperationsHost" />
+                    </TabItem>
+
+                    <TabItem>
+                        <ContentControl x:Name="ManagementProposalHost" />
                     </TabItem>
                 </TabControl>
             </Grid>

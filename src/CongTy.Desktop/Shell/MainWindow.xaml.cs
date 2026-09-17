@@ -54,6 +54,7 @@ public partial class MainWindow : Window
         SalesView salesView,
         SalesReportingView salesReportingView,
         GrossMarginReportingView grossMarginReportingView,
+        ManagementProposalView managementProposalView,
         InventoryView inventoryView,
         FulfillmentView fulfillmentView,
         TransferView transferView,
@@ -121,6 +122,7 @@ public partial class MainWindow : Window
         grossMarginReportingView.CostingRequested += GrossMarginView_OnCostingRequested;
         SalesOperationsHost.Content = _salesOperationsView;
         _salesOperationsView.SalesOrdersRequested += SalesOperationsView_OnSalesOrdersRequested;
+        ManagementProposalHost.Content = managementProposalView;
         InventoryHost.Content = inventoryView;
         FulfillmentHost.Content = fulfillmentView;
         TransferHost.Content = transferView;
@@ -549,6 +551,12 @@ public partial class MainWindow : Window
         await _viewModel.NavigateInventoryCostingAsync();
 
     private async void SalesOperations_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateSalesOperationsAsync();
+
+    private async void ManagementProposals_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.NavigateManagementProposalsAsync();
+
+    private async void ManagementProposalsBack_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateSalesOperationsAsync();
 
     private async void SalesOperationsOrders_OnClick(object sender, RoutedEventArgs e) =>
