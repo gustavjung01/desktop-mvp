@@ -68,7 +68,8 @@ public sealed class ManagementProposalParityTests
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Sales", "ManagementProposalViewModel.cs");
         StringAssert.Contains(viewModel, "Gửi Đề xuất");
         StringAssert.Contains(viewModel, "Đang gửi…");
-        StringAssert.Contains(viewModel, "Gửi bổ sung");
+        var presentation = ReadRepoFile("src", "CongTy.Desktop", "Sales", "ManagementProposalPresentation.cs");
+        StringAssert.Contains(presentation, "Gửi bổ sung");
 
         Assert.IsFalse(view.Contains("backend", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains("canonical", StringComparison.OrdinalIgnoreCase));
