@@ -17,6 +17,7 @@ public partial class MainWindow
         WireCustomerOnboardingWorkspace();
         WireReceivablesWorkspace();
         WireCustomerPaymentsWorkspace();
+        WireCustomerReturnCreditsWorkspace();
     }
 
     private void WireOrderManagementWorkspace()
