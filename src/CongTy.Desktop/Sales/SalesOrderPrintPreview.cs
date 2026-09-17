@@ -11,6 +11,7 @@ namespace CongTy.Desktop.Sales;
 internal static class SalesOrderPrintPreview
 {
     private const double DefaultColumnWidth=720;
+    // FlowDocumentPageViewer is intentional: DocumentViewer is for fixed-document content.
 
     public static void Show(Window? owner,SalesOrderData order,SalesOrderVersionData version)
     {
