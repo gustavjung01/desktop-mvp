@@ -112,6 +112,9 @@ public partial class App : Application
             services.AddSingleton<IManagementProposalService, ManagementProposalService>();
             services.AddSingleton<ManagementProposalViewModel>();
             services.AddSingleton<ManagementProposalView>();
+            services.AddSingleton<ICustomerOnboardingService, CustomerOnboardingService>();
+            services.AddSingleton<CustomerOnboardingViewModel>();
+            services.AddSingleton<CustomerOnboardingView>();
             services.AddSingleton<IInventoryService, InventoryService>();
             services.AddSingleton<InventoryViewModel>();
             services.AddSingleton<InventoryView>();
