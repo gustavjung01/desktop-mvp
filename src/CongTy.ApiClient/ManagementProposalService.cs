@@ -76,7 +76,7 @@ public sealed class ManagementProposalService(
     }
 
     private string RequireToken() =>
-        sessionAccessor.AccessToken
+        sessionAccessor.CurrentToken
         ?? throw new InvalidOperationException("Phiên đăng nhập chưa sẵn sàng.");
 
     private void RequireKey(string key)
