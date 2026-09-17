@@ -41,6 +41,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
     private readonly SalesReportingViewModel _salesReporting;
     private readonly GrossMarginReportingViewModel _grossMarginReporting;
     private readonly SalesOperationsViewModel _salesOperations;
+    private readonly ManagementProposalViewModel _managementProposals;
     private readonly InventoryViewModel _inventory;
     private readonly FulfillmentViewModel _fulfillment;
     private readonly TransferViewModel _transfer;
@@ -109,6 +110,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         SalesViewModel sales,
         SalesReportingViewModel salesReporting,
         GrossMarginReportingViewModel grossMarginReporting,
+        ManagementProposalViewModel managementProposals,
         ISalesOrderService salesOrderService,
         IInternalOrganizationService organizationService,
         InventoryViewModel inventory,
@@ -153,6 +155,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         _salesReporting = salesReporting;
         _grossMarginReporting = grossMarginReporting;
         _salesOperations = new SalesOperationsViewModel(salesOrderService, organizationService, access);
+        _managementProposals = managementProposals;
         _inventory = inventory;
         _fulfillment = fulfillment;
         _transfer = transfer;
@@ -287,6 +290,19 @@ public sealed class ShellViewModel : INotifyPropertyChanged
             {
                 OnPropertyChanged(nameof(CanViewGrossMargin));
                 OnPropertyChanged(nameof(CanExportGrossMargin));
+            }
+        };
+        _managementProposals.PropertyChanged += (_, args) =>
+        {
+            if (SelectedWorkspaceIndex == 36
+                && (args.PropertyName == nameof(ManagementProposalViewModel.Message)
+                    || args.PropertyName == nameof(ManagementProposalViewModel.MessageIsError)))
+            {
+                RaiseActiveNotice();
+            }
+            if (args.PropertyName == nameof(ManagementProposalViewModel.CanUse))
+            {
+                OnPropertyChanged(nameof(CanViewManagementProposals));
             }
         };
         _inventory.PropertyChanged += (_, args) =>
@@ -824,6 +840,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
                 33 => _grossMarginReporting.Message,
                 34 => _codAccounting.Message,
                 35 => _salesOperations.Message,
+                36 => _managementProposals.Message,
                 _ => string.Empty
             };
 
@@ -865,6 +882,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
             33 => _grossMarginReporting.MessageIsError,
             34 => _codAccounting.MessageIsError,
             35 => _salesOperations.MessageIsError,
+            36 => _managementProposals.MessageIsError,
             _ => false
         });
 
@@ -952,6 +970,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         "sales.reporting" => "Báo cáo bán hàng",
         "sales.gross-margin" => "Lãi gộp",
         "sales.operations" => "Tiếp nhận và xử lý nhu cầu bán hàng",
+        "sales.proposals" => "Gửi đề xuất lên Admin",
         "sales.orders" => "Đơn bán hàng",
         "inventory.reporting" => "Báo cáo tồn kho",
         "inventory.fulfillment" => "Chuẩn bị hàng",
@@ -998,6 +1017,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         "sales.reporting" => "Theo dõi doanh thu, đơn đã chốt, khách mua và sản lượng theo đúng kỳ và phạm vi kho được cấp.",
         "sales.gross-margin" => "Đối chiếu doanh thu thuần đã ghi nhận với dữ liệu giá vốn theo đúng chứng từ kho; hàng khách trả đã nhận được đảo cả doanh thu và giá vốn hàng bán.",
         "sales.operations" => "Tập trung đơn và nhu cầu mua từ các nguồn, xử lý mã khách, kiểm tra và chuyển thành đơn bán hàng chính thức.",
+        "sales.proposals" => "Chỉ cần nêu rõ tiêu đề và nội dung cần quyết định. Thông tin liên quan có thể bổ sung khi thật sự cần.",
         "sales.orders" => "Đơn nhiều nguồn, trạng thái xử lý, chuẩn bị hàng, giao hàng và thanh toán",
         "inventory.reporting" => "Tổng quan, tồn hiện tại, luân chuyển, chậm luân chuyển, lô và các điểm cần kiểm tra",
         "inventory.fulfillment" => "Phân bổ số lượng phù hợp cho từng đơn; phần chưa phân bổ vẫn để dành cho quyết định tiếp theo.",
@@ -1040,6 +1060,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         "sales.reporting" => "BÁN HÀNG · BÁO CÁO",
         "sales.gross-margin" => "BÁN HÀNG",
         "sales.operations" => "ĐIỀU HÀNH BÁN HÀNG",
+        "sales.proposals" => "ĐỀ XUẤT QUẢN TRỊ",
         "inventory.fulfillment" => "KHO VÀ HOÀN TẤT ĐƠN",
         "inventory.transfer" => "TỒN KHO & LÔ HÀNG",
         "inventory.stocktake" => "TỒN KHO & LÔ HÀNG",
@@ -1095,6 +1116,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
     public bool IsSalesReportingSelected => _selectedNavigationKey == "sales.reporting";
     public bool IsGrossMarginSelected => _selectedNavigationKey == "sales.gross-margin";
     public bool IsSalesOperationsSelected => _selectedNavigationKey == "sales.operations";
+    public bool IsManagementProposalsSelected => _selectedNavigationKey == "sales.proposals";
     public bool IsSalesOrdersSelected => _selectedNavigationKey == "sales.orders";
     public bool IsInventoryReportingSelected => _selectedNavigationKey == "inventory.reporting";
     public bool IsInventoryFulfillmentSelected => _selectedNavigationKey == "inventory.fulfillment";
@@ -1201,6 +1223,9 @@ public sealed class ShellViewModel : INotifyPropertyChanged
 
     public bool CanViewSalesOperations =>
         _salesOperations.CanRead;
+
+    public bool CanViewManagementProposals =>
+        _managementProposals.CanUse;
 
     public bool CanExportGrossMargin =>
         _grossMarginReporting.CanOpenExport;
@@ -1631,6 +1656,22 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         WorkspaceMessage = string.Empty;
         SelectedWorkspaceIndex = 35;
         await _salesOperations.EnsureLoadedAsync().ConfigureAwait(true);
+    }
+
+    public async Task NavigateManagementProposalsAsync()
+    {
+        SetSelectedNavigation("sales.proposals");
+        IsSalesOpen = true;
+
+        if (!_managementProposals.CanUse)
+        {
+            WorkspaceMessage = "Tài khoản hiện tại chưa được cấp quyền gửi Đề xuất.";
+            return;
+        }
+
+        WorkspaceMessage = string.Empty;
+        SelectedWorkspaceIndex = 36;
+        await _managementProposals.EnsureLoadedAsync().ConfigureAwait(true);
     }
 
     public async Task NavigateInventoryReportingAsync()
@@ -2088,6 +2129,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsSalesReportingSelected));
         OnPropertyChanged(nameof(IsGrossMarginSelected));
         OnPropertyChanged(nameof(IsSalesOperationsSelected));
+        OnPropertyChanged(nameof(IsManagementProposalsSelected));
         OnPropertyChanged(nameof(IsSalesOrdersSelected));
         OnPropertyChanged(nameof(IsInventoryReportingSelected));
         OnPropertyChanged(nameof(IsInventoryFulfillmentSelected));
@@ -2226,6 +2268,7 @@ public sealed class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanExportSalesReporting));
         OnPropertyChanged(nameof(CanViewGrossMargin));
         OnPropertyChanged(nameof(CanViewSalesOperations));
+        OnPropertyChanged(nameof(CanViewManagementProposals));
         OnPropertyChanged(nameof(CanExportGrossMargin));
         OnPropertyChanged(nameof(CanViewInventory));
         OnPropertyChanged(nameof(CanViewInventoryReporting));
