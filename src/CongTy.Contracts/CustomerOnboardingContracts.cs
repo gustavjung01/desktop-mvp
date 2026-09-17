@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CongTy.Contracts;
@@ -28,6 +29,8 @@ public sealed record CustomerOnboardingRequestData
     [JsonPropertyName("sourceSystem")] public string SourceSystem { get; init; } = string.Empty;
     [JsonPropertyName("sourceOutletId")] public string SourceOutletId { get; init; } = string.Empty;
     [JsonPropertyName("sourceDemandReference")] public string SourceDemandReference { get; init; } = string.Empty;
+    [JsonPropertyName("requestedByEmployeeId")] public string? RequestedByEmployeeId { get; init; }
+    [JsonPropertyName("sourceMetadata")] public Dictionary<string, JsonElement>? SourceMetadata { get; init; }
     [JsonPropertyName("proposedCustomer")] public CustomerOnboardingProposedCustomerData ProposedCustomer { get; init; } = new();
     [JsonPropertyName("reviewReason")] public string? ReviewReason { get; init; }
     [JsonPropertyName("approvedCustomerId")] public string? ApprovedCustomerId { get; init; }
@@ -41,4 +44,23 @@ public sealed record CustomerOnboardingListData
 {
     [JsonPropertyName("customerOnboardingRequests")]
     public CustomerOnboardingRequestData[] CustomerOnboardingRequests { get; init; } = [];
+}
+
+public sealed record CustomerOnboardingMutationData
+{
+    [JsonPropertyName("customerOnboardingRequest")]
+    public CustomerOnboardingRequestData CustomerOnboardingRequest { get; init; } = new();
+}
+
+public sealed record CustomerOnboardingPortalOptionData
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("code")] public string Code { get; init; } = string.Empty;
+    [JsonPropertyName("name")] public string Name { get; init; } = string.Empty;
+}
+
+public sealed record CustomerOnboardingPortalOptionsData
+{
+    [JsonPropertyName("warehouses")] public CustomerOnboardingPortalOptionData[] Warehouses { get; init; } = [];
+    [JsonPropertyName("salesChannels")] public CustomerOnboardingPortalOptionData[] SalesChannels { get; init; } = [];
 }
