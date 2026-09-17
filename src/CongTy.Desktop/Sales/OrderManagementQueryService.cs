@@ -3,7 +3,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Sales;
 
-internal sealed class OrderManagementQueryService(
+public sealed class OrderManagementQueryService(
     CompanyApiClient apiClient,
     IAuthenticatedSessionAccessor sessionAccessor)
 {
