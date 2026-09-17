@@ -10,6 +10,8 @@ public sealed partial class ShellViewModel
     public bool CanViewCustomerOnboarding => _access.HasPermission(CustomerOnboardingReadPermission);
     public bool IsCustomerOnboardingSelected => SelectedWorkspaceIndex == 38;
 
+    internal void InitializeCustomerOnboardingShell() => EnsureCustomerOnboardingSelectionObserver();
+
     public Task NavigateCustomerOnboardingAsync()
     {
         EnsureCustomerOnboardingSelectionObserver();
