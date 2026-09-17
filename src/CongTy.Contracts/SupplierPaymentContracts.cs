@@ -49,7 +49,7 @@ public sealed record SupplierPaymentData
     [JsonPropertyName("allocatedAmount")] public string AllocatedAmount { get; init; } = "0";
     [JsonPropertyName("remainingAmount")] public string RemainingAmount { get; init; } = "0";
     [JsonPropertyName("status")] public string Status { get; init; } = string.Empty;
-    [JsonPropertyName("revision")] public int Revision { get; init; }
+    [JsonPropertyName("revision")] public string Revision { get; init; } = string.Empty;
     [JsonPropertyName("postedAt")] public string PostedAt { get; init; } = string.Empty;
     [JsonPropertyName("postedBy")] public string PostedBy { get; init; } = string.Empty;
     [JsonPropertyName("reversedAt")] public string? ReversedAt { get; init; }
