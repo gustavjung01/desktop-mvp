@@ -54,7 +54,6 @@ public sealed class ManagementProposalParityTests
             "Tiêu đề",
             "Nội dung đề xuất",
             "Thêm thông tin liên quan (không bắt buộc)",
-            "Gửi Đề xuất",
             "PHẢN HỒI TỪ ADMIN",
             "Đề xuất của tôi",
             "Phản hồi Admin:",
@@ -64,6 +63,11 @@ public sealed class ManagementProposalParityTests
         {
             StringAssert.Contains(view, text);
         }
+
+        StringAssert.Contains(view, "Content=\"{Binding SubmitButtonText}\"");
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Sales", "ManagementProposalViewModel.cs");
+        StringAssert.Contains(viewModel, "Gửi Đề xuất");
+        StringAssert.Contains(viewModel, "Đang gửi…");
 
         Assert.IsFalse(view.Contains("backend", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains("canonical", StringComparison.OrdinalIgnoreCase));
