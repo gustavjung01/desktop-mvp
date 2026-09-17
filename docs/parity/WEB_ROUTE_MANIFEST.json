@@ -3,9 +3,9 @@
   "name": "WEB_ROUTE_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "168440163a7c0afcb0f38aa496458a5dbbb517f0",
+    "baselineRevision": "533e21210d357a721898032d8eb5083a5e864d27",
     "fingerprints": {
-      "webAppTree": "65730cee3647647095201a60fdce682bccc582da"
+      "webAppTree": "dc6922172c4543cd9a70788d649a2d34d00fa567"
     }
   },
   "snapshot": {
@@ -16,29 +16,12 @@
   },
   "discovery": {
     "root": "npp-core/web/app",
-    "include": [
-      "**/page.tsx",
-      "**/route.ts"
-    ],
+    "include": ["**/page.tsx", "**/route.ts"],
     "rules": [
-      {
-        "file": "page.tsx",
-        "status": "planned",
-        "desktopMapping": "native-screen"
-      },
-      {
-        "file": "route.ts",
-        "status": "not_applicable",
-        "desktopMapping": "none",
-        "reason": "Desktop calls Công Ty backend directly over HTTPS and does not depend on Next/Vercel runtime routes."
-      }
+      {"file":"page.tsx","status":"planned","desktopMapping":"native-screen"},
+      {"file":"route.ts","status":"not_applicable","desktopMapping":"none","reason":"Desktop calls Công Ty backend directly over HTTPS and does not depend on Next/Vercel runtime routes."}
     ],
     "classificationForChangedSource": "unclassified"
   },
-  "allowedStatuses": [
-    "implemented",
-    "planned",
-    "not_applicable",
-    "blocked"
-  ]
+  "allowedStatuses": ["implemented","planned","not_applicable","blocked"]
 }
