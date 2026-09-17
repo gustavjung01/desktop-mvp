@@ -3,7 +3,7 @@
   "name": "PERMISSION_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "cca03b0b91f1efa90e49399af8ba65a760edaf77",
+    "baselineRevision": "43efe205ab337ecbced69cc3baabd45bc1ba541f",
     "fingerprints": {
       "accessTree": "6156db21006867891127560bb96f0b82da362bad"
     }
