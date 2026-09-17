@@ -112,7 +112,7 @@ public sealed class SupplierPaymentParityTests
           "allocatedAmount":"400000",
           "remainingAmount":"600000",
           "status":"partially_allocated",
-          "revision":2,
+          "revision":"2",
           "allocations":[{
             "id":"44444444-4444-4444-4444-444444444444",
             "sourcePayableDocumentId":"11111111-1111-1111-1111-111111111111",
@@ -129,6 +129,7 @@ public sealed class SupplierPaymentParityTests
             ?? throw new InvalidOperationException("Không đọc được hợp đồng thanh toán nhà cung cấp.");
         Assert.AreEqual("TTNCC-0001", data.DocumentNumber);
         Assert.AreEqual("partially_allocated", data.Status);
+        Assert.AreEqual("2", data.Revision);
         var allocation = data.Allocations.Single();
         Assert.AreEqual("PN-0001", allocation.TargetDocumentNumber);
     }
