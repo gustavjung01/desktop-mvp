@@ -10,8 +10,9 @@ public sealed class SalesOrderPrintParityTests
 
         StringAssert.Contains(source,"PHIẾU XUẤT KHO");
         StringAssert.Contains(source,"Phiếu xuất kho {SalesPresentation.Number(number)}");
-        StringAssert.Contains(source,"DocumentViewer");
+        StringAssert.Contains(source,"FlowDocumentPageViewer");
         StringAssert.Contains(source,"PrintDialog");
+        Assert.IsFalse(source.Contains("new DocumentViewer",StringComparison.Ordinal));
     }
 
     [TestMethod]
