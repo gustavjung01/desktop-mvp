@@ -114,7 +114,14 @@ $manifest = [ordered]@{
     sha256 = $hash
     size = $installer.Length
 }
-$manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
+$manifestJson = $manifest | ConvertTo-Json -Depth 4
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[IO.File]::WriteAllText($manifestPath, $manifestJson, $utf8NoBom)
+
+$manifestBytes = [IO.File]::ReadAllBytes($manifestPath)
+if ($manifestBytes.Length -ge 3 -and $manifestBytes[0] -eq 0xEF -and $manifestBytes[1] -eq 0xBB -and $manifestBytes[2] -eq 0xBF) {
+    throw "latest.json must be UTF-8 without BOM."
+}
 
 $validated = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if ($validated.schemaVersion -ne 1) { throw "latest.json schemaVersion is invalid." }

@@ -85,6 +85,10 @@ jobs:
           if (-not (Test-Path $manifestPath)) { throw "Missing latest.json." }
           $files = Get-ChildItem .\dist\windows-release -File
           if ($files.Count -ne 2) { throw "Release output must contain exactly two files." }
+          $manifestBytes = [IO.File]::ReadAllBytes($manifestPath)
+          if ($manifestBytes.Length -ge 3 -and $manifestBytes[0] -eq 0xEF -and $manifestBytes[1] -eq 0xBB -and $manifestBytes[2] -eq 0xBF) {
+            throw "latest.json must be UTF-8 without BOM."
+          }
           $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
           if ($manifest.latestVersion -ne $release.version) { throw "Manifest version mismatch." }
           if ($manifest.downloadPath -ne [IO.Path]::GetFileName($installer)) { throw "Manifest installer mismatch." }
