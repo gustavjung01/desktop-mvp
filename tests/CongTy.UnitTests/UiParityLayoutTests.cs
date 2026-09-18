@@ -1297,7 +1297,7 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(viewModel, "SidebarWidth => new(IsSidebarExpanded ? 240 : 64)");
         StringAssert.Contains(viewModel, "ToggleNavigationGroup");
         StringAssert.Contains(shell, "x:Key=\"SidebarFlyoutPopupStyle\"");
-        StringAssert.Contains(shell, "Placement=\"Right\"");
+        StringAssert.Contains(shell, "Property=\"Placement\" Value=\"Right\"");
         Assert.IsFalse(viewModel.Contains("if (!IsSidebarExpanded) IsSidebarExpanded = true;", StringComparison.Ordinal));
         StringAssert.Contains(viewModel, "\"desktop.settings\" => \"Cài đặt ứng dụng\"");
         StringAssert.Contains(controls, "x:Key=\"NavSubItemStyle\"");
