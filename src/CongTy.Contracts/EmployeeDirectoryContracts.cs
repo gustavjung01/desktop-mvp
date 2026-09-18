@@ -26,3 +26,23 @@ public sealed record EmployeeDirectoryBranchData
     [JsonPropertyName("name")] public string Name { get; init; } = string.Empty;
     [JsonPropertyName("is_active")] public bool IsActive { get; init; }
 }
+
+public sealed record EmployeeDirectoryCreateRequest(
+    [property: JsonPropertyName("code")] string Code,
+    [property: JsonPropertyName("fullName")] string FullName,
+    [property: JsonPropertyName("jobTitle")] string? JobTitle,
+    [property: JsonPropertyName("phone")] string? Phone,
+    [property: JsonPropertyName("email")] string? Email,
+    [property: JsonPropertyName("branchId")] string? BranchId);
+
+public sealed record EmployeeDirectoryUpdateRequest(
+    [property: JsonPropertyName("fullName")] string FullName,
+    [property: JsonPropertyName("jobTitle")] string? JobTitle,
+    [property: JsonPropertyName("phone")] string? Phone,
+    [property: JsonPropertyName("email")] string? Email,
+    [property: JsonPropertyName("branchId")] string? BranchId,
+    [property: JsonPropertyName("expectedUpdatedAt")] string ExpectedUpdatedAt);
+
+public sealed record EmployeeDirectoryToggleRequest(
+    [property: JsonPropertyName("isActive")] bool IsActive,
+    [property: JsonPropertyName("expectedUpdatedAt")] string ExpectedUpdatedAt);

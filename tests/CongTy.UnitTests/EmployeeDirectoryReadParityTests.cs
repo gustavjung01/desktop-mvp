@@ -71,8 +71,6 @@ public sealed class EmployeeDirectoryReadParityTests
         StringAssert.Contains(view, "Click=\"Create_OnClick\"");
         StringAssert.Contains(view, "Click=\"Edit_OnClick\"");
         StringAssert.Contains(view, "Content=\"{Binding ToggleActionText}\"");
-        Assert.IsFalse(view.Contains("Save_OnClick", StringComparison.Ordinal));
-        Assert.IsFalse(view.Contains("Toggle_OnClick", StringComparison.Ordinal));
     }
 
     [TestMethod]
@@ -83,15 +81,12 @@ public sealed class EmployeeDirectoryReadParityTests
         StringAssert.Contains(viewModel, "core.employee.read");
         StringAssert.Contains(viewModel, "core.employee.write");
         StringAssert.Contains(viewModel, "core.branch.read");
-        StringAssert.Contains(viewModel, "CanPersist => false");
         StringAssert.Contains(viewModel, "Tất cả trạng thái");
         StringAssert.Contains(viewModel, "Đang làm việc");
         StringAssert.Contains(viewModel, "Ngừng làm việc");
         StringAssert.Contains(viewModel, "Tất cả chi nhánh");
         StringAssert.Contains(viewModel, "Chưa phân công");
         StringAssert.Contains(viewModel, "Đưa trở lại làm việc");
-        Assert.IsFalse(viewModel.Contains("Idempotency", StringComparison.OrdinalIgnoreCase));
-        Assert.IsFalse(viewModel.Contains("expectedUpdatedAt", StringComparison.OrdinalIgnoreCase));
     }
 
     [TestMethod]

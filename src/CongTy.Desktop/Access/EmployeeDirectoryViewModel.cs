@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using CongTy.ApiClient;
 using CongTy.Contracts;
 
@@ -13,9 +15,12 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     private const string BranchRead = "core.branch.read";
 
     private readonly IEmployeeDirectoryReadService _readService;
+    private readonly IEmployeeDirectoryMutationService _mutationService;
+    private readonly ICanonicalIdempotencyKeyProvider _idempotencyKeys;
     private readonly IAccessStateService _access;
     private readonly List<EmployeeDirectoryData> _employees = [];
     private readonly List<EmployeeDirectoryBranchData> _branches = [];
+    private readonly Dictionary<string, string> _mutationKeys = new(StringComparer.Ordinal);
 
     private bool _loaded;
     private bool _isBusy;
@@ -26,21 +31,33 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     private EmployeeBranchFilterOption _selectedBranchFilter;
     private bool _isEditorOpen;
     private bool _isCreateMode;
+    private EmployeeDirectoryData? _editingEmployee;
     private string _draftCode = string.Empty;
     private string _draftFullName = string.Empty;
     private string _draftJobTitle = string.Empty;
     private string _draftPhone = string.Empty;
     private string _draftEmail = string.Empty;
     private string _draftBranchId = string.Empty;
+    private string _editorMessage = string.Empty;
+    private bool _editorMessageIsError;
+    private bool _hasConflict;
+    private bool _isToggleConfirmOpen;
+    private EmployeeDirectoryData? _pendingToggleEmployee;
+    private bool _pendingToggleNextActive;
+    private string _toggleMessage = string.Empty;
     private long _accessGeneration;
     private long _loadGeneration;
     private CancellationTokenSource? _loadCts;
 
     public EmployeeDirectoryViewModel(
         IEmployeeDirectoryReadService readService,
+        IEmployeeDirectoryMutationService mutationService,
+        ICanonicalIdempotencyKeyProvider idempotencyKeys,
         IAccessStateService access)
     {
         _readService = readService;
+        _mutationService = mutationService;
+        _idempotencyKeys = idempotencyKeys;
         _access = access;
         _selectedStatusFilter = StatusFilters[0];
         _selectedBranchFilter = new EmployeeBranchFilterOption("all", "Tất cả chi nhánh");
@@ -57,9 +74,11 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
             _loaded = false;
             _employees.Clear();
             _branches.Clear();
+            _mutationKeys.Clear();
             VisibleEmployees.Clear();
             ResetBranchOptions();
             CloseEditor();
+            CancelToggle();
             Message = string.Empty;
             MessageIsError = false;
             IsBusy = false;
@@ -85,10 +104,16 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     public bool CanViewEmployees => _access.HasPermission(EmployeeRead);
     public bool CanWriteEmployees => _access.HasPermission(EmployeeWrite);
     public bool CanReadBranches => _access.HasPermission(BranchRead);
-    public bool CanOpenEditor => CanWriteEmployees && !IsBusy;
-
-    // Lô đọc chỉ dựng form parity. Mutation được khóa để review riêng.
-    public bool CanPersist => false;
+    public bool CanOpenEditor => CanWriteEmployees && CanReadBranches && !IsBusy;
+    public bool CanToggleEmployees => CanWriteEmployees && !IsBusy;
+    public bool CanConfirmToggle => IsToggleConfirmOpen && CanWriteEmployees && !IsBusy;
+    public bool CanPersist =>
+        CanWriteEmployees
+        && CanReadBranches
+        && IsEditorOpen
+        && !IsBusy
+        && !HasConflict
+        && IsDraftValid();
 
     public bool IsBusy
     {
@@ -97,7 +122,12 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         {
             if (!SetField(ref _isBusy, value)) return;
             OnPropertyChanged(nameof(CanOpenEditor));
+            OnPropertyChanged(nameof(CanToggleEmployees));
+            OnPropertyChanged(nameof(CanConfirmToggle));
+            OnPropertyChanged(nameof(CanPersist));
             OnPropertyChanged(nameof(RefreshText));
+            OnPropertyChanged(nameof(SaveButtonText));
+            OnPropertyChanged(nameof(ToggleConfirmButtonText));
             OnPropertyChanged(nameof(ShowLoading));
         }
     }
@@ -164,7 +194,11 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     public bool IsEditorOpen
     {
         get => _isEditorOpen;
-        private set => SetField(ref _isEditorOpen, value);
+        private set
+        {
+            if (!SetField(ref _isEditorOpen, value)) return;
+            OnPropertyChanged(nameof(CanPersist));
+        }
     }
 
     public bool IsCreateMode
@@ -177,49 +211,133 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(EditorTitle));
             OnPropertyChanged(nameof(IsCodeEditable));
             OnPropertyChanged(nameof(SaveButtonText));
+            OnPropertyChanged(nameof(CanPersist));
         }
     }
 
     public string EditorKicker => IsCreateMode ? "HỒ SƠ MỚI" : "CẬP NHẬT HỒ SƠ";
     public string EditorTitle => IsCreateMode ? "Thêm nhân sự" : "Chỉnh sửa nhân sự";
     public bool IsCodeEditable => IsCreateMode;
-    public string SaveButtonText => IsCreateMode ? "Tạo hồ sơ" : "Lưu thay đổi";
+    public string SaveButtonText => IsBusy ? "Đang lưu…" : IsCreateMode ? "Tạo hồ sơ" : "Lưu thay đổi";
 
     public string DraftCode
     {
         get => _draftCode;
-        set => SetField(ref _draftCode, NormalizeCode(value));
+        set
+        {
+            if (!SetField(ref _draftCode, NormalizeCode(value))) return;
+            OnPropertyChanged(nameof(CanPersist));
+        }
     }
 
     public string DraftFullName
     {
         get => _draftFullName;
-        set => SetField(ref _draftFullName, value ?? string.Empty);
+        set
+        {
+            if (!SetField(ref _draftFullName, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(CanPersist));
+        }
     }
 
     public string DraftJobTitle
     {
         get => _draftJobTitle;
-        set => SetField(ref _draftJobTitle, value ?? string.Empty);
+        set
+        {
+            if (!SetField(ref _draftJobTitle, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(CanPersist));
+        }
     }
 
     public string DraftPhone
     {
         get => _draftPhone;
-        set => SetField(ref _draftPhone, value ?? string.Empty);
+        set
+        {
+            if (!SetField(ref _draftPhone, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(CanPersist));
+        }
     }
 
     public string DraftEmail
     {
         get => _draftEmail;
-        set => SetField(ref _draftEmail, value ?? string.Empty);
+        set
+        {
+            if (!SetField(ref _draftEmail, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(CanPersist));
+        }
     }
 
     public string DraftBranchId
     {
         get => _draftBranchId;
-        set => SetField(ref _draftBranchId, value ?? string.Empty);
+        set
+        {
+            if (!SetField(ref _draftBranchId, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(CanPersist));
+        }
     }
+
+    public string EditorMessage
+    {
+        get => _editorMessage;
+        private set
+        {
+            if (!SetField(ref _editorMessage, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(HasEditorMessage));
+        }
+    }
+
+    public bool EditorMessageIsError
+    {
+        get => _editorMessageIsError;
+        private set => SetField(ref _editorMessageIsError, value);
+    }
+
+    public bool HasEditorMessage => !string.IsNullOrWhiteSpace(EditorMessage);
+
+    public bool HasConflict
+    {
+        get => _hasConflict;
+        private set
+        {
+            if (!SetField(ref _hasConflict, value)) return;
+            OnPropertyChanged(nameof(CanPersist));
+            OnPropertyChanged(nameof(ShowReloadAfterConflict));
+        }
+    }
+
+    public bool ShowReloadAfterConflict => HasConflict;
+
+    public bool IsToggleConfirmOpen
+    {
+        get => _isToggleConfirmOpen;
+        private set
+        {
+            if (!SetField(ref _isToggleConfirmOpen, value)) return;
+            OnPropertyChanged(nameof(CanConfirmToggle));
+        }
+    }
+
+    public string ToggleTitle => _pendingToggleNextActive ? "Đưa trở lại làm việc" : "Ngừng làm việc";
+    public string ToggleText => _pendingToggleNextActive
+        ? "Hồ sơ sẽ được đưa trở lại trạng thái đang làm việc."
+        : "Hồ sơ sẽ chuyển sang trạng thái ngừng làm việc nhưng vẫn được giữ lại để đối soát và liên kết lịch sử.";
+    public string ToggleConfirmButtonText => IsBusy ? "Đang cập nhật…" : "Xác nhận";
+
+    public string ToggleMessage
+    {
+        get => _toggleMessage;
+        private set
+        {
+            if (!SetField(ref _toggleMessage, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(HasToggleMessage));
+        }
+    }
+
+    public bool HasToggleMessage => !string.IsNullOrWhiteSpace(ToggleMessage);
 
     public async Task EnsureLoadedAsync()
     {
@@ -314,6 +432,10 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     {
         if (!CanOpenEditor) return;
 
+        _editingEmployee = null;
+        HasConflict = false;
+        EditorMessage = string.Empty;
+        EditorMessageIsError = false;
         IsCreateMode = true;
         DraftCode = string.Empty;
         DraftFullName = string.Empty;
@@ -328,6 +450,10 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     {
         if (!CanOpenEditor) return;
 
+        _editingEmployee = employee;
+        HasConflict = false;
+        EditorMessage = string.Empty;
+        EditorMessageIsError = false;
         IsCreateMode = false;
         DraftCode = employee.Code;
         DraftFullName = employee.FullName;
@@ -341,6 +467,194 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     public void CloseEditor()
     {
         IsEditorOpen = false;
+        _editingEmployee = null;
+        HasConflict = false;
+        EditorMessage = string.Empty;
+        EditorMessageIsError = false;
+    }
+
+    public async Task SaveAsync()
+    {
+        if (!CanPersist) return;
+
+        var fullName = DraftFullName.Trim();
+        var jobTitle = Optional(DraftJobTitle);
+        var phone = Optional(DraftPhone);
+        var email = Optional(DraftEmail)?.ToLowerInvariant();
+        var branchId = string.IsNullOrWhiteSpace(DraftBranchId) ? null : DraftBranchId.Trim();
+
+        if (IsCreateMode)
+        {
+            var request = new EmployeeDirectoryCreateRequest(
+                DraftCode.Trim(),
+                fullName,
+                jobTitle,
+                phone,
+                email,
+                branchId);
+            var slot = BuildCreateSlot(request);
+            var key = MutationKey(slot, "employee-create");
+
+            IsBusy = true;
+            EditorMessage = string.Empty;
+            EditorMessageIsError = false;
+            try
+            {
+                var saved = await _mutationService.CreateAsync(request, key).ConfigureAwait(true);
+                _mutationKeys.Remove(slot);
+                UpsertEmployee(saved);
+                CloseEditor();
+                SearchTerm = string.Empty;
+                SelectedStatusFilter = StatusFilters[0];
+                SelectedBranchFilter = BranchFilters[0];
+                SetMessage("Hồ sơ nhân sự đã được tạo.", false);
+            }
+            catch (CanonicalApiException exception)
+            {
+                SetEditorError(MutationError(exception, "Không tạo được hồ sơ nhân sự."));
+            }
+            catch (Exception)
+            {
+                SetEditorError("Không tạo được hồ sơ nhân sự. Vui lòng thử lại.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+            return;
+        }
+
+        if (_editingEmployee is null) return;
+
+        var update = new EmployeeDirectoryUpdateRequest(
+            fullName,
+            jobTitle,
+            phone,
+            email,
+            branchId,
+            _editingEmployee.UpdatedAt);
+        var updateSlot = BuildUpdateSlot(_editingEmployee.Id, update);
+        var updateKey = MutationKey(updateSlot, "employee-update");
+
+        IsBusy = true;
+        EditorMessage = string.Empty;
+        EditorMessageIsError = false;
+        try
+        {
+            var saved = await _mutationService.UpdateAsync(
+                _editingEmployee.Id,
+                update,
+                updateKey).ConfigureAwait(true);
+            _mutationKeys.Remove(updateSlot);
+            UpsertEmployee(saved);
+            CloseEditor();
+            SetMessage("Thông tin nhân sự đã được cập nhật.", false);
+        }
+        catch (CanonicalApiException exception) when (IsOptimisticConflict(exception))
+        {
+            HasConflict = true;
+            SetEditorError(CanonicalErrorMessages.WithRequestId(
+                "Hồ sơ nhân sự vừa có thay đổi. Vui lòng tải lại dữ liệu trước khi lưu tiếp.",
+                exception.RequestId));
+        }
+        catch (CanonicalApiException exception)
+        {
+            SetEditorError(MutationError(exception, "Không lưu được hồ sơ nhân sự."));
+        }
+        catch (Exception)
+        {
+            SetEditorError("Không lưu được hồ sơ nhân sự. Vui lòng thử lại.");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    public async Task ReloadAfterConflictAsync()
+    {
+        if (!HasConflict) return;
+        _mutationKeys.Clear();
+        CloseEditor();
+        await RefreshAsync().ConfigureAwait(true);
+        SetMessage("Đã tải lại dữ liệu nhân sự. Vui lòng kiểm tra trước khi thực hiện lại.", false);
+    }
+
+    public void OpenToggle(EmployeeDirectoryData employee)
+    {
+        if (!CanToggleEmployees) return;
+
+        _pendingToggleEmployee = employee;
+        _pendingToggleNextActive = !employee.IsActive;
+        ToggleMessage = string.Empty;
+        IsToggleConfirmOpen = true;
+        OnPropertyChanged(nameof(ToggleTitle));
+        OnPropertyChanged(nameof(ToggleText));
+    }
+
+    public void CancelToggle()
+    {
+        IsToggleConfirmOpen = false;
+        _pendingToggleEmployee = null;
+        ToggleMessage = string.Empty;
+        OnPropertyChanged(nameof(ToggleTitle));
+        OnPropertyChanged(nameof(ToggleText));
+    }
+
+    public async Task ConfirmToggleAsync()
+    {
+        if (!CanConfirmToggle || _pendingToggleEmployee is null) return;
+
+        var employee = _pendingToggleEmployee;
+        var nextActive = _pendingToggleNextActive;
+        var request = new EmployeeDirectoryToggleRequest(nextActive, employee.UpdatedAt);
+        var slot = $"toggle|{employee.Id}|{nextActive}|{employee.UpdatedAt}";
+        var key = MutationKey(slot, "employee-status");
+
+        IsBusy = true;
+        ToggleMessage = string.Empty;
+        try
+        {
+            var saved = await _mutationService.ToggleAsync(
+                employee.Id,
+                request,
+                key).ConfigureAwait(true);
+            _mutationKeys.Remove(slot);
+            UpsertEmployee(saved);
+            CancelToggle();
+            SetMessage(
+                nextActive
+                    ? "Nhân sự đã được đưa trở lại làm việc."
+                    : "Nhân sự đã ngừng làm việc.",
+                false);
+        }
+        catch (CanonicalApiException exception) when (IsOptimisticConflict(exception))
+        {
+            ToggleMessage = CanonicalErrorMessages.WithRequestId(
+                "Hồ sơ nhân sự vừa có thay đổi. Vui lòng hủy xác nhận và cập nhật dữ liệu trước khi thử lại.",
+                exception.RequestId);
+        }
+        catch (CanonicalApiException exception)
+        {
+            ToggleMessage = MutationError(exception, "Không cập nhật được trạng thái nhân sự.");
+        }
+        catch (Exception)
+        {
+            ToggleMessage = "Không cập nhật được trạng thái nhân sự. Vui lòng thử lại.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void UpsertEmployee(EmployeeDirectoryData saved)
+    {
+        var index = _employees.FindIndex(item => string.Equals(item.Id, saved.Id, StringComparison.Ordinal));
+        if (index >= 0) _employees[index] = saved;
+        else _employees.Add(saved);
+        ApplyFilter();
+        RaiseSummary();
     }
 
     private void ApplyFilter()
@@ -439,12 +753,86 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         DraftBranchOptions.Add(new EmployeeBranchOption(string.Empty, "Chưa phân công"));
     }
 
+    private bool IsDraftValid()
+    {
+        var fullName = DraftFullName.Trim();
+        if (fullName.Length is < 1 or > 256) return false;
+        if (IsCreateMode && DraftCode.Trim().Length is < 1 or > 64) return false;
+        if (DraftJobTitle.Trim().Length > 128) return false;
+
+        var phone = DraftPhone.Trim();
+        if (phone.Length > 0 && !Regex.IsMatch(phone, @"^[0-9\s\-+()]{5,20}$", RegexOptions.CultureInvariant))
+            return false;
+
+        var email = DraftEmail.Trim();
+        if (email.Length > 256) return false;
+        if (email.Length > 0 && !Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$", RegexOptions.CultureInvariant))
+            return false;
+
+        return string.IsNullOrWhiteSpace(DraftBranchId)
+            || DraftBranchOptions.Any(option => string.Equals(option.Id, DraftBranchId, StringComparison.Ordinal));
+    }
+
+    private string MutationKey(string slot, string scope)
+    {
+        if (_mutationKeys.TryGetValue(slot, out var existing)) return existing;
+        var created = _idempotencyKeys.Create(scope);
+        if (!_idempotencyKeys.IsValid(created))
+            throw new InvalidOperationException("Không tạo được khóa chống xử lý trùng hợp lệ.");
+        _mutationKeys[slot] = created;
+        return created;
+    }
+
+    private static string BuildCreateSlot(EmployeeDirectoryCreateRequest request) =>
+        $"create|{request.Code}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}";
+
+    private static string BuildUpdateSlot(string employeeId, EmployeeDirectoryUpdateRequest request) =>
+        $"update|{employeeId}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.ExpectedUpdatedAt}";
+
+    private static bool IsOptimisticConflict(CanonicalApiException exception) =>
+        exception.StatusCode == HttpStatusCode.Conflict
+        && string.Equals(exception.Code, "CONFLICT", StringComparison.OrdinalIgnoreCase);
+
+    private static string MutationError(CanonicalApiException exception, string fallback)
+    {
+        if (string.Equals(exception.Code, "SECURITY_OWNER_PROTECTED", StringComparison.OrdinalIgnoreCase))
+        {
+            return CanonicalErrorMessages.WithRequestId(
+                "Hồ sơ nhân sự của Chủ sở hữu hệ thống đang được bảo vệ và chỉ tài khoản có thẩm quyền tương ứng mới được thay đổi.",
+                exception.RequestId);
+        }
+
+        var message = CanonicalErrorMessages.ToOfficeMessage(exception);
+        if (string.IsNullOrWhiteSpace(message)) message = fallback;
+        return CanonicalErrorMessages.WithRequestId(message, exception.RequestId);
+    }
+
+    private static string? Optional(string value)
+    {
+        var trimmed = value.Trim();
+        return trimmed.Length == 0 ? null : trimmed;
+    }
+
+    private void SetMessage(string message, bool isError)
+    {
+        MessageIsError = isError;
+        Message = message;
+    }
+
+    private void SetEditorError(string message)
+    {
+        EditorMessageIsError = true;
+        EditorMessage = message;
+    }
+
     private void RaiseAccess()
     {
         OnPropertyChanged(nameof(CanViewEmployees));
         OnPropertyChanged(nameof(CanWriteEmployees));
         OnPropertyChanged(nameof(CanReadBranches));
         OnPropertyChanged(nameof(CanOpenEditor));
+        OnPropertyChanged(nameof(CanToggleEmployees));
+        OnPropertyChanged(nameof(CanConfirmToggle));
         OnPropertyChanged(nameof(CanPersist));
     }
 
