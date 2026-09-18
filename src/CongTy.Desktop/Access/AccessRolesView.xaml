@@ -192,21 +192,36 @@
                                   Style="{StaticResource OfficeDataGridStyle}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
-                                  RowHeight="44"
+                                  RowHeight="72"
                                   ItemsSource="{Binding VisibleRoles}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Mã vai trò"
                                                     Binding="{Binding Code}"
                                                     Width="0.9*"
                                                     ElementStyle="{StaticResource RoleTableTextStyle}" />
-                                <DataGridTextColumn Header="Tên vai trò"
-                                                    Binding="{Binding Name}"
-                                                    Width="1.4*"
-                                                    ElementStyle="{StaticResource RoleTableTextStyle}" />
-                                <DataGridTextColumn Header="Quyền"
-                                                    Binding="{Binding PermissionCountText}"
-                                                    Width="0.7*"
-                                                    ElementStyle="{StaticResource RoleTableTextStyle}" />
+                                <DataGridTemplateColumn Header="Tên vai trò"
+                                                        Width="1.7*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,2,0,0" Text="{Binding Description}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,2,0,0" Text="{Binding LoginChallengeText}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Quyền"
+                                                        Width="1.2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding PermissionCountText}" FontWeight="SemiBold" />
+                                                <TextBlock Margin="0,2,0,0" Text="{Binding PermissionPreviewText}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Trạng thái"
                                                     Binding="{Binding StatusText}"
                                                     Width="0.9*"
@@ -228,8 +243,9 @@
                                                         Click="Edit_OnClick"
                                                         Content="Chỉnh sửa" />
                                                 <Button Padding="9,4"
-                                                        IsEnabled="False"
-                                                        ToolTip="Thay đổi trạng thái hiện chưa được bật trên màn này.">
+                                                        Tag="{Binding}"
+                                                        IsEnabled="{Binding DataContext.CanToggleRoles, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Click="Toggle_OnClick">
                                                     <Button.Style>
                                                         <Style TargetType="Button"
                                                                BasedOn="{StaticResource OfficeSecondaryButtonStyle}">
@@ -356,6 +372,15 @@
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextWrapping="Wrap"
                                            Text="Mã xác nhận chỉ gửi tới các tài khoản quản trị bảo mật đã cấu hình. Vai trò giao nhận hoặc nhân viên thị trường có thể để tắt; vai trò kế toán hoặc có quyền nhạy cảm có thể bật." />
+
+                                <Border Margin="0,10,0,0"
+                                        Padding="10"
+                                        BorderBrush="{DynamicResource DangerBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Visibility="{Binding HasEditorMessage, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="{Binding EditorMessage}" TextWrapping="Wrap" />
+                                </Border>
                             </StackPanel>
                         </ScrollViewer>
 
@@ -452,9 +477,16 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock VerticalAlignment="Center"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   Text="Thay đổi trên form này chưa được lưu." />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Text="Mã vai trò không thể đổi sau khi đã tạo." />
+                            <Button Margin="10,0,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding ShowReloadAfterConflict, Converter={StaticResource BoolToVisibility}}"
+                                    Click="ReloadAfterConflict_OnClick"
+                                    Content="TẢI LẠI DỮ LIỆU" />
+                        </StackPanel>
                         <StackPanel Grid.Column="1"
                                     Orientation="Horizontal">
                             <Button Margin="0,0,8,0"
@@ -463,11 +495,54 @@
                                     Content="HỦY" />
                             <Button Style="{StaticResource OfficePrimaryButtonStyle}"
                                     IsEnabled="{Binding CanPersist}"
-                                    Content="{Binding SaveButtonText}"
-                                    ToolTip="Thay đổi hiện chỉ dùng để xem trước cấu hình." />
+                                    Click="Save_OnClick"
+                                    Content="{Binding SaveButtonText}" />
                         </StackPanel>
                     </Grid>
                 </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Background="#7F000000"
+              Visibility="{Binding IsToggleConfirmOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="520"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="XÁC NHẬN TRẠNG THÁI"
+                               FontSize="10"
+                               FontWeight="Bold" />
+                    <TextBlock Margin="0,5,0,0"
+                               Text="{Binding ToggleTitle}"
+                               FontSize="18"
+                               FontWeight="SemiBold" />
+                    <TextBlock Margin="0,10,0,0"
+                               Text="{Binding ToggleText}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <Border Margin="0,10,0,0"
+                            Padding="10"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Visibility="{Binding HasToggleMessage, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="{Binding ToggleMessage}" TextWrapping="Wrap" />
+                    </Border>
+                    <StackPanel Margin="0,16,0,0"
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CancelToggle_OnClick"
+                                Content="HỦY" />
+                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanConfirmToggle}"
+                                Click="ConfirmToggle_OnClick"
+                                Content="{Binding ToggleConfirmButtonText}" />
+                    </StackPanel>
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>

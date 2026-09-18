@@ -27,3 +27,23 @@ public sealed record AccessRoleData
     [JsonPropertyName("updated_by")] public string? UpdatedBy { get; init; }
     [JsonPropertyName("permission_keys")] public string[] PermissionKeys { get; init; } = [];
 }
+
+public sealed record AccessRoleCreateRequest(
+    string Code,
+    string Name,
+    string Description,
+    bool IsActive,
+    bool WebLoginChallengeRequired,
+    string[] PermissionKeys);
+
+public sealed record AccessRoleUpdateRequest(
+    string Name,
+    string Description,
+    bool IsActive,
+    bool WebLoginChallengeRequired,
+    string[] PermissionKeys,
+    string ExpectedUpdatedAt);
+
+public sealed record AccessRoleToggleRequest(
+    bool IsActive,
+    string ExpectedUpdatedAt);

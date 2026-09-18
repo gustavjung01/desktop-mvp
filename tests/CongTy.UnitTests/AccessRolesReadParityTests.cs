@@ -66,13 +66,15 @@ public sealed class AccessRolesReadParityTests
             StringAssert.Contains(view, text);
 
         StringAssert.Contains(view, "IsEnabled=\"{Binding CanPersist}\"");
+        StringAssert.Contains(view, "Click=\"Save_OnClick\"");
+        StringAssert.Contains(view, "Click=\"Toggle_OnClick\"");
+        StringAssert.Contains(view, "XÁC NHẬN TRẠNG THÁI");
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Access", "AccessRolesViewModel.cs");
         StringAssert.Contains(viewModel, "new(\"all\", \"Tất cả trạng thái\")");
         StringAssert.Contains(viewModel, "new(\"active\", \"Đang sử dụng\")");
         StringAssert.Contains(viewModel, "new(\"inactive\", \"Ngừng sử dụng\")");
         Assert.IsFalse(view.Contains("Lô 1", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("Lô 2", StringComparison.Ordinal));
-        StringAssert.Contains(view, "Thay đổi trên form này chưa được lưu.");
     }
 
     [TestMethod]
@@ -154,18 +156,20 @@ public sealed class AccessRolesReadParityTests
     }
 
     [TestMethod]
-    public void Lot1_ViewModel_SeparatesReadAndWritePermissionsWithoutMutation()
+    public void CompletedViewModel_SeparatesPermissionsAndUsesSharedMutationContract()
     {
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Access", "AccessRolesViewModel.cs");
 
         StringAssert.Contains(viewModel, "core.permission.read");
         StringAssert.Contains(viewModel, "core.role.read");
         StringAssert.Contains(viewModel, "core.role.write");
-        StringAssert.Contains(viewModel, "CanPersist => false");
+        StringAssert.Contains(viewModel, "ICanonicalIdempotencyKeyProvider");
+        StringAssert.Contains(viewModel, "MutationKey(slot, \"access-role-create\")");
+        StringAssert.Contains(viewModel, "MutationKey(updateSlot, \"access-role-update\")");
+        StringAssert.Contains(viewModel, "MutationKey(slot, \"access-role-toggle\")");
         StringAssert.Contains(viewModel, "RolePresetCatalog.Resolve");
-        StringAssert.Contains(viewModel, "Đang sử dụng");
-        StringAssert.Contains(viewModel, "Ngừng sử dụng");
-        Assert.IsFalse(viewModel.Contains("Idempotency", StringComparison.OrdinalIgnoreCase));
+        StringAssert.Contains(viewModel, "Vai trò đang có thay đổi. Vui lòng tải lại dữ liệu trước khi lưu tiếp.");
+        Assert.IsFalse(viewModel.Contains("Guid.NewGuid", StringComparison.Ordinal));
     }
 
     private static string ReadRepoFile(params string[] parts)
