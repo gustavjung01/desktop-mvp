@@ -276,7 +276,11 @@ public sealed class UiParityLayoutTests
             CountOccurrences(organization, "ElementStyle=\"{StaticResource OfficeGridTextStyle}\""),
             "Mọi cột text Tổ chức nội bộ phải dùng cùng baseline giữa.");
 
-        StringAssert.Contains(shell, "https://retail.nguyenlieuhungphat.com/logo-transparent.png");
+        StringAssert.Contains(shell, "Source=\"/Assets/Brand/logo.jpg\"");
+        Assert.IsFalse(
+            shell.Contains(
+                "https://retail.nguyenlieuhungphat.com/logo-transparent.png",
+                StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(shell.Contains("01-hero-nganh-hang.webp", StringComparison.Ordinal));
         Assert.IsFalse(shell.Contains("<BlurEffect Radius=\"2.4\" />", StringComparison.Ordinal));
         Assert.IsFalse(shell.Contains("<Rectangle Fill=\"#B8321F17\" />", StringComparison.Ordinal));
