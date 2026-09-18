@@ -310,12 +310,34 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         get => _scopeMode;
         set
         {
-            if (SetField(ref _scopeMode, value ?? "all"))
+            var normalized = value is "lot" or "location" ? value : "all";
+            if (SetField(ref _scopeMode, normalized))
             {
+                OnPropertyChanged(nameof(IsAllScopeMode));
+                OnPropertyChanged(nameof(IsLotScopeMode));
+                OnPropertyChanged(nameof(IsLocationScopeMode));
                 ScopeSearch = string.Empty;
                 RebuildScopeGroups();
             }
         }
+    }
+
+    public bool IsAllScopeMode
+    {
+        get => ScopeMode == "all";
+        set { if (value) ScopeMode = "all"; }
+    }
+
+    public bool IsLotScopeMode
+    {
+        get => ScopeMode == "lot";
+        set { if (value) ScopeMode = "lot"; }
+    }
+
+    public bool IsLocationScopeMode
+    {
+        get => ScopeMode == "location";
+        set { if (value) ScopeMode = "location"; }
     }
 
     public string ScopeSearch
@@ -408,14 +430,15 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         string.IsNullOrWhiteSpace(SelectedWarehouseId)
             ? "Chọn kho để xác định phạm vi kiểm kê."
             : ScopeMode == "all"
-                ? "Backend sẽ snapshot toàn bộ tồn hiện tại trong kho khi tạo phiếu."
+                ? "Sẽ kiểm toàn bộ sản phẩm có phạm vi tồn hợp lệ trong kho; hệ thống chốt tồn tại lúc tạo phiếu."
                 : $"Đã chọn {SelectedScopeCount} {(ScopeMode == "lot" ? "lô" : "vị trí")}.";
     public string ScopeResultsText =>
         ScopeMode == "all"
             ? string.Empty
             : $"Hiển thị tối đa {ScopePickerResultLimit} kết quả · {ScopeGroups.Count} đang hiển thị";
-    public bool HasScopeGroups => ScopeMode != "all" && ScopeGroups.Count > 0;
-    public bool HasNoScopeGroups => ScopeMode != "all" && ScopeGroups.Count == 0;
+    public bool ShowScopePicker => ScopeMode != "all";
+    public bool HasScopeGroups => ShowScopePicker && ScopeGroups.Count > 0;
+    public bool HasNoScopeGroups => ShowScopePicker && ScopeGroups.Count == 0;
 
     public int AllLineCount => Lines.Count;
     public int UncountedLineCount => Lines.Count(IsLineUncounted);
@@ -544,6 +567,8 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
 
         IsCreateOpen = true;
         ClearMessage();
+        ScopeMode = "all";
+        ScopeSearch = string.Empty;
 
         if (string.IsNullOrWhiteSpace(SelectedWarehouseId) && Warehouses.Count > 0)
         {
@@ -889,7 +914,7 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         }
 
         _scopeGroupsAll.Clear();
-        var balances = ExactBalancesForSelectedWarehouse();
+        var balances = PickerBalancesForSelectedWarehouse();
 
         if (ScopeMode == "lot")
         {
@@ -936,7 +961,7 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         RaiseScopeSelection();
     }
 
-    private List<InventoryBalanceData> ExactBalancesForSelectedWarehouse() =>
+    private List<InventoryBalanceData> PickerBalancesForSelectedWarehouse() =>
         _balances
             .Where(balance => string.Equals(balance.WarehouseId, SelectedWarehouseId, StringComparison.Ordinal))
             .GroupBy(StocktakePresentation.ScopeKey, StringComparer.Ordinal)
@@ -995,6 +1020,7 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         Replace(SelectedScopeGroups, _scopeGroupsAll.Where(group => group.IsSelected).Take(12));
         OnPropertyChanged(nameof(SelectedScopeCount));
         OnPropertyChanged(nameof(ScopeSelectionText));
+        OnPropertyChanged(nameof(ShowScopePicker));
         OnPropertyChanged(nameof(ScopeResultsText));
         OnPropertyChanged(nameof(HasScopeGroups));
         OnPropertyChanged(nameof(HasNoScopeGroups));
@@ -1201,7 +1227,7 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
             && string.Equals(apiException.Code, "WAREHOUSE_LOCATION_MODE_REQUIRED", StringComparison.Ordinal))
         {
             SetErrorMessage(CanonicalErrorMessages.WithRequestId(
-                "Kho chưa thiết lập chế độ quản lý vị trí. Hãy cấu hình MANAGED/UNMANAGED trên hệ thống trước khi tạo kiểm kê; Desktop không tự chọn thay.",
+                "Kho chưa thiết lập chế độ quản lý vị trí. Hãy cấu hình chế độ quản lý vị trí trên hệ thống trước khi tạo kiểm kê; Desktop không tự chọn thay.",
                 apiException.RequestId));
             return;
         }

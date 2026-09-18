@@ -81,19 +81,21 @@
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource TextSecondaryBrush}" />
                             <WrapPanel Margin="0,5,0,0">
-                                <RadioButton Margin="0,0,14,5" GroupName="StocktakeScopeMode" Tag="all"
-                                             IsChecked="True" Checked="ScopeMode_OnChecked"
+                                <RadioButton Margin="0,0,14,5" GroupName="StocktakeScopeMode"
+                                             IsChecked="{Binding IsAllScopeMode, Mode=TwoWay}"
                                              Content="Toàn bộ sản phẩm trong kho" />
-                                <RadioButton Margin="0,0,14,5" GroupName="StocktakeScopeMode" Tag="lot"
-                                             Checked="ScopeMode_OnChecked" Content="Theo lô" />
-                                <RadioButton Margin="0,0,0,5" GroupName="StocktakeScopeMode" Tag="location"
-                                             Checked="ScopeMode_OnChecked" Content="Theo vị trí" />
+                                <RadioButton Margin="0,0,14,5" GroupName="StocktakeScopeMode"
+                                             IsChecked="{Binding IsLotScopeMode, Mode=TwoWay}"
+                                             Content="Theo lô" />
+                                <RadioButton Margin="0,0,0,5" GroupName="StocktakeScopeMode"
+                                             IsChecked="{Binding IsLocationScopeMode, Mode=TwoWay}"
+                                             Content="Theo vị trí" />
                             </WrapPanel>
                         </StackPanel>
                     </Grid>
 
                     <StackPanel Margin="0,12,0,0"
-                                Visibility="{Binding HasScopeGroups, Converter={StaticResource BoolToVisibility}}">
+                                Visibility="{Binding ShowScopePicker, Converter={StaticResource BoolToVisibility}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -145,7 +147,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Margin="0,0,6,6" Padding="7,3"
-                                        Background="{DynamicResource SurfaceMutedBrush}" CornerRadius="10">
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10">
                                     <TextBlock Text="{Binding Label}" FontSize="10.5" />
                                 </Border>
                             </DataTemplate>

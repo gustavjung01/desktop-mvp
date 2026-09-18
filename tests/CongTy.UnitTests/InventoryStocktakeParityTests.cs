@@ -108,7 +108,7 @@ public sealed class InventoryStocktakeParityTests
         StringAssert.Contains(viewModel, "KeyFor("count"");
         StringAssert.Contains(viewModel, "KeyFor("annotate"");
         StringAssert.Contains(viewModel, "KeyFor("copy"");
-        StringAssert.Contains(viewModel, "expectedRevision");
+        StringAssert.Contains(contracts, "[property: JsonPropertyName(\"expectedRevision\")]");
 
         foreach (var permission in new[]
         {

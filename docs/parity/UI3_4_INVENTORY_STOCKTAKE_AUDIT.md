@@ -11,7 +11,7 @@
 
 ## Kết luận audit cũ
 
-Quy tắc “1–500 exact scope” và việc Desktop biến nhóm lô/vị trí thành `scopes[]` exact đã lỗi thời.
+Cơ chế audit cũ giới hạn exact scope tối đa 500 dòng và việc Desktop biến nhóm lô/vị trí thành `scopes[]` exact đã lỗi thời.
 
 Contract chính của UI hiện là phạm vi ở mức ý định:
 
@@ -19,7 +19,7 @@ Contract chính của UI hiện là phạm vi ở mức ý định:
 - `scopeMode = lot`: gửi `lotSelections[] = { baseVariantId, lotId }`.
 - `scopeMode = location`: gửi `locationIds[]`.
 - Legacy `exact` vẫn tồn tại trong backend để tương thích, nhưng không phải contract chính của màn Desktop.
-- Desktop không hard-code cap 500 và không tự chia phiếu theo số balance. Số dòng snapshot và mọi giới hạn server là authority của backend hiện hành.
+- Shared contract hiện hành có `STOCKTAKE_MAX_LINES = 2000`; đây là giới hạn backend, không phải lý do để Desktop dựng exact scopes. Desktop không hard-code cap 500 và không tự chia phiếu theo số balance; backend là authority khi snapshot/phát hiện vượt giới hạn.
 
 ## Authority kho, lô và lịch sử
 
@@ -129,3 +129,8 @@ Lỗi scope/location dùng message backend/canonical; riêng `WAREHOUSE_LOCATION
 - [x] In không hiện ở draft.
 - [x] list có current counted metadata.
 - [x] không sửa Web/backend/DB/migration và không production deploy.
+
+
+## Rebaseline parity trong PR này
+
+Từ baseline manifest `c93bd323b64aca5df4ecc9aa516e93e73618f369` tới Web source-of-truth `ebbe90ce4559f27e501ad74c48346f09e3e4dcee` có đúng 3 commit thuộc stocktake file UX. Diff chỉ sửa `StocktakePrintDock.tsx`, `stocktake-workspace.module.css`, `stocktake-workspace.tsx` và hai test Web; không thêm/xóa page, Next route, API route, permission, shared contract hay canonical idempotency implementation. Vì vậy chỉ `webAppTree` đổi sang `e95285d6207a0ea76468280b9153561b80446959`; snapshot identity giữ nguyên.

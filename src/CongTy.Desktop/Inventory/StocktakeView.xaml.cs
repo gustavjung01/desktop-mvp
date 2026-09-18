@@ -57,14 +57,6 @@ public partial class StocktakeView : UserControl
         }
     }
 
-    private void ScopeMode_OnChecked(object sender, RoutedEventArgs e)
-    {
-        if (sender is RadioButton { Tag: string mode })
-        {
-            _viewModel.ScopeMode = mode;
-        }
-    }
-
     private void SelectAllScopeResults_OnClick(object sender, RoutedEventArgs e) =>
         _viewModel.SelectAllScopeResults();
 
