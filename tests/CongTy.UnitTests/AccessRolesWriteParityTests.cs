@@ -60,8 +60,9 @@ public sealed class AccessRolesWriteParityTests
         StringAssert.Contains(view, "Click=\"Toggle_OnClick\"");
         StringAssert.Contains(view, "Click=\"ConfirmToggle_OnClick\"");
         StringAssert.Contains(view, "Click=\"CancelToggle_OnClick\"");
-        StringAssert.Contains(view, "Ngừng sử dụng vai trò");
-        StringAssert.Contains(view, "đối soát và lịch sử chứng từ");
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Access", "AccessRolesViewModel.cs");
+        StringAssert.Contains(viewModel, "Ngừng sử dụng vai trò");
+        StringAssert.Contains(viewModel, "đối soát và lịch sử chứng từ");
         StringAssert.Contains(codeBehind, "await ViewModel.SaveAsync()");
         StringAssert.Contains(codeBehind, "await ViewModel.ConfirmToggleAsync()");
     }
