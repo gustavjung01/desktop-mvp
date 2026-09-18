@@ -9,12 +9,12 @@
     <Color x:Key="SecondaryButtonFaceColor">#202622</Color>
     <Color x:Key="RowHoverColor">#27322D</Color>
     <Color x:Key="InputBackgroundColor">#141916</Color>
-    <Color x:Key="SidebarColor">#174A38</Color>
-    <Color x:Key="SidebarHoverColor">#205A43</Color>
-    <Color x:Key="SidebarActiveColor">#276C50</Color>
-    <Color x:Key="SidebarActiveBorderColor">#73C5A0</Color>
+    <Color x:Key="SidebarColor">#E8174A38</Color>
+    <Color x:Key="SidebarHoverColor">#DC205A43</Color>
+    <Color x:Key="SidebarActiveColor">#E8276C50</Color>
+    <Color x:Key="SidebarActiveBorderColor">#B873C5A0</Color>
     <Color x:Key="SidebarTextColor">#F4FBF7</Color>
-    <Color x:Key="SidebarMutedTextColor">#9EC2AF</Color>
+    <Color x:Key="SidebarMutedTextColor">#B7D0C3</Color>
     <Color x:Key="TextPrimaryColor">#EEF3F0</Color>
     <Color x:Key="TextSecondaryColor">#A7B2AC</Color>
     <Color x:Key="BorderColor">#35403A</Color>
