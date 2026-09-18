@@ -7,8 +7,13 @@ namespace CongTy.Desktop.Operations;
 
 public partial class DataExchangeView : UserControl
 {
-    public DataExchangeView(DataExchangeViewModel viewModel)
+    private readonly Func<Task>? _openImportExportHistory;
+
+    public DataExchangeView(
+        DataExchangeViewModel viewModel,
+        Func<Task>? openImportExportHistory = null)
     {
+        _openImportExportHistory = openImportExportHistory;
         InitializeComponent();
         DataContext = viewModel;
     }
@@ -20,6 +25,12 @@ public partial class DataExchangeView : UserControl
 
     private async void Refresh_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.RefreshAsync();
+
+    private async void OpenImportExportHistory_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_openImportExportHistory is not null)
+            await _openImportExportHistory();
+    }
 
     private async void ProductImport_OnClick(object sender, RoutedEventArgs e) =>
         await PrepareImportAsync("products");

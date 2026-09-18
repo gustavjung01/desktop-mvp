@@ -42,8 +42,7 @@
             </Border>
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Orientation="Horizontal" VerticalAlignment="Top">
                 <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
-                        IsEnabled="False"
-                        ToolTip="Lịch sử nhập/xuất chưa có trên bản máy tính."
+                        Click="OpenImportExportHistory_OnClick"
                         Content="Lịch sử nhập/xuất" />
                 <Button Margin="8,0,0,0"
                         Style="{StaticResource OfficeSecondaryButtonStyle}"
