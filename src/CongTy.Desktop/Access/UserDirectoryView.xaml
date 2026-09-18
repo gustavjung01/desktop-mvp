@@ -306,7 +306,7 @@
                                     </ComboBox>
                                     <TextBox Margin="0,5,0,0"
                                              IsReadOnly="True"
-                                             Text="{Binding DraftEmployeeLabel}">
+                                             Text="{Binding DraftEmployeeLabel, Mode=OneWay}">
                                         <TextBox.Style>
                                             <Style TargetType="TextBox">
                                                 <Setter Property="Visibility" Value="Collapsed" />
