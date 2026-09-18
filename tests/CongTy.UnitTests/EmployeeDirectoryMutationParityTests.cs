@@ -95,7 +95,7 @@ public sealed class EmployeeDirectoryMutationParityTests
         Assert.IsTrue(provider.IsValid(key));
         Assert.IsTrue(key.All(character =>
             char.IsLetterOrDigit(character) || character is '.' or '_' or '-'));
-        Assert.IsLessThanOrEqualTo(key.Length, 128);
+        Assert.IsLessThanOrEqualTo(128, key.Length);
     }
 
     private static string ReadRepoFile(params string[] parts)
