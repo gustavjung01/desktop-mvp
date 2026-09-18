@@ -9,6 +9,81 @@
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="QuickActionPillButtonStyle" TargetType="Button">
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="Padding" Value="15,5,6,5" />
+            <Setter Property="Margin" Value="0,0,0,9" />
+            <Setter Property="Background" Value="#F2FFFFFF" />
+            <Setter Property="Foreground" Value="#243047" />
+            <Setter Property="BorderBrush" Value="#4794A3B8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="22">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.18" />
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Opacity" Value="1" />
+                                <Setter Property="BorderBrush" Value="#6B6366F1" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Surface" Property="Opacity" Value="0.86" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="QuickActionTriggerStyle" TargetType="Button">
+            <Setter Property="Width" Value="56" />
+            <Setter Property="Height" Value="56" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#8CFFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="28">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="24" ShadowDepth="5" Opacity="0.28" Color="#312E81" />
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Opacity" Value="0.94" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Surface" Property="Opacity" Value="0.78" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="SidebarSubItemInteractiveStyle" TargetType="Button" BasedOn="{StaticResource NavSubItemStyle}">
             <EventSetter Event="Click" Handler="SidebarSubItem_OnClick" />
         </Style>
@@ -349,7 +424,10 @@
             </Border>
         </Grid>
 
-        <Grid Visibility="{Binding IsWorkspace, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Grid x:Name="WorkspaceRoot"
+              Visibility="{Binding IsWorkspace, Converter={StaticResource BooleanToVisibilityConverter}}"
+              PreviewMouseDown="WorkspaceRoot_OnPreviewMouseDown"
+              PreviewKeyDown="WorkspaceRoot_OnPreviewKeyDown">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Binding SidebarWidth}" />
                 <ColumnDefinition Width="*" />
@@ -1112,6 +1190,117 @@
                         <ContentControl x:Name="ManagementProposalHost" />
                     </TabItem>
                 </TabControl>
+            </Grid>
+
+            <Grid x:Name="QuickActionsRoot"
+                  Grid.Column="1"
+                  Margin="0,0,18,18"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Bottom"
+                  Panel.ZIndex="80"
+                  MouseEnter="QuickActionsRoot_OnMouseEnter"
+                  MouseLeave="QuickActionsRoot_OnMouseLeave">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsHomeSelected}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <StackPanel HorizontalAlignment="Right">
+                    <StackPanel x:Name="QuickActionMenu"
+                                HorizontalAlignment="Right"
+                                Visibility="Collapsed">
+                        <Button Style="{StaticResource QuickActionPillButtonStyle}"
+                                Click="QuickActionProducts_OnClick"
+                                ToolTip="Mở Sản phẩm trong cửa sổ mới">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="34" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="Sản phẩm" />
+                                <Border Grid.Column="2" Width="34" Height="34" CornerRadius="17" Background="#E6F7FF" BorderBrush="#240EA5E9" BorderThickness="1">
+                                    <Viewbox Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Path Data="M 3,7 L 10,3 L 17,7 L 10,11 Z M 3,7 L 3,14 L 10,18 L 17,14 L 17,7 M 10,11 L 10,18"
+                                              Stroke="#0284C7" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                    </Viewbox>
+                                </Border>
+                            </Grid>
+                        </Button>
+
+                        <Button Style="{StaticResource QuickActionPillButtonStyle}"
+                                Click="QuickActionCustomers_OnClick"
+                                ToolTip="Mở Khách hàng trong cửa sổ mới">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="34" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="Khách hàng" />
+                                <Border Grid.Column="2" Width="34" Height="34" CornerRadius="17" Background="#E8FAF1" BorderBrush="#2410B981" BorderThickness="1">
+                                    <Canvas Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Ellipse Canvas.Left="6" Canvas.Top="1" Width="6" Height="6" Stroke="#059669" StrokeThickness="1.5" />
+                                        <Path Data="M 2,17 C 2,11 16,11 16,17" Stroke="#059669" StrokeThickness="1.5" Fill="Transparent" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                    </Canvas>
+                                </Border>
+                            </Grid>
+                        </Button>
+
+                        <Button Style="{StaticResource QuickActionPillButtonStyle}"
+                                Foreground="White"
+                                BorderBrush="#896366F1"
+                                Click="QuickActionCreateSalesOrder_OnClick"
+                                ToolTip="Tạo đơn bán trong cửa sổ mới">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#6366F1" Offset="0" />
+                                    <GradientStop Color="#4F46E5" Offset="0.48" />
+                                    <GradientStop Color="#2563EB" Offset="1" />
+                                </LinearGradientBrush>
+                            </Button.Background>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="34" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock VerticalAlignment="Center" Text="Tạo đơn bán" />
+                                <Border Grid.Column="2" Width="34" Height="34" CornerRadius="17" Background="#24FFFFFF" BorderBrush="#33FFFFFF" BorderThickness="1">
+                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="+" FontSize="23" FontWeight="Light" />
+                                </Border>
+                            </Grid>
+                        </Button>
+                    </StackPanel>
+
+                    <Button x:Name="QuickActionsTrigger"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource QuickActionTriggerStyle}"
+                            Click="QuickActionsTrigger_OnClick"
+                            ToolTip="Thao tác nhanh">
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#6366F1" Offset="0" />
+                                <GradientStop Color="#4F46E5" Offset="0.46" />
+                                <GradientStop Color="#2563EB" Offset="1" />
+                            </LinearGradientBrush>
+                        </Button.Background>
+                        <TextBlock x:Name="QuickActionTriggerGlyph"
+                                   Text="+"
+                                   FontSize="28"
+                                   FontWeight="Light"
+                                   RenderTransformOrigin="0.5,0.5">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform x:Name="QuickActionTriggerRotation" Angle="0" />
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

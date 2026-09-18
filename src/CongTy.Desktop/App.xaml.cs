@@ -190,6 +190,7 @@ public partial class App : Application
             services.AddSingleton<ISupplierReturnService, SupplierReturnService>();
             services.AddSingleton<SupplierReturnViewModel>();
             services.AddSingleton<SupplierReturnView>();
+            services.AddSingleton<QuickActionWindowService>();
             services.AddSingleton<ShellViewModel>();
             services.AddSingleton<MainWindow>();
     
