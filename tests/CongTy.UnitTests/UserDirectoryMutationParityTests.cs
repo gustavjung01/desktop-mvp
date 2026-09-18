@@ -51,10 +51,10 @@ public sealed class UserDirectoryMutationParityTests
         var credential = viewModel.IndexOf("_mutationService.SetCredentialAsync", roles, StringComparison.Ordinal);
         var status = viewModel.IndexOf("_mutationService.UpdateStatusAsync", credential, StringComparison.Ordinal);
 
-        Assert.IsGreaterThanOrEqualTo(create, 0);
-        Assert.IsGreaterThan(roles, create);
-        Assert.IsGreaterThan(credential, roles);
-        Assert.IsGreaterThan(status, credential);
+        Assert.IsGreaterThanOrEqualTo(0, create);
+        Assert.IsGreaterThan(create, roles);
+        Assert.IsGreaterThan(roles, credential);
+        Assert.IsGreaterThan(credential, status);
         StringAssert.Contains(viewModel, "DraftEmployeeId.Trim(),\n                false");
         StringAssert.Contains(viewModel, "Tài khoản đã được giữ an toàn ở trạng thái hiện tại");
         StringAssert.Contains(viewModel, "IsCreateMode = false");
@@ -78,11 +78,13 @@ public sealed class UserDirectoryMutationParityTests
     public void Lot2_ViewModel_EnforcesPasswordAndOptimisticConcurrency()
     {
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserDirectoryViewModel.cs");
+        var view = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserDirectoryView.xaml");
 
         StringAssert.Contains(viewModel, "value.Length is >= 10 and <= 256");
         StringAssert.Contains(viewModel, "ExpectedUpdatedAt");
         StringAssert.Contains(viewModel, "CONFLICT");
-        StringAssert.Contains(viewModel, "TẢI LẠI DỮ LIỆU");
+        StringAssert.Contains(viewModel, "ShowReloadAfterConflict");
+        StringAssert.Contains(view, "TẢI LẠI DỮ LIỆU");
     }
 
     [TestMethod]
@@ -90,6 +92,8 @@ public sealed class UserDirectoryMutationParityTests
     {
         var view = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserDirectoryView.xaml");
         var codeBehind = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserDirectoryView.xaml.cs");
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserDirectoryViewModel.cs");
+        var presentation = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserDirectoryPresentation.cs");
 
         foreach (var handler in new[]
         {
@@ -107,10 +111,12 @@ public sealed class UserDirectoryMutationParityTests
             StringAssert.Contains(codeBehind, handler);
         }
 
-        StringAssert.Contains(view, "Mật khẩu đăng nhập");
-        StringAssert.Contains(view, "Vai trò");
-        StringAssert.Contains(view, "Xác nhận thay đổi trạng thái");
-        StringAssert.Contains(view, "Vai trò đã ngừng sử dụng — bỏ chọn để thu hồi");
+        StringAssert.Contains(view, "Text=\"{Binding PasswordLabel}\"");
+        StringAssert.Contains(view, "Text=\"Vai trò\"");
+        StringAssert.Contains(view, "Text=\"{Binding ToggleTitle}\"");
+        StringAssert.Contains(viewModel, "Mật khẩu đăng nhập");
+        StringAssert.Contains(viewModel, "Xác nhận thay đổi trạng thái");
+        StringAssert.Contains(presentation, "Vai trò đã ngừng sử dụng — bỏ chọn để thu hồi");
     }
 
     [TestMethod]
