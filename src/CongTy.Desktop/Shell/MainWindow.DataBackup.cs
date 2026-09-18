@@ -15,30 +15,50 @@ public partial class MainWindow
     {
         if (_dataBackupShellWired) return;
 
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "Thiết lập chung"));
-        if (sidebarButton is null) return;
+        Button? FindSettingsButton(string label) =>
+            FindVisualChildren<Button>(this)
+                .FirstOrDefault(button =>
+                    FindVisualChildren<TextBlock>(button)
+                        .Any(text => text.Text == label));
+
+        var dataBackupButton = FindSettingsButton("Dữ liệu & sao lưu");
+        var printTemplatesButton = FindSettingsButton("Mẫu in");
+        var appearanceButton = FindSettingsButton("Giao diện");
+        if (dataBackupButton is null || printTemplatesButton is null || appearanceButton is null) return;
 
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeDataBackupShell();
 
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsDataBackupSelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewDataBackup))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += DataBackup_OnClick;
+        void WireSettingsButton(
+            Button button,
+            string selectedProperty,
+            RoutedEventHandler click)
+        {
+            BindingOperations.SetBinding(
+                button,
+                Button.TagProperty,
+                new Binding(selectedProperty));
+            BindingOperations.SetBinding(
+                button,
+                Button.IsEnabledProperty,
+                new Binding(nameof(ShellViewModel.CanViewDataBackup)));
+            button.Click += click;
+        }
+
+        WireSettingsButton(
+            dataBackupButton,
+            nameof(ShellViewModel.IsDataBackupWorkspaceSelected),
+            DataBackup_OnClick);
+        WireSettingsButton(
+            printTemplatesButton,
+            nameof(ShellViewModel.IsPrintTemplatesSelected),
+            PrintTemplates_OnClick);
+        WireSettingsButton(
+            appearanceButton,
+            nameof(ShellViewModel.IsAppearanceSelected),
+            Appearance_OnClick);
 
         var app = (CongTy.Desktop.App)Application.Current;
         var idempotency = app.ResolveRequired<ICanonicalIdempotencyKeyProvider>();
@@ -77,6 +97,18 @@ public partial class MainWindow
     private async void DataBackup_OnClick(object sender, RoutedEventArgs e)
     {
         await _viewModel.NavigateDataBackupAsync();
+        ApplySettingsHeader();
+    }
+
+    private async void PrintTemplates_OnClick(object sender, RoutedEventArgs e)
+    {
+        await _viewModel.NavigatePrintTemplatesAsync();
+        ApplySettingsHeader();
+    }
+
+    private async void Appearance_OnClick(object sender, RoutedEventArgs e)
+    {
+        await _viewModel.NavigateAppearanceAsync();
         ApplySettingsHeader();
     }
 

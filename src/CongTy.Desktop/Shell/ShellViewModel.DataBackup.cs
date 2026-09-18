@@ -8,6 +8,7 @@ public sealed partial class ShellViewModel
 
     public bool CanViewDataBackup => _access.Current.IsAuthenticated;
     public bool IsDataBackupSelected => SelectedWorkspaceIndex is 47 or 48 or 49;
+    public bool IsDataBackupWorkspaceSelected => SelectedWorkspaceIndex == 47;
     public bool IsPrintTemplatesSelected => SelectedWorkspaceIndex == 48;
     public bool IsAppearanceSelected => SelectedWorkspaceIndex == 49;
 
@@ -62,6 +63,7 @@ public sealed partial class ShellViewModel
     {
         if (e.PropertyName != nameof(SelectedWorkspaceIndex)) return;
         OnPropertyChanged(nameof(IsDataBackupSelected));
+        OnPropertyChanged(nameof(IsDataBackupWorkspaceSelected));
         OnPropertyChanged(nameof(IsPrintTemplatesSelected));
         OnPropertyChanged(nameof(IsAppearanceSelected));
     }

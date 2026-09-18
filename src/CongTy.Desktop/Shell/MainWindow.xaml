@@ -122,57 +122,57 @@
             <StackPanel>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsCatalogOverviewSelected}"
-                                        Visibility="{Binding CanViewInternalOrganization, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInternalOrganization}"
                                         Click="CatalogOverview_OnClick"><TextBlock Text="Tổng quan cơ cấu" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogBranchesSelected}" Visibility="{Binding CanViewInternalOrganization, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CatalogBranches_OnClick"><TextBlock Text="Chi nhánh" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogWarehousesSelected}" Visibility="{Binding CanViewInternalOrganization, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CatalogWarehouses_OnClick"><TextBlock Text="Kho hàng" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogCustomersSelected}" Visibility="{Binding CanViewPartners, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CatalogCustomers_OnClick"><TextBlock Text="Khách hàng" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogSuppliersSelected}" Visibility="{Binding CanViewPartners, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CatalogSuppliers_OnClick"><TextBlock Text="Nhà cung cấp" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogProductsSelected}" Visibility="{Binding CanViewProducts, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CatalogProducts_OnClick"><TextBlock Text="Danh mục sản phẩm" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogPricingSelected}" Visibility="{Binding CanViewPricing, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CatalogPricing_OnClick"><TextBlock Text="Giá bán và khuyến mãi" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogDocumentNumberingSelected}" Visibility="{Binding CanViewDocumentNumbering, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CatalogDocumentNumbering_OnClick"><TextBlock Text="Số chứng từ" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogBranchesSelected}" IsEnabled="{Binding CanViewInternalOrganization}" Click="CatalogBranches_OnClick"><TextBlock Text="Chi nhánh" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogWarehousesSelected}" IsEnabled="{Binding CanViewInternalOrganization}" Click="CatalogWarehouses_OnClick"><TextBlock Text="Kho hàng" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogCustomersSelected}" IsEnabled="{Binding CanViewPartners}" Click="CatalogCustomers_OnClick"><TextBlock Text="Khách hàng" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogSuppliersSelected}" IsEnabled="{Binding CanViewPartners}" Click="CatalogSuppliers_OnClick"><TextBlock Text="Nhà cung cấp" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogProductsSelected}" IsEnabled="{Binding CanViewProducts}" Click="CatalogProducts_OnClick"><TextBlock Text="Danh mục sản phẩm" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogPricingSelected}" IsEnabled="{Binding CanViewPricing}" Click="CatalogPricing_OnClick"><TextBlock Text="Giá bán và khuyến mãi" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCatalogDocumentNumberingSelected}" IsEnabled="{Binding CanViewDocumentNumbering}" Click="CatalogDocumentNumbering_OnClick"><TextBlock Text="Số chứng từ" /></Button>
                             
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="InventoryMenuTemplate">
             <StackPanel>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsInventoryReportingSelected}" Visibility="{Binding CanViewInventoryReporting, Converter={StaticResource BooleanToVisibilityConverter}}" Click="InventoryReporting_OnClick"><TextBlock Text="Báo cáo tồn kho" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsInventoryFulfillmentSelected}" Visibility="{Binding CanViewFulfillment, Converter={StaticResource BooleanToVisibilityConverter}}" Click="InventoryFulfillment_OnClick"><TextBlock Text="Chuẩn bị hàng" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsInventoryReportingSelected}" IsEnabled="{Binding CanViewInventoryReporting}" Click="InventoryReporting_OnClick"><TextBlock Text="Báo cáo tồn kho" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsInventoryFulfillmentSelected}" IsEnabled="{Binding CanViewFulfillment}" Click="InventoryFulfillment_OnClick"><TextBlock Text="Chuẩn bị hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryTransferSelected}"
-                                        Visibility="{Binding CanViewInventoryTransfer, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInventoryTransfer}"
                                         Click="InventoryTransfer_OnClick"><TextBlock Text="Chuyển kho" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryStocktakeSelected}"
-                                        Visibility="{Binding CanViewInventoryStocktake, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInventoryStocktake}"
                                         Click="InventoryStocktake_OnClick"><TextBlock Text="Kiểm kê kho" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryAdjustmentSelected}"
-                                        Visibility="{Binding CanViewInventoryAdjustment, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInventoryAdjustment}"
                                         Click="InventoryAdjustment_OnClick"><TextBlock Text="Điều chỉnh và xử lý tồn" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsManualInboundSelected}"
-                                        Visibility="{Binding CanViewManualInbound, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewManualInbound}"
                                         Click="ManualInbound_OnClick"><TextBlock Text="Nhập kho thủ công" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryCostingSelected}"
-                                        Visibility="{Binding CanViewInventoryCosting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInventoryCosting}"
                                         Click="InventoryCosting_OnClick"><TextBlock Text="Giá vốn tồn kho" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryBalancesSelected}"
-                                        Visibility="{Binding CanViewInventoryBalances, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInventoryBalances}"
                                         Click="InventoryBalances_OnClick"><TextBlock Text="Tra cứu tồn kho" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryTrackingPolicySelected}"
-                                        Visibility="{Binding CanViewInventoryTrackingPolicy, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInventoryTrackingPolicy}"
                                         Click="InventoryTrackingPolicy_OnClick"><TextBlock Text="Chính sách lô" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryLotsSelected}"
-                                        Visibility="{Binding CanViewInventoryLots, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewInventoryLots}"
                                         Click="InventoryLots_OnClick"><TextBlock Text="Lô hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsInventoryOpeningBalancesSelected}"
-                                        Visibility="{Binding CanViewOpeningBalance, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewOpeningBalance}"
                                         Click="InventoryOpeningBalances_OnClick"><TextBlock Text="Thiết lập tồn đầu kỳ" /></Button>
                             
             </StackPanel>
@@ -181,31 +181,31 @@
             <StackPanel>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsLogisticsReportingSelected}"
-                                        Visibility="{Binding CanViewLogisticsReporting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewLogisticsReporting}"
                                         Click="LogisticsReporting_OnClick"><TextBlock Text="Hiệu suất giao hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsDeliveryOrdersSelected}"
-                                        Visibility="{Binding CanViewDeliveryOrders, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewDeliveryOrders}"
                                         Click="DeliveryOrders_OnClick"><TextBlock Text="Phiếu giao hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsTripPlanningSelected}"
-                                        Visibility="{Binding CanViewTripPlanning, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewTripPlanning}"
                                         Click="TripPlanning_OnClick"><TextBlock Text="Lập và xếp chuyến" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsTripDispatchSelected}"
-                                        Visibility="{Binding CanViewTripDispatch, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewTripDispatch}"
                                         Click="TripDispatch_OnClick"><TextBlock Text="Bàn giao và xuất phát" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsDeliveryAttemptsSelected}"
-                                        Visibility="{Binding CanViewDeliveryAttempts, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewDeliveryAttempts}"
                                         Click="DeliveryAttempts_OnClick"><TextBlock Text="Kết quả lần giao" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsTripReconciliationSelected}"
-                                        Visibility="{Binding CanViewTripReconciliation, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewTripReconciliation}"
                                         Click="TripReconciliation_OnClick"><TextBlock Text="Đối soát cuối chuyến" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsCustomerReturnsSelected}"
-                                        Visibility="{Binding CanViewCustomerReturns, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewCustomerReturns}"
                                         Click="CustomerReturns_OnClick"><TextBlock Text="Hàng khách trả" /></Button>
                             
             </StackPanel>
@@ -214,21 +214,21 @@
             <StackPanel>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsSalesReportingSelected}"
-                                        Visibility="{Binding CanViewSalesReporting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewSalesReporting}"
                                         Click="SalesReporting_OnClick"><TextBlock Text="Báo cáo bán hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsGrossMarginSelected}"
-                                        Visibility="{Binding CanViewGrossMargin, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewGrossMargin}"
                                         Click="GrossMargin_OnClick"><TextBlock Text="Lãi gộp" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsSalesOperationsSelected}"
-                                        Visibility="{Binding CanViewSalesOperations, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewSalesOperations}"
                                         Click="SalesOperations_OnClick"><TextBlock Text="Điều hành bán hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsManagementProposalsSelected}"
-                                        Visibility="{Binding CanViewManagementProposals, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewManagementProposals}"
                                         Click="ManagementProposals_OnClick"><TextBlock Text="Đề xuất" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsSalesOrdersSelected}" Visibility="{Binding CanViewSales, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Sales_OnClick"><TextBlock Text="Đơn bán hàng" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsSalesOrdersSelected}" IsEnabled="{Binding CanViewSales}" Click="Sales_OnClick"><TextBlock Text="Đơn bán hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Quản lý đơn hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Mở/liên kết mã khách" /></Button>
                             
@@ -238,23 +238,23 @@
             <StackPanel>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsPurchasingReportingSelected}"
-                                        Visibility="{Binding CanViewPurchasingReporting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewPurchasingReporting}"
                                         Click="PurchasingReporting_OnClick"><TextBlock Text="Báo cáo mua hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsPurchaseOrdersSelected}"
-                                        Visibility="{Binding CanViewPurchaseOrders, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewPurchaseOrders}"
                                         Click="PurchaseOrders_OnClick"><TextBlock Text="Đơn mua hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsPurchasePricesSelected}"
-                                        Visibility="{Binding CanViewPurchasePrices, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewPurchasePrices}"
                                         Click="PurchasePrices_OnClick"><TextBlock Text="Bảng giá mua" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsGoodsReceiptsSelected}"
-                                        Visibility="{Binding CanViewGoodsReceipts, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewGoodsReceipts}"
                                         Click="GoodsReceipts_OnClick"><TextBlock Text="Phiếu nhận hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsSupplierReturnsSelected}"
-                                        Visibility="{Binding CanViewSupplierReturns, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewSupplierReturns}"
                                         Click="SupplierReturns_OnClick"><TextBlock Text="Phiếu trả nhà cung cấp" /></Button>
                             
             </StackPanel>
@@ -263,11 +263,11 @@
             <StackPanel>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsAgingSelected}"
-                                        Visibility="{Binding CanViewAging, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewAging}"
                                         Click="AccountingAging_OnClick"><TextBlock Text="Tuổi nợ" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
                                         Tag="{Binding IsCodAccountingSelected}"
-                                        Visibility="{Binding CanViewCodAccounting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        IsEnabled="{Binding CanViewCodAccounting}"
                                         Click="AccountingCod_OnClick"><TextBlock Text="COD và đối soát" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Công nợ phải thu" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Thu tiền khách hàng" /></Button>
@@ -279,7 +279,9 @@
         </DataTemplate>
         <DataTemplate x:Key="CompanySettingsMenuTemplate">
             <StackPanel>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Thiết lập chung" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Dữ liệu &amp; sao lưu" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Mẫu in" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Giao diện" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="MCP và tuyến" /></Button>
                             
             </StackPanel>

@@ -28,6 +28,26 @@ public partial class MainWindow
         WireAccessRolesWorkspace();
         WireEmployeeDirectoryWorkspace();
         WireUserDirectoryWorkspace();
+        NormalizeFullAppSidebarPermissions();
+    }
+
+    private void NormalizeFullAppSidebarPermissions()
+    {
+        foreach (var button in FindVisualChildren<Button>(this))
+        {
+            var visibilityBinding = BindingOperations.GetBinding(button, UIElement.VisibilityProperty);
+            var permissionPath = visibilityBinding?.Path?.Path;
+            if (string.IsNullOrWhiteSpace(permissionPath)
+                || !permissionPath.StartsWith("CanView", StringComparison.Ordinal))
+                continue;
+
+            BindingOperations.ClearBinding(button, UIElement.VisibilityProperty);
+            button.Visibility = Visibility.Visible;
+            BindingOperations.SetBinding(
+                button,
+                Button.IsEnabledProperty,
+                new Binding(permissionPath));
+        }
     }
 
     private void WireOrderManagementWorkspace()

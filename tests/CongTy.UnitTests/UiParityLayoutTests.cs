@@ -1309,6 +1309,54 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
+    public void Sidebar_FullAppKeepsImplementedModulesVisibleAndPermissionLocked()
+    {
+        var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");
+        var orderShell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.OrderManagement.cs");
+        var dataBackupShell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.DataBackup.cs");
+
+        foreach (var label in new[]
+        {
+            "Danh mục sản phẩm",
+            "Kiểm kê kho",
+            "Báo cáo bán hàng",
+            "Đơn mua hàng",
+            "Tuổi nợ",
+            "Nhập/xuất dữ liệu",
+            "Lịch sử thay đổi",
+            "Lịch sử nhập/xuất",
+            "Dữ liệu &amp; sao lưu",
+            "Mẫu in",
+            "Giao diện",
+            "MCP và tuyến",
+            "Vai trò và phân quyền",
+            "Danh mục nhân sự",
+            "Người dùng"
+        })
+            StringAssert.Contains(shell, label);
+
+        StringAssert.Contains(shell, "IsEnabled=\"{Binding CanViewProducts}\"");
+        StringAssert.Contains(shell, "IsEnabled=\"{Binding CanViewInventoryStocktake}\"");
+        StringAssert.Contains(shell, "IsEnabled=\"{Binding CanViewSalesReporting}\"");
+        Assert.IsFalse(shell.Contains("Visibility=\"{Binding CanViewProducts", StringComparison.Ordinal));
+        Assert.IsFalse(shell.Contains("Visibility=\"{Binding CanViewInventoryStocktake", StringComparison.Ordinal));
+
+        StringAssert.Contains(viewModel, "private bool _isCatalogOpen = true;");
+        StringAssert.Contains(viewModel, "private bool _isAccessOpen = true;");
+        StringAssert.Contains(viewModel, "if (IsSidebarExpanded) OpenNavigationGroups();");
+        StringAssert.Contains(viewModel, "case \"catalog\": IsCatalogOpen = !IsCatalogOpen; break;");
+
+        StringAssert.Contains(orderShell, "NormalizeFullAppSidebarPermissions();");
+        StringAssert.Contains(orderShell, "BindingOperations.ClearBinding(button, UIElement.VisibilityProperty)");
+        StringAssert.Contains(orderShell, "Button.IsEnabledProperty");
+        StringAssert.Contains(dataBackupShell, "Dữ liệu & sao lưu");
+        StringAssert.Contains(dataBackupShell, "IsDataBackupWorkspaceSelected");
+        StringAssert.Contains(dataBackupShell, "PrintTemplates_OnClick");
+        StringAssert.Contains(dataBackupShell, "Appearance_OnClick");
+    }
+
+    [TestMethod]
     public void Login_UsesBlurredPackagedBackgroundBehindLoginCard()
     {
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
