@@ -131,8 +131,8 @@ public sealed class DataBackupParityTests
         var xaml = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
 
         StringAssert.Contains(shell, "\"settings.data-backup\"");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex == 47");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex = 47");
+        StringAssert.Contains(shell, "NavigateDataBackupAsync() => NavigateSettingsWorkspaceAsync(");
+        StringAssert.Contains(shell, "\n        47,\n        \"Dữ liệu & sao lưu\"");
         StringAssert.Contains(host, "workspaceTabs.Items[47]");
         StringAssert.Contains(host, "\"CÀI ĐẶT CÔNG TY\"");
         StringAssert.Contains(host, "\"Dữ liệu & sao lưu\"");
