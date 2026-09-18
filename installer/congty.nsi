@@ -15,6 +15,9 @@ SetRegView 64
 !ifndef OUTPUT_DIR
   !error "OUTPUT_DIR is required"
 !endif
+!ifndef ICON_PATH
+  !error "ICON_PATH is required"
+!endif
 
 !define PRODUCT_NAME "CONGTY"
 !define PRODUCT_PUBLISHER "Hưng Phát"
@@ -26,8 +29,8 @@ Name "${PRODUCT_NAME}"
 OutFile "${OUTPUT_DIR}\CONGTY-Setup-${APP_VERSION}.exe"
 InstallDir "$LOCALAPPDATA\Programs\CONGTY"
 InstallDirRegKey HKCU "${PRODUCT_KEY}" "InstallDir"
-Icon "..\src\CongTy.Desktop\Assets\Brand\logo.ico"
-UninstallIcon "..\src\CongTy.Desktop\Assets\Brand\logo.ico"
+Icon "${ICON_PATH}"
+UninstallIcon "${ICON_PATH}"
 SetOverwrite on
 ShowInstDetails show
 ShowUninstDetails show

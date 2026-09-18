@@ -5,7 +5,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if (-not [OperatingSystem]::IsWindows()) {
+if ($env:OS -ne "Windows_NT") {
     throw "CONGTY release packaging only runs on Windows."
 }
 
@@ -88,7 +88,7 @@ if ([string]::IsNullOrWhiteSpace($makeNsisPath)) {
     throw "makensis.exe was not found. Install NSIS before building a release."
 }
 
-& $makeNsisPath "/DAPP_VERSION=$version" "/DSTAGING_DIR=$stagingDirectory" "/DOUTPUT_DIR=$outputDirectory" $installerScript
+& $makeNsisPath "/DAPP_VERSION=$version" "/DSTAGING_DIR=$stagingDirectory" "/DOUTPUT_DIR=$outputDirectory" "/DICON_PATH=$iconDestination" $installerScript
 if ($LASTEXITCODE -ne 0) {
     throw "NSIS packaging failed."
 }
