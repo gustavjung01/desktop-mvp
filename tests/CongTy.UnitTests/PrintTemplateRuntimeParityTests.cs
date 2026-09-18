@@ -46,6 +46,11 @@ public sealed class PrintTemplateRuntimeParityTests
         var delivery = ReadRepoFile("src", "CongTy.Desktop", "Logistics", "DeliveryOrderView.xaml.cs");
         StringAssert.Contains(delivery, "\"packing-list\"");
         StringAssert.Contains(delivery, "\"standard\"");
+
+        var batchSales = ReadRepoFile("src", "CongTy.Desktop", "Sales", "OrderManagementView.xaml.cs");
+        StringAssert.Contains(batchSales, "DocumentPrintTemplateRuntime.LoadForPrintAsync");
+        StringAssert.Contains(batchSales, "\"SALES_ORDER\"");
+        StringAssert.Contains(batchSales, "ShowBatch(owner,items,template)");
     }
 
     [TestMethod]
