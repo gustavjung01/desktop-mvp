@@ -14,10 +14,25 @@
         </Style>
         <Style x:Key="SidebarInlineGroupStyle" TargetType="ContentControl">
             <Setter Property="Visibility" Value="Collapsed" />
-            <Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions>
-                <Condition Binding="{Binding IsSidebarExpanded}" Value="True" />
-                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Tag}" Value="True" />
-            </MultiDataTrigger.Conditions><Setter Property="Visibility" Value="Visible" /></MultiDataTrigger></Style.Triggers>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid>
+                            <Border Width="1" Margin="0,2,0,3" HorizontalAlignment="Left" Background="#26FFFFFF" IsHitTestVisible="False" />
+                            <ContentPresenter Margin="8,0,0,0" HorizontalAlignment="Stretch" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding IsSidebarExpanded}" Value="True" />
+                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Tag}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Visible" />
+                </MultiDataTrigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="SidebarFlyoutPopupStyle" TargetType="Popup">
             <Setter Property="AllowsTransparency" Value="True" /><Setter Property="PopupAnimation" Value="Fade" />
@@ -331,25 +346,25 @@
                     BorderThickness="0,0,1,0">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="90" />
+                        <RowDefinition Height="80" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="76" />
+                        <RowDefinition Height="72" />
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" Margin="8,8">
+                    <Grid Grid.Row="0" Margin="8,6">
                         <Grid><Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Grid.Style>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="46" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <Border Width="42" Height="42" CornerRadius="11" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1" VerticalAlignment="Center"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
-                            <StackPanel Grid.Column="1" Margin="8,0,6,0" VerticalAlignment="Center"><TextBlock Text="{Binding CompanyName}" Foreground="{DynamicResource SidebarTextBrush}" FontWeight="Bold" FontSize="13.5" TextTrimming="CharacterEllipsis" /><TextBlock Text="CÔNG TY" Margin="0,2,0,0" Foreground="{DynamicResource SidebarMutedTextBrush}" FontSize="9.5" FontWeight="SemiBold" /></StackPanel>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <Border Width="38" Height="38" CornerRadius="10" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1" VerticalAlignment="Center"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
+                            <StackPanel Grid.Column="1" Margin="8,0,6,0" VerticalAlignment="Center"><TextBlock Text="{Binding CompanyName}" Foreground="{DynamicResource SidebarTextBrush}" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" /><TextBlock Text="CÔNG TY" Margin="0,2,0,0" Foreground="{DynamicResource SidebarMutedTextBrush}" FontSize="9" FontWeight="SemiBold" /></StackPanel>
                             <Button Grid.Column="2" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Thu gọn thanh điều hướng" Content="☰" />
                         </Grid>
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
-                            <Border Width="36" Height="36" CornerRadius="10" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
-                            <Button Width="32" Height="28" Margin="0,4,0,0" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Mở rộng thanh điều hướng" Content="☰" />
+                            <Border Width="34" Height="34" CornerRadius="9" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
+                            <Button Width="30" Height="26" Margin="0,3,0,0" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Mở rộng thanh điều hướng" Content="☰" />
                         </StackPanel>
                     </Grid>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer Grid.Row="1" Padding="0,2,0,6" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Margin="0,0,0,12">
                             <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="ĐIỀU HÀNH" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <Button Style="{StaticResource NavButtonStyle}" Tag="{Binding IsHomeSelected}" Click="Home_OnClick" ToolTip="Tổng quan điều hành">
@@ -375,7 +390,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding CatalogChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsCatalogOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource CatalogMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsCatalogOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource CatalogMenuTemplate}" />
                             <Popup Uid="catalog" DataContext="{Binding}" Tag="{Binding IsCatalogOpen}" PlacementTarget="{Binding ElementName=CatalogButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Danh mục nghiệp vụ" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -396,7 +411,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding InventoryChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsInventoryOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource InventoryMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsInventoryOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource InventoryMenuTemplate}" />
                             <Popup Uid="inventory" DataContext="{Binding}" Tag="{Binding IsInventoryOpen}" PlacementTarget="{Binding ElementName=InventoryButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Tồn kho và lô hàng" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -417,7 +432,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding LogisticsChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsLogisticsOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource LogisticsMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsLogisticsOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource LogisticsMenuTemplate}" />
                             <Popup Uid="logistics" DataContext="{Binding}" Tag="{Binding IsLogisticsOpen}" PlacementTarget="{Binding ElementName=LogisticsButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Giao nhận và điều phối" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -438,7 +453,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding SalesChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsSalesOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource SalesMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsSalesOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource SalesMenuTemplate}" />
                             <Popup Uid="sales" DataContext="{Binding}" Tag="{Binding IsSalesOpen}" PlacementTarget="{Binding ElementName=SalesButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Bán hàng" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -459,7 +474,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding PurchasingChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsPurchasingOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource PurchasingMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsPurchasingOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource PurchasingMenuTemplate}" />
                             <Popup Uid="purchasing" DataContext="{Binding}" Tag="{Binding IsPurchasingOpen}" PlacementTarget="{Binding ElementName=PurchasingButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Mua hàng" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -480,7 +495,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding AccountingChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsAccountingOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource AccountingMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsAccountingOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource AccountingMenuTemplate}" />
                             <Popup Uid="accounting" DataContext="{Binding}" Tag="{Binding IsAccountingOpen}" PlacementTarget="{Binding ElementName=AccountingButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Kế toán và công nợ" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -506,7 +521,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding CompanySettingsChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsCompanySettingsOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource CompanySettingsMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsCompanySettingsOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource CompanySettingsMenuTemplate}" />
                             <Popup Uid="company-settings" DataContext="{Binding}" Tag="{Binding IsCompanySettingsOpen}" PlacementTarget="{Binding ElementName=CompanySettingsButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Cài đặt Công Ty" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -527,7 +542,7 @@
                                     <TextBlock Grid.Column="2" Text="{Binding AccessChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
                             </Button>
-                            <ContentControl Margin="22,2,8,7" Content="{Binding}" Tag="{Binding IsAccessOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource AccessMenuTemplate}" />
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsAccessOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource AccessMenuTemplate}" />
                             <Popup Uid="access" DataContext="{Binding}" Tag="{Binding IsAccessOpen}" PlacementTarget="{Binding ElementName=AccessButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
                                     <StackPanel><TextBlock Margin="8,4,8,8" Text="Nhân sự và phân quyền" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
@@ -539,15 +554,15 @@
                     </ScrollViewer>
 
                     <Border Grid.Row="2" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="0,1,0,0">
-                        <Grid Margin="8,6">
+                        <Grid Margin="8,4">
                             <Grid><Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Grid.Style>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                <Border Width="34" Height="34" CornerRadius="17" Background="White" VerticalAlignment="Center"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="2" /></Border>
+                                <Border Width="30" Height="30" CornerRadius="15" Background="White" VerticalAlignment="Center"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="2" /></Border>
                                 <StackPanel Grid.Column="1" Margin="8,0" VerticalAlignment="Center"><TextBlock Text="{Binding UserDisplayName}" Foreground="{DynamicResource SidebarTextBrush}" FontWeight="SemiBold" FontSize="11.5" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding LoginNameText}" Margin="0,1,0,0" Foreground="{DynamicResource SidebarMutedTextBrush}" FontSize="9.5" TextTrimming="CharacterEllipsis" /></StackPanel>
                                 <Button Grid.Column="2" Margin="0,0,4,0" Style="{StaticResource SidebarIconButtonStyle}" Click="Settings_OnClick" ToolTip="Cài đặt ứng dụng" Content="⚙" /><Button Grid.Column="3" Style="{StaticResource SidebarIconButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="Logout_OnClick" ToolTip="Đăng xuất" Content="↪" />
                             </Grid>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
-                                <Button Width="30" Height="28" Margin="0,0,0,4" Style="{StaticResource SidebarIconButtonStyle}" Click="Settings_OnClick" ToolTip="Cài đặt ứng dụng" Content="⚙" /><Button Width="30" Height="28" Style="{StaticResource SidebarIconButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="Logout_OnClick" ToolTip="Đăng xuất" Content="↪" />
+                                <Button Width="30" Height="26" Margin="0,0,0,3" Style="{StaticResource SidebarIconButtonStyle}" Click="Settings_OnClick" ToolTip="Cài đặt ứng dụng" Content="⚙" /><Button Width="30" Height="26" Style="{StaticResource SidebarIconButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="Logout_OnClick" ToolTip="Đăng xuất" Content="↪" />
                             </StackPanel>
                         </Grid>
                     </Border>

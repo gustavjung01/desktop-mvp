@@ -900,7 +900,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         }
     }
 
-    public GridLength SidebarWidth => new(IsSidebarExpanded ? 240 : 64);
+    public GridLength SidebarWidth => new(IsSidebarExpanded ? 224 : 64);
 
     public int SelectedSettingsIndex
     {
