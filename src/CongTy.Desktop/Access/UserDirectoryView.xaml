@@ -210,13 +210,9 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Phạm vi chi nhánh &amp; kho"
-                     IsEnabled="False"
-                     ToolTip="Phần phạm vi sẽ được bật ở Lô 3.">
-                <Border Margin="0,8,0,0" Style="{StaticResource OfficeCardStyle}">
-                    <TextBlock Text="Phạm vi chi nhánh và kho"
-                               Foreground="{DynamicResource TextSecondaryBrush}" />
-                </Border>
+            <TabItem Header="Phạm vi chi nhánh &amp; kho">
+                <ContentControl x:Name="UserScopeHost"
+                                Margin="0,8,0,0" />
             </TabItem>
         </TabControl>
 
