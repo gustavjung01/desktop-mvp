@@ -39,7 +39,7 @@ public sealed class DataExchangeParityTests
             "core.stocktake.create",
             "core.stocktake.count",
             "core.inventory.read"
-        }) StringAssert.Contains(source, $""{permission}"");
+        }) StringAssert.Contains(source, $"\\\"{permission}\\\"");
 
         StringAssert.Contains(source, "_importOperationKey ??=");
         StringAssert.Contains(source, "_idempotencyKeys.Create(ImportScope(PendingKind))");
@@ -94,7 +94,7 @@ public sealed class DataExchangeParityTests
             "sku", "skuName", "variantKind", "isInventoryBase", "isSellable",
             "isCatalogVisible", "isActive", "unitCode", "conversionToBase",
             "lotTrackingMode", "expiryTrackingMode"
-        }) StringAssert.Contains(source, $""{column}"");
+        }) StringAssert.Contains(source, $"\\\"{column}\\\"");
 
         StringAssert.Contains(viewModel, "SKU dùng làm đơn vị tồn chuẩn phải có Hệ số quy đổi = 1.");
         StringAssert.Contains(viewModel, "muốn quản lý hạn sử dụng thì phải bật Quản lý theo lô.");
@@ -119,15 +119,15 @@ public sealed class DataExchangeParityTests
         var hook = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.OrderManagement.cs");
         var xaml = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
 
-        StringAssert.Contains(shell, ""operations.data-exchange"");
+        StringAssert.Contains(shell, "\\\"operations.data-exchange\\\"");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex == 44");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 44");
         StringAssert.Contains(host, "workspaceTabs.Items[44]");
-        StringAssert.Contains(host, ""DỮ LIỆU VẬN HÀNH"");
-        StringAssert.Contains(host, ""Nhập/xuất dữ liệu và báo giá"");
+        StringAssert.Contains(host, "\\\"DỮ LIỆU VẬN HÀNH\\\"");
+        StringAssert.Contains(host, "\\\"Nhập/xuất dữ liệu và báo giá\\\"");
         StringAssert.Contains(hook, "WireSupplierPaymentsWorkspace();");
         StringAssert.Contains(hook, "WireDataExchangeWorkspace();");
-        StringAssert.Contains(xaml, "Text="Nhập/xuất dữ liệu"");
+        StringAssert.Contains(xaml, "Text=\\\"Nhập/xuất dữ liệu\\\"");
     }
 
     private static string ReadRepoFile(params string[] parts)
