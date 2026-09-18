@@ -25,6 +25,7 @@ public partial class MainWindow
         WireImportExportHistoryWorkspace();
         WireDataBackupWorkspace();
         WireMcpRoutesWorkspace();
+        WireAccessRolesWorkspace();
     }
 
     private void WireOrderManagementWorkspace()
