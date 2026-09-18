@@ -45,9 +45,24 @@ public static class AccessRolePresentation
         foreach (var character in decomposed)
         {
             if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
-                builder.Append(character);
+                builder.Append(character == 'đ' ? 'd' : character);
         }
         return builder.ToString().Normalize(NormalizationForm.FormC);
+    }
+
+    public static string PermissionPreview(
+        AccessRoleData role,
+        IReadOnlyDictionary<string, string> permissionLabels)
+    {
+        if (role.PermissionKeys.Length == 0) return "Chưa gán quyền";
+
+        var labels = role.PermissionKeys
+            .Take(2)
+            .Select(key => permissionLabels.TryGetValue(key, out var label) ? label : key)
+            .ToList();
+        if (role.PermissionKeys.Length > 2)
+            labels.Add($"+{role.PermissionKeys.Length - 2:N0} quyền khác");
+        return string.Join(" · ", labels);
     }
 }
 
@@ -56,12 +71,12 @@ public sealed record AccessRoleRowView(
     string Code,
     string Name,
     string Description,
+    string LoginChallengeText,
     string PermissionCountText,
+    string PermissionPreviewText,
     string StatusText,
     bool IsActive,
-    string UpdatedAtText,
-    string ChallengeText,
-    string SearchText);
+    string UpdatedAtText);
 
 public sealed class PermissionOptionView : System.ComponentModel.INotifyPropertyChanged
 {

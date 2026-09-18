@@ -40,11 +40,14 @@ public partial class MainWindow
         sidebarButton.Click += AccessRoles_OnClick;
 
         var app = (CongTy.Desktop.App)Application.Current;
-        var service = new AccessRoleReadService(
-            app.ResolveRequired<CompanyApiClient>(),
-            app.ResolveRequired<IAuthenticatedSessionAccessor>());
+        var apiClient = app.ResolveRequired<CompanyApiClient>();
+        var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();
+        var readService = new AccessRoleReadService(apiClient, session);
+        var mutationService = new AccessRoleMutationService(apiClient, session);
         var view = new AccessRolesView(new AccessRolesViewModel(
-            service,
+            readService,
+            mutationService,
+            app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
 
         while (workspaceTabs.Items.Count <= 51)
