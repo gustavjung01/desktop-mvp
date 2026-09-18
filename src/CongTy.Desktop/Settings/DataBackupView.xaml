@@ -188,7 +188,7 @@
                                      Height="8"
                                      Minimum="0"
                                      Maximum="100"
-                                     Value="{Binding ActiveProgress}" />
+                                     Value="{Binding ActiveProgress, Mode=OneWay}" />
                         <TextBlock Style="{StaticResource SectionHintStyle}"
                                    Text="Có thể rời màn hình này; tiến trình vẫn tiếp tục và trạng thái sẽ được cập nhật khi quay lại." />
                     </StackPanel>
@@ -252,10 +252,10 @@
                                   CanUserAddRows="False"
                                   IsReadOnly="True">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Yêu cầu lúc" Width="1.25*" Binding="{Binding RequestedAt}" />
-                                <DataGridTextColumn Header="Trạng thái" Width="1.1*" Binding="{Binding Status}" />
-                                <DataGridTextColumn Header="Thời điểm dữ liệu" Width="1.25*" Binding="{Binding SnapshotAt}" />
-                                <DataGridTextColumn Header="Dung lượng .dump" Width="1*" Binding="{Binding DumpSize}" />
+                                <DataGridTextColumn Header="Yêu cầu lúc" Width="1.25*" Binding="{Binding RequestedAt, Mode=OneWay}" />
+                                <DataGridTextColumn Header="Trạng thái" Width="1.1*" Binding="{Binding Status, Mode=OneWay}" />
+                                <DataGridTextColumn Header="Thời điểm dữ liệu" Width="1.25*" Binding="{Binding SnapshotAt, Mode=OneWay}" />
+                                <DataGridTextColumn Header="Dung lượng .dump" Width="1*" Binding="{Binding DumpSize, Mode=OneWay}" />
                                 <DataGridTemplateColumn Header="Tải tệp" Width="1.55*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>

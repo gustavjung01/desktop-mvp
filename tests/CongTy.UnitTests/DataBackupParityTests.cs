@@ -99,6 +99,11 @@ public sealed class DataBackupParityTests
         Assert.IsFalse(view.Contains("DATABASE_URL", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains("NPP Core", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains("@gmail.com", StringComparison.OrdinalIgnoreCase));
+        StringAssert.Contains(view, "Value=\\\"{Binding ActiveProgress, Mode=OneWay}\\\"");
+        StringAssert.Contains(view, "Binding=\\\"{Binding RequestedAt, Mode=OneWay}\\\"");
+        StringAssert.Contains(view, "Binding=\\\"{Binding Status, Mode=OneWay}\\\"");
+        StringAssert.Contains(view, "Binding=\\\"{Binding SnapshotAt, Mode=OneWay}\\\"");
+        StringAssert.Contains(view, "Binding=\\\"{Binding DumpSize, Mode=OneWay}\\\"");
     }
 
     [TestMethod]
