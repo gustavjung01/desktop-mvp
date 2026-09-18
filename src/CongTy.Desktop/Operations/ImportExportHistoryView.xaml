@@ -1,10 +1,10 @@
-<UserControl x:Class="CongTy.Desktop.Operations.AuditHistoryView"
+<UserControl x:Class="CongTy.Desktop.Operations.ImportExportHistoryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Loaded="AuditHistoryView_OnLoaded">
+             Loaded="ImportExportHistoryView_OnLoaded">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-        <Style x:Key="AuditMessageStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+        <Style x:Key="ImportExportHistoryMessageStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
             <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
             <Style.Triggers>
@@ -29,7 +29,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Border Style="{StaticResource AuditMessageStyle}"
+            <Border Style="{StaticResource ImportExportHistoryMessageStyle}"
                     Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
                 <TextBlock Text="{Binding Message, Mode=OneWay}" TextWrapping="Wrap" />
             </Border>
@@ -37,8 +37,12 @@
             <StackPanel Grid.Column="1" Margin="12,0,0,0" Orientation="Horizontal">
                 <Button Margin="0,0,8,0"
                         Style="{StaticResource OfficeSecondaryButtonStyle}"
-                        Click="OpenImportExportHistory_OnClick"
-                        Content="Lịch sử nhập/xuất dữ liệu" />
+                        Click="OpenDataExchange_OnClick"
+                        Content="Nhập/xuất dữ liệu và báo giá" />
+                <Button Margin="0,0,8,0"
+                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                        Click="OpenAuditHistory_OnClick"
+                        Content="Lịch sử thay đổi" />
                 <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
                         IsEnabled="{Binding CanUseFilter}"
                         Click="Refresh_OnClick"
@@ -49,8 +53,10 @@
         <Border Grid.Row="1" Margin="0,12,0,0" Style="{StaticResource OfficeCardStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="220" />
-                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="190" />
+                    <ColumnDefinition Width="190" />
+                    <ColumnDefinition Width="190" />
+                    <ColumnDefinition Width="190" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -62,25 +68,34 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,4" FontWeight="SemiBold" Text="Từ ngày" />
                 <TextBlock Grid.Row="0" Grid.Column="1" Margin="4,0,8,4" FontWeight="SemiBold" Text="Đến ngày" />
+                <TextBlock Grid.Row="0" Grid.Column="2" Margin="4,0,8,4" FontWeight="SemiBold" Text="Loại thao tác" />
+                <TextBlock Grid.Row="0" Grid.Column="3" Margin="4,0,8,4" FontWeight="SemiBold" Text="Trạng thái" />
+
                 <DatePicker Grid.Row="1" Grid.Column="0" Margin="0,0,8,0"
                             SelectedDate="{Binding FromDate, Mode=TwoWay}" />
                 <DatePicker Grid.Row="1" Grid.Column="1" Margin="4,0,8,0"
                             SelectedDate="{Binding ToDate, Mode=TwoWay}" />
-                <Button Grid.Row="1" Grid.Column="2" Margin="4,0,8,0"
+                <ComboBox Grid.Row="1" Grid.Column="2" Margin="4,0,8,0"
+                          ItemsSource="{Binding DirectionOptions}"
+                          SelectedItem="{Binding SelectedDirection, Mode=TwoWay}" />
+                <ComboBox Grid.Row="1" Grid.Column="3" Margin="4,0,8,0"
+                          ItemsSource="{Binding StatusOptions}"
+                          SelectedItem="{Binding SelectedStatus, Mode=TwoWay}" />
+                <Button Grid.Row="1" Grid.Column="4" Margin="4,0,8,0"
                         Style="{StaticResource OfficePrimaryButtonStyle}"
                         IsEnabled="{Binding CanUseFilter}"
                         Click="ApplyFilter_OnClick"
                         Content="Lọc lịch sử" />
-                <Button Grid.Row="1" Grid.Column="3"
+                <Button Grid.Row="1" Grid.Column="5"
                         Style="{StaticResource OfficeSecondaryButtonStyle}"
                         IsEnabled="{Binding CanUseFilter}"
                         Click="ClearFilter_OnClick"
                         Content="Xóa lọc" />
-                <TextBlock Grid.Row="1" Grid.Column="4"
+                <TextBlock Grid.Row="1" Grid.Column="6"
                            Margin="16,0,0,0"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource TextSecondaryBrush}"
-                           Text="Để trống ngày để xem kỳ mặc định của hệ thống." />
+                           Text="Để trống ngày và chọn Tất cả để xem kỳ mặc định của hệ thống." />
             </Grid>
         </Border>
 
@@ -92,34 +107,76 @@
                           CanUserAddRows="False"
                           IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Thời điểm" Width="1.15*" Binding="{Binding OccurredAt}" />
-                        <DataGridTextColumn Header="Thao tác" Width="1.05*" Binding="{Binding Action}" />
-                        <DataGridTextColumn Header="Loại dữ liệu" Width="1.25*" Binding="{Binding ResourceType}" />
-                        <DataGridTextColumn Header="Người thực hiện" Width="1.25*" Binding="{Binding Actor}" />
-                        <DataGridTextColumn Header="Nguồn thao tác" Width="1.4*" Binding="{Binding Source}" />
-                        <DataGridTemplateColumn Header="Nội dung thay đổi" Width="2.2*">
+                        <DataGridTemplateColumn Header="Thời gian" Width="1.2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding RequestedAt}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Text="{Binding Format}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Loại thao tác" Width="1.05*" Binding="{Binding Direction}" />
+                        <DataGridTextColumn Header="Nhóm dữ liệu" Width="1.2*" Binding="{Binding Definition}" />
+                        <DataGridTemplateColumn Header="Trạng thái" Width="1.2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock FontWeight="SemiBold" Text="{Binding Status}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Text="{Binding CompletedAt}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Người thực hiện" Width="1.3*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock FontWeight="SemiBold" Text="{Binding Actor}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Text="{Binding Source}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Kết quả" Width="2.2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,2">
-                                        <TextBlock Text="{Binding ChangeSummary}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding RowCount}" />
+                                        <TextBlock Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Text="{Binding ResultState}" />
                                         <Expander Margin="0,4,0,0" Header="Thông tin kỹ thuật">
                                             <StackPanel Margin="8,4,0,4">
                                                 <TextBlock TextWrapping="Wrap">
                                                     <TextBlock.Inlines>
-                                                        <Run Text="Mã thao tác: " />
-                                                        <Run Text="{Binding TechnicalAction, Mode=OneWay}" />
+                                                        <Run Text="Mã tác vụ: " />
+                                                        <Run Text="{Binding JobId, Mode=OneWay}" />
                                                     </TextBlock.Inlines>
                                                 </TextBlock>
                                                 <TextBlock Margin="0,2,0,0" TextWrapping="Wrap">
                                                     <TextBlock.Inlines>
-                                                        <Run Text="Loại dữ liệu: " />
-                                                        <Run Text="{Binding TechnicalResourceType, Mode=OneWay}" />
+                                                        <Run Text="Mã truy vết: " />
+                                                        <Run Text="{Binding TechnicalRequestId, Mode=OneWay}" />
                                                     </TextBlock.Inlines>
                                                 </TextBlock>
                                                 <TextBlock Margin="0,2,0,0" TextWrapping="Wrap">
                                                     <TextBlock.Inlines>
-                                                        <Run Text="Mã bản ghi: " />
-                                                        <Run Text="{Binding TechnicalResourceId, Mode=OneWay}" />
+                                                        <Run Text="Nhóm dữ liệu hệ thống: " />
+                                                        <Run Text="{Binding TechnicalDefinitionKey, Mode=OneWay}" />
+                                                    </TextBlock.Inlines>
+                                                </TextBlock>
+                                                <TextBlock Margin="0,2,0,0" TextWrapping="Wrap">
+                                                    <TextBlock.Inlines>
+                                                        <Run Text="Phiên bản cấu hình: " />
+                                                        <Run Text="{Binding TechnicalDefinitionVersion, Mode=OneWay}" />
                                                     </TextBlock.Inlines>
                                                 </TextBlock>
                                                 <TextBlock Margin="0,2,0,0" TextWrapping="Wrap">
@@ -134,10 +191,12 @@
                                                         <Run Text="{Binding TechnicalSourceApp, Mode=OneWay}" />
                                                     </TextBlock.Inlines>
                                                 </TextBlock>
-                                                <TextBlock Margin="0,2,0,0" TextWrapping="Wrap">
+                                                <TextBlock Margin="0,2,0,0"
+                                                           TextWrapping="Wrap"
+                                                           Visibility="{Binding HasFailureCode, Converter={StaticResource BoolToVisibility}}">
                                                     <TextBlock.Inlines>
-                                                        <Run Text="Mã truy vết: " />
-                                                        <Run Text="{Binding TechnicalRequestId, Mode=OneWay}" />
+                                                        <Run Text="Mã lỗi: " />
+                                                        <Run Text="{Binding TechnicalFailureCode, Mode=OneWay}" />
                                                     </TextBlock.Inlines>
                                                 </TextBlock>
                                             </StackPanel>
@@ -152,7 +211,7 @@
                 <TextBlock HorizontalAlignment="Center"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource TextSecondaryBrush}"
-                           Text="Chưa có thay đổi nào trong phạm vi lọc."
+                           Text="Chưa có lần nhập/xuất nào trong phạm vi lọc."
                            Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
             </Grid>
         </Border>
@@ -160,6 +219,7 @@
         <Grid Grid.Row="3" Margin="0,12,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -169,7 +229,6 @@
                        Foreground="{DynamicResource TextSecondaryBrush}"
                        Text="{Binding PageText, Mode=OneWay}" />
             <Button Grid.Column="2"
-                    HorizontalAlignment="Left"
                     Style="{StaticResource OfficeSecondaryButtonStyle}"
                     IsEnabled="{Binding CanLoadNext}"
                     Click="NextPage_OnClick"

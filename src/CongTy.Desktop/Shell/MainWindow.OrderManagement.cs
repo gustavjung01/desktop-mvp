@@ -22,6 +22,7 @@ public partial class MainWindow
         WireSupplierPaymentsWorkspace();
         WireDataExchangeWorkspace();
         WireAuditHistoryWorkspace();
+        WireImportExportHistoryWorkspace();
     }
 
     private void WireOrderManagementWorkspace()

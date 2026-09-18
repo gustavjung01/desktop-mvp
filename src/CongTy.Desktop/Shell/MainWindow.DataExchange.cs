@@ -49,7 +49,9 @@ public partial class MainWindow
             service,
             app.ResolveRequired<IAccessStateService>(),
             idempotency);
-        var view = new DataExchangeView(viewModel);
+        var view = new DataExchangeView(
+            viewModel,
+            NavigateImportExportHistoryFromOtherWorkspaceAsync);
 
         while (workspaceTabs.Items.Count <= 44)
             workspaceTabs.Items.Add(new TabItem());

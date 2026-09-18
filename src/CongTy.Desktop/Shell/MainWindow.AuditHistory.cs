@@ -46,7 +46,9 @@ public partial class MainWindow
         var viewModel = new AuditHistoryViewModel(
             service,
             app.ResolveRequired<IAccessStateService>());
-        var view = new AuditHistoryView(viewModel);
+        var view = new AuditHistoryView(
+            viewModel,
+            NavigateImportExportHistoryFromOtherWorkspaceAsync);
 
         while (workspaceTabs.Items.Count <= 45)
             workspaceTabs.Items.Add(new TabItem());
