@@ -903,7 +903,8 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(sales,"Header=\"Đơn khác đang giữ\"");
         StringAssert.Contains(sales,"Header=\"Khả dụng cho đơn này\"");
         StringAssert.Contains(print,"PHIẾU XUẤT KHO");
-        StringAssert.Contains(print,"DocumentViewer");
+        StringAssert.Contains(print,"FlowDocumentPageViewer");
+        StringAssert.Contains(print,"DocumentPrintTemplateRuntime.CreateDocument(template)");
         StringAssert.Contains(print,"PrintDialog");
     }
 

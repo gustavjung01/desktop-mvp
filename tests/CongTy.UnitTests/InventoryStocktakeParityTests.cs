@@ -109,7 +109,9 @@ public sealed class InventoryStocktakeParityTests
             StringAssert.Contains(xaml, expected);
         }
 
-        StringAssert.Contains(code, "new PrintDialog()");
+        StringAssert.Contains(code, "DocumentPrintTemplateRuntime.LoadForPrintAsync");
+        StringAssert.Contains(code, "\"STOCKTAKE\"");
+        StringAssert.Contains(code, "StocktakePrintPreview.Print(stocktake, _viewModel.Lines.ToArray(), template)");
         StringAssert.Contains(code, "Key.F5");
         StringAssert.Contains(code, "Key.Escape");
         StringAssert.Contains(code, "ModifierKeys.Control && e.Key == Key.F");

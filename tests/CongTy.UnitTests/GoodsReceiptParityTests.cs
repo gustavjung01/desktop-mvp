@@ -144,7 +144,9 @@ public sealed class GoodsReceiptParityTests
             StringAssert.Contains(view, marker);
         }
 
-        StringAssert.Contains(code, "GoodsReceiptPrintPreview.Create(receipt)");
+        StringAssert.Contains(code, "DocumentPrintTemplateRuntime.LoadForPrintAsync");
+        StringAssert.Contains(code, "\"GOODS_RECEIPT\"");
+        StringAssert.Contains(code, "GoodsReceiptPrintPreview.Create(receipt, template)");
         StringAssert.Contains(code, "PreparePostAsync(row)");
         StringAssert.Contains(code, "ConfirmReverseAsync()");
         StringAssert.Contains(code, "SupplierReturnRequested?.Invoke(receiptId)");

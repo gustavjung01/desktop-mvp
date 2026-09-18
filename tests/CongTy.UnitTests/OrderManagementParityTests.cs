@@ -79,9 +79,9 @@ public sealed class OrderManagementParityTests
         var source=ReadRepoFile("src","CongTy.Desktop","Sales","SalesOrderPrintPreview.cs");
         StringAssert.Contains(source,"ShowBatch");
         StringAssert.Contains(source,"BuildBatchDocument");
-        StringAssert.Contains(source,"AppendOrder(document,item.Order,item.Version,index>0)");
+        StringAssert.Contains(source,"AppendOrder(document, item.Order, item.Version, template, index > 0)");
         StringAssert.Contains(source,"PHIẾU XUẤT KHO");
-        StringAssert.Contains(source,"TryPrintBatch(window,document,items.Count)");
+        StringAssert.Contains(source,"TryPrintBatch(window, document, items.Count, template)");
         StringAssert.Contains(source,"Phiếu xuất kho · {count:N0} đơn");
     }
 

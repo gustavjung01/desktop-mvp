@@ -147,7 +147,9 @@ public sealed class PurchaseOrderParityTests
 
         StringAssert.Contains(view, "Text=\"Lịch sử nhận hàng\"");
         StringAssert.Contains(view, "Text=\"Tổng cộng\"");
-        StringAssert.Contains(code, "PurchaseOrderPrintPreview.Create(order)");
+        StringAssert.Contains(code, "DocumentPrintTemplateRuntime.LoadForPrintAsync");
+        StringAssert.Contains(code, "\"PURCHASE_ORDER\"");
+        StringAssert.Contains(code, "PurchaseOrderPrintPreview.Create(order, template)");
         StringAssert.Contains(code, "PurchaseOrderBulkImport.CreateTemplate()");
         StringAssert.Contains(code, "PurchaseOrderBulkImport.ReadXlsx");
     }
