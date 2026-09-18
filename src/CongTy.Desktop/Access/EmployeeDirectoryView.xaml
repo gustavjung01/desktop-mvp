@@ -236,7 +236,7 @@
                                                 <Button Padding="9,4"
                                                         IsEnabled="False"
                                                         ToolTip="Thay đổi trạng thái sẽ được bật sau khi hoàn tất kiểm soát cập nhật hồ sơ."
-                                                        Content="{Binding StatusText}" />
+                                                        Content="{Binding ToggleActionText}" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

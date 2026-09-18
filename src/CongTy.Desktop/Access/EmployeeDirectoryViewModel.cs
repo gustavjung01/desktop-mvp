@@ -393,6 +393,7 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
                     string.IsNullOrWhiteSpace(employee.Phone) ? "Chưa có số điện thoại" : employee.Phone.Trim(),
                     string.IsNullOrWhiteSpace(employee.Email) ? "Chưa có email" : employee.Email.Trim(),
                     employee.IsActive ? "Đang làm việc" : "Ngừng làm việc",
+                    employee.IsActive ? "Ngừng làm việc" : "Đưa trở lại làm việc",
                     employee.IsActive,
                     EmployeeDirectoryPresentation.DateTimeText(employee.UpdatedAt));
             })

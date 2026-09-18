@@ -12,7 +12,7 @@ public static class EmployeeDirectoryPresentation
     {
         if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
             return string.IsNullOrWhiteSpace(value) ? "—" : value.Trim();
-        return parsed.ToLocalTime().ToString("dd/MM/yyyy HH:mm", Vietnamese);
+        return parsed.ToOffset(TimeSpan.FromHours(7)).ToString("dd/MM/yyyy HH:mm", Vietnamese);
     }
 
     public static string NormalizeSearch(string? value)
@@ -43,6 +43,7 @@ public sealed record EmployeeDirectoryRowView(
     string PhoneText,
     string EmailText,
     string StatusText,
+    string ToggleActionText,
     bool IsActive,
     string UpdatedAtText);
 
