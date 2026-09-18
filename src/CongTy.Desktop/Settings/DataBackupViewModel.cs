@@ -46,7 +46,7 @@ public static class DataBackupPresentation
         };
 
     public static string Status(string value) =>
-        StatusLabels.TryGetValue(value ?? string.Empty, out var label) ? label : value;
+        StatusLabels.TryGetValue(value ?? string.Empty, out var label) ? label : value ?? string.Empty;
 
     public static string Time(string? value)
     {
