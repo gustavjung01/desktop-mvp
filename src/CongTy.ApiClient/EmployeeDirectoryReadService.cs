@@ -36,7 +36,7 @@ public sealed class EmployeeDirectoryReadService(
     public async Task<IReadOnlyList<EmployeeDirectoryBranchData>> ListBranchesAsync(
         CancellationToken cancellationToken = default) =>
         await apiClient.GetDataAsync<EmployeeDirectoryBranchData[]>(
-            "/api/organization/branches?limit=1000&offset=0",
+            "/api/branches?limit=1000&offset=0",
             RequireToken(),
             cancellationToken).ConfigureAwait(false);
 
