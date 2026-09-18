@@ -8,8 +8,8 @@
 ## Visual treatment
 - Keep the existing green Desktop palette.
 - Use a restrained translucent sidebar surface rather than a fully opaque block.
-- Compact rounded navigation rows with clearer hover/active hierarchy.
-- Preserve the existing expanded/collapsed behavior.
+- Compact rounded navigation rows with clearer hover/active hierarchy.\n- Hide the rail scrollbar chrome while preserving mouse-wheel scrolling and permission-driven menu visibility.
+- Keep expanded navigation inline, and make the collapsed state a true 64px icon rail with right-side group flyouts.
 - Apply the treatment consistently in light and dark themes.
 
 ## Boundary

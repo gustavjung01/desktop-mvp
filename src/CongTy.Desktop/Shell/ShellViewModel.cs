@@ -900,7 +900,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         }
     }
 
-    public GridLength SidebarWidth => new(IsSidebarExpanded ? 280 : 84);
+    public GridLength SidebarWidth => new(IsSidebarExpanded ? 240 : 64);
 
     public int SelectedSettingsIndex
     {
@@ -1499,17 +1499,35 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
 
     public void ToggleNavigationGroup(string group)
     {
-        if (!IsSidebarExpanded) IsSidebarExpanded = true;
+        var shouldOpen = group switch
+        {
+            "catalog" => !IsCatalogOpen,
+            "inventory" => !IsInventoryOpen,
+            "logistics" => !IsLogisticsOpen,
+            "sales" => !IsSalesOpen,
+            "purchasing" => !IsPurchasingOpen,
+            "accounting" => !IsAccountingOpen,
+            "company-settings" => !IsCompanySettingsOpen,
+            "access" => !IsAccessOpen,
+            _ => false
+        };
+
+        CloseNavigationGroups();
+        if (!shouldOpen)
+        {
+            return;
+        }
+
         switch (group)
         {
-            case "catalog": IsCatalogOpen = !IsCatalogOpen; break;
-            case "inventory": IsInventoryOpen = !IsInventoryOpen; break;
-            case "logistics": IsLogisticsOpen = !IsLogisticsOpen; break;
-            case "sales": IsSalesOpen = !IsSalesOpen; break;
-            case "purchasing": IsPurchasingOpen = !IsPurchasingOpen; break;
-            case "accounting": IsAccountingOpen = !IsAccountingOpen; break;
-            case "company-settings": IsCompanySettingsOpen = !IsCompanySettingsOpen; break;
-            case "access": IsAccessOpen = !IsAccessOpen; break;
+            case "catalog": IsCatalogOpen = true; break;
+            case "inventory": IsInventoryOpen = true; break;
+            case "logistics": IsLogisticsOpen = true; break;
+            case "sales": IsSalesOpen = true; break;
+            case "purchasing": IsPurchasingOpen = true; break;
+            case "accounting": IsAccountingOpen = true; break;
+            case "company-settings": IsCompanySettingsOpen = true; break;
+            case "access": IsAccessOpen = true; break;
         }
     }
 
@@ -2166,7 +2184,22 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsCodAccountingSelected));
     }
 
-    private void CloseNavigationGroups()
+    public void CloseNavigationGroup(string group)
+    {
+        switch (group)
+        {
+            case "catalog": IsCatalogOpen = false; break;
+            case "inventory": IsInventoryOpen = false; break;
+            case "logistics": IsLogisticsOpen = false; break;
+            case "sales": IsSalesOpen = false; break;
+            case "purchasing": IsPurchasingOpen = false; break;
+            case "accounting": IsAccountingOpen = false; break;
+            case "company-settings": IsCompanySettingsOpen = false; break;
+            case "access": IsAccessOpen = false; break;
+        }
+    }
+
+    public void CloseNavigationGroups()
     {
         IsCatalogOpen = false;
         IsInventoryOpen = false;
