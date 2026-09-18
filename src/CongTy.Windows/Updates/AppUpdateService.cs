@@ -264,27 +264,23 @@ public sealed class AppUpdateService : IAppUpdateService, IDisposable
         }
     }
 
-    public static bool IsExecutableInInstallDirectory(string? installDirectory, string? executablePath)
+    public static bool IsApplicationBaseDirectoryInInstallDirectory(
+        string? installDirectory,
+        string? appBaseDirectory)
     {
         if (string.IsNullOrWhiteSpace(installDirectory)
-            || string.IsNullOrWhiteSpace(executablePath))
+            || string.IsNullOrWhiteSpace(appBaseDirectory))
             return false;
 
         try
         {
             var install = Path.TrimEndingDirectorySeparator(Path.GetFullPath(installDirectory));
-            var executable = Path.GetFullPath(executablePath);
-            var executableDirectory = Path.TrimEndingDirectorySeparator(
-                Path.GetDirectoryName(executable) ?? string.Empty);
+            var applicationBase = Path.TrimEndingDirectorySeparator(Path.GetFullPath(appBaseDirectory));
 
             return string.Equals(
-                       install,
-                       executableDirectory,
-                       StringComparison.OrdinalIgnoreCase)
-                && string.Equals(
-                    Path.GetFileName(executable),
-                    "CongTy.Desktop.exe",
-                    StringComparison.OrdinalIgnoreCase);
+                install,
+                applicationBase,
+                StringComparison.OrdinalIgnoreCase);
         }
         catch (Exception exception) when (
             exception is ArgumentException
@@ -453,7 +449,9 @@ public sealed class AppUpdateService : IAppUpdateService, IDisposable
     {
         using var key = Registry.CurrentUser.OpenSubKey(RegistryPath, writable: false);
         var installDirectory = key?.GetValue("InstallDir") as string;
-        return IsExecutableInInstallDirectory(installDirectory, Environment.ProcessPath);
+        return IsApplicationBaseDirectoryInInstallDirectory(
+            installDirectory,
+            AppContext.BaseDirectory);
     }
 
     private static string ReadCurrentVersion()
