@@ -1383,6 +1383,9 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(shellCode, "OpenProductsAsync(this)");
         StringAssert.Contains(shellCode, "OpenCustomersAsync(this)");
         StringAssert.Contains(shellCode, "OpenSalesOrderCreateAsync(this)");
+        StringAssert.Contains(shellCode, "_quickActionsOpenedByHover");
+        StringAssert.Contains(shellCode, "if (_quickActionsOpen && _quickActionsOpenedByHover)");
+        StringAssert.Contains(shellCode, "_quickActionsOpenedByHover = false;");
         StringAssert.Contains(windowService, "ActivatorUtilities.CreateInstance<ProductViewModel>");
         StringAssert.Contains(windowService, "ActivatorUtilities.CreateInstance<PartnerViewModel>");
         StringAssert.Contains(windowService, "ActivatorUtilities.CreateInstance<SalesViewModel>");
