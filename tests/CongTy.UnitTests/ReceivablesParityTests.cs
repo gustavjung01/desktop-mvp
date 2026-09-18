@@ -107,7 +107,7 @@ public sealed class ReceivablesParityTests
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 39");
         StringAssert.Contains(shell, "NavigateReceivablesAsync");
         StringAssert.Contains(shell, "IsReceivablesSelected");
-        StringAssert.Contains(host, "text.Text == \"Công nợ phải thu\"");
+        Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host, "workspaceTabs.Items[39]");
         StringAssert.Contains(host, "ResolveRequired<CompanyApiClient>()");
         StringAssert.Contains(host, "ResolveRequired<IAuthenticatedSessionAccessor>()");
@@ -115,7 +115,7 @@ public sealed class ReceivablesParityTests
         StringAssert.Contains(host, "\"Công nợ phải thu\"");
         StringAssert.Contains(host, "\"KẾ TOÁN & CÔNG NỢ\"");
         StringAssert.Contains(shellHook, "WireReceivablesWorkspace();");
-        StringAssert.Contains(xaml, "IsEnabled=\"False\"><TextBlock Text=\"Công nợ phải thu\" /></Button>");
+        StringAssert.Contains(xaml, "Click=\"Receivables_OnClick\"");
     }
 
     private static string ReadRepoFile(params string[] parts)

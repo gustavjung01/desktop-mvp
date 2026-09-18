@@ -33,7 +33,7 @@ public sealed class AccessRolesReadParityTests
         StringAssert.Contains(shell, "SetSelectedNavigation(\"access.roles\")");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 51");
         StringAssert.Contains(shell, "IsAccessOpen = true");
-        StringAssert.Contains(host, "text.Text == \"Vai trò và phân quyền\"");
+        Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host, "workspaceTabs.Items[51]");
         StringAssert.Contains(bootstrap, "WireAccessRolesWorkspace()");
     }

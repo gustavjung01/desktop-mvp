@@ -139,7 +139,7 @@ public sealed class CustomerPaymentParityTests
         StringAssert.Contains(host, "\"KẾ TOÁN BÁN HÀNG\"");
         StringAssert.Contains(hook, "WireReceivablesWorkspace();");
         StringAssert.Contains(hook, "WireCustomerPaymentsWorkspace();");
-        StringAssert.Contains(xaml, "IsEnabled=\"False\"><TextBlock Text=\"Thu tiền khách hàng\" /></Button>");
+        StringAssert.Contains(xaml, "Click=\"CustomerPayments_OnClick\"");
     }
 
     private static string ReadRepoFile(params string[] parts)

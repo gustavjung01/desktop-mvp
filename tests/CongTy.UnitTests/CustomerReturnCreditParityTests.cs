@@ -87,7 +87,7 @@ public sealed class CustomerReturnCreditParityTests
         StringAssert.Contains(host, "\"Điều chỉnh công nợ hàng trả\"");
         StringAssert.Contains(host, "\"KẾ TOÁN BÁN HÀNG\"");
         StringAssert.Contains(hook, "WireCustomerReturnCreditsWorkspace();");
-        StringAssert.Contains(xaml, "IsEnabled=\"False\"><TextBlock Text=\"Điều chỉnh công nợ hàng trả\" /></Button>");
+        StringAssert.Contains(xaml, "Click=\"CustomerReturnCredits_OnClick\"");
     }
 
     private static string ReadRepoFile(params string[] parts)

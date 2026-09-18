@@ -84,11 +84,10 @@ public sealed class CustomerOnboardingParityTests
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 38");
         StringAssert.Contains(shell, "NavigateCustomerOnboardingAsync");
         StringAssert.Contains(shell, "IsCustomerOnboardingSelected");
-        StringAssert.Contains(host, "text.Text == \"Mở/liên kết mã khách\"");
-        StringAssert.Contains(host, "sidebarButton.IsEnabled = true");
+        Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host, "ResolveRequired<CustomerOnboardingView>()");
         StringAssert.Contains(host, "workspaceTabs.Items[38]");
-        StringAssert.Contains(xaml, "IsEnabled=\"False\"><TextBlock Text=\"Mở/liên kết mã khách\" /></Button>");
+        StringAssert.Contains(xaml, "Click=\"CustomerOnboarding_OnClick\"");
     }
 
     private static string ReadRepoFile(params string[] parts)
