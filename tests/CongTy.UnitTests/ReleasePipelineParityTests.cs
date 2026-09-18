@@ -22,6 +22,12 @@ public sealed class ReleasePipelineParityTests
         StringAssert.Contains(script, "downloadPath = $installerName");
         StringAssert.Contains(script, "Get-FileHash");
         StringAssert.Contains(script, "SHA256");
+        StringAssert.Contains(script, "New-Object System.Text.UTF8Encoding($false)");
+        StringAssert.Contains(script, "[IO.File]::WriteAllText($manifestPath, $manifestJson, $utf8NoBom)");
+        Assert.IsFalse(
+            script.Contains(
+                "Set-Content -LiteralPath $manifestPath -Encoding utf8",
+                StringComparison.Ordinal));
     }
 
     [TestMethod]
