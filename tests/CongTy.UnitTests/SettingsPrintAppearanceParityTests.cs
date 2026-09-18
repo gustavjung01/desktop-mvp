@@ -79,7 +79,7 @@ public sealed class SettingsPrintAppearanceParityTests
 
         Assert.AreEqual("SALES_ORDER", template.DocumentType);
         Assert.AreEqual("A4", template.PageSize);
-        Assert.AreEqual(2, template.VisibleFieldKeys.Length);
+        Assert.HasCount(2, template.VisibleFieldKeys);
         Assert.AreEqual("line_item", template.Fields[0].Key);
         Assert.IsTrue(template.Fields[0].Required);
         Assert.AreEqual("right", template.TitleAlign);
