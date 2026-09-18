@@ -23,6 +23,7 @@ public partial class MainWindow
         WireDataExchangeWorkspace();
         WireAuditHistoryWorkspace();
         WireImportExportHistoryWorkspace();
+        WireDataBackupWorkspace();
     }
 
     private void WireOrderManagementWorkspace()
