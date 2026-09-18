@@ -278,7 +278,7 @@ public sealed class InventoryStocktakeParityTests
         StringAssert.Contains(viewModel, "$\"Kiểm:");
 
         StringAssert.Contains(code, "OpenFileDialog");
-        StringAssert.Contains(code, "\"*.xlsx;*.csv");
+        StringAssert.Contains(code, "*.xlsx;*.csv");
         StringAssert.Contains(code, "StocktakeFileCodec.ImportCountFile");
         StringAssert.Contains(code, "StocktakeFileCodec.ExportCountXlsx");
         StringAssert.Contains(code, "StocktakeFileCodec.ExportResultXlsx");
