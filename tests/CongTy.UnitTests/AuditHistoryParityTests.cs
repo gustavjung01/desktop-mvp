@@ -123,7 +123,7 @@ public sealed class AuditHistoryParityTests
             ?? throw new InvalidOperationException("Không đọc được hợp đồng lịch sử thay đổi.");
 
         Assert.AreEqual("Asia/Ho_Chi_Minh", data.Timezone);
-        Assert.AreEqual(1, data.Rows.Length);
+        Assert.HasCount(1, data.Rows);
         Assert.AreEqual("product_update", data.Rows[0].Action);
         Assert.IsTrue(data.Rows[0].HasBeforeData);
         Assert.IsTrue(data.Page.HasMore);
