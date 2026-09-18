@@ -509,7 +509,7 @@
 
         <Grid Visibility="{Binding IsExportOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
               Background="#99000000">
-            <Border Width="760"
+            <Border Width="820"
                     MaxHeight="760"
                     Padding="18"
                     HorizontalAlignment="Center"
@@ -520,7 +520,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
@@ -543,63 +543,174 @@
 
                     <TextBlock Grid.Row="1"
                                Margin="0,10,0,0"
-                               Text="Xuất toàn bộ dữ liệu theo kỳ, kho và bộ lọc của mục đang xem, không phụ thuộc số dòng đang hiển thị trên màn hình."
+                               Text="Xuất toàn bộ dữ liệu theo kỳ, kho và bộ lọc đã áp dụng; không phụ thuộc số dòng đang hiển thị."
                                TextWrapping="Wrap"
                                Foreground="{DynamicResource TextSecondaryBrush}" />
 
                     <StackPanel Grid.Row="2" Margin="0,12,0,0">
-                        <TextBlock Text="Định dạng file" FontWeight="SemiBold" />
+                        <TextBlock Text="Cách xuất" FontWeight="SemiBold" />
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                            <RadioButton x:Name="ExportXlsxRadio"
+                            <RadioButton x:Name="ExportListRadio"
                                          IsChecked="True"
-                                         GroupName="SalesExportFormat"
-                                         Checked="ExportXlsx_OnChecked"
-                                         Content="Excel (.xlsx)" />
+                                         GroupName="SalesExportMode"
+                                         Checked="ExportListMode_OnChecked"
+                                         Content="Danh sách" />
                             <RadioButton Margin="18,0,0,0"
-                                         GroupName="SalesExportFormat"
-                                         Checked="ExportCsv_OnChecked"
-                                         Content="CSV (.csv)" />
+                                         GroupName="SalesExportMode"
+                                         Checked="ExportAnalysisMode_OnChecked"
+                                         Content="Phân tích" />
                         </StackPanel>
                     </StackPanel>
 
-                    <Grid Grid.Row="3" Margin="0,14,0,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                    <ScrollViewer Grid.Row="3"
+                                  Margin="0,12,0,0"
+                                  MaxHeight="520"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="Cột cần xuất" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding SelectedExportCountText}" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <StackPanel Visibility="{Binding IsListExportMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Định dạng file" FontWeight="SemiBold" />
+                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                    <RadioButton x:Name="ExportXlsxRadio"
+                                                 IsChecked="True"
+                                                 GroupName="SalesExportFormat"
+                                                 Checked="ExportXlsx_OnChecked"
+                                                 Content="Excel (.xlsx)" />
+                                    <RadioButton Margin="18,0,0,0"
+                                                 GroupName="SalesExportFormat"
+                                                 Checked="ExportCsv_OnChecked"
+                                                 Content="CSV (.csv)" />
+                                </StackPanel>
+
+                                <Grid Margin="0,14,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Cột cần xuất" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding SelectedExportCountText}" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Style="{StaticResource OfficeMiniButtonStyle}" Click="SelectAllColumns_OnClick" Content="Chọn tất cả" />
+                                        <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="ClearColumns_OnClick" Content="Bỏ chọn" />
+                                        <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="DefaultColumns_OnClick" Content="Mặc định" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <ItemsControl Margin="0,8,0,0" ItemsSource="{Binding ExportColumns}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Width="230"
+                                                      Margin="0,0,8,8"
+                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      Content="{Binding Label}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <Button Style="{StaticResource OfficeMiniButtonStyle}" Click="SelectAllColumns_OnClick" Content="Chọn tất cả" />
-                                <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="ClearColumns_OnClick" Content="Bỏ chọn" />
-                                <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="DefaultColumns_OnClick" Content="Mặc định" />
+
+                            <StackPanel Visibility="{Binding IsAnalysisExportMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="Excel (.xlsx)" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,3,0,0"
+                                           Text="Bản phân tích được tạo từ báo cáo server theo đúng bộ lọc đã áp dụng."
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+
+                                <TextBlock Margin="0,14,0,0" Text="Số liệu cần xuất" FontWeight="SemiBold" />
+                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                    <CheckBox IsChecked="{Binding AnalysisRevenueSelected, Mode=TwoWay}" Content="Doanh thu" />
+                                    <CheckBox Margin="18,0,0,0" IsChecked="{Binding AnalysisQuantitySelected, Mode=TwoWay}" Content="Sản lượng" />
+                                </StackPanel>
+
+                                <TextBlock Margin="0,14,0,0" Text="Phân tích theo · chọn 2" FontWeight="SemiBold" />
+                                <Grid Margin="0,5,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Tiêu chí 1" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <ComboBox Margin="0,4,0,0"
+                                                  ItemsSource="{Binding AnalysisDimensionOptions}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Key"
+                                                  SelectedValue="{Binding AnalysisRowDimension, Mode=TwoWay}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Tiêu chí 2" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <ComboBox Margin="0,4,0,0"
+                                                  ItemsSource="{Binding AnalysisDimensionOptions}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Key"
+                                                  SelectedValue="{Binding AnalysisColumnDimension, Mode=TwoWay}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,14,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Visibility="{Binding ShowAnalysisQuantityDisplay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="Hiển thị sản lượng" FontWeight="SemiBold" />
+                                        <ComboBox Margin="0,5,0,0"
+                                                  ItemsSource="{Binding AnalysisQuantityDisplayOptions}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Key"
+                                                  SelectedValue="{Binding AnalysisQuantityDisplay, Mode=TwoWay}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Sắp xếp dòng" FontWeight="SemiBold" />
+                                        <ComboBox Margin="0,5,0,0"
+                                                  ItemsSource="{Binding AnalysisSortOptions}"
+                                                  DisplayMemberPath="Label"
+                                                  SelectedValuePath="Key"
+                                                  SelectedValue="{Binding AnalysisSort, Mode=TwoWay}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Margin="0,10,0,0"
+                                           Text="ĐVT nằm trong cùng một sheet; không tách báo cáo thành nhiều sheet theo đơn vị tính."
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+
+                                <Grid Margin="0,14,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Cột sẽ xuất" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding SelectedAnalysisExportCountText}" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Style="{StaticResource OfficeMiniButtonStyle}" Click="SelectAllAnalysisColumns_OnClick" Content="Chọn tất cả" />
+                                        <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="ClearAnalysisColumns_OnClick" Content="Bỏ chọn" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <ItemsControl Margin="0,8,0,0" ItemsSource="{Binding AnalysisExportColumns}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Width="360"
+                                                      Margin="0,0,8,8"
+                                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      Content="{Binding Label}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
                         </Grid>
-                        <ScrollViewer Grid.Row="1" Margin="0,8,0,0" MaxHeight="350" VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding ExportColumns}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Width="230"
-                                                  Margin="0,0,8,8"
-                                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                  Content="{Binding Label}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Grid>
+                    </ScrollViewer>
 
                     <TextBlock Grid.Row="4"
                                Margin="0,8,0,0"

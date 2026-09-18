@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Sales;
 
-public sealed class SalesReportingViewModel : INotifyPropertyChanged
+public sealed partial class SalesReportingViewModel : INotifyPropertyChanged
 {
     private const string ReadPermission = "core.reporting.sales.read";
     private const string ExportPermission = "core.reporting.export";
@@ -139,7 +139,7 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     public bool CanExport => _access.HasPermission(ExportPermission) && CanRead;
     public bool CanApply => CanRead && !IsBusy;
     public bool CanOpenExport => CanExport && _report is not null && !IsBusy && !IsExporting;
-    public bool CanSubmitExport => CanOpenExport && ExportColumns.Any(column => column.IsSelected);
+    public bool CanSubmitExport => CanSubmitCurrentExport();
     public bool CanCloseExport => !IsExporting;
 
     public bool IsBusy
@@ -169,7 +169,11 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     }
 
     public string ApplyText => IsBusy ? "Đang cập nhật…" : "Áp dụng";
-    public string ExportButtonText => IsExporting ? "Đang tạo file…" : ExportFormat == "csv" ? "Xuất CSV" : "Xuất Excel";
+    public string ExportButtonText => IsExporting
+        ? "Đang tạo file…"
+        : IsAnalysisExportMode
+            ? "Xuất Excel"
+            : ExportFormat == "csv" ? "Xuất CSV" : "Xuất Excel";
 
     public string Message
     {
@@ -338,7 +342,7 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         get => _exportFormat;
         set
         {
-            var normalized = value == "csv" ? "csv" : "xlsx";
+            var normalized = IsAnalysisExportMode ? "xlsx" : value == "csv" ? "csv" : "xlsx";
             if (!SetField(ref _exportFormat, normalized)) return;
             OnPropertyChanged(nameof(ExportButtonText));
         }
@@ -557,9 +561,11 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     public void OpenExport()
     {
         if (!CanOpenExport) return;
+        ExportMode = "list";
         ExportFormat = "xlsx";
         ExportError = string.Empty;
         ReplaceExportColumns();
+        InitializeAnalysisExport();
         IsExportOpen = true;
     }
 
@@ -587,7 +593,9 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     public async Task<ApiDownloadFile?> ExportAsync()
     {
         if (!CanSubmitExport) return null;
-        var columns = ExportColumns.Where(column => column.IsSelected).Select(column => column.Key).ToArray();
+        var columns = IsListExportMode
+            ? ExportColumns.Where(column => column.IsSelected).Select(column => column.Key).ToArray()
+            : SelectedAnalysisColumns();
         var accessGeneration = _accessGeneration;
         var request = ++_exportGeneration;
         var cts = new CancellationTokenSource();
@@ -596,17 +604,19 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         ExportError = string.Empty;
         try
         {
-            var file = await _service.ExportAsync(
-                _appliedFrom,
-                _appliedTo,
-                _appliedWarehouseId,
-                _appliedProductGroupId,
-                _appliedCustomerGroupId,
-                _appliedIncludeZeroProducts,
-                SelectedDimensionKey,
-                ExportFormat,
-                columns,
-                cts.Token).ConfigureAwait(true);
+            var file = IsAnalysisExportMode
+                ? await ExportAnalysisAsync(cts.Token).ConfigureAwait(true)
+                : await _service.ExportAsync(
+                    _appliedFrom,
+                    _appliedTo,
+                    _appliedWarehouseId,
+                    _appliedProductGroupId,
+                    _appliedCustomerGroupId,
+                    _appliedIncludeZeroProducts,
+                    SelectedDimensionKey,
+                    ExportFormat,
+                    columns,
+                    cts.Token).ConfigureAwait(true);
 
             if (accessGeneration != _accessGeneration || request != _exportGeneration || !CanExport)
                 return null;

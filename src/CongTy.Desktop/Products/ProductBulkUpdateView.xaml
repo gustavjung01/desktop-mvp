@@ -2,47 +2,215 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
  <Grid Margin="0,10,0,0">
-  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <Grid.RowDefinitions>
+   <RowDefinition Height="Auto"/>
+   <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+
   <Border Style="{StaticResource OfficeCardStyle}">
-   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <StackPanel>
-     <TextBlock Text="Cập nhật sản phẩm theo SKU" FontSize="18" FontWeight="SemiBold"/>
-     <TextBlock Margin="0,3,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" Text="Dùng SKU ở cột đầu để đối chiếu dữ liệu hiện có; các cột sau chọn nội dung cần cập nhật. Màn này không tạo SKU mới."/>
-     <TextBlock Margin="0,4,0,0" Text="{Binding BulkSummary}" Foreground="{DynamicResource TextSecondaryBrush}"/>
-    </StackPanel>
-    <Button Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="DownloadTemplate_OnClick" Content="Tải file mẫu"/>
-    <Button Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="ChooseFile_OnClick" Content="Chọn tệp"/>
-    <Button Grid.Column="3" Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding HasBulkFile}" Click="Reset_OnClick" Content="Làm mới tệp"/>
-   </Grid>
+   <StackPanel>
+    <TextBlock Text="Nhập / cập nhật sản phẩm" FontSize="18" FontWeight="SemiBold"/>
+    <TextBlock Margin="0,3,0,0"
+               TextWrapping="Wrap"
+               Foreground="{DynamicResource TextSecondaryBrush}"
+               Text="Làm việc với tệp sản phẩm ngay trong Danh mục sản phẩm, không cần chuyển sang màn Nhập/xuất dữ liệu."/>
+   </StackPanel>
   </Border>
-  <Grid Grid.Row="1" Margin="0,10">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <CheckBox IsChecked="{Binding BulkHasHeader, Mode=OneWay}" Click="Header_OnClick" Content="Tệp có hàng tiêu đề"/>
-   <TextBlock Grid.Column="1" Margin="12,3,0,0" Text="{Binding BulkFileName}" Foreground="{DynamicResource TextSecondaryBrush}"/>
-   <Button Grid.Column="2" Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanBulkPreview}" Click="Preview_OnClick" Content="Xem trước"/>
-   <Button Grid.Column="3" Margin="8,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanBulkApply}" Click="Apply_OnClick" Content="Cập nhật"/>
-  </Grid>
-  <Grid Grid.Row="2">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="0.85*"/><ColumnDefinition Width="1.15*"/></Grid.ColumnDefinitions>
-   <Border Margin="0,0,5,0" Style="{StaticResource OfficeCardStyle}">
-    <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-     <ItemsControl ItemsSource="{Binding BulkColumns}">
-      <ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,2"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions><TextBlock VerticalAlignment="Center" Text="{Binding Title}"/><ComboBox Grid.Column="1" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding DataContext.BulkMappingOptions, RelativeSource={RelativeSource AncestorType=UserControl}}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding Mapping, Mode=TwoWay}" SelectionChanged="Mapping_OnSelectionChanged"/></Grid></DataTemplate></ItemsControl.ItemTemplate>
-     </ItemsControl>
-     <TextBlock Grid.Row="1" Margin="0,8,0,4" Text="Dòng đã nhận diện" FontWeight="SemiBold"/>
-     <DataGrid Grid.Row="2" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding BulkSourceRows}" AutoGenerateColumns="False" IsReadOnly="True">
-      <DataGrid.Columns><DataGridTextColumn Header="Dòng" Binding="{Binding RowNumber}" Width="55"/><DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="100"/><DataGridTextColumn Header="Sản phẩm" Binding="{Binding ProductName}" Width="*"/><DataGridTextColumn Header="Kết quả" Binding="{Binding Status}" Width="110"/></DataGrid.Columns>
-     </DataGrid>
+
+  <TabControl Grid.Row="1" Margin="0,10,0,0" Style="{StaticResource OfficeTabControlStyle}">
+   <TabItem Header="Nhập sản phẩm">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+     <StackPanel Margin="0,8,4,12">
+      <Border Style="{StaticResource OfficeCardStyle}">
+       <Grid>
+        <Grid.ColumnDefinitions>
+         <ColumnDefinition Width="*"/>
+         <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+         <TextBlock Text="Nhập sản phẩm và SKU" FontSize="17" FontWeight="SemiBold"/>
+         <TextBlock Margin="0,3,0,0"
+                    Text="{Binding ProductImportSummary}"
+                    Foreground="{DynamicResource TextSecondaryBrush}"/>
+        </StackPanel>
+        <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+         <Button Margin="6,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="DownloadImportXlsx_OnClick" Content="Tải mẫu Excel"/>
+         <Button Margin="6,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="DownloadImportCsv_OnClick" Content="Tải mẫu CSV"/>
+         <Button Margin="6,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanProductFileImport}" Click="ChooseImportFile_OnClick" Content="Chọn tệp"/>
+        </WrapPanel>
+       </Grid>
+      </Border>
+
+      <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
+       <StackPanel>
+        <Grid>
+         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+         </Grid.ColumnDefinitions>
+         <StackPanel>
+          <TextBlock Text="Thông tin xuất file" FontWeight="SemiBold"/>
+          <TextBlock Margin="0,2,0,0"
+                     Text="{Binding SelectedProductExportCountText}"
+                     FontSize="11"
+                     Foreground="{DynamicResource TextSecondaryBrush}"/>
+         </StackPanel>
+         <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+          <Button Style="{StaticResource OfficeMiniButtonStyle}" Click="SelectAllProductColumns_OnClick" Content="Chọn tất cả"/>
+          <Button Margin="6,0,0,0" Style="{StaticResource OfficeMiniButtonStyle}" Click="ClearProductColumns_OnClick" Content="Bỏ chọn"/>
+          <Button Margin="12,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanProductFileExport}" Click="ExportProductsXlsx_OnClick" Content="Xuất Excel"/>
+          <Button Margin="6,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanProductFileExport}" Click="ExportProductsCsv_OnClick" Content="Xuất CSV"/>
+         </WrapPanel>
+        </Grid>
+        <ItemsControl Margin="0,10,0,0" ItemsSource="{Binding ProductFileExportColumns}">
+         <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+         </ItemsControl.ItemsPanel>
+         <ItemsControl.ItemTemplate>
+          <DataTemplate>
+           <CheckBox Width="250"
+                     Margin="0,0,8,8"
+                     IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                     Content="{Binding Label}"/>
+          </DataTemplate>
+         </ItemsControl.ItemTemplate>
+        </ItemsControl>
+       </StackPanel>
+      </Border>
+
+      <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
+       <StackPanel>
+        <TextBlock Text="Nguyên tắc nhập" FontWeight="SemiBold"/>
+        <TextBlock Margin="0,4,0,0"
+                   Text="Tệp Excel/CSV dùng đúng mẫu sản phẩm/SKU. Khi cập nhật sản phẩm đã có, tệp cần chứa đầy đủ các SKU đang sử dụng của sản phẩm đó để tránh bỏ sót quy cách. Mỗi lần tối đa 5.000 dòng."
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+       </StackPanel>
+      </Border>
+
+      <Border Margin="0,10,0,0"
+              Style="{StaticResource OfficeCardStyle}"
+              Visibility="{Binding HasProductImportPreview, Converter={StaticResource BooleanToVisibilityConverter}}">
+       <Grid>
+        <Grid.RowDefinitions>
+         <RowDefinition Height="Auto"/>
+         <RowDefinition Height="260"/>
+         <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Xem trước tệp nhập" FontWeight="SemiBold"/>
+        <DataGrid Grid.Row="1"
+                  Margin="0,8,0,0"
+                  Style="{StaticResource OfficeDataGridStyle}"
+                  ItemsSource="{Binding ProductImportRows}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True">
+         <DataGrid.Columns>
+          <DataGridTextColumn Header="Mã sản phẩm" Binding="{Binding ProductCode}" Width="120"/>
+          <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName}" Width="1.5*"/>
+          <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="130"/>
+          <DataGridTextColumn Header="Tên SKU / quy cách" Binding="{Binding SkuName}" Width="1.5*"/>
+          <DataGridTextColumn Header="Đơn vị tính" Binding="{Binding UnitCode}" Width="110"/>
+          <DataGridTextColumn Header="Loại SKU" Binding="{Binding VariantKind}" Width="110"/>
+         </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Row="2" Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+         <Button Style="{StaticResource OfficeSecondaryButtonStyle}" Click="CancelImport_OnClick" Content="Hủy"/>
+         <Button Margin="8,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanConfirmProductImport}" Click="ConfirmImport_OnClick" Content="Xác nhận nhập"/>
+        </StackPanel>
+       </Grid>
+      </Border>
+     </StackPanel>
+    </ScrollViewer>
+   </TabItem>
+
+   <TabItem Header="Cập nhật sản phẩm">
+    <Grid Margin="0,8,0,0">
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+     <Border Style="{StaticResource OfficeCardStyle}">
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <StackPanel>
+        <TextBlock Text="Cập nhật sản phẩm theo SKU" FontSize="18" FontWeight="SemiBold"/>
+        <TextBlock Margin="0,3,0,0"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
+                   Text="Dùng SKU ở cột đầu để đối chiếu. Có thể cập nhật thuộc tính cấp sản phẩm, SKU và đơn vị; dòng lỗi được bỏ qua, dòng hợp lệ vẫn tiếp tục."/>
+        <TextBlock Margin="0,4,0,0" Text="{Binding BulkSummary}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+       </StackPanel>
+       <Button Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="DownloadTemplate_OnClick" Content="Tải file mẫu"/>
+       <Button Grid.Column="2" Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="ChooseFile_OnClick" Content="Chọn tệp"/>
+       <Button Grid.Column="3" Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding HasBulkFile}" Click="Reset_OnClick" Content="Làm mới tệp"/>
+      </Grid>
+     </Border>
+
+     <Grid Grid.Row="1" Margin="0,10">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <CheckBox IsChecked="{Binding BulkHasHeader, Mode=OneWay}" Click="Header_OnClick" Content="Tệp có hàng tiêu đề"/>
+      <TextBlock Grid.Column="1" Margin="12,3,0,0" Text="{Binding BulkFileName}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+      <Button Grid.Column="2" Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanBulkPreview}" Click="Preview_OnClick" Content="Xem trước"/>
+      <Button Grid.Column="3" Margin="8,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanBulkApply}" Click="Apply_OnClick" Content="Cập nhật"/>
+     </Grid>
+
+     <Grid Grid.Row="2">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="0.85*"/><ColumnDefinition Width="1.15*"/></Grid.ColumnDefinitions>
+      <Border Margin="0,0,5,0" Style="{StaticResource OfficeCardStyle}">
+       <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <ScrollViewer MaxHeight="250" VerticalScrollBarVisibility="Auto">
+         <ItemsControl ItemsSource="{Binding BulkColumns}">
+          <ItemsControl.ItemTemplate>
+           <DataTemplate>
+            <Grid Margin="0,2">
+             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="210"/></Grid.ColumnDefinitions>
+             <TextBlock VerticalAlignment="Center" Text="{Binding Title}" TextWrapping="Wrap"/>
+             <ComboBox Grid.Column="1"
+                       Style="{StaticResource OfficeComboBoxStyle}"
+                       ItemsSource="{Binding DataContext.BulkMappingOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       DisplayMemberPath="Label"
+                       SelectedValuePath="Id"
+                       SelectedValue="{Binding Mapping, Mode=TwoWay}"
+                       SelectionChanged="Mapping_OnSelectionChanged"/>
+            </Grid>
+           </DataTemplate>
+          </ItemsControl.ItemTemplate>
+         </ItemsControl>
+        </ScrollViewer>
+        <TextBlock Grid.Row="1" Margin="0,8,0,4" Text="Dòng đã nhận diện" FontWeight="SemiBold"/>
+        <DataGrid Grid.Row="2" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding BulkSourceRows}" AutoGenerateColumns="False" IsReadOnly="True">
+         <DataGrid.Columns>
+          <DataGridTextColumn Header="Dòng" Binding="{Binding RowNumber}" Width="55"/>
+          <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="100"/>
+          <DataGridTextColumn Header="Sản phẩm" Binding="{Binding ProductName}" Width="*"/>
+          <DataGridTextColumn Header="Kết quả" Binding="{Binding Status}" Width="120"/>
+         </DataGrid.Columns>
+        </DataGrid>
+       </Grid>
+      </Border>
+      <Border Grid.Column="1" Margin="5,0,0,0" Style="{StaticResource OfficeCardStyle}">
+       <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <StackPanel>
+         <TextBlock Text="Xem trước thay đổi" FontWeight="SemiBold"/>
+         <TextBlock Margin="0,3,0,0"
+                    Text="So sánh dữ liệu đang có trong Công Ty với nội dung tệp trước khi ghi nhận."
+                    Foreground="{DynamicResource TextSecondaryBrush}"/>
+        </StackPanel>
+        <DataGrid Grid.Row="1" Margin="0,8,0,0" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding BulkPreviewRows}" AutoGenerateColumns="False" IsReadOnly="True">
+         <DataGrid.Columns>
+          <DataGridTextColumn Header="Dòng" Binding="{Binding RowNumber}" Width="55"/>
+          <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="95"/>
+          <DataGridTextColumn Header="Sản phẩm" Binding="{Binding ProductName}" Width="*"/>
+          <DataGridTextColumn Header="Thuộc tính" Binding="{Binding Field}" Width="125"/>
+          <DataGridTextColumn Header="Hiện tại" Binding="{Binding OldValue}" Width="110"/>
+          <DataGridTextColumn Header="Giá trị mới" Binding="{Binding NewValue}" Width="110"/>
+          <DataGridTextColumn Header="Kết quả" Binding="{Binding Result}" Width="110"/>
+         </DataGrid.Columns>
+        </DataGrid>
+       </Grid>
+      </Border>
+     </Grid>
     </Grid>
-   </Border>
-   <Border Grid.Column="1" Margin="5,0,0,0" Style="{StaticResource OfficeCardStyle}">
-    <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-     <StackPanel><TextBlock Text="Xem trước thay đổi" FontWeight="SemiBold"/><TextBlock Margin="0,3,0,0" Text="So sánh dữ liệu đang có trong Công Ty với nội dung tệp trước khi ghi nhận." Foreground="{DynamicResource TextSecondaryBrush}"/></StackPanel>
-     <DataGrid Grid.Row="1" Margin="0,8,0,0" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding BulkPreviewRows}" AutoGenerateColumns="False" IsReadOnly="True">
-      <DataGrid.Columns><DataGridTextColumn Header="Dòng" Binding="{Binding RowNumber}" Width="55"/><DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="95"/><DataGridTextColumn Header="Sản phẩm" Binding="{Binding ProductName}" Width="*"/><DataGridTextColumn Header="Thuộc tính" Binding="{Binding Field}" Width="105"/><DataGridTextColumn Header="Hiện tại" Binding="{Binding OldValue}" Width="95"/><DataGridTextColumn Header="Giá trị mới" Binding="{Binding NewValue}" Width="95"/><DataGridTextColumn Header="Kết quả" Binding="{Binding Result}" Width="100"/></DataGrid.Columns>
-     </DataGrid>
-    </Grid>
-   </Border>
-  </Grid>
+   </TabItem>
+  </TabControl>
  </Grid>
 </UserControl>

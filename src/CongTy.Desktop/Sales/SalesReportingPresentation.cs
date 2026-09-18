@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Sales;
 
-public static class SalesReportingPresentation
+public static partial class SalesReportingPresentation
 {
     private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
     private static readonly CultureInfo Vietnamese = CultureInfo.GetCultureInfo("vi-VN");

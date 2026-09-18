@@ -40,6 +40,7 @@ public partial class SalesReportingView : UserControl
     public void OpenExportDialog()
     {
         _viewModel.OpenExport();
+        ExportListRadio.IsChecked = true;
         ExportXlsxRadio.IsChecked = true;
     }
 
@@ -69,6 +70,22 @@ public partial class SalesReportingView : UserControl
 
     private void CloseExport_OnClick(object sender, RoutedEventArgs e) =>
         _viewModel.CloseExport();
+
+    private void ExportListMode_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is SalesReportingViewModel) _viewModel.ExportMode = "list";
+    }
+
+    private void ExportAnalysisMode_OnChecked(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is SalesReportingViewModel) _viewModel.ExportMode = "analysis";
+    }
+
+    private void SelectAllAnalysisColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.SelectAllAnalysisExportColumns();
+
+    private void ClearAnalysisColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.ClearAnalysisExportColumns();
 
     private void ExportXlsx_OnChecked(object sender, RoutedEventArgs e)
     {

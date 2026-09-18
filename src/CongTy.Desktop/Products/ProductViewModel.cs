@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using CongTy.ApiClient;
 using CongTy.Contracts;
@@ -12,7 +13,7 @@ using CongTy.Desktop.Partners;
 
 namespace CongTy.Desktop.Products;
 
-public sealed class ProductViewModel : INotifyPropertyChanged
+public sealed partial class ProductViewModel : INotifyPropertyChanged
 {
     private enum EditorKind
     {
@@ -148,11 +149,13 @@ public sealed class ProductViewModel : INotifyPropertyChanged
 
     public ProductViewModel(
         IProductService service,
+        IDataExchangeService dataExchange,
         IInventoryService inventory,
         IAccessStateService access,
         ICanonicalIdempotencyKeyProvider idempotencyKeys)
     {
         _service = service;
+        _dataExchange = dataExchange;
         _inventory = inventory;
         _access = access;
         _idempotencyKeys = idempotencyKeys;
@@ -183,8 +186,32 @@ public sealed class ProductViewModel : INotifyPropertyChanged
         NetContentUnitOptions.Add(new ProductLookupOption("EA", "Cái"));
         NetContentUnitOptions.Add(new ProductLookupOption("OTHER", "Khác"));
         BulkMappingOptions.Add(new ProductLookupOption("IGNORE", "Bỏ qua"));
+        BulkMappingOptions.Add(new ProductLookupOption("PRODUCT_NAME", "Tên sản phẩm"));
+        BulkMappingOptions.Add(new ProductLookupOption("CATALOG_NAME", "Tên hiển thị bán hàng"));
+        BulkMappingOptions.Add(new ProductLookupOption("CATEGORY_CODE", "Loại sản phẩm"));
+        BulkMappingOptions.Add(new ProductLookupOption("BRAND_CODE", "Nhãn hàng"));
+        BulkMappingOptions.Add(new ProductLookupOption("DESCRIPTION", "Mô tả"));
+        BulkMappingOptions.Add(new ProductLookupOption("NOTES", "Ghi chú"));
+        BulkMappingOptions.Add(new ProductLookupOption("PRODUCT_CATALOG_VISIBLE", "Hiển thị sản phẩm khi bán hàng"));
+        BulkMappingOptions.Add(new ProductLookupOption("PRODUCT_ORDERABLE", "Cho phép đặt hàng"));
+        BulkMappingOptions.Add(new ProductLookupOption("PRODUCT_INVENTORY_MANAGED", "Quản lý tồn kho"));
+        BulkMappingOptions.Add(new ProductLookupOption("PRODUCT_ACTIVE", "Sản phẩm đang sử dụng"));
+        BulkMappingOptions.Add(new ProductLookupOption("VARIANT_NAME", "Tên SKU / quy cách"));
+        BulkMappingOptions.Add(new ProductLookupOption("VARIANT_KIND", "Loại SKU"));
+        BulkMappingOptions.Add(new ProductLookupOption("INVENTORY_BASE", "SKU dùng làm đơn vị tồn chuẩn"));
+        BulkMappingOptions.Add(new ProductLookupOption("SELLABLE", "Cho phép bán SKU"));
+        BulkMappingOptions.Add(new ProductLookupOption("VARIANT_CATALOG_VISIBLE", "Hiển thị SKU khi bán hàng"));
+        BulkMappingOptions.Add(new ProductLookupOption("VARIANT_ACTIVE", "SKU đang sử dụng"));
+        BulkMappingOptions.Add(new ProductLookupOption("UNIT_CODE", "Đơn vị tính"));
+        BulkMappingOptions.Add(new ProductLookupOption("CONVERSION_TO_BASE", "Hệ số quy đổi về đơn vị tồn chuẩn"));
+        BulkMappingOptions.Add(new ProductLookupOption("PURCHASABLE", "Cho phép mua SKU"));
+        BulkMappingOptions.Add(new ProductLookupOption("NET_CONTENT_VALUE", "Định lượng quy cách"));
+        BulkMappingOptions.Add(new ProductLookupOption("NET_CONTENT_UOM", "Đơn vị định lượng"));
+        BulkMappingOptions.Add(new ProductLookupOption("SOURCE_UNIT_LABEL", "Tên đơn vị nguồn"));
+        BulkMappingOptions.Add(new ProductLookupOption("SOURCE_PACKAGE_DESCRIPTION", "Mô tả quy cách nguồn"));
         BulkMappingOptions.Add(new ProductLookupOption("WEIGHT_VALUE", "Khối lượng"));
         BulkMappingOptions.Add(new ProductLookupOption("WEIGHT_UOM", "Đơn vị khối lượng"));
+        InitializeProductFileWorkspace();
 
         _access.Changed += (_, _) => RunOnUiThread(() =>
         {
@@ -1335,6 +1362,10 @@ public sealed class ProductViewModel : INotifyPropertyChanged
             if (_bulkMatrix.Count == 0 || _bulkMatrix.Max(row => row.Length) < 2)
                 throw new InvalidOperationException("Tệp cần có cột 1 là SKU và ít nhất một cột dữ liệu.");
 
+            var dataRowCount = Math.Max(0, _bulkMatrix.Count - 1);
+            if (dataRowCount > 5_000)
+                throw new InvalidOperationException("Mỗi lần chỉ cập nhật tối đa 5.000 dòng.");
+
             BulkFileName = Path.GetFileName(filePath);
             BulkHasHeader = true;
             BuildBulkColumns();
@@ -1419,7 +1450,7 @@ public sealed class ProductViewModel : INotifyPropertyChanged
             _bulkApplied = true;
             BuildBulkPreviewRows();
             await LoadAsync(preserveMessage: true).ConfigureAwait(true);
-            SetNotice($"Đã cập nhật {_bulkPreview.Updated} SKU. {_bulkPreview.Skipped} dòng lỗi đã được bỏ qua.");
+            SetNotice($"Đã cập nhật {_bulkPreview.Updated} dòng. {_bulkPreview.Skipped} dòng lỗi đã được bỏ qua.");
         }
         catch (Exception exception) { SetFailure(exception); }
         finally
@@ -1945,10 +1976,63 @@ public sealed class ProductViewModel : INotifyPropertyChanged
         {
             var title = index == 0 ? "Cột 1 · SKU" : $"Cột {index + 1}";
             if (index < headers.Length && !string.IsNullOrWhiteSpace(headers[index])) title += $" · {headers[index]}";
-            var mapping = index switch { 0 => "SKU", 1 => "WEIGHT_VALUE", 2 => "WEIGHT_UOM", _ => "IGNORE" };
+
+            var mapping = index == 0
+                ? "SKU"
+                : BulkHasHeader && index < headers.Length
+                    ? BulkHeaderMapping(headers[index])
+                    : index switch { 1 => "WEIGHT_VALUE", 2 => "WEIGHT_UOM", _ => "IGNORE" };
             BulkColumns.Add(new ProductBulkColumnRow(index, title, mapping, index == 0));
         }
         NotifyBulkState();
+    }
+
+    private static string BulkHeaderMapping(string? header)
+    {
+        var token = NormalizeBulkHeaderToken(header);
+        return token switch
+        {
+            "TENSANPHAM" or "PRODUCTNAME" => "PRODUCT_NAME",
+            "TENHIENTHIBANHANG" or "CATALOGNAME" => "CATALOG_NAME",
+            "LOAISANPHAM" or "MALOAISANPHAM" or "CATEGORYCODE" => "CATEGORY_CODE",
+            "NHANHANG" or "MANHANHANG" or "BRANDCODE" => "BRAND_CODE",
+            "MOTA" or "DESCRIPTION" => "DESCRIPTION",
+            "GHICHU" or "NOTES" => "NOTES",
+            "HIENTHISANPHAMKHIBANHANG" or "PRODUCTISCATALOGVISIBLE" => "PRODUCT_CATALOG_VISIBLE",
+            "CHOPHEPDATHANG" or "PRODUCTISORDERABLE" => "PRODUCT_ORDERABLE",
+            "QUANLYTONKHO" or "ISINVENTORYMANAGED" => "PRODUCT_INVENTORY_MANAGED",
+            "SANPHAMDANGSUDUNG" or "PRODUCTISACTIVE" => "PRODUCT_ACTIVE",
+            "TENSKU" or "TENSKUQUYCACH" or "SKUNAME" => "VARIANT_NAME",
+            "LOAISKU" or "VARIANTKIND" => "VARIANT_KIND",
+            "SKUDUNGLAMDONVITONCHUAN" or "TONCHUAN" or "ISINVENTORYBASE" => "INVENTORY_BASE",
+            "CHOPHEPBANSKU" or "ISSELLABLE" => "SELLABLE",
+            "HIENTHISKUKHIBANHANG" or "ISCATALOGVISIBLE" => "VARIANT_CATALOG_VISIBLE",
+            "SKUDANGSUDUNG" or "ISACTIVE" => "VARIANT_ACTIVE",
+            "DONVITINH" or "UNITCODE" => "UNIT_CODE",
+            "HESOQUYDOIVEDONVITONCHUAN" or "HESOQUYDOI" or "CONVERSIONTOBASE" => "CONVERSION_TO_BASE",
+            "CHOPHEPMUASKU" or "ISPURCHASABLE" => "PURCHASABLE",
+            "DINHLUONGQUYCACH" or "NETCONTENTVALUE" => "NET_CONTENT_VALUE",
+            "DONVIDINHLUONG" or "NETCONTENTUOMCODE" => "NET_CONTENT_UOM",
+            "TENDONVINGUON" or "SOURCEUNITLABEL" => "SOURCE_UNIT_LABEL",
+            "MOTAQUYCACHNGUON" or "SOURCEPACKAGEDESCRIPTION" => "SOURCE_PACKAGE_DESCRIPTION",
+            "KHOILUONG" or "WEIGHTVALUE" => "WEIGHT_VALUE",
+            "DONVIKHOILUONG" or "WEIGHTUOMCODE" => "WEIGHT_UOM",
+            _ => "IGNORE"
+        };
+    }
+
+    private static string NormalizeBulkHeaderToken(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        var decomposed = value.Trim().Normalize(NormalizationForm.FormD);
+        var builder = new StringBuilder(decomposed.Length);
+        foreach (var character in decomposed)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(character) == UnicodeCategory.NonSpacingMark) continue;
+            var normalized = character is 'đ' or 'Đ' ? 'D' : char.ToUpperInvariant(character);
+            if (char.IsLetterOrDigit(normalized)) builder.Append(normalized);
+        }
+        return builder.ToString();
     }
 
     private async Task IdentifyBulkAsync()
@@ -1980,7 +2064,9 @@ public sealed class ProductViewModel : INotifyPropertyChanged
 
     private ProductBulkSourceRow[] DataRows()
     {
-        var source = BulkHasHeader ? _bulkMatrix.Skip(1) : _bulkMatrix;
+        var source = (BulkHasHeader ? _bulkMatrix.Skip(1) : _bulkMatrix).ToArray();
+        if (source.Length > 5_000)
+            throw new InvalidOperationException("Mỗi lần chỉ cập nhật tối đa 5.000 dòng.");
         var start = BulkHasHeader ? 2 : 1;
         return source.Select((cells, index) => new ProductBulkSourceRow(start + index, cells)).ToArray();
     }
@@ -2094,6 +2180,7 @@ public sealed class ProductViewModel : INotifyPropertyChanged
         UnitVariantId = string.Empty;
         UnitVariants.Clear();
         ResetBulkFile();
+        ResetProductImportWorkspace();
         OnPropertyChanged(nameof(ProductSummary));
     }
 
@@ -2104,6 +2191,7 @@ public sealed class ProductViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanReadPrice));
         OnPropertyChanged(nameof(CanWritePrice));
         OnPropertyChanged(nameof(CanReadInventory));
+        NotifyProductFileState();
     }
 
     private void NotifyQuickStepState()
@@ -2135,6 +2223,7 @@ public sealed class ProductViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsLoading));
         OnPropertyChanged(nameof(RefreshText));
         NotifyBulkState();
+        NotifyProductFileState();
     }
 
     private void ClearMessage()

@@ -92,6 +92,7 @@ public partial class App : Application
             services.AddSingleton<PartnerViewModel>();
             services.AddSingleton<PartnerView>();
             services.AddSingleton<IProductService, ProductService>();
+            services.AddSingleton<IDataExchangeService, DataExchangeService>();
             services.AddSingleton<ProductViewModel>();
             services.AddSingleton<ProductView>();
             services.AddSingleton<IPricingService, PricingService>();

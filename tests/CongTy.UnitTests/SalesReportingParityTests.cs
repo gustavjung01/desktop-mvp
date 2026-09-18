@@ -34,6 +34,10 @@ public sealed class SalesReportingParityTests
         StringAssert.Contains(service, "customerGroupId");
         StringAssert.Contains(service, "includeZeroProducts");
         StringAssert.Contains(service, "column=");
+        StringAssert.Contains(service, "ExportAnalysisAsync");
+        StringAssert.Contains(service, "analysis.{rowDimension}.{columnDimension}.{metricToken}");
+        StringAssert.Contains(service, "quantityDisplay");
+        StringAssert.Contains(service, "sort");
         StringAssert.Contains(service, "apiClient.GetFileAsync");
         var exportCall = service.IndexOf("\"/api/reporting/sales-export\"", StringComparison.Ordinal);
         var warehouseFilter = service.IndexOf("warehouseId,", exportCall, StringComparison.Ordinal);
@@ -129,7 +133,16 @@ public sealed class SalesReportingParityTests
             "Cột cần xuất",
             "Chọn tất cả",
             "Bỏ chọn",
-            "Mặc định"
+            "Mặc định",
+            "Phân tích",
+            "Số liệu cần xuất",
+            "Phân tích theo · chọn 2",
+            "Sắp xếp dòng",
+            "Cột sẽ xuất",
+            "Theo ĐVT bán",
+            "Ưu tiên Thùng",
+            "Ưu tiên ĐVT lẻ",
+            "ĐVT nằm trong cùng một sheet"
         })
         {
             StringAssert.Contains(view, text);
@@ -159,6 +172,50 @@ public sealed class SalesReportingParityTests
         var customers = SalesReportingPresentation.ExportColumns("customers");
         Assert.IsTrue(customers.Single(column => column.Key == "documentCount").DefaultSelected);
         Assert.IsFalse(customers.Single(column => column.Key == "source").DefaultSelected);
+    }
+
+    [TestMethod]
+    public void AnalysisExport_MatchesWebMatrixContract()
+    {
+        CollectionAssert.AreEqual(
+            new[] { "products", "customerGroups", "channels", "productGroups" },
+            SalesReportingPresentation.AnalysisDimensions.Select(option => option.Key).ToArray());
+
+        var report = new SalesReportingDashboardData
+        {
+            Summary = new SalesReportingSummaryData
+            {
+                Revenues = [new SalesRevenueSummaryData { CurrencyCode = "VND" }]
+            },
+            Breakdowns = new SalesReportingBreakdownsData
+            {
+                CustomerGroups =
+                [
+                    new SalesBreakdownData { Id = "group-a", Name = "Đại lý" }
+                ]
+            }
+        };
+
+        var columns = SalesReportingPresentation.AnalysisExportColumns(
+            report,
+            "products",
+            "customerGroups",
+            revenue: true,
+            quantity: true);
+
+        CollectionAssert.Contains(columns.Select(column => column.Key).ToArray(), "meta:code");
+        CollectionAssert.Contains(columns.Select(column => column.Key).ToArray(), "meta:name");
+        CollectionAssert.Contains(columns.Select(column => column.Key).ToArray(), "meta:unit");
+        CollectionAssert.Contains(columns.Select(column => column.Key).ToArray(), "cat:customerGroups:group-a|revenue|VND");
+        CollectionAssert.Contains(columns.Select(column => column.Key).ToArray(), "cat:customerGroups:group-a|quantity");
+        CollectionAssert.Contains(columns.Select(column => column.Key).ToArray(), "total:revenue:VND");
+        CollectionAssert.Contains(columns.Select(column => column.Key).ToArray(), "total:quantity");
+
+        var vm = ReadRepoFile("src", "CongTy.Desktop", "Sales", "SalesReportingAnalysisExport.cs");
+        StringAssert.Contains(vm, "AnalysisRevenueSelected");
+        StringAssert.Contains(vm, "AnalysisQuantitySelected");
+        StringAssert.Contains(vm, "ExportAnalysisAsync");
+        StringAssert.Contains(vm, "name-asc");
     }
 
     [TestMethod]

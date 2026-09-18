@@ -90,13 +90,36 @@ public sealed class ProductParityTests
         StringAssert.Contains(viewModel, "CanEnableQuickOrderable");
         StringAssert.Contains(viewModel, "CanEnableDraftOrderable");
 
+        StringAssert.Contains(bulkView, "Nhập / cập nhật sản phẩm");
+        StringAssert.Contains(bulkView, "Header=\"Nhập sản phẩm\"");
+        StringAssert.Contains(bulkView, "Header=\"Cập nhật sản phẩm\"");
+        StringAssert.Contains(bulkView, "Thông tin xuất file");
+        StringAssert.Contains(bulkView, "Nguyên tắc nhập");
+        StringAssert.Contains(bulkView, "Content=\"Tải mẫu Excel\"");
+        StringAssert.Contains(bulkView, "Content=\"Tải mẫu CSV\"");
+        StringAssert.Contains(bulkView, "Content=\"Xuất Excel\"");
+        StringAssert.Contains(bulkView, "Content=\"Xuất CSV\"");
         StringAssert.Contains(bulkView, "Cập nhật sản phẩm theo SKU");
         StringAssert.Contains(bulkView, "Xem trước thay đổi");
         StringAssert.Contains(bulkView, "BulkMappingOptions");
-        StringAssert.Contains(bulkView, "Content=\"Tải file mẫu\"");
+        StringAssert.Contains(viewModel, "IDataExchangeService dataExchange");
+        StringAssert.Contains(viewModel, "PRODUCT_NAME");
+        StringAssert.Contains(viewModel, "PRODUCT_INVENTORY_MANAGED");
+        StringAssert.Contains(viewModel, "CONVERSION_TO_BASE");
+        StringAssert.Contains(viewModel, "NET_CONTENT_VALUE");
+        StringAssert.Contains(viewModel, "SOURCE_PACKAGE_DESCRIPTION");
+        StringAssert.Contains(viewModel, "BulkHeaderMapping");
+        StringAssert.Contains(viewModel, "5_000");
         var bulkCode = ReadRepoFile("src", "CongTy.Desktop", "Products", "ProductBulkUpdateView.xaml.cs");
         StringAssert.Contains(bulkCode, "mau-cap-nhat-san-pham-theo-sku.csv");
-        StringAssert.Contains(bulkCode, "SKU,Khối lượng,Đơn vị khối lượng");
+        StringAssert.Contains(bulkCode, "Tên sản phẩm");
+        StringAssert.Contains(bulkCode, "Đơn vị định lượng");
+        var fileWorkspace = ReadRepoFile("src", "CongTy.Desktop", "Products", "ProductFileWorkspace.cs");
+        StringAssert.Contains(fileWorkspace, "PrepareProductImportAsync");
+        StringAssert.Contains(fileWorkspace, "ConfirmProductImportAsync");
+        StringAssert.Contains(fileWorkspace, "ExportProductFileAsync");
+        StringAssert.Contains(fileWorkspace, "DataExchangePresentation.ProductColumns");
+        StringAssert.Contains(fileWorkspace, "product-file-import");
         StringAssert.Contains(categoryView, "Loại sản phẩm");
         StringAssert.Contains(brandView, "Nhãn hàng");
         StringAssert.Contains(unitView, "Header=\"Danh mục đơn vị\"");
@@ -123,6 +146,7 @@ public sealed class ProductParityTests
         StringAssert.Contains(window, "x:Name=\"ProductHost\"");
         StringAssert.Contains(window, "Click=\"CatalogProducts_OnClick\"");
         StringAssert.Contains(app, "AddSingleton<IProductService, ProductService>()");
+        StringAssert.Contains(app, "AddSingleton<IDataExchangeService, DataExchangeService>()");
 
         StringAssert.Contains(shell, "NavigateInventoryStocktakeAsync");
         StringAssert.Contains(shell, "\"inventory.stocktake\"");
