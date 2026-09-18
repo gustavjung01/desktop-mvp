@@ -1,6 +1,5 @@
 Unicode true
 RequestExecutionLevel user
-SetRegView 64
 
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
@@ -49,6 +48,7 @@ Function .onInit
 FunctionEnd
 
 Section "CONGTY" SEC01
+    SetRegView 64
     ${If} $WaitPid != ""
         DetailPrint "Đang chờ CONGTY đóng..."
         nsExec::ExecToLog 'powershell.exe -NoProfile -WindowStyle Hidden -Command "Wait-Process -Id $WaitPid -ErrorAction SilentlyContinue"'
@@ -82,6 +82,7 @@ Section "CONGTY" SEC01
 SectionEnd
 
 Section "Uninstall"
+    SetRegView 64
     Delete "$DESKTOP\CONGTY.lnk"
     Delete "$SMPROGRAMS\CONGTY\CONGTY.lnk"
     RMDir "$SMPROGRAMS\CONGTY"
