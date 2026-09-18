@@ -81,6 +81,7 @@ public partial class App : Application
             services.AddSingleton<IAuthenticatedSessionAccessor>(provider => provider.GetRequiredService<AuthenticationService>());
             services.AddSingleton<IConnectionStateService, ConnectionStateService>();
             services.AddSingleton<ICanonicalIdempotencyKeyProvider, CanonicalIdempotencyKeyProvider>();
+            services.AddSingleton<IDocumentPrintTemplateService, DocumentPrintTemplateService>();
             services.AddSingleton<IDashboardService, DashboardService>();
             services.AddSingleton<DashboardViewModel>();
             services.AddSingleton<DashboardView>();

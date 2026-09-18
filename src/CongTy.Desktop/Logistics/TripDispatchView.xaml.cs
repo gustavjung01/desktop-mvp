@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Logistics;
 
@@ -37,13 +38,15 @@ public partial class TripDispatchView : UserControl
     private async void Dispatch_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.DispatchAsync();
 
-    private void Print_OnClick(object sender, RoutedEventArgs e)
+    private async void Print_OnClick(object sender, RoutedEventArgs e)
     {
         if (_viewModel.SelectedTrip is null || !_viewModel.CanPrintSelected) return;
 
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "DELIVERY_TRIP");
+        if (template is null) return;
         try
         {
-            TripSheetPrinter.Print(_viewModel.SelectedTrip);
+            TripSheetPrinter.Print(_viewModel.SelectedTrip, template);
         }
         catch (Exception exception)
         {

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -65,13 +66,12 @@ public partial class StocktakeView : UserControl
     private async void Cancel_OnClick(object sender, RoutedEventArgs e) => await _viewModel.CancelAsync();
     private async void Reverse_OnClick(object sender, RoutedEventArgs e) => await _viewModel.ReverseAsync();
 
-    private void Print_OnClick(object sender, RoutedEventArgs e)
+    private async void Print_OnClick(object sender, RoutedEventArgs e)
     {
-        if (!_viewModel.CanPrint) return;
+        if (!_viewModel.CanPrint || _viewModel.SelectedStocktake is not { } stocktake) return;
 
-        var dialog = new PrintDialog();
-        if (dialog.ShowDialog() != true) return;
-
-        dialog.PrintVisual(DetailPrintArea, $"Phiếu kiểm kê {_viewModel.DetailNumber}");
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "STOCKTAKE");
+        if (template is null) return;
+        StocktakePrintPreview.Print(stocktake, _viewModel.Lines.ToArray(), template);
     }
 }

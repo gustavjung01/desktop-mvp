@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Purchasing;
 
@@ -79,9 +80,14 @@ public partial class PurchaseOrderView : UserControl
         var order = await _viewModel.GetForPrintAsync(row).ConfigureAwait(true);
         if (order is null) return;
 
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "PURCHASE_ORDER");
+        if (template is null) return;
+
         var dialog = new PrintDialog();
+        DocumentPrintTemplateRuntime.PrepareDialog(dialog, template);
         if (dialog.ShowDialog() != true) return;
-        var document = PurchaseOrderPrintPreview.Create(order);
+        var document = PurchaseOrderPrintPreview.Create(order, template);
+        DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template);
         dialog.PrintDocument(
             ((System.Windows.Documents.IDocumentPaginatorSource)document).DocumentPaginator,
             $"Đơn mua hàng {order.Number ?? string.Empty}");

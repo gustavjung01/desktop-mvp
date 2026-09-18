@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Sales;
 
@@ -22,10 +23,13 @@ public partial class SalesView : UserControl
     private async void Refresh_OnClick(object sender,RoutedEventArgs e)=>await _viewModel.RefreshAsync();
     private void Create_OnClick(object sender,RoutedEventArgs e)=>_viewModel.OpenCreateEditor();
     private void CopyOrder_OnClick(object sender,RoutedEventArgs e)=>_viewModel.OpenCopyEditor();
-    private void PrintOrder_OnClick(object sender,RoutedEventArgs e)
+    private async void PrintOrder_OnClick(object sender,RoutedEventArgs e)
     {
-        if(_viewModel.SelectedOrder is { } order&&_viewModel.SelectedVersion is { } version)
-            SalesOrderPrintPreview.Show(Window.GetWindow(this),order,version);
+        if(_viewModel.SelectedOrder is not { } order||_viewModel.SelectedVersion is not { } version)return;
+        var owner=Window.GetWindow(this);
+        var template=await DocumentPrintTemplateRuntime.LoadForPrintAsync(owner,"SALES_ORDER");
+        if(template is null)return;
+        SalesOrderPrintPreview.Show(owner,order,version,template);
     }
     private async void OpenOrder_OnClick(object sender,RoutedEventArgs e){if(sender is Button{Tag:string id})await _viewModel.SelectOrderAsync(id);}
     private void EditDraft_OnClick(object sender,RoutedEventArgs e)=>_viewModel.OpenDraftEditor();

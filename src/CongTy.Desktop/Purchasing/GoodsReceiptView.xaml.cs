@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Purchasing;
 
@@ -69,9 +70,14 @@ public partial class GoodsReceiptView : UserControl
         var receipt = await _viewModel.GetForPrintAsync(row).ConfigureAwait(true);
         if (receipt is null) return;
 
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "GOODS_RECEIPT");
+        if (template is null) return;
+
         var dialog = new PrintDialog();
+        DocumentPrintTemplateRuntime.PrepareDialog(dialog, template);
         if (dialog.ShowDialog() != true) return;
-        var document = GoodsReceiptPrintPreview.Create(receipt);
+        var document = GoodsReceiptPrintPreview.Create(receipt, template);
+        DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template);
         dialog.PrintDocument(
             ((System.Windows.Documents.IDocumentPaginatorSource)document).DocumentPaginator,
             $"Phiếu nhận hàng {receipt.DocumentNumber ?? string.Empty}");

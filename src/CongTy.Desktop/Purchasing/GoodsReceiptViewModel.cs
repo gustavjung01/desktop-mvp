@@ -873,7 +873,7 @@ public sealed class GoodsReceiptViewModel : INotifyPropertyChanged
                 GoodsReceiptPresentation.Number(receipt.LineCount.ToString(System.Globalization.CultureInfo.InvariantCulture)),
                 GoodsReceiptPresentation.Number(receipt.ReceivedQuantityTotal),
                 CanRead,
-                CanRead,
+                CanRead && receipt.Status != "draft" && !string.IsNullOrWhiteSpace(receipt.DocumentNumber),
                 receipt.Status == "draft" && CanUpdate && CanReadPurchaseOrders,
                 receipt.Status == "draft" && CanPost,
                 receipt.Status == "posted" && CanReverse));
