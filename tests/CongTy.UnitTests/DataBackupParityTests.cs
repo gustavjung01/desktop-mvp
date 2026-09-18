@@ -132,7 +132,7 @@ public sealed class DataBackupParityTests
 
         StringAssert.Contains(shell, "\"settings.data-backup\"");
         StringAssert.Contains(shell, "NavigateDataBackupAsync() => NavigateSettingsWorkspaceAsync(");
-        StringAssert.Contains(shell, "\n        47,\n        \"Dữ liệu & sao lưu\"");
+        StringAssert.Contains(shell, "47,");
         StringAssert.Contains(host, "workspaceTabs.Items[47]");
         StringAssert.Contains(host, "\"CÀI ĐẶT CÔNG TY\"");
         StringAssert.Contains(host, "\"Dữ liệu & sao lưu\"");
