@@ -55,7 +55,9 @@ public sealed class UserDirectoryMutationParityTests
         Assert.IsGreaterThan(create, roles);
         Assert.IsGreaterThan(roles, credential);
         Assert.IsGreaterThan(credential, status);
-        StringAssert.Contains(viewModel, "DraftEmployeeId.Trim(),\n                false");
+        StringAssert.Contains(viewModel, "var createRequest = new AccessUserCreateRequest(");
+        StringAssert.Contains(viewModel, "DraftEmployeeId.Trim(),");
+        StringAssert.Contains(viewModel, "false);");
         StringAssert.Contains(viewModel, "Tài khoản đã được giữ an toàn ở trạng thái hiện tại");
         StringAssert.Contains(viewModel, "IsCreateMode = false");
     }
