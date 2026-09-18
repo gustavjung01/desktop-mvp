@@ -42,13 +42,22 @@ public partial class MainWindow
         var app = (CongTy.Desktop.App)Application.Current;
         var apiClient = app.ResolveRequired<CompanyApiClient>();
         var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();
-        var view = new UserDirectoryView(new UserDirectoryViewModel(
-            new UserDirectoryReadService(apiClient, session),
-            new UserDirectoryMutationService(apiClient, session),
-            new EmployeeDirectoryReadService(apiClient, session),
-            new AccessRoleReadService(apiClient, session),
-            app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
-            app.ResolveRequired<IAccessStateService>()));
+        var idempotencyKeys = app.ResolveRequired<ICanonicalIdempotencyKeyProvider>();
+        var access = app.ResolveRequired<IAccessStateService>();
+        var userReadService = new UserDirectoryReadService(apiClient, session);
+        var view = new UserDirectoryView(
+            new UserDirectoryViewModel(
+                userReadService,
+                new UserDirectoryMutationService(apiClient, session),
+                new EmployeeDirectoryReadService(apiClient, session),
+                new AccessRoleReadService(apiClient, session),
+                idempotencyKeys,
+                access),
+            new UserScopeViewModel(
+                userReadService,
+                new UserScopeService(apiClient, session),
+                idempotencyKeys,
+                access));
 
         while (workspaceTabs.Items.Count <= 53)
             workspaceTabs.Items.Add(new TabItem());

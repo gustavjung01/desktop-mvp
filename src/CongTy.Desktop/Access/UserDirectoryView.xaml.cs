@@ -5,10 +5,13 @@ namespace CongTy.Desktop.Access;
 
 public partial class UserDirectoryView : UserControl
 {
-    public UserDirectoryView(UserDirectoryViewModel viewModel)
+    public UserDirectoryView(
+        UserDirectoryViewModel viewModel,
+        UserScopeViewModel scopeViewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
+        UserScopeHost.Content = new UserScopeView(scopeViewModel);
     }
 
     private UserDirectoryViewModel ViewModel => (UserDirectoryViewModel)DataContext;
