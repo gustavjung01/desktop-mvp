@@ -3,10 +3,10 @@
   "name": "DESKTOP_PARITY_MATRIX",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "d90755933095bc6ec894529eb1135f8cf4686607",
+    "baselineRevision": "d8baadc5e9447de3d5785b63851997163a3de1b6",
     "fingerprints": {
-      "webAppTree": "1008403602c19b2326d7dbe2c2146f5566c1f222",
-      "apiRoutesTree": "beded8f4410fb2e58ff131afd07a3d73df0c1ae3",
+      "webAppTree": "e70496a18ecb2bfa9f4ccdd19288ccffee3c6d17",
+      "apiRoutesTree": "853a3a4334ad01f58007a014c1310712108f542b",
       "accessTree": "6156db21006867891127560bb96f0b82da362bad",
       "serverBlob": "68d7329c8f6f551838b98b81e74f874a889c76ee",
       "contractsJsBlob": "e8237e6ee036ab3f2eabb36b4273cc40fab11351",
