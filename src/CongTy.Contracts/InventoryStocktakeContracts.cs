@@ -39,6 +39,9 @@ public sealed record InventoryStocktakeLineData
     [JsonPropertyName("expiryDate")] public string? ExpiryDate { get; init; }
     [JsonPropertyName("expectedBaseQuantity")] public string? ExpectedBaseQuantity { get; init; }
     [JsonPropertyName("countedBaseQuantity")] public string? CountedBaseQuantity { get; init; }
+    [JsonPropertyName("countStatus")] public string? CountStatus { get; init; }
+    [JsonPropertyName("reason")] public string? Reason { get; init; }
+    [JsonPropertyName("note")] public string? Note { get; init; }
     [JsonPropertyName("finalDelta")] public string? FinalDelta { get; init; }
     [JsonPropertyName("snapshotScopeVersion")] public string? SnapshotScopeVersion { get; init; }
     [JsonPropertyName("postedScopeVersion")] public string? PostedScopeVersion { get; init; }
@@ -73,6 +76,8 @@ public sealed record InventoryStocktakeData
     [JsonPropertyName("reversalReason")] public string? ReversalReason { get; init; }
     [JsonPropertyName("createdAt")] public string CreatedAt { get; init; } = string.Empty;
     [JsonPropertyName("createdBy")] public string CreatedBy { get; init; } = string.Empty;
+    [JsonPropertyName("currentCountedAt")] public string? CurrentCountedAt { get; init; }
+    [JsonPropertyName("currentCountedBy")] public string? CurrentCountedBy { get; init; }
     [JsonPropertyName("updatedAt")] public string UpdatedAt { get; init; } = string.Empty;
     [JsonPropertyName("updatedBy")] public string UpdatedBy { get; init; } = string.Empty;
     [JsonPropertyName("lineCount")] public int LineCount { get; init; }
@@ -80,23 +85,38 @@ public sealed record InventoryStocktakeData
     [JsonPropertyName("lines")] public InventoryStocktakeLineData[] Lines { get; init; } = [];
 }
 
-public sealed record InventoryStocktakeScopeRequest(
-    [property: JsonPropertyName("locationId")] string? LocationId,
+public sealed record InventoryStocktakeLotSelectionRequest(
     [property: JsonPropertyName("baseVariantId")] string BaseVariantId,
     [property: JsonPropertyName("lotId")] string? LotId);
 
 public sealed record InventoryStocktakeCreateRequest(
     [property: JsonPropertyName("warehouseId")] string WarehouseId,
     [property: JsonPropertyName("note")] string? Note,
-    [property: JsonPropertyName("scopes")] InventoryStocktakeScopeRequest[] Scopes);
+    [property: JsonPropertyName("scopeMode")] string ScopeMode,
+    [property: JsonPropertyName("lotSelections")] InventoryStocktakeLotSelectionRequest[]? LotSelections = null,
+    [property: JsonPropertyName("locationIds")] string?[]? LocationIds = null);
 
 public sealed record InventoryStocktakeCountLineRequest(
     [property: JsonPropertyName("lineId")] string LineId,
-    [property: JsonPropertyName("countedBaseQuantity")] string CountedBaseQuantity);
+    [property: JsonPropertyName("countedBaseQuantity")] string CountedBaseQuantity,
+    [property: JsonPropertyName("reason")] string? Reason,
+    [property: JsonPropertyName("note")] string? Note);
 
 public sealed record InventoryStocktakeCountRequest(
     [property: JsonPropertyName("expectedRevision")] string ExpectedRevision,
     [property: JsonPropertyName("counts")] InventoryStocktakeCountLineRequest[] Counts);
+
+public sealed record InventoryStocktakeAnnotationLineRequest(
+    [property: JsonPropertyName("lineId")] string LineId,
+    [property: JsonPropertyName("reason")] string? Reason,
+    [property: JsonPropertyName("note")] string? Note);
+
+public sealed record InventoryStocktakeAnnotateRequest(
+    [property: JsonPropertyName("expectedRevision")] string ExpectedRevision,
+    [property: JsonPropertyName("annotations")] InventoryStocktakeAnnotationLineRequest[] Annotations);
+
+public sealed record InventoryStocktakeCopyRequest(
+    [property: JsonPropertyName("expectedRevision")] string ExpectedRevision);
 
 public sealed record InventoryStocktakeTransitionRequest(
     [property: JsonPropertyName("expectedRevision")] string ExpectedRevision);

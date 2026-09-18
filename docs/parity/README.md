@@ -197,3 +197,16 @@ Permission catalog, server blob, contracts và canonical idempotency blob không
 Desktop slice này chỉ khôi phục shell/navigation đã triển khai, không thay backend/API/DB. Rebaseline cập nhật
 Web app tree, API routes tree và hai snapshot identity endpoint/mutation theo source hiện hành sau audit.
 
+
+
+## Rebaseline 2026-09-18 — stocktake file UX
+
+Baseline parity được audit từ `c93bd323b64aca5df4ecc9aa516e93e73618f369` tới
+`NPP-Platform/main@ebbe90ce4559f27e501ad74c48346f09e3e4dcee`.
+
+Diff gồm đúng 3 commit của stocktake file UX và chỉ sửa implementation/test Web hiện hữu:
+`StocktakePrintDock.tsx`, `stocktake-workspace.module.css`, `stocktake-workspace.tsx` cùng hai test stocktake.
+Không thêm/xóa screen, Next route, backend route source/endpoint candidate, permission hay mutation candidate;
+shared contracts, server registry và canonical Idempotency-Key implementation không đổi.
+Vì vậy snapshot identity giữ nguyên và chỉ `webAppTree` được rebaseline
+`1316b14c83b2cc9744453ff9cfacb9ba8acf7e7e` → `e95285d6207a0ea76468280b9153561b80446959`.

@@ -1,85 +1,136 @@
-# UI-3.4 — Audit Kiểm kê kho theo Công Ty Web
+# UI-3.4 — Kiểm kê kho: Audit parity Web mới
 
-Ngày chốt audit: 2026-09-15
+## Baseline đã audit
 
-## Baseline
+- Desktop source of change: `gustavjung01/desktop-mvp`, baseline `090dce4b0109ee1e54fbc520970fbcc2a6e9d68c`.
+- Web/API source of truth: `binhnxwjfjxm/NPP-Platform`, baseline `ebbe90ce4559f27e501ad74c48346f09e3e4dcee`.
+- Web: `npp-core/web/app/inventory/stocktakes/stocktake-workspace.tsx`, `stocktake-workspace.module.css`, `StocktakePrintDock.tsx`, `npp-core/web/lib/stocktake-types.ts`.
+- API: `npp-core/api/src/routes/inventory-stocktakes.js`, `npp-core/api/src/services/inventory-stocktake.js`, `npp-core/api/src/db/repositories/inventory-stocktake.js`.
+- Migration liên quan: `database/migrations/inventory/131_warehouse_location_management_mode.sql`, `136_inventory_tracking_policy_backfill.sql`, `138_inventory_stocktake_line_details.sql`, `139_inventory_stocktake_line_annotation.sql`.
+- Migration mới nhất của baseline này là 139. Desktop không tạo migration, không sửa backend/DB.
 
-- Master issue Desktop: #31.
-- Desktop bắt đầu UI-3.4 trên `main@fd0dbffc5775962bc542568f9904c8ad18cffa1a`, sau khi UI-3.3 đã merge.
-- Công Ty Web/backend audit trực tiếp tại `NPP-Platform/main@ccd0458b46ca8f3eaf1b9af9582da737d83ffd78`.
-- Web chuẩn: `npp-core/web/app/inventory/stocktakes/stocktake-workspace.tsx`.
-- Backend chuẩn: `npp-core/api/src/routes/inventory-stocktakes.js`, `npp-core/api/src/services/inventory-stocktake.js`.
-- Desktop trước UI-3.4 chưa có màn Kiểm kê kho; submenu đang bị vô hiệu hóa.
-- Không sửa backend, DB, migration hoặc production deploy.
+## Kết luận audit cũ
 
-## Matrix Công Ty Web → Desktop
+Cơ chế audit cũ giới hạn exact scope tối đa 500 dòng và việc Desktop biến nhóm lô/vị trí thành `scopes[]` exact đã lỗi thời.
 
-| Thứ tự | Công Ty Web | Desktop UI-3.4 |
-| --- | --- | --- |
-| 1 | Header Kiểm kê kho + Tạo đợt kiểm kê | Topbar Desktop giữ cùng hành động chính, có thêm Làm mới |
-| 2 | Tạo đợt kiểm kê | Panel native mở/đóng từ topbar |
-| 3 | Chọn kho | Kho đang hoạt động từ canonical API |
-| 4 | Phạm vi: toàn bộ / theo lô / theo vị trí | Đủ 3 lựa chọn |
-| 5 | Chọn nhóm lô/vị trí | Checkbox native; khi gửi chuyển về exact scope |
-| 6 | Ghi chú + Tạo và bắt đầu đếm | Đủ |
-| 7 | Tìm kiếm + trạng thái | Đúng thứ tự |
-| 8 | Danh sách đợt kiểm kê | Số phiếu, kho, trạng thái, lần đếm, số phạm vi, thời gian |
-| 9 | Chi tiết + In phiếu | Đủ; dùng PrintDialog native |
-| 10 | Đếm mù | Đang đếm không hiển thị tồn hệ thống/chênh lệch |
-| 11 | Hoàn tất đếm thực tế | Phải nhập đủ mọi dòng |
-| 12 | Gửi duyệt | Đúng lifecycle |
-| 13 | Yêu cầu đếm lại | Lý do bắt buộc |
-| 14 | Duyệt kết quả | Đúng permission; backend chặn tự duyệt |
-| 15 | Cập nhật tồn kho | Chỉ sau approved |
-| 16 | Hủy kiểm kê | Chỉ trước submit theo backend |
-| 17 | Hoàn tác cập nhật tồn | Chỉ posted và còn đủ điều kiện backend |
-| 18 | Lịch sử các lần đếm | Đủ vòng đếm, người thực hiện, thời gian, lý do |
-| 19 | Metadata gửi/duyệt/cập nhật | Đủ |
-| 20 | Loading / partial error / disabled | Có access lifecycle + partial-load notice |
+Contract chính của UI hiện là phạm vi ở mức ý định:
 
-## Backend contract
+- `scopeMode = all`: gửi kho + mode; backend snapshot tồn hợp lệ hiện tại.
+- `scopeMode = lot`: gửi `lotSelections[] = { baseVariantId, lotId }`.
+- `scopeMode = location`: gửi `locationIds[]`.
+- Legacy `exact` vẫn tồn tại trong backend để tương thích, nhưng không phải contract chính của màn Desktop.
+- Shared contract hiện hành có `STOCKTAKE_MAX_LINES = 2000`; đây là giới hạn backend, không phải lý do để Desktop dựng exact scopes. Desktop không hard-code cap 500 và không tự chia phiếu theo số balance; backend là authority khi snapshot/phát hiện vượt giới hạn.
 
-### Đọc
-- `GET /api/inventory/stocktakes?limit=500&offset=0`
-- `GET /api/inventory/stocktakes/{id}`
-- Tồn dùng canonical `/api/inventory/balances`.
-- Kho dùng canonical `/api/warehouses`.
+## Authority kho, lô và lịch sử
 
-### Mutation
-- `POST /api/inventory/stocktakes` — `core.stocktake.create`
-- `POST /api/inventory/stocktakes/{id}/count` — `core.stocktake.count`
-- `POST /api/inventory/stocktakes/{id}/submit` — `core.stocktake.submit`
-- `POST /api/inventory/stocktakes/{id}/recount` — `core.stocktake.approve`
-- `POST /api/inventory/stocktakes/{id}/approve` — `core.stocktake.approve`
-- `POST /api/inventory/stocktakes/{id}/post` — `core.stocktake.post`
-- `POST /api/inventory/stocktakes/{id}/cancel` — `core.stocktake.cancel`
-- `POST /api/inventory/stocktakes/{id}/reverse` — `core.stocktake.reverse`
+Migration 131 thêm `location_management_mode = MANAGED | UNMANAGED | NULL`. Backfill chỉ suy ra khi dữ liệu legacy cho kết quả đơn nghĩa; kho rỗng hoặc dữ liệu hỗn hợp vẫn để `NULL`. Vì vậy Desktop tuyệt đối không tự chọn MANAGED/UNMANAGED. Khi backend trả `WAREHOUSE_LOCATION_MODE_REQUIRED`, UI phải nói rõ kho cần được cấu hình trên hệ thống.
+
+Migration 136 backfill canonical lot/expiry tracking policy mà không sửa số lượng tồn, lot hay movement. Desktop dùng contract/balance đã canonical, không suy luận policy khác.
+
+Migration 138 thêm `count_reason` tối đa 500 ký tự và `count_note` tối đa 2000 ký tự trên từng dòng; snapshot của vòng đếm bất biến và lịch sử đã khóa không được xóa/sửa tùy ý.
+
+Migration 139 chỉ cho phép write context annotation sửa `reason/note` của vòng hiện tại khi header ở `submitted` hoặc `approved`; số đếm, actor/time đếm, snapshot, final delta và posting data không được thay đổi.
+
+## API và permission
 
 Đọc màn dùng `core.stocktake.read`.
 
-Desktop dùng `ICanonicalIdempotencyKeyProvider` chung. Retry cùng intent/fingerprint trong cùng phiên reuse đúng key cũ. Header Idempotency-Key do generator chuẩn tạo, không tự ghép dữ liệu nghiệp vụ thành key.
+Mutation:
 
-## Quy tắc nghiệp vụ giữ nguyên
+- `POST /api/inventory/stocktakes` — `core.stocktake.create`.
+- `POST /api/inventory/stocktakes/{id}/count` — `core.stocktake.count`.
+- `POST /api/inventory/stocktakes/{id}/annotate` — `core.stocktake.count`.
+- `POST /api/inventory/stocktakes/{id}/copy` — `core.stocktake.create`.
+- `POST /api/inventory/stocktakes/{id}/submit` — `core.stocktake.submit`.
+- `POST /api/inventory/stocktakes/{id}/recount` — `core.stocktake.approve`.
+- `POST /api/inventory/stocktakes/{id}/approve` — `core.stocktake.approve`.
+- `POST /api/inventory/stocktakes/{id}/post` — `core.stocktake.post`.
+- `POST /api/inventory/stocktakes/{id}/cancel` — `core.stocktake.cancel`.
+- `POST /api/inventory/stocktakes/{id}/reverse` — `core.stocktake.reverse`.
 
-- Mỗi đợt kiểm kê có 1 kho và 1–500 exact scope.
-- Khi đang đếm, Desktop không hiển thị tồn hệ thống hoặc chênh lệch.
-- Mọi scope trong vòng hiện tại phải được nhập số thực đếm đúng một lần.
-- Gửi duyệt và duyệt kiểm tra revision/scope watermark ở backend.
-- Người gửi không được tự duyệt chính version đã gửi.
-- Chỉ trạng thái approved mới được cập nhật tồn kho.
-- Cập nhật tồn kho tạo movement append-only; không sửa balance trực tiếp.
-- Hoàn tác chỉ khi không có movement downstream trên exact scope.
-- Không đưa movement ID, scope version hoặc thuật ngữ kỹ thuật ra giao diện.
+Mọi mutation Desktop dùng `ICanonicalIdempotencyKeyProvider`. Cùng intent + revision/fingerprint trong cùng phiên phải reuse đúng key; không tự ghép dữ liệu nghiệp vụ thành raw Idempotency-Key.
 
-## Keyboard Desktop
+## Create flow Desktop
 
-- `F5`: làm mới.
-- `Ctrl+F`: focus tìm kiếm.
-- `Esc`: đóng panel tạo đợt kiểm kê.
+Panel tạo phiếu dùng 3 lựa chọn trực tiếp: **Toàn bộ sản phẩm trong kho / Theo lô / Theo vị trí**.
 
-## Boundary
+- `all` không render hàng trăm checkbox.
+- `lot/location` có tìm kiếm, chọn tất cả kết quả đang hiển thị, bỏ chọn kết quả, tổng số mục đã chọn và tóm tắt/chip lựa chọn.
+- Picker chỉ render tối đa 60 kết quả một lần để giữ UI nhẹ; đây là giới hạn trình bày, không phải cap nghiệp vụ.
+- Lô hiển thị sản phẩm, SKU, mã lô, HSD.
+- Vị trí hiển thị mã và tên vị trí.
+- Request create gửi selector canonical; backend snapshot tồn hiện tại.
 
-- Chỉ UI-3.4 Kiểm kê kho.
-- Không làm UI-3.5 Điều chỉnh và xử lý tồn.
-- Shared Shell chỉ thay phần cần thiết để bật submenu/host/topbar thật của Kiểm kê kho.
-- Không sửa backend/DB/migration/deploy.
+## Dòng kiểm kê và blind count
+
+Trong `draft/recount_required`:
+
+- Cho nhập **Số thực đếm / Lý do / Ghi chú**.
+- Không bind hoặc render tồn hệ thống, chênh lệch hay count status.
+- File đếm cũng không chứa tồn hệ thống.
+- Lý do tối đa 500, ghi chú tối đa 2000.
+
+Sau khi backend reveal:
+
+- Bảng có **Tồn hệ thống / Thực đếm / Chênh lệch / Trạng thái / Lý do / Ghi chú**.
+- `submitted/approved` + `core.stocktake.count` cho sửa riêng reason/note và gọi `annotate`.
+- Trạng thái khác reason/note chỉ đọc.
+
+Filter dòng: **Tất cả / Chưa kiểm / Khớp / Lệch**, có count từng nhóm. Khớp/Lệch bị disable trong blind count. Paging cố định 100 dòng/trang với Trước/Sau và x/y.
+
+## File flow tại phiếu
+
+Toolbar detail có:
+
+- `Xuất file phiếu`.
+- `Nhập file` chỉ trong bước blind count và khi có quyền count.
+- `Sao chép phiếu` khi có quyền create.
+- `Kết quả Excel / Kết quả CSV` chỉ sau reveal.
+- `In` không hiện ở draft.
+- Trạng thái đặt cạnh nhóm tool; dùng style Office Desktop hiện có.
+
+File đếm có đúng các cột:
+
+`Phiếu kiểm kê, SKU, Tên sản phẩm, ĐVT, Mã lô, Mã vị trí, Số đếm thực tế, Lý do, Ghi chú`.
+
+Import map theo phiếu + SKU + lô + vị trí. Nếu thiếu lô/vị trí mà cùng SKU tạo nhiều candidate thì báo ambiguity; một dòng phiếu không được map lặp trong file. Import chỉ cập nhật buffer count/reason/note, không tự submit/post.
+
+Kết quả sau reveal có:
+
+`SKU, Tên sản phẩm, ĐVT, Mã lô, Mã vị trí, Tồn hệ thống, Thực đếm, Chênh lệch, Lý do, Ghi chú`.
+
+CSV prefix dấu nháy đơn trước giá trị bắt đầu bằng `=`, `+`, `@` hoặc dấu `-` không phải số âm, rồi quote/escape toàn bộ cell; file có UTF-8 BOM.
+
+## Copy
+
+`Sao chép phiếu` gửi `expectedRevision` tới endpoint `copy`. Backend tạo phiếu mới và snapshot tồn hiện tại. Desktop không clone expected quantity/snapshot cũ ở client; response mới được mở/chọn ngay.
+
+## Danh sách và error UX
+
+Danh sách hiển thị thông tin tạo và, nếu có `currentCountedAt/currentCountedBy`, thêm `Kiểm: <người> · <thời gian>`.
+
+Lỗi scope/location dùng message backend/canonical; riêng `WAREHOUSE_LOCATION_MODE_REQUIRED` phải nói rõ kho chưa thiết lập chế độ quản lý vị trí và Desktop không tự chọn mode.
+
+## Regression checklist
+
+- [x] create all/lot/location dùng intent selector.
+- [x] bỏ cap 500/exact-scope client behavior cũ.
+- [x] blind count không render expected/delta/status.
+- [x] count gửi reason/note và validate 500/2000.
+- [x] annotate submitted/approved, permission count.
+- [x] copy expectedRevision, permission create, mở response mới.
+- [x] canonical idempotency reuse theo intent/revision/fingerprint.
+- [x] filter + count + paging 100.
+- [x] import xlsx/csv map phiếu/SKU/lô/vị trí, chặn ambiguity/duplicate.
+- [x] export file đếm không có tồn hệ thống.
+- [x] Excel/CSV kết quả chỉ sau reveal; CSV chống formula injection.
+- [x] permission visibility cho count/annotate/copy/import/export.
+- [x] error `WAREHOUSE_LOCATION_MODE_REQUIRED` rõ nghĩa.
+- [x] In không hiện ở draft.
+- [x] list có current counted metadata.
+- [x] không sửa Web/backend/DB/migration và không production deploy.
+
+
+## Rebaseline parity trong PR này
+
+Từ baseline manifest `c93bd323b64aca5df4ecc9aa516e93e73618f369` tới Web source-of-truth `ebbe90ce4559f27e501ad74c48346f09e3e4dcee` có đúng 3 commit thuộc stocktake file UX. Diff chỉ sửa `StocktakePrintDock.tsx`, `stocktake-workspace.module.css`, `stocktake-workspace.tsx` và hai test Web; không thêm/xóa page, Next route, API route, permission, shared contract hay canonical idempotency implementation. Vì vậy chỉ `webAppTree` đổi sang `e95285d6207a0ea76468280b9153561b80446959`; snapshot identity giữ nguyên.

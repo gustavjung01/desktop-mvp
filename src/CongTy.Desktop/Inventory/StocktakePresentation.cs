@@ -32,6 +32,14 @@ public static class StocktakePresentation
         _ => string.Empty
     };
 
+    public static string CountStatus(string? value) => value switch
+    {
+        "uncounted" => "Chưa kiểm",
+        "matched" => "Khớp",
+        "mismatch" => "Lệch",
+        _ => "—"
+    };
+
     public static string Quantity(string? value)
     {
         if (!decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed))

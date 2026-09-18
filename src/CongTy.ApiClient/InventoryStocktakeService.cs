@@ -8,6 +8,8 @@ public interface IInventoryStocktakeService
     Task<InventoryStocktakeData> GetAsync(string stocktakeId, CancellationToken cancellationToken = default);
     Task<InventoryStocktakeData> CreateAsync(InventoryStocktakeCreateRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<InventoryStocktakeData> CountAsync(string stocktakeId, InventoryStocktakeCountRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
+    Task<InventoryStocktakeData> AnnotateAsync(string stocktakeId, InventoryStocktakeAnnotateRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
+    Task<InventoryStocktakeData> CopyAsync(string stocktakeId, InventoryStocktakeCopyRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<InventoryStocktakeData> SubmitAsync(string stocktakeId, InventoryStocktakeTransitionRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<InventoryStocktakeData> RecountAsync(string stocktakeId, InventoryStocktakeReasonRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<InventoryStocktakeData> ApproveAsync(string stocktakeId, InventoryStocktakeTransitionRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
@@ -38,6 +40,12 @@ public sealed class InventoryStocktakeService(
 
     public Task<InventoryStocktakeData> CountAsync(string stocktakeId, InventoryStocktakeCountRequest request, string idempotencyKey, CancellationToken cancellationToken = default) =>
         PostAsync(ActionPath(stocktakeId, "count"), request, idempotencyKey, cancellationToken);
+
+    public Task<InventoryStocktakeData> AnnotateAsync(string stocktakeId, InventoryStocktakeAnnotateRequest request, string idempotencyKey, CancellationToken cancellationToken = default) =>
+        PostAsync(ActionPath(stocktakeId, "annotate"), request, idempotencyKey, cancellationToken);
+
+    public Task<InventoryStocktakeData> CopyAsync(string stocktakeId, InventoryStocktakeCopyRequest request, string idempotencyKey, CancellationToken cancellationToken = default) =>
+        PostAsync(ActionPath(stocktakeId, "copy"), request, idempotencyKey, cancellationToken);
 
     public Task<InventoryStocktakeData> SubmitAsync(string stocktakeId, InventoryStocktakeTransitionRequest request, string idempotencyKey, CancellationToken cancellationToken = default) =>
         PostAsync(ActionPath(stocktakeId, "submit"), request, idempotencyKey, cancellationToken);
