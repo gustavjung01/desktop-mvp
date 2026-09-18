@@ -79,6 +79,9 @@ public sealed class DataExchangeParityTests
         Assert.IsFalse(view.Contains("backend", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains(">API<", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("NPP Core", StringComparison.OrdinalIgnoreCase));
+        StringAssert.Contains(view, "{Binding PendingFileName, Mode=OneWay}");
+        StringAssert.Contains(view, "{Binding PendingRows.Count, Mode=OneWay}");
+        StringAssert.Contains(view, "{Binding SelectedPendingCount, Mode=OneWay}");
     }
 
     [TestMethod]

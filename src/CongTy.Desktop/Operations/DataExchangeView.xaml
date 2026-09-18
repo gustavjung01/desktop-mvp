@@ -115,7 +115,7 @@
                                     <StackPanel>
                                         <TextBlock FontWeight="SemiBold" Text="Xem trước trước khi nhập" />
                                         <TextBlock Style="{StaticResource DataExchangeHintStyle}">
-                                            <Run Text="{Binding PendingFileName}" /><Run Text=" · " /><Run Text="{Binding PendingRows.Count}" /><Run Text=" dòng." />
+                                            <Run Text="{Binding PendingFileName, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding PendingRows.Count, Mode=OneWay}" /><Run Text=" dòng." />
                                         </TextBlock>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -128,7 +128,7 @@
                                     <StackPanel>
                                         <WrapPanel>
                                             <TextBlock Margin="0,4,12,0" FontWeight="SemiBold" Text="Thiết lập hàng loạt" />
-                                            <TextBlock Margin="0,4,12,0"><Run Text="{Binding SelectedPendingCount}" /><Run Text=" dòng đã chọn" /></TextBlock>
+                                            <TextBlock Margin="0,4,12,0"><Run Text="{Binding SelectedPendingCount, Mode=OneWay}" /><Run Text=" dòng đã chọn" /></TextBlock>
                                             <Button Margin="0,0,6,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="SelectAllPending_OnClick" Content="Tất cả" />
                                             <Button Margin="0,0,6,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="SelectBasePending_OnClick" Content="Đơn vị lẻ" />
                                             <Button Margin="0,0,6,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="SelectCartonPending_OnClick" Content="Thùng" />
@@ -278,7 +278,7 @@
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock FontWeight="SemiBold"><Run Text="Xem trước trước khi nhập · " /><Run Text="{Binding PendingFileName}" /></TextBlock>
+                                    <TextBlock FontWeight="SemiBold"><Run Text="Xem trước trước khi nhập · " /><Run Text="{Binding PendingFileName, Mode=OneWay}" /></TextBlock>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                                         <Button Margin="4,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="CancelImport_OnClick" Content="Bỏ file" />
                                         <Button Margin="4,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanConfirmImport}" Click="ConfirmImport_OnClick" Content="Xác nhận nhập" />
@@ -331,7 +331,7 @@
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <TextBlock FontWeight="SemiBold"><Run Text="Xem trước trước khi nhập · " /><Run Text="{Binding PendingFileName}" /></TextBlock>
+                                    <TextBlock FontWeight="SemiBold"><Run Text="Xem trước trước khi nhập · " /><Run Text="{Binding PendingFileName, Mode=OneWay}" /></TextBlock>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                                         <Button Margin="4,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="CancelImport_OnClick" Content="Bỏ file" />
                                         <Button Margin="4,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanConfirmImport}" Click="ConfirmImport_OnClick" Content="Xác nhận nhập" />
