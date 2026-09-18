@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using CongTy.Desktop.Accounting;
 using CongTy.Desktop.Dashboard;
 using CongTy.Desktop.DocumentNumbering;
@@ -272,6 +273,22 @@ public partial class MainWindow : Window
         if (sender is Button { CommandParameter: string group })
         {
             _viewModel.ToggleNavigationGroup(group);
+        }
+    }
+
+    private void SidebarSubItem_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (!_viewModel.IsSidebarExpanded)
+        {
+            _viewModel.CloseNavigationGroups();
+        }
+    }
+
+    private void SidebarFlyoutPopup_OnClosed(object? sender, EventArgs e)
+    {
+        if (sender is Popup { Uid: { Length: > 0 } group } && !_viewModel.IsSidebarExpanded)
+        {
+            _viewModel.CloseNavigationGroup(group);
         }
     }
 
