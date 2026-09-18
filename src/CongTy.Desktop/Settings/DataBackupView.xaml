@@ -50,7 +50,7 @@
                     Click="PrintTemplates_OnClick"
                     Content="Mẫu in" />
             <Button Style="{StaticResource SettingsTabStyle}"
-                    IsEnabled="False"
+                    Click="DesktopApp_OnClick"
                     Content="Ứng dụng máy tính" />
             <Button Style="{StaticResource SettingsTabStyle}"
                     Click="Appearance_OnClick"

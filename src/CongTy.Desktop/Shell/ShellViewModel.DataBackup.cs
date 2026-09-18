@@ -7,9 +7,10 @@ public sealed partial class ShellViewModel
     private bool _dataBackupSelectionObserverAttached;
 
     public bool CanViewDataBackup => _access.Current.IsAuthenticated;
-    public bool IsDataBackupSelected => SelectedWorkspaceIndex is 47 or 48 or 49;
+    public bool IsDataBackupSelected => SelectedWorkspaceIndex is 47 or 48 or 49 or 54;
     public bool IsPrintTemplatesSelected => SelectedWorkspaceIndex == 48;
     public bool IsAppearanceSelected => SelectedWorkspaceIndex == 49;
+    public bool IsDesktopAppSelected => SelectedWorkspaceIndex == 54;
 
     internal void InitializeDataBackupShell() => EnsureDataBackupSelectionObserver();
 
@@ -27,6 +28,11 @@ public sealed partial class ShellViewModel
         "settings.appearance",
         49,
         "Giao diện");
+
+    public Task NavigateDesktopAppAsync() => NavigateSettingsWorkspaceAsync(
+        "settings.desktop-app",
+        54,
+        "Ứng dụng máy tính");
 
     private Task NavigateSettingsWorkspaceAsync(string navigationKey, int workspaceIndex, string label)
     {
@@ -64,5 +70,6 @@ public sealed partial class ShellViewModel
         OnPropertyChanged(nameof(IsDataBackupSelected));
         OnPropertyChanged(nameof(IsPrintTemplatesSelected));
         OnPropertyChanged(nameof(IsAppearanceSelected));
+        OnPropertyChanged(nameof(IsDesktopAppSelected));
     }
 }

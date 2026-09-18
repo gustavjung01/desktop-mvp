@@ -1,9 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using CongTy.ApiClient;
 using CongTy.Desktop.Settings;
 using CongTy.Windows;
+using CongTy.Windows.Updates;
 
 namespace CongTy.Desktop.Shell;
 
@@ -30,11 +30,13 @@ public partial class MainWindow
             session);
         var dataBackupView = new DataBackupView(new DataBackupViewModel(dataBackupService, access, idempotency));
         dataBackupView.PrintTemplatesRequested += SettingsPrintTemplatesRequested;
+        dataBackupView.DesktopAppRequested += SettingsDesktopAppRequested;
         dataBackupView.AppearanceRequested += SettingsAppearanceRequested;
 
         var printService = new DocumentPrintTemplateService(apiClient, session);
         var printView = new PrintTemplatesView(new PrintTemplatesViewModel(printService, access, idempotency));
         printView.DataBackupRequested += SettingsDataBackupRequested;
+        printView.DesktopAppRequested += SettingsDesktopAppRequested;
         printView.AppearanceRequested += SettingsAppearanceRequested;
 
         var appearanceView = new AppearanceView(new AppearanceViewModel(
@@ -42,12 +44,20 @@ public partial class MainWindow
             app.ResolveRequired<DesktopSettingsState>()));
         appearanceView.DataBackupRequested += SettingsDataBackupRequested;
         appearanceView.PrintTemplatesRequested += SettingsPrintTemplatesRequested;
+        appearanceView.DesktopAppRequested += SettingsDesktopAppRequested;
 
-        while (workspaceTabs.Items.Count <= 49)
+        var desktopAppView = new DesktopAppView(new DesktopAppViewModel(
+            app.ResolveRequired<IAppUpdateService>()));
+        desktopAppView.DataBackupRequested += SettingsDataBackupRequested;
+        desktopAppView.PrintTemplatesRequested += SettingsPrintTemplatesRequested;
+        desktopAppView.AppearanceRequested += SettingsAppearanceRequested;
+
+        while (workspaceTabs.Items.Count <= 54)
             workspaceTabs.Items.Add(new TabItem());
         workspaceTabs.Items[47] = new TabItem { Content = dataBackupView };
         workspaceTabs.Items[48] = new TabItem { Content = printView };
         workspaceTabs.Items[49] = new TabItem { Content = appearanceView };
+        workspaceTabs.Items[54] = new TabItem { Content = desktopAppView };
 
         _dataBackupShellWired = true;
     }
@@ -70,6 +80,12 @@ public partial class MainWindow
         ApplySettingsHeader();
     }
 
+    private async void SettingsDesktopAppRequested(object? sender, EventArgs e)
+    {
+        await _viewModel.NavigateDesktopAppAsync();
+        ApplySettingsHeader();
+    }
+
     private async void SettingsAppearanceRequested(object? sender, EventArgs e)
     {
         await _viewModel.NavigateAppearanceAsync();
@@ -85,6 +101,15 @@ public partial class MainWindow
         {
             SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Mẫu in");
             SetShellHeaderText(nameof(ShellViewModel.PageSubtitle), "Thiết lập mẫu in dùng chung cho các chứng từ của Công Ty.");
+            return;
+        }
+
+        if (_viewModel.IsDesktopAppSelected)
+        {
+            SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Ứng dụng máy tính");
+            SetShellHeaderText(
+                nameof(ShellViewModel.PageSubtitle),
+                "Kiểm tra, tải và cài đặt phiên bản CONGTY mới trên máy tính này.");
             return;
         }
 

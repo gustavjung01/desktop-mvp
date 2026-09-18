@@ -21,6 +21,7 @@ public partial class AppearanceView : UserControl
 
     public event EventHandler? DataBackupRequested;
     public event EventHandler? PrintTemplatesRequested;
+    public event EventHandler? DesktopAppRequested;
 
     private AppearanceViewModel ViewModel => (AppearanceViewModel)DataContext;
 
@@ -29,6 +30,9 @@ public partial class AppearanceView : UserControl
 
     private void PrintTemplates_OnClick(object sender, RoutedEventArgs e) =>
         PrintTemplatesRequested?.Invoke(this, EventArgs.Empty);
+
+    private void DesktopApp_OnClick(object sender, RoutedEventArgs e) =>
+        DesktopAppRequested?.Invoke(this, EventArgs.Empty);
 
     private async void Theme_OnClick(object sender, RoutedEventArgs e)
     {

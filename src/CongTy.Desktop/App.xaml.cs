@@ -16,6 +16,7 @@ using CongTy.Desktop.Sales;
 using CongTy.Desktop.Shell;
 using CongTy.Desktop.Themes;
 using CongTy.Windows;
+using CongTy.Windows.Updates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -76,6 +77,10 @@ public partial class App : Application
                 }));
     
             services.AddSingleton<IInstallationProfileService, InstallationProfileService>();
+            services.AddSingleton<IAppUpdateService>(_ => new AppUpdateService(new HttpClient
+            {
+                Timeout = TimeSpan.FromMinutes(30)
+            }));
             services.AddSingleton<AuthenticationService>();
             services.AddSingleton<IAuthenticationService>(provider => provider.GetRequiredService<AuthenticationService>());
             services.AddSingleton<IAuthenticatedSessionAccessor>(provider => provider.GetRequiredService<AuthenticationService>());

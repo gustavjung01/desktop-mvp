@@ -4,6 +4,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>Assets\Brand\logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +17,14 @@
     <Resource Include="..\..\nguyen-lieu-mi-cay.png">
       <Link>Assets\Login\nguyen-lieu-mi-cay.png</Link>
     </Resource>
+    <Resource Include="..\..\logo.jpg">
+      <Link>Assets\Brand\logo.jpg</Link>
+    </Resource>
   </ItemGroup>
+
+  <Target Name="GenerateBrandIcon" BeforeTargets="CoreCompile">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\scripts\create-brand-icon.ps1&quot; -Source &quot;$(MSBuildProjectDirectory)\..\..\logo.jpg&quot; -Destination &quot;$(MSBuildProjectDirectory)\Assets\Brand\logo.ico&quot;" />
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
