@@ -33,19 +33,6 @@ public partial class MainWindow
     private void WireOrderManagementWorkspace()
     {
         if(_orderManagementShellWired)return;
-
-        var sidebarButton=FindVisualChildren<Button>(this)
-            .FirstOrDefault(button=>FindVisualChildren<TextBlock>(button).Any(text=>text.Text=="Quản lý đơn hàng"));
-        if(sidebarButton is null)return;
-
-        sidebarButton.IsEnabled=true;
-        BindingOperations.SetBinding(sidebarButton,Button.TagProperty,new Binding(nameof(ShellViewModel.IsOrderManagementSelected)));
-        BindingOperations.SetBinding(sidebarButton,UIElement.VisibilityProperty,new Binding(nameof(ShellViewModel.CanViewOrderManagement))
-        {
-            Converter=(IValueConverter)FindResource("BooleanToVisibilityConverter")
-        });
-        sidebarButton.Click+=OrderManagement_OnClick;
-
         var workspaceTabs=FindLogicalParent<TabControl>(HomeHost);
         if(workspaceTabs is null)return;
         while(workspaceTabs.Items.Count<=37)workspaceTabs.Items.Add(new TabItem());

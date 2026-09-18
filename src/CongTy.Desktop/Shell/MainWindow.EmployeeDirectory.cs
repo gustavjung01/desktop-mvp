@@ -13,32 +13,10 @@ public partial class MainWindow
     private void WireEmployeeDirectoryWorkspace()
     {
         if (_employeeDirectoryShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "Danh mục nhân sự"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeEmployeeDirectoryShell();
-
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsEmployeeDirectorySelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewEmployeeDirectory))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += EmployeeDirectory_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var apiClient = app.ResolveRequired<CompanyApiClient>();
         var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();

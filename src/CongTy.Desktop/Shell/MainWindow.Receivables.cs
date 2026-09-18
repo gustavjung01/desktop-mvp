@@ -13,32 +13,10 @@ public partial class MainWindow
     private void WireReceivablesWorkspace()
     {
         if (_receivablesShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                button.Content is TextBlock text
-                && text.Text == "Công nợ phải thu");
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeReceivablesShell();
-
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsReceivablesSelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewReceivables))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += Receivables_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var service = new ReceivablesService(
             app.ResolveRequired<CompanyApiClient>(),

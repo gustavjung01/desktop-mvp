@@ -14,32 +14,10 @@ public partial class MainWindow
     private void WireDataBackupWorkspace()
     {
         if (_dataBackupShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "Thiết lập chung"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeDataBackupShell();
-
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsDataBackupSelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewDataBackup))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += DataBackup_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var idempotency = app.ResolveRequired<ICanonicalIdempotencyKeyProvider>();
         var access = app.ResolveRequired<IAccessStateService>();

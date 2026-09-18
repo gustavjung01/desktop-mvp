@@ -13,24 +13,10 @@ public partial class MainWindow
     private void WireCustomerReturnCreditsWorkspace()
     {
         if (_customerReturnCreditShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button => FindVisualChildren<TextBlock>(button)
-                .Any(text => text.Text == "Điều chỉnh công nợ hàng trả"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeCustomerReturnCreditShell();
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(sidebarButton, Button.TagProperty, new Binding(nameof(ShellViewModel.IsCustomerReturnCreditsSelected)));
-        BindingOperations.SetBinding(sidebarButton, UIElement.VisibilityProperty, new Binding(nameof(ShellViewModel.CanViewCustomerReturnCredits))
-        {
-            Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-        });
-        sidebarButton.Click += CustomerReturnCredits_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var idempotency = app.ResolveRequired<ICanonicalIdempotencyKeyProvider>();
         var service = new CustomerReturnCreditService(

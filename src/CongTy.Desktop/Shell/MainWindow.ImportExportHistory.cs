@@ -13,32 +13,10 @@ public partial class MainWindow
     private void WireImportExportHistoryWorkspace()
     {
         if (_importExportHistoryShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "Lịch sử nhập/xuất"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeImportExportHistoryShell();
-
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsImportExportHistorySelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewImportExportHistory))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += ImportExportHistory_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var service = new ImportExportHistoryService(
             app.ResolveRequired<CompanyApiClient>(),

@@ -13,32 +13,10 @@ public partial class MainWindow
     private void WireDataExchangeWorkspace()
     {
         if (_dataExchangeShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "Nhập/xuất dữ liệu"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeDataExchangeShell();
-
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsDataExchangeSelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewDataExchange))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += DataExchange_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var idempotency = app.ResolveRequired<ICanonicalIdempotencyKeyProvider>();
         var service = new DataExchangeService(

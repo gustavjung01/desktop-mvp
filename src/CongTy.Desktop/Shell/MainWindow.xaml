@@ -229,8 +229,8 @@
                                         Visibility="{Binding CanViewManagementProposals, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="ManagementProposals_OnClick"><TextBlock Text="Đề xuất" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsSalesOrdersSelected}" Visibility="{Binding CanViewSales, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Sales_OnClick"><TextBlock Text="Đơn bán hàng" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Quản lý đơn hàng" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Mở/liên kết mã khách" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsOrderManagementSelected}" Visibility="{Binding CanViewOrderManagement, Converter={StaticResource BooleanToVisibilityConverter}}" Click="OrderManagement_OnClick"><TextBlock Text="Quản lý đơn hàng" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCustomerOnboardingSelected}" Visibility="{Binding CanViewCustomerOnboarding, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CustomerOnboarding_OnClick"><TextBlock Text="Mở/liên kết mã khách" /></Button>
                             
             </StackPanel>
         </DataTemplate>
@@ -269,26 +269,26 @@
                                         Tag="{Binding IsCodAccountingSelected}"
                                         Visibility="{Binding CanViewCodAccounting, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="AccountingCod_OnClick"><TextBlock Text="COD và đối soát" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Công nợ phải thu" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Thu tiền khách hàng" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Điều chỉnh công nợ hàng trả" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Công nợ phải trả" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Thanh toán nhà cung cấp" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsReceivablesSelected}" Visibility="{Binding CanViewReceivables, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Receivables_OnClick"><TextBlock Text="Công nợ phải thu" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCustomerPaymentsSelected}" Visibility="{Binding CanViewCustomerPayments, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CustomerPayments_OnClick"><TextBlock Text="Thu tiền khách hàng" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCustomerReturnCreditsSelected}" Visibility="{Binding CanViewCustomerReturnCredits, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CustomerReturnCredits_OnClick"><TextBlock Text="Điều chỉnh công nợ hàng trả" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsPayablesSelected}" Visibility="{Binding CanViewPayables, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Payables_OnClick"><TextBlock Text="Công nợ phải trả" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsSupplierPaymentsSelected}" Visibility="{Binding CanViewSupplierPayments, Converter={StaticResource BooleanToVisibilityConverter}}" Click="SupplierPayments_OnClick"><TextBlock Text="Thanh toán nhà cung cấp" /></Button>
                             
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="CompanySettingsMenuTemplate">
             <StackPanel>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Thiết lập chung" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="MCP và tuyến" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsDataBackupSelected}" Visibility="{Binding CanViewDataBackup, Converter={StaticResource BooleanToVisibilityConverter}}" Click="DataBackup_OnClick"><TextBlock Text="Thiết lập chung" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsMcpRoutesSelected}" Visibility="{Binding CanViewMcpRoutes, Converter={StaticResource BooleanToVisibilityConverter}}" Click="McpRoutes_OnClick"><TextBlock Text="MCP và tuyến" /></Button>
                             
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="AccessMenuTemplate">
             <StackPanel>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Vai trò và phân quyền" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Danh mục nhân sự" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" IsEnabled="False"><TextBlock Text="Người dùng" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsAccessRolesSelected}" Visibility="{Binding CanViewAccessRoles, Converter={StaticResource BooleanToVisibilityConverter}}" Click="AccessRoles_OnClick"><TextBlock Text="Vai trò và phân quyền" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsEmployeeDirectorySelected}" Visibility="{Binding CanViewEmployeeDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="EmployeeDirectory_OnClick"><TextBlock Text="Danh mục nhân sự" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsUserDirectorySelected}" Visibility="{Binding CanViewUserDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="UserDirectory_OnClick"><TextBlock Text="Người dùng" /></Button>
                             
             </StackPanel>
         </DataTemplate>
@@ -449,11 +449,11 @@
                             <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                             <Border Width="38" Height="38" CornerRadius="10" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1" VerticalAlignment="Center"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
                             <StackPanel Grid.Column="1" Margin="8,0,6,0" VerticalAlignment="Center"><TextBlock Text="{Binding CompanyName}" Foreground="{DynamicResource SidebarTextBrush}" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" /><TextBlock Text="CÔNG TY" Margin="0,2,0,0" Foreground="{DynamicResource SidebarMutedTextBrush}" FontSize="9" FontWeight="SemiBold" /></StackPanel>
-                            <Button Grid.Column="2" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Thu gọn thanh điều hướng" Content="☰" />
+                            <Button Grid.Column="2" Width="36" Height="36" Panel.ZIndex="20" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Thu gọn thanh điều hướng" Content="☰" />
                         </Grid>
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
                             <Border Width="34" Height="34" CornerRadius="9" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
-                            <Button Width="30" Height="26" Margin="0,3,0,0" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Mở rộng thanh điều hướng" Content="☰" />
+                            <Button Width="36" Height="32" Margin="0,3,0,0" Panel.ZIndex="20" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Mở rộng thanh điều hướng" Content="☰" />
                         </StackPanel>
                     </Grid>
 
@@ -598,9 +598,9 @@
                             </Popup>
 
                             <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="VẬN HÀNH HỆ THỐNG" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <Button Style="{StaticResource NavButtonStyle}" IsEnabled="False"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="☰" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Nhập/xuất dữ liệu" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
-                            <Button Style="{StaticResource NavButtonStyle}" IsEnabled="False"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="▦" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Lịch sử thay đổi" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
-                            <Button Style="{StaticResource NavButtonStyle}" IsEnabled="False"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="☰" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Lịch sử nhập/xuất" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
+                            <Button Style="{StaticResource NavButtonStyle}" Tag="{Binding IsDataExchangeSelected}" Visibility="{Binding CanViewDataExchange, Converter={StaticResource BooleanToVisibilityConverter}}" Click="DataExchange_OnClick"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="☰" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Nhập/xuất dữ liệu" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
+                            <Button Style="{StaticResource NavButtonStyle}" Tag="{Binding IsAuditHistorySelected}" Visibility="{Binding CanViewAuditHistory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="AuditHistory_OnClick"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="▦" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Lịch sử thay đổi" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
+                            <Button Style="{StaticResource NavButtonStyle}" Tag="{Binding IsImportExportHistorySelected}" Visibility="{Binding CanViewImportExportHistory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="ImportExportHistory_OnClick"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="☰" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Lịch sử nhập/xuất" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
 
                             <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="CÀI ĐẶT CÔNG TY" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <Button x:Name="CompanySettingsButton" ToolTip="Cài đặt Công Ty" Style="{StaticResource NavButtonStyle}" CommandParameter="company-settings" Click="NavGroup_OnClick">
@@ -900,14 +900,16 @@
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Visibility="{Binding IsAgingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    IsEnabled="False"
-                                    ToolTip="Màn Công nợ phải thu sẽ được nối khi UI-7.3 hoàn thiện."
+                                    IsEnabled="{Binding CanViewReceivables}"
+                                    Click="Receivables_OnClick"
+                                    ToolTip="Mở Công nợ phải thu"
                                     Content="Công nợ phải thu" />
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Visibility="{Binding IsAgingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    IsEnabled="False"
-                                    ToolTip="Màn Công nợ phải trả sẽ được nối khi UI-7.6 hoàn thiện."
+                                    IsEnabled="{Binding CanViewPayables}"
+                                    Click="Payables_OnClick"
+                                    ToolTip="Mở Công nợ phải trả"
                                     Content="Công nợ phải trả" />
 
                             <Button Margin="8,0,0,0"

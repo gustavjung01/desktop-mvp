@@ -13,31 +13,10 @@ public partial class MainWindow
     private void WireMcpRoutesWorkspace()
     {
         if (_mcpRoutesShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "MCP và tuyến"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeMcpRoutesShell();
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsMcpRoutesSelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewMcpRoutes))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += McpRoutes_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var service = new EmployeeMcpReportingService(
             app.ResolveRequired<CompanyApiClient>(),

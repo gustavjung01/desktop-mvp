@@ -1323,6 +1323,49 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
+    public void DeliveredLateWorkspaces_AreDirectlyNavigableFromLazySidebarTemplates()
+    {
+        var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
+        var orderWire = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.OrderManagement.cs");
+        var receivablesWire = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.Receivables.cs");
+        var dataExchangeWire = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.DataExchange.cs");
+
+        var delivered = new[]
+        {
+            ("Quản lý đơn hàng", "OrderManagement_OnClick"),
+            ("Mở/liên kết mã khách", "CustomerOnboarding_OnClick"),
+            ("Công nợ phải thu", "Receivables_OnClick"),
+            ("Thu tiền khách hàng", "CustomerPayments_OnClick"),
+            ("Điều chỉnh công nợ hàng trả", "CustomerReturnCredits_OnClick"),
+            ("Công nợ phải trả", "Payables_OnClick"),
+            ("Thanh toán nhà cung cấp", "SupplierPayments_OnClick"),
+            ("Nhập/xuất dữ liệu", "DataExchange_OnClick"),
+            ("Lịch sử thay đổi", "AuditHistory_OnClick"),
+            ("Lịch sử nhập/xuất", "ImportExportHistory_OnClick"),
+            ("Thiết lập chung", "DataBackup_OnClick"),
+            ("MCP và tuyến", "McpRoutes_OnClick"),
+            ("Vai trò và phân quyền", "AccessRoles_OnClick"),
+            ("Danh mục nhân sự", "EmployeeDirectory_OnClick"),
+            ("Người dùng", "UserDirectory_OnClick")
+        };
+
+        foreach (var (label, handler) in delivered)
+        {
+            StringAssert.Contains(shell, $"Text=\"{label}\"");
+            StringAssert.Contains(shell, $"Click=\"{handler}\"");
+        }
+
+        Assert.IsFalse(shell.Contains("IsEnabled=\"False\"><TextBlock Text=\"Quản lý đơn hàng\"", StringComparison.Ordinal));
+        Assert.IsFalse(shell.Contains("IsEnabled=\"False\"><TextBlock Text=\"Công nợ phải thu\"", StringComparison.Ordinal));
+        Assert.IsFalse(shell.Contains("IsEnabled=\"False\"><TextBlock Text=\"Thiết lập chung\"", StringComparison.Ordinal));
+        Assert.IsFalse(orderWire.Contains("sidebarButton", StringComparison.Ordinal));
+        Assert.IsFalse(receivablesWire.Contains("sidebarButton", StringComparison.Ordinal));
+        Assert.IsFalse(dataExchangeWire.Contains("sidebarButton", StringComparison.Ordinal));
+        StringAssert.Contains(shell, "Width=\"36\" Height=\"36\" Panel.ZIndex=\"20\"");
+        StringAssert.Contains(shell, "Click=\"ToggleSidebar_OnClick\"");
+    }
+
+    [TestMethod]
     public void GlobalQuickActions_MatchWebShortcutsAndUseIndependentFeatureWindows()
     {
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");

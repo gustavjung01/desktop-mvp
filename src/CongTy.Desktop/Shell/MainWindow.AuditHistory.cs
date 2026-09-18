@@ -13,32 +13,10 @@ public partial class MainWindow
     private void WireAuditHistoryWorkspace()
     {
         if (_auditHistoryShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "Lịch sử thay đổi"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeAuditHistoryShell();
-
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsAuditHistorySelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewAuditHistory))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += AuditHistory_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var service = new AuditHistoryService(
             app.ResolveRequired<CompanyApiClient>(),
