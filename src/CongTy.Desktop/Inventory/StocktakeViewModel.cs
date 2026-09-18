@@ -17,8 +17,12 @@ public sealed record StocktakeListRow(InventoryStocktakeData Data)
     public string Number => Data.StocktakeNumber;
     public string Warehouse => $"{Data.WarehouseCode} · {Data.WarehouseName}";
     public string Status => StocktakePresentation.Status(Data.Status);
-    public string ScopeText => $"Lần đếm {Data.CurrentRound} · {Data.LineCount} phạm vi";
-    public string Updated => StocktakePresentation.DateTimeText(Data.UpdatedAt);
+    public string ScopeText => $"Lần đếm {Data.CurrentRound} · {Data.LineCount} dòng";
+    public string Updated => $"Tạo: {StocktakePresentation.DateTimeText(Data.CreatedAt)}";
+    public string Counted =>
+        string.IsNullOrWhiteSpace(Data.CurrentCountedAt) && string.IsNullOrWhiteSpace(Data.CurrentCountedBy)
+            ? string.Empty
+            : $"Kiểm: {(string.IsNullOrWhiteSpace(Data.CurrentCountedBy) ? "Người thực hiện" : Data.CurrentCountedBy)} · {StocktakePresentation.DateTimeText(Data.CurrentCountedAt)}";
 }
 
 public sealed class StocktakeScopeGroupRow : INotifyPropertyChanged
@@ -29,18 +33,24 @@ public sealed class StocktakeScopeGroupRow : INotifyPropertyChanged
         string key,
         string label,
         string detail,
-        IReadOnlyList<InventoryStocktakeScopeRequest> scopes)
+        string? baseVariantId,
+        string? lotId,
+        string? locationId)
     {
         Key = key;
         Label = label;
         Detail = detail;
-        Scopes = scopes;
+        BaseVariantId = baseVariantId;
+        LotId = lotId;
+        LocationId = locationId;
     }
 
     public string Key { get; }
     public string Label { get; }
     public string Detail { get; }
-    public IReadOnlyList<InventoryStocktakeScopeRequest> Scopes { get; }
+    public string? BaseVariantId { get; }
+    public string? LotId { get; }
+    public string? LocationId { get; }
 
     public bool IsSelected
     {
@@ -59,12 +69,17 @@ public sealed class StocktakeScopeGroupRow : INotifyPropertyChanged
 public sealed class StocktakeLineRow : INotifyPropertyChanged
 {
     private string _countedQuantity;
+    private string _reason;
+    private string _note;
 
-    public StocktakeLineRow(InventoryStocktakeLineData data, string productName)
+    public StocktakeLineRow(InventoryStocktakeLineData data, string productName, bool canEditAnnotations)
     {
         Data = data;
         Product = string.IsNullOrWhiteSpace(productName) ? data.BaseSku : productName;
         _countedQuantity = data.CountedBaseQuantity ?? string.Empty;
+        _reason = data.Reason ?? string.Empty;
+        _note = data.Note ?? string.Empty;
+        CanEditAnnotations = canEditAnnotations;
     }
 
     public InventoryStocktakeLineData Data { get; }
@@ -74,9 +89,11 @@ public sealed class StocktakeLineRow : INotifyPropertyChanged
     public string Lot => string.IsNullOrWhiteSpace(Data.LotCode) ? "Không lô" : Data.LotCode;
     public string Location => string.IsNullOrWhiteSpace(Data.LocationCode) ? "Không vị trí" : Data.LocationCode;
     public string Unit => Data.SourceUnitCode;
-    public string Expected => Data.ExpectedBaseQuantity is null ? "Chưa hiển thị" : StocktakePresentation.Quantity(Data.ExpectedBaseQuantity);
+    public string Expected => Data.ExpectedBaseQuantity is null ? "—" : StocktakePresentation.Quantity(Data.ExpectedBaseQuantity);
     public string Difference => StocktakePresentation.SignedDifference(CountedQuantity, Data.ExpectedBaseQuantity, Data.FinalDelta);
-    public string CountedDisplay => StocktakePresentation.Quantity(string.IsNullOrWhiteSpace(CountedQuantity) ? "0" : CountedQuantity);
+    public string CountStatus => StocktakePresentation.CountStatus(Data.CountStatus);
+    public string CountedDisplay => string.IsNullOrWhiteSpace(CountedQuantity) ? "—" : StocktakePresentation.Quantity(CountedQuantity);
+    public bool CanEditAnnotations { get; }
 
     public string CountedQuantity
     {
@@ -88,6 +105,28 @@ public sealed class StocktakeLineRow : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CountedQuantity)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CountedDisplay)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Difference)));
+        }
+    }
+
+    public string Reason
+    {
+        get => _reason;
+        set
+        {
+            if (_reason == value) return;
+            _reason = value ?? string.Empty;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Reason)));
+        }
+    }
+
+    public string Note
+    {
+        get => _note;
+        set
+        {
+            if (_note == value) return;
+            _note = value ?? string.Empty;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Note)));
         }
     }
 
@@ -106,6 +145,8 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
 {
     private const string ReadDeniedMessage = "Tài khoản chưa được cấp quyền xem Kiểm kê kho.";
     private const int IdempotencyIntentCacheLimit = 256;
+    private const int ScopePickerResultLimit = 60;
+    public const int LinePageSize = 100;
 
     private readonly IInventoryStocktakeService _service;
     private readonly IInventoryService _inventoryService;
@@ -115,6 +156,7 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
     private readonly Dictionary<string, string> _intentKeys = new(StringComparer.Ordinal);
     private readonly List<InventoryStocktakeData> _stocktakes = [];
     private readonly List<InventoryBalanceData> _balances = [];
+    private readonly List<StocktakeScopeGroupRow> _scopeGroupsAll = [];
     private readonly Dictionary<string, string> _productNames = new(StringComparer.Ordinal);
 
     private bool _loaded;
@@ -128,6 +170,9 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
     private bool _isCreateOpen;
     private string _selectedWarehouseId = string.Empty;
     private string _scopeMode = "all";
+    private string _scopeSearch = string.Empty;
+    private string _lineFilter = "all";
+    private int _linePage = 1;
     private string _note = string.Empty;
     private string _reason = string.Empty;
     private StocktakeListRow? _selectedListRow;
@@ -187,7 +232,9 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
     public ObservableCollection<StocktakeWarehouseOption> Warehouses { get; } = [];
     public ObservableCollection<StocktakeListRow> FilteredStocktakes { get; } = [];
     public ObservableCollection<StocktakeScopeGroupRow> ScopeGroups { get; } = [];
+    public ObservableCollection<StocktakeScopeGroupRow> SelectedScopeGroups { get; } = [];
     public ObservableCollection<StocktakeLineRow> Lines { get; } = [];
+    public ObservableCollection<StocktakeLineRow> PagedLines { get; } = [];
     public ObservableCollection<StocktakeRoundRow> Rounds { get; } = [];
 
     public bool CanRead => _access.HasPermission("core.stocktake.read");
@@ -265,9 +312,28 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         {
             if (SetField(ref _scopeMode, value ?? "all"))
             {
+                ScopeSearch = string.Empty;
                 RebuildScopeGroups();
             }
         }
+    }
+
+    public string ScopeSearch
+    {
+        get => _scopeSearch;
+        set
+        {
+            if (SetField(ref _scopeSearch, value ?? string.Empty))
+            {
+                ApplyScopeGroupFilter();
+            }
+        }
+    }
+
+    public string LineFilter
+    {
+        get => _lineFilter;
+        private set => SetField(ref _lineFilter, value);
     }
 
     public string Note
@@ -313,6 +379,11 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
     public bool IsReviewTable => HasDetail && !IsBlindCount;
     public bool CanPrint => HasDetail && SelectedStocktake?.Status != "draft" && IsNotBusy;
     public bool CanCountSelected => IsBlindCount && CanCount && IsNotBusy;
+    public bool CanAnnotateSelected => (SelectedStocktake?.Status is "submitted" or "approved") && CanCount && IsNotBusy;
+    public bool CanCopySelected => HasDetail && CanCreate && IsNotBusy;
+    public bool CanExportCountFile => HasDetail && Lines.Count > 0 && IsNotBusy;
+    public bool CanImportCountFile => IsBlindCount && CanCount && IsNotBusy;
+    public bool CanExportResults => IsReviewTable && Lines.Count > 0 && IsNotBusy;
     public bool CanSubmitSelected => SelectedStocktake?.Status == "counted" && CanSubmit && IsNotBusy;
     public bool CanRecountSelected =>
         (SelectedStocktake?.Status is "counted" or "submitted" or "approved") && CanApprove && IsNotBusy;
@@ -332,24 +403,33 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
             : SelectedStocktake?.Status == "approved" ? "Chưa cập nhật" : "Chưa đến bước cập nhật tồn";
     public string UpdatedText => StocktakePresentation.DateTimeText(SelectedStocktake?.UpdatedAt);
 
-    public int SelectedScopeCount =>
-        ScopeMode == "all"
-            ? ExactBalancesForSelectedWarehouse().Count
-            : ScopeGroups
-                .Where(group => group.IsSelected)
-                .SelectMany(group => group.Scopes)
-                .GroupBy(ScopeRequestKey, StringComparer.Ordinal)
-                .Count();
-
+    public int SelectedScopeCount => _scopeGroupsAll.Count(group => group.IsSelected);
     public string ScopeSelectionText =>
         string.IsNullOrWhiteSpace(SelectedWarehouseId)
-            ? "Chọn kho để xem phạm vi kiểm kê."
+            ? "Chọn kho để xác định phạm vi kiểm kê."
             : ScopeMode == "all"
-                ? $"Sẽ kiểm {SelectedScopeCount} phạm vi tồn chính xác trong kho đã chọn."
-                : $"Đã chọn {SelectedScopeCount} phạm vi tồn chính xác.";
-
+                ? "Backend sẽ snapshot toàn bộ tồn hiện tại trong kho khi tạo phiếu."
+                : $"Đã chọn {SelectedScopeCount} {(ScopeMode == "lot" ? "lô" : "vị trí")}.";
+    public string ScopeResultsText =>
+        ScopeMode == "all"
+            ? string.Empty
+            : $"Hiển thị tối đa {ScopePickerResultLimit} kết quả · {ScopeGroups.Count} đang hiển thị";
     public bool HasScopeGroups => ScopeMode != "all" && ScopeGroups.Count > 0;
     public bool HasNoScopeGroups => ScopeMode != "all" && ScopeGroups.Count == 0;
+
+    public int AllLineCount => Lines.Count;
+    public int UncountedLineCount => Lines.Count(IsLineUncounted);
+    public int MatchedLineCount => Lines.Count(line => line.Data.CountStatus == "matched");
+    public int MismatchLineCount => Lines.Count(line => line.Data.CountStatus == "mismatch");
+    public string AllLineFilterText => $"Tất cả ({AllLineCount})";
+    public string UncountedLineFilterText => $"Chưa kiểm ({UncountedLineCount})";
+    public string MatchedLineFilterText => $"Khớp ({MatchedLineCount})";
+    public string MismatchLineFilterText => $"Lệch ({MismatchLineCount})";
+    public bool CanUseRevealFilters => IsReviewTable;
+    public int TotalLinePages => Math.Max(1, (FilteredLineCount() + LinePageSize - 1) / LinePageSize);
+    public string LinePageText => $"{Math.Min(_linePage, TotalLinePages)}/{TotalLinePages}";
+    public bool CanPreviousLinePage => _linePage > 1;
+    public bool CanNextLinePage => _linePage < TotalLinePages;
 
     public async Task<bool> EnsureLoadedAsync()
     {
@@ -475,7 +555,8 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
     {
         IsCreateOpen = false;
         Note = string.Empty;
-        foreach (var group in ScopeGroups) group.IsSelected = false;
+        ScopeSearch = string.Empty;
+        foreach (var group in _scopeGroupsAll) group.IsSelected = false;
         RaiseScopeSelection();
     }
 
@@ -509,21 +590,32 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
     {
         if (!CanCreate || IsBusy) return;
 
-        var scopes = SelectedScopes();
-        if (string.IsNullOrWhiteSpace(SelectedWarehouseId) || scopes.Count == 0)
+        if (string.IsNullOrWhiteSpace(SelectedWarehouseId))
         {
-            SetErrorMessage("Chọn kho và phạm vi cần kiểm kê.");
+            SetErrorMessage("Chọn kho cần kiểm kê.");
             return;
         }
 
-        if (scopes.Count > 500)
+        var selectedGroups = _scopeGroupsAll.Where(group => group.IsSelected).ToArray();
+        if (ScopeMode != "all" && selectedGroups.Length == 0)
         {
-            SetErrorMessage("Phạm vi này có hơn 500 dòng tồn. Hãy chọn theo lô hoặc theo vị trí để chia thành các đợt kiểm kê phù hợp.");
+            SetErrorMessage(ScopeMode == "lot" ? "Chọn ít nhất một lô cần kiểm kê." : "Chọn ít nhất một vị trí cần kiểm kê.");
             return;
         }
 
-        var fingerprint =
-            $"{SelectedWarehouseId}:{ScopeMode}:{string.Join("|", scopes.Select(ScopeRequestKey).OrderBy(value => value, StringComparer.Ordinal))}:{Note.Trim()}";
+        var lotSelections = ScopeMode == "lot"
+            ? selectedGroups
+                .Where(group => !string.IsNullOrWhiteSpace(group.BaseVariantId))
+                .Select(group => new InventoryStocktakeLotSelectionRequest(group.BaseVariantId!, group.LotId))
+                .ToArray()
+            : null;
+        var locationIds = ScopeMode == "location"
+            ? selectedGroups.Select(group => group.LocationId).Distinct(StringComparer.Ordinal).ToArray()
+            : null;
+        var selectionFingerprint = ScopeMode == "all"
+            ? "all"
+            : string.Join("|", selectedGroups.Select(group => group.Key).OrderBy(value => value, StringComparer.Ordinal));
+        var fingerprint = $"{SelectedWarehouseId}:{ScopeMode}:{selectionFingerprint}:{Note.Trim()}";
 
         await RunMutationAsync(
             "create",
@@ -531,7 +623,9 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
                 new InventoryStocktakeCreateRequest(
                     SelectedWarehouseId,
                     NormalizeOptional(Note),
-                    [.. scopes]),
+                    ScopeMode,
+                    lotSelections,
+                    locationIds),
                 KeyFor("create", SelectedWarehouseId, fingerprint)),
             "Đã tạo đợt kiểm kê. Số hệ thống được ẩn trong lúc đếm.").ConfigureAwait(true);
 
@@ -539,6 +633,7 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         {
             IsCreateOpen = false;
             Note = string.Empty;
+            ScopeSearch = string.Empty;
         }
     }
 
@@ -564,13 +659,29 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
                 SetErrorMessage($"Số thực đếm dòng {line.LineNumber} không hợp lệ.");
                 return;
             }
+            if (line.Reason.Trim().Length > 500)
+            {
+                SetErrorMessage($"Lý do dòng {line.LineNumber} vượt quá 500 ký tự.");
+                return;
+            }
+            if (line.Note.Trim().Length > 2000)
+            {
+                SetErrorMessage($"Ghi chú dòng {line.LineNumber} vượt quá 2000 ký tự.");
+                return;
+            }
         }
 
         var counts = Lines
-            .Select(line => new InventoryStocktakeCountLineRequest(line.Data.Id, line.CountedQuantity.Trim()))
+            .Select(line => new InventoryStocktakeCountLineRequest(
+                line.Data.Id,
+                line.CountedQuantity.Trim(),
+                NormalizeOptional(line.Reason),
+                NormalizeOptional(line.Note)))
             .ToArray();
 
-        var fingerprint = string.Join("|", counts.Select(item => $"{item.LineId}:{item.CountedBaseQuantity}"));
+        var fingerprint = string.Join(
+            "|",
+            counts.Select(item => $"{item.LineId}:{item.CountedBaseQuantity}:{item.Reason}:{item.Note}"));
 
         await RunMutationAsync(
             "count",
@@ -579,6 +690,58 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
                 new InventoryStocktakeCountRequest(SelectedStocktake.Revision, counts),
                 KeyFor("count", SelectedStocktake.Id, $"{SelectedStocktake.Revision}:{fingerprint}")),
             "Đã ghi nhận số đếm thực tế. Chọn Gửi duyệt để chuyển phiếu sang người duyệt.").ConfigureAwait(true);
+    }
+
+    public async Task SaveAnnotationsAsync()
+    {
+        if (!CanAnnotateSelected || SelectedStocktake is null) return;
+
+        foreach (var line in Lines)
+        {
+            if (line.Reason.Trim().Length > 500)
+            {
+                SetErrorMessage($"Lý do dòng {line.LineNumber} vượt quá 500 ký tự.");
+                return;
+            }
+            if (line.Note.Trim().Length > 2000)
+            {
+                SetErrorMessage($"Ghi chú dòng {line.LineNumber} vượt quá 2000 ký tự.");
+                return;
+            }
+        }
+
+        var annotations = Lines
+            .Select(line => new InventoryStocktakeAnnotationLineRequest(
+                line.Data.Id,
+                NormalizeOptional(line.Reason),
+                NormalizeOptional(line.Note)))
+            .ToArray();
+        var fingerprint = string.Join("|", annotations.Select(item => $"{item.LineId}:{item.Reason}:{item.Note}"));
+        var revision = SelectedStocktake.Revision;
+        var id = SelectedStocktake.Id;
+
+        await RunMutationAsync(
+            "annotate",
+            () => _service.AnnotateAsync(
+                id,
+                new InventoryStocktakeAnnotateRequest(revision, annotations),
+                KeyFor("annotate", id, $"{revision}:{fingerprint}")),
+            "Đã lưu Lý do và Ghi chú cho các dòng kiểm kê.").ConfigureAwait(true);
+    }
+
+    public async Task CopyAsync()
+    {
+        if (!CanCopySelected || SelectedStocktake is null) return;
+
+        var id = SelectedStocktake.Id;
+        var revision = SelectedStocktake.Revision;
+        await RunMutationAsync(
+            "copy",
+            () => _service.CopyAsync(
+                id,
+                new InventoryStocktakeCopyRequest(revision),
+                KeyFor("copy", id, revision)),
+            "Đã sao chép phiếu và snapshot tồn hiện tại vào phiếu mới.").ConfigureAwait(true);
     }
 
     public Task SubmitAsync() =>
@@ -675,7 +838,8 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
                 .OrderBy(line => line.LineNumber)
                 .Select(line => new StocktakeLineRow(
                     line,
-                    _productNames.TryGetValue(line.BaseVariantId, out var name) ? name : line.BaseSku)));
+                    _productNames.TryGetValue(line.BaseVariantId, out var name) ? name : line.BaseSku,
+                    (detail.Status is "submitted" or "approved") && CanCount)));
 
         Replace(
             Rounds,
@@ -686,6 +850,9 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         var row = FilteredStocktakes.FirstOrDefault(item => item.Data.Id == detail.Id);
         if (row is not null) SelectedListRow = row;
 
+        if (IsBlindCount && (LineFilter is "matched" or "mismatch")) LineFilter = "all";
+        _linePage = 1;
+        ApplyLinePaging();
         RaiseDetailState();
     }
 
@@ -716,12 +883,12 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
 
     private void RebuildScopeGroups()
     {
-        foreach (var group in ScopeGroups)
+        foreach (var group in _scopeGroupsAll)
         {
             group.PropertyChanged -= ScopeGroup_PropertyChanged;
         }
 
-        ScopeGroups.Clear();
+        _scopeGroupsAll.Clear();
         var balances = ExactBalancesForSelectedWarehouse();
 
         if (ScopeMode == "lot")
@@ -733,11 +900,15 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
                          .OrderBy(group => DisplayProduct(group.First()), StringComparer.OrdinalIgnoreCase))
             {
                 var first = group.First();
+                var lot = string.IsNullOrWhiteSpace(first.LotCode) ? "Không lô" : first.LotCode;
+                var expiry = string.IsNullOrWhiteSpace(first.ExpiryDate) ? "Không HSD" : $"HSD {first.ExpiryDate}";
                 AddScopeGroup(new StocktakeScopeGroupRow(
                     group.Key,
                     $"{DisplayProduct(first)} · {first.BaseSku}",
-                    $"Lô {(string.IsNullOrWhiteSpace(first.LotCode) ? "Không lô" : first.LotCode)} · {group.Count()} vị trí",
-                    group.Select(ToScope).ToArray()));
+                    $"Lô {lot} · {expiry}",
+                    first.BaseVariantId,
+                    first.LotId,
+                    null));
             }
         }
         else if (ScopeMode == "location")
@@ -749,14 +920,19 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
                          .OrderBy(group => group.First().LocationCode, StringComparer.OrdinalIgnoreCase))
             {
                 var first = group.First();
+                var code = string.IsNullOrWhiteSpace(first.LocationCode) ? "Không vị trí" : first.LocationCode;
+                var name = string.IsNullOrWhiteSpace(first.LocationName) ? string.Empty : $" · {first.LocationName}";
                 AddScopeGroup(new StocktakeScopeGroupRow(
                     group.Key,
-                    $"Vị trí {(string.IsNullOrWhiteSpace(first.LocationCode) ? "Không vị trí" : first.LocationCode)}",
-                    $"{group.Count()} phạm vi sản phẩm/lô",
-                    group.Select(ToScope).ToArray()));
+                    $"{code}{name}",
+                    $"{group.Count()} sản phẩm/lô đang có tồn",
+                    null,
+                    null,
+                    first.LocationId));
             }
         }
 
+        ApplyScopeGroupFilter();
         RaiseScopeSelection();
     }
 
@@ -767,18 +943,31 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
             .Select(group => group.First())
             .ToList();
 
-    private List<InventoryStocktakeScopeRequest> SelectedScopes() =>
-        (ScopeMode == "all"
-            ? ExactBalancesForSelectedWarehouse().Select(ToScope)
-            : ScopeGroups.Where(group => group.IsSelected).SelectMany(group => group.Scopes))
-        .GroupBy(ScopeRequestKey, StringComparer.Ordinal)
-        .Select(group => group.First())
-        .ToList();
-
     private void AddScopeGroup(StocktakeScopeGroupRow group)
     {
         group.PropertyChanged += ScopeGroup_PropertyChanged;
-        ScopeGroups.Add(group);
+        _scopeGroupsAll.Add(group);
+    }
+
+    private void ApplyScopeGroupFilter()
+    {
+        if (ScopeMode == "all")
+        {
+            ScopeGroups.Clear();
+            RaiseScopeSelection();
+            return;
+        }
+
+        var search = ScopeSearch.Trim();
+        Replace(
+            ScopeGroups,
+            _scopeGroupsAll
+                .Where(group =>
+                    search.Length == 0
+                    || group.Label.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    || group.Detail.Contains(search, StringComparison.OrdinalIgnoreCase))
+                .Take(ScopePickerResultLimit));
+        RaiseScopeSelection();
     }
 
     private void ScopeGroup_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -789,12 +978,91 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         }
     }
 
+    public void SelectAllScopeResults()
+    {
+        foreach (var group in ScopeGroups) group.IsSelected = true;
+        RaiseScopeSelection();
+    }
+
+    public void ClearScopeResults()
+    {
+        foreach (var group in ScopeGroups) group.IsSelected = false;
+        RaiseScopeSelection();
+    }
+
     private void RaiseScopeSelection()
     {
+        Replace(SelectedScopeGroups, _scopeGroupsAll.Where(group => group.IsSelected).Take(12));
         OnPropertyChanged(nameof(SelectedScopeCount));
         OnPropertyChanged(nameof(ScopeSelectionText));
+        OnPropertyChanged(nameof(ScopeResultsText));
         OnPropertyChanged(nameof(HasScopeGroups));
         OnPropertyChanged(nameof(HasNoScopeGroups));
+    }
+
+    public void SetLineFilter(string filter)
+    {
+        if (filter is not ("all" or "uncounted" or "matched" or "mismatch")) return;
+        if (IsBlindCount && (filter is "matched" or "mismatch")) return;
+        LineFilter = filter;
+        _linePage = 1;
+        ApplyLinePaging();
+    }
+
+    public void PreviousLinePage()
+    {
+        if (_linePage <= 1) return;
+        _linePage--;
+        ApplyLinePaging();
+    }
+
+    public void NextLinePage()
+    {
+        if (_linePage >= TotalLinePages) return;
+        _linePage++;
+        ApplyLinePaging();
+    }
+
+    public void RefreshLinePaging()
+    {
+        _linePage = Math.Min(_linePage, TotalLinePages);
+        ApplyLinePaging();
+    }
+
+    private bool IsLineUncounted(StocktakeLineRow line) =>
+        IsBlindCount
+            ? string.IsNullOrWhiteSpace(line.CountedQuantity)
+            : line.Data.CountedBaseQuantity is null;
+
+    private IEnumerable<StocktakeLineRow> FilteredLines() =>
+        LineFilter switch
+        {
+            "uncounted" => Lines.Where(IsLineUncounted),
+            "matched" => Lines.Where(line => line.Data.CountStatus == "matched"),
+            "mismatch" => Lines.Where(line => line.Data.CountStatus == "mismatch"),
+            _ => Lines
+        };
+
+    private int FilteredLineCount() => FilteredLines().Count();
+
+    private void ApplyLinePaging()
+    {
+        var totalPages = TotalLinePages;
+        _linePage = Math.Clamp(_linePage, 1, totalPages);
+        Replace(PagedLines, FilteredLines().Skip((_linePage - 1) * LinePageSize).Take(LinePageSize));
+        OnPropertyChanged(nameof(AllLineCount));
+        OnPropertyChanged(nameof(UncountedLineCount));
+        OnPropertyChanged(nameof(MatchedLineCount));
+        OnPropertyChanged(nameof(MismatchLineCount));
+        OnPropertyChanged(nameof(AllLineFilterText));
+        OnPropertyChanged(nameof(UncountedLineFilterText));
+        OnPropertyChanged(nameof(MatchedLineFilterText));
+        OnPropertyChanged(nameof(MismatchLineFilterText));
+        OnPropertyChanged(nameof(CanUseRevealFilters));
+        OnPropertyChanged(nameof(TotalLinePages));
+        OnPropertyChanged(nameof(LinePageText));
+        OnPropertyChanged(nameof(CanPreviousLinePage));
+        OnPropertyChanged(nameof(CanNextLinePage));
     }
 
     private void RaiseDetailState()
@@ -809,6 +1077,11 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsReviewTable));
         OnPropertyChanged(nameof(CanPrint));
         OnPropertyChanged(nameof(CanCountSelected));
+        OnPropertyChanged(nameof(CanAnnotateSelected));
+        OnPropertyChanged(nameof(CanCopySelected));
+        OnPropertyChanged(nameof(CanExportCountFile));
+        OnPropertyChanged(nameof(CanImportCountFile));
+        OnPropertyChanged(nameof(CanExportResults));
         OnPropertyChanged(nameof(CanSubmitSelected));
         OnPropertyChanged(nameof(CanRecountSelected));
         OnPropertyChanged(nameof(CanApproveSelected));
@@ -867,24 +1140,25 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         _stocktakes.Clear();
         _balances.Clear();
         _productNames.Clear();
+        foreach (var group in _scopeGroupsAll) group.PropertyChanged -= ScopeGroup_PropertyChanged;
+        _scopeGroupsAll.Clear();
         FilteredStocktakes.Clear();
         Warehouses.Clear();
         Lines.Clear();
+        PagedLines.Clear();
         Rounds.Clear();
         ScopeGroups.Clear();
+        SelectedScopeGroups.Clear();
         SelectedStocktake = null;
         SelectedListRow = null;
         IsCreateOpen = false;
         SelectedWarehouseId = string.Empty;
+        ScopeSearch = string.Empty;
+        LineFilter = "all";
+        _linePage = 1;
         Note = string.Empty;
         Reason = string.Empty;
     }
-
-    private static InventoryStocktakeScopeRequest ToScope(InventoryBalanceData balance) =>
-        new(balance.LocationId, balance.BaseVariantId, balance.LotId);
-
-    private static string ScopeRequestKey(InventoryStocktakeScopeRequest scope) =>
-        $"{scope.LocationId ?? "<null>"}:{scope.BaseVariantId}:{scope.LotId ?? "<null>"}";
 
     private static string DisplayProduct(InventoryBalanceData balance) =>
         string.IsNullOrWhiteSpace(balance.ProductName)
@@ -896,6 +1170,12 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
 
     private static string? NormalizeOptional(string value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    public void ReportFileNotice(string message) => SetNotice(message);
+
+    public void ReportFileError(string message) => SetErrorMessage(message);
+
+    public void ReportFileError(Exception exception) => SetError(exception);
 
     private void ClearMessage()
     {
@@ -915,13 +1195,24 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
         Message = message;
     }
 
-    private void SetError(Exception exception) =>
+    private void SetError(Exception exception)
+    {
+        if (exception is CanonicalApiException apiException
+            && string.Equals(apiException.Code, "WAREHOUSE_LOCATION_MODE_REQUIRED", StringComparison.Ordinal))
+        {
+            SetErrorMessage(CanonicalErrorMessages.WithRequestId(
+                "Kho chưa thiết lập chế độ quản lý vị trí. Hãy cấu hình MANAGED/UNMANAGED trên hệ thống trước khi tạo kiểm kê; Desktop không tự chọn thay.",
+                apiException.RequestId));
+            return;
+        }
+
         SetErrorMessage(
-            exception is CanonicalApiException apiException
+            exception is CanonicalApiException canonical
                 ? CanonicalErrorMessages.WithRequestId(
-                    CanonicalErrorMessages.ToOfficeMessage(apiException),
-                    apiException.RequestId)
+                    CanonicalErrorMessages.ToOfficeMessage(canonical),
+                    canonical.RequestId)
                 : exception.Message);
+    }
 
     private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> values)
     {
