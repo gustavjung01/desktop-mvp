@@ -125,6 +125,7 @@ public sealed class UserScopeParityTests
     public void Lot3_ViewModel_UsesRequiredPermissionsAndOwnerProtection()
     {
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserScopeViewModel.cs");
+        var presentation = ReadRepoFile("src", "CongTy.Desktop", "Access", "UserScopePresentation.cs");
 
         StringAssert.Contains(viewModel, "core.user.read");
         StringAssert.Contains(viewModel, "core.user-role.write");
@@ -133,7 +134,7 @@ public sealed class UserScopeParityTests
         StringAssert.Contains(viewModel, "OwnerFullScope");
         StringAssert.Contains(viewModel, "!OwnerFullScope");
         StringAssert.Contains(viewModel, "SECURITY_OWNER_PROTECTED");
-        StringAssert.Contains(viewModel, "Toàn Công Ty");
+        StringAssert.Contains(presentation, "Toàn Công Ty");
     }
 
     [TestMethod]
