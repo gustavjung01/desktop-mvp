@@ -20,6 +20,7 @@ public partial class MainWindow
         WireCustomerReturnCreditsWorkspace();
         WirePayablesWorkspace();
         WireSupplierPaymentsWorkspace();
+        WireDataExchangeWorkspace();
     }
 
     private void WireOrderManagementWorkspace()
