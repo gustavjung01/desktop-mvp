@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using CongTy.Desktop.Accounting;
 using CongTy.Desktop.Dashboard;
 using CongTy.Desktop.DocumentNumbering;
@@ -43,9 +44,12 @@ public partial class MainWindow : Window
     private readonly GrossMarginReportingView _grossMarginReportingView;
     private readonly SalesOperationsView _salesOperationsView;
     private readonly InventoryView _inventoryView;
+    private readonly QuickActionWindowService _quickActionWindows;
+    private bool _quickActionsOpen;
 
     public MainWindow(
         ShellViewModel viewModel,
+        QuickActionWindowService quickActionWindows,
         DashboardView dashboardView,
         InternalOrganizationView internalOrganizationView,
         PartnerView partnerView,
@@ -84,6 +88,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _viewModel = viewModel;
+        _quickActionWindows = quickActionWindows;
         _internalOrganizationView = internalOrganizationView;
         _partnerView = partnerView;
         _productView = productView;
@@ -274,6 +279,63 @@ public partial class MainWindow : Window
         {
             _viewModel.ToggleNavigationGroup(group);
         }
+    }
+
+    private void QuickActionsRoot_OnMouseEnter(object sender, MouseEventArgs e) =>
+        SetQuickActionsOpen(true);
+
+    private void QuickActionsRoot_OnMouseLeave(object sender, MouseEventArgs e) =>
+        SetQuickActionsOpen(false);
+
+    private void QuickActionsTrigger_OnClick(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        SetQuickActionsOpen(!_quickActionsOpen);
+    }
+
+    private async void QuickActionProducts_OnClick(object sender, RoutedEventArgs e)
+    {
+        SetQuickActionsOpen(false);
+        await _quickActionWindows.OpenProductsAsync(this);
+    }
+
+    private async void QuickActionCustomers_OnClick(object sender, RoutedEventArgs e)
+    {
+        SetQuickActionsOpen(false);
+        await _quickActionWindows.OpenCustomersAsync(this);
+    }
+
+    private async void QuickActionCreateSalesOrder_OnClick(object sender, RoutedEventArgs e)
+    {
+        SetQuickActionsOpen(false);
+        await _quickActionWindows.OpenSalesOrderCreateAsync(this);
+    }
+
+    private void WorkspaceRoot_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_quickActionsOpen && !QuickActionsRoot.IsMouseOver)
+        {
+            SetQuickActionsOpen(false);
+        }
+    }
+
+    private void WorkspaceRoot_OnPreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Escape || !_quickActionsOpen)
+        {
+            return;
+        }
+
+        SetQuickActionsOpen(false);
+        e.Handled = true;
+    }
+
+    private void SetQuickActionsOpen(bool open)
+    {
+        _quickActionsOpen = open;
+        QuickActionMenu.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+        QuickActionTriggerRotation.Angle = open ? 45 : 0;
+        QuickActionsTrigger.ToolTip = open ? "Đóng thao tác nhanh" : "Thao tác nhanh";
     }
 
     private void SidebarSubItem_OnClick(object sender, RoutedEventArgs e)

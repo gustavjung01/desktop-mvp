@@ -290,6 +290,21 @@ public sealed class SalesViewModel : INotifyPropertyChanged
         finally{IsBusy=false;}
     }
 
+    public void OpenQuickCreateEditor()
+    {
+        if(!CanCreate)
+        {
+            SetMessage("Bạn không có quyền tạo đơn bán hàng.",true);
+            return;
+        }
+        if(_entrySettings is null)
+        {
+            SetMessage("Không tải được cấu hình tạo đơn bán hàng.",true);
+            return;
+        }
+        OpenCreateEditor();
+    }
+
     public void OpenCreateEditor()
     {
         if(!CanCreate||_entrySettings is null)return;
