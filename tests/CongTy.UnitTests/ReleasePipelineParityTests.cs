@@ -87,6 +87,7 @@ public sealed class ReleasePipelineParityTests
         StringAssert.Contains(view, "Phiên bản mới");
         StringAssert.Contains(view, "Tiến trình tải");
         StringAssert.Contains(view, "PrimaryAction_OnClick");
+        StringAssert.Contains(view, "Value=\"{Binding ProgressPercent, Mode=OneWay}\"");
     }
 
     private static string ReadRepoFile(params string[] parts)

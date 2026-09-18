@@ -89,7 +89,7 @@
                                          Height="9"
                                          Minimum="0"
                                          Maximum="100"
-                                         Value="{Binding ProgressPercent}" />
+                                         Value="{Binding ProgressPercent, Mode=OneWay}" />
                         </StackPanel>
 
                         <Border Margin="0,16,0,0"
