@@ -15,9 +15,9 @@ public sealed class AppUpdaterTests
         Assert.IsTrue(AppSemanticVersion.TryParse("1.2.3-beta.2", out var prerelease));
         Assert.IsTrue(AppSemanticVersion.TryParse("1.2.3", out var equal));
 
-        Assert.IsTrue(newer.CompareTo(stable) > 0);
+        Assert.IsGreaterThan(0, newer.CompareTo(stable));
         Assert.AreEqual(0, stable.CompareTo(equal));
-        Assert.IsTrue(prerelease.CompareTo(stable) < 0);
+        Assert.IsLessThan(0, prerelease.CompareTo(stable));
     }
 
     [TestMethod]
@@ -33,14 +33,14 @@ public sealed class AppUpdaterTests
     public void Manifest_ValidatesSchemaSecurityHashAndSize()
     {
         var valid = CreateManifest();
-        Assert.AreEqual(0, valid.Validate().Count);
+        Assert.IsEmpty(valid.Validate());
 
-        Assert.IsTrue((valid with { SchemaVersion = 2 }).Validate().Count > 0);
-        Assert.IsTrue((valid with { DownloadPath = "../evil.exe" }).Validate().Count > 0);
-        Assert.IsTrue((valid with { DownloadPath = "nested/update.exe" }).Validate().Count > 0);
-        Assert.IsTrue((valid with { DownloadPath = "https://evil.invalid/a.exe" }).Validate().Count > 0);
-        Assert.IsTrue((valid with { Sha256 = "abc" }).Validate().Count > 0);
-        Assert.IsTrue((valid with { Size = 0 }).Validate().Count > 0);
+        Assert.IsNotEmpty((valid with { SchemaVersion = 2 }).Validate());
+        Assert.IsNotEmpty((valid with { DownloadPath = "../evil.exe" }).Validate());
+        Assert.IsNotEmpty((valid with { DownloadPath = "nested/update.exe" }).Validate());
+        Assert.IsNotEmpty((valid with { DownloadPath = "https://evil.invalid/a.exe" }).Validate());
+        Assert.IsNotEmpty((valid with { Sha256 = "abc" }).Validate());
+        Assert.IsNotEmpty((valid with { Size = 0 }).Validate());
     }
 
     [TestMethod]
