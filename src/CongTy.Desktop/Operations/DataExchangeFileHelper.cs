@@ -67,7 +67,7 @@ internal static class DataExchangeFileHelper
             if (value.IndexOfAny([',', '"', '\r', '\n']) >= 0)
             {
                 builder.Append('"');
-                builder.Append(value.Replace(""", """", StringComparison.Ordinal));
+                builder.Append(value.Replace("\\\"", "\\\"\\\"", StringComparison.Ordinal));
                 builder.Append('"');
             }
             else
