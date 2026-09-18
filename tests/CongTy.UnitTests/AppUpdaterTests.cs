@@ -110,15 +110,25 @@ public sealed class AppUpdaterTests
     }
 
     [TestMethod]
-    public void InstalledBuildDetector_RejectsDevelopmentOrDifferentDirectory()
+    public void InstalledBuildDetector_AcceptsInstalledBaseDirectoryAndRejectsDevelopmentOutput()
     {
-        var installed = Path.Combine(Path.GetTempPath(), "CONGTY-installed");
-        var executable = Path.Combine(installed, "CongTy.Desktop.exe");
-        var otherExecutable = Path.Combine(Path.GetTempPath(), "dev", "CongTy.Desktop.exe");
+        const string installed = @"F:\1_A_Disk_D\Hung-Phat\app";
+        const string developmentBase =
+            @"C:\src\desktop-mvp\src\CongTy.Desktop\bin\Release\net10.0-windows";
+        var installedBase = installed + Path.DirectorySeparatorChar;
 
-        Assert.IsTrue(AppUpdateService.IsExecutableInInstallDirectory(installed, executable));
-        Assert.IsFalse(AppUpdateService.IsExecutableInInstallDirectory(installed, otherExecutable));
-        Assert.IsFalse(AppUpdateService.IsExecutableInInstallDirectory(null, executable));
+        Assert.IsTrue(
+            AppUpdateService.IsApplicationBaseDirectoryInInstallDirectory(
+                installed,
+                installedBase));
+        Assert.IsFalse(
+            AppUpdateService.IsApplicationBaseDirectoryInInstallDirectory(
+                installed,
+                developmentBase));
+        Assert.IsFalse(
+            AppUpdateService.IsApplicationBaseDirectoryInInstallDirectory(
+                null,
+                installedBase));
     }
 
     private static AppUpdateManifest CreateManifest() => new()
