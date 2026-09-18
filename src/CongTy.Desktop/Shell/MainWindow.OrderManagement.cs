@@ -21,6 +21,7 @@ public partial class MainWindow
         WirePayablesWorkspace();
         WireSupplierPaymentsWorkspace();
         WireDataExchangeWorkspace();
+        WireAuditHistoryWorkspace();
     }
 
     private void WireOrderManagementWorkspace()
