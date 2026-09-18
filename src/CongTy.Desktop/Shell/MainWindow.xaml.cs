@@ -46,6 +46,7 @@ public partial class MainWindow : Window
     private readonly InventoryView _inventoryView;
     private readonly QuickActionWindowService _quickActionWindows;
     private bool _quickActionsOpen;
+    private bool _quickActionsOpenedByHover;
 
     public MainWindow(
         ShellViewModel viewModel,
@@ -281,8 +282,16 @@ public partial class MainWindow : Window
         }
     }
 
-    private void QuickActionsRoot_OnMouseEnter(object sender, MouseEventArgs e) =>
+    private void QuickActionsRoot_OnMouseEnter(object sender, MouseEventArgs e)
+    {
+        if (_quickActionsOpen)
+        {
+            return;
+        }
+
+        _quickActionsOpenedByHover = true;
         SetQuickActionsOpen(true);
+    }
 
     private void QuickActionsRoot_OnMouseLeave(object sender, MouseEventArgs e) =>
         SetQuickActionsOpen(false);
@@ -290,6 +299,16 @@ public partial class MainWindow : Window
     private void QuickActionsTrigger_OnClick(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
+
+        // Mouse hover already opens the menu. The first click must keep it open
+        // instead of immediately toggling it closed.
+        if (_quickActionsOpen && _quickActionsOpenedByHover)
+        {
+            _quickActionsOpenedByHover = false;
+            return;
+        }
+
+        _quickActionsOpenedByHover = false;
         SetQuickActionsOpen(!_quickActionsOpen);
     }
 
@@ -333,6 +352,11 @@ public partial class MainWindow : Window
     private void SetQuickActionsOpen(bool open)
     {
         _quickActionsOpen = open;
+        if (!open)
+        {
+            _quickActionsOpenedByHover = false;
+        }
+
         QuickActionMenu.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
         QuickActionTriggerRotation.Angle = open ? 45 : 0;
         QuickActionsTrigger.ToolTip = open ? "Đóng thao tác nhanh" : "Thao tác nhanh";
