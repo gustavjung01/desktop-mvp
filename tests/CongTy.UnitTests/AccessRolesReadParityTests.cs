@@ -49,7 +49,6 @@ public sealed class AccessRolesReadParityTests
             "Đang sử dụng",
             "Danh mục quyền",
             "Tìm kiếm vai trò",
-            "Tất cả trạng thái",
             "Vai trò và tập quyền",
             "Mã vai trò",
             "Tên vai trò",
@@ -67,6 +66,10 @@ public sealed class AccessRolesReadParityTests
             StringAssert.Contains(view, text);
 
         StringAssert.Contains(view, "IsEnabled=\"{Binding CanPersist}\"");
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Access", "AccessRolesViewModel.cs");
+        StringAssert.Contains(viewModel, "new(\"all\", \"Tất cả trạng thái\")");
+        StringAssert.Contains(viewModel, "new(\"active\", \"Đang sử dụng\")");
+        StringAssert.Contains(viewModel, "new(\"inactive\", \"Ngừng sử dụng\")");
         Assert.IsFalse(view.Contains("Lô 1", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("Lô 2", StringComparison.Ordinal));
         StringAssert.Contains(view, "Thay đổi trên form này chưa được lưu.");
