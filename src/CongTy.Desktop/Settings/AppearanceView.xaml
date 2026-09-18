@@ -33,7 +33,7 @@
         <StackPanel Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
             <Button Style="{StaticResource SettingsTabStyle}" Click="DataBackup_OnClick" Content="Dữ liệu &amp; sao lưu" />
             <Button Style="{StaticResource SettingsTabStyle}" Click="PrintTemplates_OnClick" Content="Mẫu in" />
-            <Button Style="{StaticResource SettingsTabStyle}" IsEnabled="False" Content="Ứng dụng máy tính" />
+            <Button Style="{StaticResource SettingsTabStyle}" Click="DesktopApp_OnClick" Content="Ứng dụng máy tính" />
             <Button Style="{StaticResource SettingsTabStyle}" IsEnabled="False" Content="Giao diện" />
         </StackPanel>
 

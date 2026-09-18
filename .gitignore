@@ -6,3 +6,5 @@ obj/
 TestResults/
 artifacts/
 *.tmp
+src/CongTy.Desktop/Assets/Brand/logo.ico
+dist/

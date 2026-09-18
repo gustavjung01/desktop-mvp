@@ -370,6 +370,13 @@
                     BorderThickness="1"
                     CornerRadius="12">
                 <StackPanel>
+                    <Image Width="78"
+                           Height="78"
+                           Margin="0,0,0,14"
+                           HorizontalAlignment="Left"
+                           Source="/Assets/Brand/logo.jpg"
+                           Stretch="Uniform"
+                           SnapsToDevicePixels="True" />
                     <TextBlock Text="{Binding CompanyName}"
                                FontSize="25"
                                FontWeight="SemiBold"
@@ -447,12 +454,12 @@
                     <Grid Grid.Row="0" Margin="8,6">
                         <Grid><Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Grid.Style>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <Border Width="38" Height="38" CornerRadius="10" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1" VerticalAlignment="Center"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
+                            <Border Width="38" Height="38" CornerRadius="10" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1" VerticalAlignment="Center"><Image Source="/Assets/Brand/logo.jpg" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
                             <StackPanel Grid.Column="1" Margin="8,0,6,0" VerticalAlignment="Center"><TextBlock Text="{Binding CompanyName}" Foreground="{DynamicResource SidebarTextBrush}" FontWeight="Bold" FontSize="13" TextTrimming="CharacterEllipsis" /><TextBlock Text="CÔNG TY" Margin="0,2,0,0" Foreground="{DynamicResource SidebarMutedTextBrush}" FontSize="9" FontWeight="SemiBold" /></StackPanel>
                             <Button Grid.Column="2" Width="36" Height="36" Panel.ZIndex="20" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Thu gọn thanh điều hướng" Content="☰" />
                         </Grid>
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
-                            <Border Width="34" Height="34" CornerRadius="9" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
+                            <Border Width="34" Height="34" CornerRadius="9" Background="White" BorderBrush="#28FFFFFF" BorderThickness="1"><Image Source="/Assets/Brand/logo.jpg" Stretch="Uniform" Margin="3" SnapsToDevicePixels="True" /></Border>
                             <Button Width="36" Height="32" Margin="0,3,0,0" Panel.ZIndex="20" Style="{StaticResource SidebarIconButtonStyle}" Click="ToggleSidebar_OnClick" ToolTip="Mở rộng thanh điều hướng" Content="☰" />
                         </StackPanel>
                     </Grid>
@@ -650,7 +657,7 @@
                         <Grid Margin="8,4">
                             <Grid><Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding IsSidebarExpanded}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></Grid.Style>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="38" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                <Border Width="30" Height="30" CornerRadius="15" Background="White" VerticalAlignment="Center"><Image Source="https://retail.nguyenlieuhungphat.com/logo-transparent.png" Stretch="Uniform" Margin="2" /></Border>
+                                <Border Width="30" Height="30" CornerRadius="15" Background="White" VerticalAlignment="Center"><Image Source="/Assets/Brand/logo.jpg" Stretch="Uniform" Margin="2" /></Border>
                                 <StackPanel Grid.Column="1" Margin="8,0" VerticalAlignment="Center"><TextBlock Text="{Binding UserDisplayName}" Foreground="{DynamicResource SidebarTextBrush}" FontWeight="SemiBold" FontSize="11.5" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding LoginNameText}" Margin="0,1,0,0" Foreground="{DynamicResource SidebarMutedTextBrush}" FontSize="9.5" TextTrimming="CharacterEllipsis" /></StackPanel>
                                 <Button Grid.Column="2" Margin="0,0,4,0" Style="{StaticResource SidebarIconButtonStyle}" Click="Settings_OnClick" ToolTip="Cài đặt ứng dụng" Content="⚙" /><Button Grid.Column="3" Style="{StaticResource SidebarIconButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="Logout_OnClick" ToolTip="Đăng xuất" Content="↪" />
                             </Grid>

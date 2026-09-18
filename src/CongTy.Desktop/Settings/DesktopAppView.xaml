@@ -1,0 +1,123 @@
+<UserControl x:Class="CongTy.Desktop.Settings.DesktopAppView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="SettingsTabStyle" TargetType="Button" BasedOn="{StaticResource OfficeSecondaryButtonStyle}">
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="MinWidth" Value="120" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource SettingsTabStyle}" Click="DataBackup_OnClick" Content="Dữ liệu &amp; sao lưu" />
+            <Button Style="{StaticResource SettingsTabStyle}" Click="PrintTemplates_OnClick" Content="Mẫu in" />
+            <Button Style="{StaticResource SettingsTabStyle}" IsEnabled="False" Content="Ứng dụng máy tính" />
+            <Button Style="{StaticResource SettingsTabStyle}" Click="Appearance_OnClick" Content="Giao diện" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      Margin="0,12,0,0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <UniformGrid Columns="3">
+                    <Border Margin="0,0,8,0" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Foreground="{DynamicResource TextSecondaryBrush}" Text="Phiên bản hiện tại" />
+                            <TextBlock Margin="0,7,0,0" FontSize="22" FontWeight="SemiBold" Text="{Binding CurrentVersion}" />
+                            <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" Text="Bản CONGTY đang chạy" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="4,0" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Foreground="{DynamicResource TextSecondaryBrush}" Text="Phiên bản mới" />
+                            <TextBlock Margin="0,7,0,0" FontSize="22" FontWeight="SemiBold" Text="{Binding AvailableVersion}" />
+                            <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" Text="Nguồn cập nhật R2" />
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="8,0,0,0" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Foreground="{DynamicResource TextSecondaryBrush}" Text="Trạng thái" />
+                            <TextBlock Margin="0,7,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding StatusLabel}" />
+                            <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" Text="{Binding InstallModeText}" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <Border Margin="0,12,0,16" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <Border HorizontalAlignment="Left"
+                                Padding="10,6"
+                                CornerRadius="8"
+                                Background="{DynamicResource AccentSoftBrush}">
+                            <TextBlock FontWeight="SemiBold" Text="{Binding StatusLabel}" />
+                        </Border>
+
+                        <TextBlock Margin="0,14,0,0"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Text="{Binding Message}"
+                                   TextWrapping="Wrap" />
+                        <TextBlock Margin="0,7,0,0"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   Text="CONGTY chỉ tải bản cập nhật từ feed R2 chính hãng. File cài đặt được kiểm tra dung lượng và SHA-256 trước khi có thể chạy." />
+
+                        <StackPanel Margin="0,16,0,0"
+                                    Visibility="{Binding HasReleaseNotes, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock FontWeight="SemiBold" Text="Ghi chú phát hành" />
+                            <TextBlock Margin="0,5,0,0"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Text="{Binding ReleaseNotes}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,16,0,0"
+                                    Visibility="{Binding IsProgressVisible, Converter={StaticResource BoolToVisibility}}">
+                            <Grid>
+                                <TextBlock FontWeight="SemiBold" Text="Tiến trình tải" />
+                                <TextBlock HorizontalAlignment="Right" Text="{Binding ProgressText}" />
+                            </Grid>
+                            <ProgressBar Margin="0,8,0,0"
+                                         Height="9"
+                                         Minimum="0"
+                                         Maximum="100"
+                                         Value="{Binding ProgressPercent, Mode=OneWay}" />
+                        </StackPanel>
+
+                        <Border Margin="0,16,0,0"
+                                Padding="12"
+                                BorderBrush="{DynamicResource DangerBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Foreground="{DynamicResource DangerBrush}"
+                                       Text="{Binding Error}"
+                                       TextWrapping="Wrap" />
+                        </Border>
+
+                        <Grid Margin="0,18,0,0">
+                            <Button HorizontalAlignment="Left"
+                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    IsEnabled="{Binding CanPrimaryAction}"
+                                    Click="PrimaryAction_OnClick"
+                                    Content="{Binding PrimaryActionLabel}" />
+                            <TextBlock Margin="230,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap"
+                                       Text="Chỉ cài sau khi bấm nút cập nhật. Thành công chỉ được xác nhận sau khi CONGTY mở lại bằng đúng phiên bản mới." />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

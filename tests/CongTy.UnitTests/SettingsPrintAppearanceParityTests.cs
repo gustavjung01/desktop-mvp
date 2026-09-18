@@ -44,7 +44,7 @@ public sealed class SettingsPrintAppearanceParityTests
         }) StringAssert.Contains(view, text);
 
         StringAssert.Contains(view, "Content=\"Ứng dụng máy tính\"");
-        StringAssert.Contains(view, "IsEnabled=\"False\" Content=\"Ứng dụng máy tính\"");
+        StringAssert.Contains(view, "Click=\"DesktopApp_OnClick\" Content=\"Ứng dụng máy tính\"");
         Assert.IsFalse(view.Contains("NPP Core", StringComparison.OrdinalIgnoreCase));
     }
 
@@ -118,7 +118,7 @@ public sealed class SettingsPrintAppearanceParityTests
     }
 
     [TestMethod]
-    public void SettingsShell_WiresBackupPrintAndAppearanceButSkipsDesktopAppWorkspace()
+    public void SettingsShell_WiresBackupPrintDesktopAppAndAppearance()
     {
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.DataBackup.cs");
         var host = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.DataBackup.cs");
@@ -127,12 +127,16 @@ public sealed class SettingsPrintAppearanceParityTests
         StringAssert.Contains(shell, "settings.data-backup");
         StringAssert.Contains(shell, "settings.print-templates");
         StringAssert.Contains(shell, "settings.appearance");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex is 47 or 48 or 49");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex is 47 or 48 or 49 or 54");
         StringAssert.Contains(host, "workspaceTabs.Items[47]");
         StringAssert.Contains(host, "workspaceTabs.Items[48]");
         StringAssert.Contains(host, "workspaceTabs.Items[49]");
-        Assert.IsFalse(host.Contains("DesktopApp", StringComparison.OrdinalIgnoreCase));
+        StringAssert.Contains(shell, "settings.desktop-app");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex == 54");
+        StringAssert.Contains(host, "DesktopAppView");
+        StringAssert.Contains(host, "workspaceTabs.Items[54]");
         StringAssert.Contains(backupView, "Click=\"PrintTemplates_OnClick\"");
+        StringAssert.Contains(backupView, "Click=\"DesktopApp_OnClick\"");
         StringAssert.Contains(backupView, "Click=\"Appearance_OnClick\"");
     }
 

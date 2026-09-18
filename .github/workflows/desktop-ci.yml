@@ -15,7 +15,7 @@ permissions:
 jobs:
   build-test:
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout Desktop
@@ -66,6 +66,31 @@ jobs:
 
       - name: Unit tests
         run: dotnet test tests/CongTy.UnitTests/CongTy.UnitTests.csproj --configuration Release --no-build --no-restore
+
+      - name: Setup NSIS
+        shell: pwsh
+        run: choco install nsis --yes --no-progress
+
+      - name: Build release package
+        shell: pwsh
+        run: .\scripts\release.ps1
+
+      - name: Verify release package
+        shell: pwsh
+        run: |
+          $release = Get-Content .\release.json -Raw | ConvertFrom-Json
+          $installer = ".\dist\windows-release\CONGTY-Setup-$($release.version).exe"
+          $manifestPath = ".\dist\windows-release\latest.json"
+          if (-not (Test-Path $installer)) { throw "Missing release installer." }
+          if (-not (Test-Path $manifestPath)) { throw "Missing latest.json." }
+          $files = Get-ChildItem .\dist\windows-release -File
+          if ($files.Count -ne 2) { throw "Release output must contain exactly two files." }
+          $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+          if ($manifest.latestVersion -ne $release.version) { throw "Manifest version mismatch." }
+          if ($manifest.downloadPath -ne [IO.Path]::GetFileName($installer)) { throw "Manifest installer mismatch." }
+          $hash = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($manifest.sha256 -ne $hash) { throw "Manifest hash mismatch." }
+          if ([Int64]$manifest.size -ne (Get-Item $installer).Length) { throw "Manifest size mismatch." }
 
       - name: Native startup smoke
         shell: pwsh
