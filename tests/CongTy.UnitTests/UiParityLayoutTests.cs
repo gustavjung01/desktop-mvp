@@ -1294,10 +1294,12 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(shell, "Text=\"Nhân sự và phân quyền\"");
         StringAssert.Contains(shell, "ToolTip=\"Cài đặt ứng dụng\"");
         Assert.IsFalse(shell.Contains("01-hero-nganh-hang.webp", StringComparison.Ordinal));
-        StringAssert.Contains(viewModel, "SidebarWidth => new(IsSidebarExpanded ? 240 : 64)");
+        StringAssert.Contains(viewModel, "SidebarWidth => new(IsSidebarExpanded ? 224 : 64)");
         StringAssert.Contains(viewModel, "ToggleNavigationGroup");
         StringAssert.Contains(shell, "x:Key=\"SidebarFlyoutPopupStyle\"");
         StringAssert.Contains(shell, "Property=\"Placement\" Value=\"Right\"");
+        StringAssert.Contains(shell, "Background=\"#26FFFFFF\"");
+        StringAssert.Contains(viewModel, "SidebarWidth => new(IsSidebarExpanded ? 224 : 64)");
         Assert.IsFalse(viewModel.Contains("if (!IsSidebarExpanded) IsSidebarExpanded = true;", StringComparison.Ordinal));
         StringAssert.Contains(viewModel, "\"desktop.settings\" => \"Cài đặt ứng dụng\"");
         StringAssert.Contains(controls, "x:Key=\"NavSubItemStyle\"");
