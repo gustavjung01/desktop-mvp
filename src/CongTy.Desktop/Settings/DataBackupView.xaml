@@ -1,0 +1,417 @@
+<UserControl x:Class="CongTy.Desktop.Settings.DataBackupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="DataBackupView_OnLoaded"
+             Unloaded="DataBackupView_OnUnloaded">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="DataBackupMessageStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        </Style>
+        <Style x:Key="SectionHintStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,4,0,0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="SettingsTabStyle" TargetType="Button" BasedOn="{StaticResource OfficeSecondaryButtonStyle}">
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="MinWidth" Value="120" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource DataBackupMessageStyle}"
+                Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="{Binding Message, Mode=OneWay}" TextWrapping="Wrap" />
+        </Border>
+
+        <StackPanel Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
+            <Button Style="{StaticResource SettingsTabStyle}"
+                    IsEnabled="False"
+                    Content="Dữ liệu &amp; sao lưu" />
+            <Button Style="{StaticResource SettingsTabStyle}"
+                    IsEnabled="False"
+                    Content="Mẫu in" />
+            <Button Style="{StaticResource SettingsTabStyle}"
+                    IsEnabled="False"
+                    Content="Ứng dụng máy tính" />
+            <Button Style="{StaticResource SettingsTabStyle}"
+                    IsEnabled="False"
+                    Content="Giao diện" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="2"
+                      Margin="0,12,0,0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <Border Style="{StaticResource OfficeCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock FontSize="10" FontWeight="Bold" Text="SỐ LIỆU DOANH NGHIỆP" />
+                            <TextBlock Margin="0,4,0,0" Style="{StaticResource SectionTitleStyle}" Text="Excel nghiệp vụ" />
+                            <TextBlock Style="{StaticResource SectionHintStyle}"
+                                       Text="Xuất một file Excel dễ đọc, chỉ gồm các nghiệp vụ người dùng được cấp quyền xem như khách hàng, sản phẩm, tồn kho, đơn hàng, công nợ, giao hàng, nhân viên và MCP." />
+                            <TextBlock Style="{StaticResource SectionHintStyle}"
+                                       Text="File này không chứa dữ liệu kỹ thuật, tài khoản, phân quyền, phiên đăng nhập, thông tin kiểm soát nội bộ, lịch sử thay đổi cấu trúc, nhật ký hệ thống hoặc bản sao lưu thô." />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Margin="16,0,0,0"
+                                VerticalAlignment="Top"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanExportBusiness}"
+                                Click="ExportBusiness_OnClick"
+                                Content="XUẤT SỐ LIỆU" />
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,12,0,0" Style="{StaticResource OfficeCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock FontSize="10" FontWeight="Bold" Text="SAO LƯU HỆ THỐNG" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Style="{StaticResource SectionTitleStyle}"
+                                       Text="{Binding TechnicalAreaTitle, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource SectionHintStyle}"
+                                       Text="{Binding TechnicalAreaDescription, Mode=OneWay}" />
+                            <WrapPanel Margin="0,10,0,0"
+                                       Visibility="{Binding CanReadBackup, Converter={StaticResource BoolToVisibility}}">
+                                <Border Margin="0,0,8,0" Padding="10,7" Style="{StaticResource OfficeCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Text="Bản gần nhất" />
+                                        <TextBlock FontWeight="SemiBold" Text="{Binding LatestVerifiedAtText, Mode=OneWay}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Margin="0,0,8,0" Padding="10,7" Style="{StaticResource OfficeCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Text="Kho lưu" />
+                                        <TextBlock FontWeight="SemiBold" Text="R2 riêng tư" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Padding="10,7" Style="{StaticResource OfficeCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Text="Trạng thái" />
+                                        <TextBlock FontWeight="SemiBold" Text="{Binding TechnicalExpiresText, Mode=OneWay}" />
+                                    </StackPanel>
+                                </Border>
+                            </WrapPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                            <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    IsEnabled="{Binding CanRequestTechnicalUnlock}"
+                                    Visibility="{Binding CanRequestTechnicalUnlock, Converter={StaticResource BoolToVisibility}}"
+                                    Click="RequestTechnicalUnlock_OnClick"
+                                    Content="MỞ KHU VỰC KỸ THUẬT" />
+                            <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    IsEnabled="{Binding CanStartBackup}"
+                                    Visibility="{Binding IsTechnicalUnlocked, Converter={StaticResource BoolToVisibility}}"
+                                    Click="StartBackup_OnClick"
+                                    Content="TẠO BẢN SAO LƯU" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,12,0,0"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding HasTechnicalChallenge, Converter={StaticResource BoolToVisibility}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="Nhập mã mở khóa" />
+                            <TextBlock Style="{StaticResource SectionHintStyle}"
+                                       Text="{Binding TechnicalChallengeText, Mode=OneWay}" />
+                        </StackPanel>
+                        <TextBox Grid.Column="1"
+                                 Margin="16,0,8,0"
+                                 MaxLength="6"
+                                 VerticalContentAlignment="Center"
+                                 Text="{Binding TechnicalCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Grid.Column="2"
+                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanVerifyTechnicalUnlock}"
+                                Click="VerifyTechnicalUnlock_OnClick"
+                                Content="MỞ KHÓA" />
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,12,0,0"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding HasActiveBackup, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock FontSize="10" FontWeight="Bold" Text="ĐANG SAO LƯU" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Style="{StaticResource SectionTitleStyle}"
+                                           Text="{Binding ActiveStatusText, Mode=OneWay}" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Text="{Binding ActiveProgress, StringFormat={}{0}%}" />
+                        </Grid>
+                        <ProgressBar Margin="0,10,0,0"
+                                     Height="8"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Value="{Binding ActiveProgress, Mode=OneWay}" />
+                        <TextBlock Style="{StaticResource SectionHintStyle}"
+                                   Text="Có thể rời màn hình này; tiến trình vẫn tiếp tục và trạng thái sẽ được cập nhật khi quay lại." />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,12,0,0"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding CanShowTechnical, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock FontSize="10" FontWeight="Bold" Text="DI CHUYỂN &amp; KHÔI PHỤC" />
+                        <TextBlock Margin="0,4,0,0" Style="{StaticResource SectionTitleStyle}" Text="Gói chuyển hệ thống" />
+                        <TextBlock Style="{StaticResource SectionHintStyle}"
+                                   Text="Một gói khôi phục gồm đúng một file .dump và một tệp thông tin khôi phục của cùng thời điểm dữ liệu. Tệp thông tin không phải bản sao dữ liệu thứ hai." />
+                        <WrapPanel Margin="0,10,0,0">
+                            <Border Margin="0,0,8,0" Padding="10,7" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Text="Thời điểm dữ liệu" />
+                                    <TextBlock FontWeight="SemiBold" Text="{Binding LatestSnapshotText, Mode=OneWay}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="0,0,8,0" Padding="10,7" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Text="Thông tin cấu trúc" />
+                                    <TextBlock FontWeight="SemiBold" Text="{Binding LatestSchemaText, Mode=OneWay}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Padding="10,7" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" Text="Tệp khôi phục" />
+                                    <TextBlock FontWeight="SemiBold" Text="{Binding LatestManifestText, Mode=OneWay}" />
+                                </StackPanel>
+                            </Border>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,12,0,0"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding CanShowTechnical, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock FontSize="10" FontWeight="Bold" Text="LỊCH SỬ SAO LƯU HỆ THỐNG" />
+                                <TextBlock Margin="0,4,0,0" Style="{StaticResource SectionTitleStyle}" Text="Các bản đã tạo" />
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Click="Refresh_OnClick"
+                                    Content="Làm mới" />
+                        </Grid>
+
+                        <DataGrid Margin="0,10,0,0"
+                                  Height="280"
+                                  ItemsSource="{Binding Jobs}"
+                                  Style="{StaticResource OfficeDataGridStyle}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Yêu cầu lúc" Width="1.25*" Binding="{Binding RequestedAt, Mode=OneWay}" />
+                                <DataGridTextColumn Header="Trạng thái" Width="1.1*" Binding="{Binding Status, Mode=OneWay}" />
+                                <DataGridTextColumn Header="Thời điểm dữ liệu" Width="1.25*" Binding="{Binding SnapshotAt, Mode=OneWay}" />
+                                <DataGridTextColumn Header="Dung lượng .dump" Width="1*" Binding="{Binding DumpSize, Mode=OneWay}" />
+                                <DataGridTemplateColumn Header="Tải tệp" Width="1.55*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <WrapPanel>
+                                                <Button Margin="0,0,6,0"
+                                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                        Visibility="{Binding IsVerified, Converter={StaticResource BoolToVisibility}}"
+                                                        IsEnabled="{Binding DataContext.CanDownloadBackup, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Click="DownloadBackup_OnClick"
+                                                        Tag="database"
+                                                        Content="TẢI .DUMP" />
+                                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                        Visibility="{Binding HasManifest, Converter={StaticResource BoolToVisibility}}"
+                                                        IsEnabled="{Binding DataContext.CanDownloadBackup, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Click="DownloadBackup_OnClick"
+                                                        Tag="manifest"
+                                                        Content="TẢI TỆP THÔNG TIN" />
+                                            </WrapPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Margin="0,10,0,0"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Text="Chưa có lịch sử sao lưu."
+                                   Visibility="{Binding ShowEmptyHistory, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,12,0,16"
+                        BorderBrush="{DynamicResource DangerBrush}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="16"
+                        Visibility="{Binding CanShowDelete, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   Text="VÙNG NGUY HIỂM" />
+                        <TextBlock Margin="0,4,0,0" Style="{StaticResource SectionTitleStyle}" Text="Xóa dữ liệu" />
+                        <TextBlock Style="{StaticResource SectionHintStyle}"
+                                   Text="Chỉ xóa thật sau khi có bản sao lưu mới đã xác minh, nhập đúng mã xác nhận riêng và xác nhận lần cuối." />
+
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" Text="Phạm vi cần xóa" />
+                                <ComboBox Margin="0,4,12,0"
+                                          IsEnabled="{Binding CanEditDeleteRequest}"
+                                          ItemsSource="{Binding DeleteTargets}"
+                                          SelectedItem="{Binding SelectedDeleteTarget, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock FontWeight="SemiBold" Text="Lý do" />
+                                <TextBox Margin="0,4,0,0"
+                                         IsEnabled="{Binding CanEditDeleteRequest}"
+                                         MaxLength="1000"
+                                         MinHeight="48"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         Text="{Binding DeleteReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Margin="0,10,0,0"
+                                Padding="10"
+                                BorderBrush="{DynamicResource DangerBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" Text="{Binding SelectedDeleteTarget.Label, Mode=OneWay}" />
+                                <TextBlock Margin="0,3,0,0"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Text="{Binding DeleteTargetDescription, Mode=OneWay}" />
+                                <TextBlock Margin="0,6,0,0"
+                                           TextWrapping="Wrap"
+                                           Text="Luôn giữ: tài khoản đăng nhập, phân quyền, cấu hình chi nhánh/kho, cấu hình nền cần để hệ thống tiếp tục hoạt động, lịch sử cấu trúc và bản sao lưu kỹ thuật." />
+                                <TextBlock Margin="0,4,0,0"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Text="{Binding DeleteProtectedBackupLabelText, Mode=OneWay}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Button Margin="0,10,0,0"
+                                HorizontalAlignment="Left"
+                                Padding="16,8"
+                                IsEnabled="{Binding CanRequestDeleteChallenge}"
+                                Click="RequestDeleteChallenge_OnClick"
+                                Content="GỬI MÃ XÁC NHẬN" />
+
+                        <Grid Margin="0,10,0,0"
+                              Visibility="{Binding DeleteAwaitingCode, Converter={StaticResource BoolToVisibility}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Text="{Binding DeleteChallengeText, Mode=OneWay}" />
+                            <TextBox Grid.Column="1"
+                                     Margin="12,0,8,0"
+                                     MaxLength="6"
+                                     VerticalContentAlignment="Center"
+                                     Text="{Binding DeleteCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="2"
+                                    IsEnabled="{Binding CanVerifyDelete}"
+                                    Click="VerifyDeleteChallenge_OnClick"
+                                    Content="XÁC NHẬN MÃ" />
+                        </Grid>
+
+                        <Border Margin="0,10,0,0"
+                                Padding="10"
+                                BorderBrush="{DynamicResource DangerBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Visibility="{Binding DeleteAuthorized, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" Text="Đã xác minh quyền xóa" />
+                                <TextBlock Margin="0,4,0,0"
+                                           TextWrapping="Wrap"
+                                           Text="Bước tiếp theo sẽ xóa dữ liệu thật và không thể hoàn tác trong cơ sở dữ liệu hiện tại. Bản sao lưu bảo vệ vẫn được giữ để khôi phục khi cần." />
+                                <Button Margin="0,10,0,0"
+                                        HorizontalAlignment="Left"
+                                        Padding="16,8"
+                                        IsEnabled="{Binding CanExecuteDelete}"
+                                        Click="ExecuteDelete_OnClick"
+                                        Content="XÓA DỮ LIỆU NGAY" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0"
+                                Padding="10"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Visibility="{Binding DeletePurged, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock FontWeight="SemiBold" Text="Đã xóa dữ liệu thành công." />
+                                <TextBlock Margin="0,4,0,0" Text="{Binding DeleteResultText, Mode=OneWay}" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Text="Tài khoản, phân quyền, cấu hình nền và bản sao lưu kỹ thuật vẫn được giữ." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
