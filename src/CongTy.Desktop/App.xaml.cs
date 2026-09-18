@@ -201,6 +201,7 @@ public partial class App : Application
     
             var mainWindow = _services.GetRequiredService<MainWindow>();
             MainWindow = mainWindow;
+            ThemeManager.ApplyScale(settings.DisplayScale);
     
             if (e.Args.Any(argument => string.Equals(argument, "--startup-smoke", StringComparison.Ordinal)))
             {

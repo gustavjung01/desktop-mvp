@@ -1,0 +1,151 @@
+<UserControl x:Class="CongTy.Desktop.Settings.AppearanceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="SettingsTabStyle" TargetType="Button" BasedOn="{StaticResource OfficeSecondaryButtonStyle}">
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="MinWidth" Value="120" />
+        </Style>
+        <Style x:Key="AppearanceMessageStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource AppearanceMessageStyle}"
+                Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="{Binding Message, Mode=OneWay}" TextWrapping="Wrap" />
+        </Border>
+
+        <StackPanel Grid.Row="1" Margin="0,12,0,0" Orientation="Horizontal">
+            <Button Style="{StaticResource SettingsTabStyle}" Click="DataBackup_OnClick" Content="Dữ liệu &amp; sao lưu" />
+            <Button Style="{StaticResource SettingsTabStyle}" Click="PrintTemplates_OnClick" Content="Mẫu in" />
+            <Button Style="{StaticResource SettingsTabStyle}" IsEnabled="False" Content="Ứng dụng máy tính" />
+            <Button Style="{StaticResource SettingsTabStyle}" IsEnabled="False" Content="Giao diện" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="2" Margin="0,12,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <Border Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <Grid>
+                            <StackPanel>
+                                <TextBlock FontSize="10" FontWeight="Bold" Text="MÀU SẮC" />
+                                <TextBlock Margin="0,4,0,0" FontSize="18" FontWeight="SemiBold" Text="Chọn giao diện" />
+                                <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"
+                                           Text="Đổi màu toàn bộ Công Ty ngay khi chọn. Bố cục và nghiệp vụ không thay đổi." />
+                            </StackPanel>
+                            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Padding="10,6" CornerRadius="8" Background="{DynamicResource AccentSoftBrush}">
+                                <TextBlock FontWeight="SemiBold" Text="{Binding CurrentThemeLabel, StringFormat='Đang dùng: {0}'}" />
+                            </Border>
+                        </Grid>
+
+                        <UniformGrid Margin="0,14,0,0" Columns="3">
+                            <Button Margin="0,0,10,0" Padding="0" Tag="default" Click="Theme_OnClick" Background="Transparent" BorderThickness="0">
+                                <Border Style="{StaticResource OfficeCardStyle}">
+                                    <StackPanel>
+                                        <Grid Height="125" Background="#F7F5F1">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="72" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <Border Background="#5A3B20" />
+                                            <StackPanel Grid.Column="1" Margin="10">
+                                                <Border Height="18" Background="#F0E9DF" CornerRadius="4" />
+                                                <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions><Border Margin="0,0,5,0" Height="34" Background="White" /><Border Grid.Column="1" Margin="5,0,0,0" Height="34" Background="White" /></Grid>
+                                                <Border Margin="0,10,0,0" Height="32" Background="White" />
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Margin="0,10,0,0"><TextBlock FontWeight="Bold" Text="Mặc định" /><TextBlock HorizontalAlignment="Right" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Text="ĐANG DÙNG" Visibility="{Binding DataContext.IsDefaultTheme, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}" /></Grid>
+                                        <TextBlock Margin="0,3,0,0" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Text="Giữ nguyên giao diện Công Ty hiện tại." />
+                                    </StackPanel>
+                                </Border>
+                            </Button>
+                            <Button Margin="5,0" Padding="0" Tag="green" Click="Theme_OnClick" Background="Transparent" BorderThickness="0">
+                                <Border Style="{StaticResource OfficeCardStyle}">
+                                    <StackPanel>
+                                        <Grid Height="125" Background="#FFFFFF">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="72" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <Border Background="#285F43" />
+                                            <StackPanel Grid.Column="1" Margin="10">
+                                                <Border Height="18" Background="#E8F2EB" CornerRadius="4" />
+                                                <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions><Border Margin="0,0,5,0" Height="34" Background="#F4F9F5" /><Border Grid.Column="1" Margin="5,0,0,0" Height="34" Background="#F4F9F5" /></Grid>
+                                                <Border Margin="0,10,0,0" Height="32" Background="#F4F9F5" />
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Margin="0,10,0,0"><TextBlock FontWeight="Bold" Text="Xanh lá" /><TextBlock HorizontalAlignment="Right" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Text="ĐANG DÙNG" Visibility="{Binding DataContext.IsGreenTheme, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}" /></Grid>
+                                        <TextBlock Margin="0,3,0,0" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Text="Nền nội dung trắng, thanh điều hướng và điểm nhấn dùng hệ xanh lá." />
+                                    </StackPanel>
+                                </Border>
+                            </Button>
+                            <Button Margin="10,0,0,0" Padding="0" Tag="dark" Click="Theme_OnClick" Background="Transparent" BorderThickness="0">
+                                <Border Style="{StaticResource OfficeCardStyle}">
+                                    <StackPanel>
+                                        <Grid Height="125" Background="#111512">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="72" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <Border Background="#0D1711" />
+                                            <StackPanel Grid.Column="1" Margin="10">
+                                                <Border Height="18" Background="#29312B" CornerRadius="4" />
+                                                <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions><Border Margin="0,0,5,0" Height="34" Background="#1A201C" /><Border Grid.Column="1" Margin="5,0,0,0" Height="34" Background="#1A201C" /></Grid>
+                                                <Border Margin="0,10,0,0" Height="32" Background="#1A201C" />
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Margin="0,10,0,0"><TextBlock FontWeight="Bold" Text="Tối" /><TextBlock HorizontalAlignment="Right" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Text="ĐANG DÙNG" Visibility="{Binding DataContext.IsDarkTheme, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}" /></Grid>
+                                        <TextBlock Margin="0,3,0,0" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Text="Nền tối đồng bộ cho nội dung, bảng, trường nhập và thanh điều hướng." />
+                                    </StackPanel>
+                                </Border>
+                            </Button>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,12,0,0" Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <Grid>
+                            <StackPanel>
+                                <TextBlock FontSize="10" FontWeight="Bold" Text="KÍCH THƯỚC HIỂN THỊ" />
+                                <TextBlock Margin="0,4,0,0" FontSize="18" FontWeight="SemiBold" Text="Tăng hoặc giảm kích thước" />
+                                <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"
+                                           Text="Bốn cấp nhỏ, mức mặc định và bốn cấp lớn. Thiết lập áp dụng đồng bộ cho chữ và các thành phần dùng kích thước theo giao diện." />
+                            </StackPanel>
+                            <Border HorizontalAlignment="Right" VerticalAlignment="Top" Padding="10,6" CornerRadius="8" Background="{DynamicResource AccentSoftBrush}">
+                                <TextBlock FontWeight="SemiBold" Text="{Binding ScaleLabel, Mode=OneWay}" />
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="0,18,0,0">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <Grid>
+                                <TextBlock HorizontalAlignment="Left" Text="Nhỏ" />
+                                <TextBlock HorizontalAlignment="Center" Text="Mặc định" />
+                                <TextBlock HorizontalAlignment="Right" Text="Lớn" />
+                            </Grid>
+                            <Slider x:Name="ScaleSlider" Grid.Row="1" Margin="0,8,0,0" Minimum="-4" Maximum="4" TickFrequency="1"
+                                    IsSnapToTickEnabled="True" Value="{Binding Scale, Mode=OneWay}"
+                                    ValueChanged="ScaleSlider_OnValueChanged"
+                                    PreviewMouseLeftButtonUp="ScaleSlider_OnCommit"
+                                    PreviewKeyUp="ScaleSlider_OnKeyCommit" />
+                            <Grid Grid.Row="2" Margin="0,8,0,0">
+                                <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding ScaleLabel, Mode=OneWay}" />
+                                <Button HorizontalAlignment="Right" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanResetScale}" Click="ResetScale_OnClick" Content="VỀ MẶC ĐỊNH" />
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Margin="0,12,0,16" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"
+                           Text="Lựa chọn được lưu trên máy tính này và giữ nguyên khi mở lại Công Ty." />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
