@@ -102,7 +102,7 @@ public sealed class InventoryLookupParityTests
         StringAssert.Contains(shell, "_inventoryLookup.EnsureLoadedAsync()");
         StringAssert.Contains(shell, "\"inventory.balances\" => \"Tra cứu tồn kho\"");
 
-        StringAssert.Contains(main, "Visibility=\"{Binding CanViewInventoryBalances");
+        StringAssert.Contains(main, "IsEnabled=\"{Binding CanViewInventoryBalances}");
         StringAssert.Contains(main, "x:Name=\"InventoryLookupHost\"");
         StringAssert.Contains(mainCode, "await _viewModel.NavigateInventoryLookupAsync()");
         Assert.IsFalse(

@@ -139,9 +139,6 @@ public sealed class SalesReportingParityTests
             "Phân tích theo · chọn 2",
             "Sắp xếp dòng",
             "Cột sẽ xuất",
-            "Theo ĐVT bán",
-            "Ưu tiên Thùng",
-            "Ưu tiên ĐVT lẻ",
             "ĐVT nằm trong cùng một sheet"
         })
         {
@@ -149,7 +146,12 @@ public sealed class SalesReportingParityTests
         }
 
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Sales", "SalesReportingViewModel.cs");
+        var analysisPresentation = ReadRepoFile(
+            "src", "CongTy.Desktop", "Sales", "SalesReportingAnalysisPresentation.cs");
         StringAssert.Contains(viewModel, "ApplyText => IsBusy ? \"Đang cập nhật…\" : \"Áp dụng\"");
+        StringAssert.Contains(analysisPresentation, "Theo ĐVT bán");
+        StringAssert.Contains(analysisPresentation, "Ưu tiên Thùng");
+        StringAssert.Contains(analysisPresentation, "Ưu tiên ĐVT lẻ");
 
         Assert.IsFalse(view.Contains("Core", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("NPP", StringComparison.Ordinal));

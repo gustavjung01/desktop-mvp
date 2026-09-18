@@ -94,7 +94,7 @@ public sealed class InventoryLotsParityTests
         StringAssert.Contains(shell, "\"inventory.lots\" => \"Lô hàng\"");
         StringAssert.Contains(shell, "\"inventory.lots\" => \"TỒN KHO, LÔ VÀ NHẬP ĐẦU KỲ\"");
 
-        StringAssert.Contains(main, "Visibility=\"{Binding CanViewInventoryLots");
+        StringAssert.Contains(main, "IsEnabled=\"{Binding CanViewInventoryLots}");
         StringAssert.Contains(main, "x:Name=\"InventoryLotsHost\"");
         StringAssert.Contains(mainCode, "await _viewModel.NavigateInventoryLotsAsync()");
         Assert.IsFalse(

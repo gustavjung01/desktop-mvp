@@ -138,7 +138,7 @@ public sealed class DataBackupParityTests
         StringAssert.Contains(host, "\"Dữ liệu & sao lưu\"");
         StringAssert.Contains(hook, "WireImportExportHistoryWorkspace();");
         StringAssert.Contains(hook, "WireDataBackupWorkspace();");
-        StringAssert.Contains(xaml, "Text=\"Thiết lập chung\"");
+        StringAssert.Contains(xaml, "Text=\"Dữ liệu &amp; sao lưu\"");
     }
 
     [TestMethod]

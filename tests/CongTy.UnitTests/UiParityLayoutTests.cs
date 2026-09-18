@@ -792,7 +792,7 @@ public sealed class UiParityLayoutTests
 
         StringAssert.Contains(
             shell,
-            "Visibility=\"{Binding CanViewInventoryReporting, Converter={StaticResource BooleanToVisibilityConverter}}\" Click=\"InventoryReporting_OnClick\"");
+            "IsEnabled=\"{Binding CanViewInventoryReporting}\" Click=\"InventoryReporting_OnClick\"");
         StringAssert.Contains(shell, "Click=\"InventoryReportingExport_OnClick\"");
         StringAssert.Contains(shell, "IsEnabled=\"{Binding CanExportInventoryReporting}\"");
         StringAssert.Contains(shell, "Content=\"Xuất báo cáo\"");
