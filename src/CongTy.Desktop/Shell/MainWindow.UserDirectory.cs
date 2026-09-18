@@ -44,8 +44,10 @@ public partial class MainWindow
         var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();
         var view = new UserDirectoryView(new UserDirectoryViewModel(
             new UserDirectoryReadService(apiClient, session),
+            new UserDirectoryMutationService(apiClient, session),
             new EmployeeDirectoryReadService(apiClient, session),
             new AccessRoleReadService(apiClient, session),
+            app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
 
         while (workspaceTabs.Items.Count <= 53)

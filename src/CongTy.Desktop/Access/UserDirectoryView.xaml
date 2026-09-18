@@ -32,187 +32,437 @@
         </Style>
     </UserControl.Resources>
 
-    <TabControl Style="{StaticResource OfficeTabControlStyle}" SelectedIndex="0">
-        <TabItem Header="Tài khoản">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="0,8,4,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="NHÂN SỰ VÀ PHÂN QUYỀN"
-                                       FontSize="10"
-                                       FontWeight="Bold" />
-                            <TextBlock Margin="0,3,0,0"
-                                       Text="Quản lý tài khoản sử dụng hệ thống, liên kết nhân sự và phân quyền theo công việc."
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       TextWrapping="Wrap" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    VerticalAlignment="Top">
-                            <Button Margin="0,0,8,0"
-                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                    IsEnabled="{Binding CanViewUsers}"
-                                    Click="Refresh_OnClick"
-                                    Content="{Binding RefreshText}" />
-                            <Button Style="{StaticResource OfficePrimaryButtonStyle}"
-                                    IsEnabled="{Binding CanMutateUsers}"
-                                    ToolTip="Tạo và cập nhật tài khoản sẽ được bật sau khi hoàn tất kiểm soát thay đổi."
-                                    Content="THÊM NGƯỜI DÙNG" />
-                        </StackPanel>
-                    </Grid>
-
-                    <Border Margin="0,10,0,0"
-                            Style="{StaticResource UserMessageStyle}"
-                            Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
-                        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
-                    </Border>
-
-                    <TextBlock Margin="0,14,0,0"
-                               HorizontalAlignment="Center"
-                               Foreground="{DynamicResource TextSecondaryBrush}"
-                               Text="Đang tải danh sách người dùng…"
-                               Visibility="{Binding ShowLoading, Converter={StaticResource BoolToVisibility}}" />
-
-                    <UniformGrid Margin="0,10,0,0" Columns="3">
-                        <Border Margin="0,0,6,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
-                            <StackPanel>
-                                <TextBlock Text="Tổng tài khoản" Foreground="{DynamicResource TextSecondaryBrush}" />
-                                <TextBlock Margin="0,4,0,0" Text="{Binding TotalUsersText}" FontSize="20" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Border>
-                        <Border Margin="6,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
-                            <StackPanel>
-                                <TextBlock Text="Đang hoạt động" Foreground="{DynamicResource TextSecondaryBrush}" />
-                                <TextBlock Margin="0,4,0,0" Text="{Binding ActiveUsersText}" FontSize="20" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Border>
-                        <Border Margin="6,0,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
-                            <StackPanel>
-                                <TextBlock Text="Ngừng sử dụng" Foreground="{DynamicResource TextSecondaryBrush}" />
-                                <TextBlock Margin="0,4,0,0" Text="{Binding InactiveUsersText}" FontSize="20" FontWeight="SemiBold" />
-                            </StackPanel>
-                        </Border>
-                    </UniformGrid>
-
-                    <Border Margin="0,10,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+    <Grid>
+        <TabControl Style="{StaticResource OfficeTabControlStyle}" SelectedIndex="0">
+            <TabItem Header="Tài khoản">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,8,4,12">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="220" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-
-                            <StackPanel Margin="0,0,10,0">
-                                <TextBlock Text="Tìm kiếm" FontWeight="SemiBold" />
-                                <TextBox Margin="0,5,0,0"
-                                         Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Ví dụ: an.nguyen, Nguyễn Văn An, Bán hàng" />
+                            <StackPanel>
+                                <TextBlock Text="NHÂN SỰ VÀ PHÂN QUYỀN"
+                                           FontSize="10"
+                                           FontWeight="Bold" />
+                                <TextBlock Margin="0,3,0,0"
+                                           Text="Quản lý tài khoản sử dụng hệ thống, liên kết nhân sự và phân quyền theo công việc."
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
                             </StackPanel>
-
-                            <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                                <TextBlock Text="Trạng thái" FontWeight="SemiBold" />
-                                <ComboBox Margin="0,5,0,0"
-                                          ItemsSource="{Binding StatusFilters}"
-                                          SelectedItem="{Binding SelectedStatusFilter, Mode=TwoWay}"
-                                          DisplayMemberPath="Label" />
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Top">
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanViewUsers}"
+                                        Click="Refresh_OnClick"
+                                        Content="{Binding RefreshText}" />
+                                <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        IsEnabled="{Binding CanOpenCreate}"
+                                        Click="Create_OnClick"
+                                        ToolTip="Chỉ nhân sự đang làm việc và chưa có tài khoản mới có thể được cấp tài khoản."
+                                        Content="THÊM NGƯỜI DÙNG" />
                             </StackPanel>
-
-                            <TextBlock Grid.Column="2"
-                                       VerticalAlignment="Bottom"
-                                       Margin="4,0,0,4"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Text="{Binding VisibleUserCountText}" />
                         </Grid>
-                    </Border>
 
-                    <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
+                        <Border Margin="0,10,0,0"
+                                Style="{StaticResource UserMessageStyle}"
+                                Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                        </Border>
+
+                        <TextBlock Margin="0,14,0,0"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Text="Đang tải danh sách người dùng…"
+                                   Visibility="{Binding ShowLoading, Converter={StaticResource BoolToVisibility}}" />
+
+                        <UniformGrid Margin="0,10,0,0" Columns="3">
+                            <Border Margin="0,0,6,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Tổng tài khoản" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding TotalUsersText}" FontSize="20" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="6,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Đang hoạt động" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding ActiveUsersText}" FontSize="20" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="6,0,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Ngừng sử dụng" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding InactiveUsersText}" FontSize="20" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <Border Margin="0,10,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="220" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Tìm kiếm" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0"
+                                             Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="Ví dụ: an.nguyen, Nguyễn Văn An, Bán hàng" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                                    <TextBlock Text="Trạng thái" FontWeight="SemiBold" />
+                                    <ComboBox Margin="0,5,0,0"
+                                              ItemsSource="{Binding StatusFilters}"
+                                              SelectedItem="{Binding SelectedStatusFilter, Mode=TwoWay}"
+                                              DisplayMemberPath="Label" />
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="2"
+                                           VerticalAlignment="Bottom"
+                                           Margin="4,0,0,4"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Text="{Binding VisibleUserCountText}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
+                            <StackPanel>
+                                <DataGrid AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="68"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          ItemsSource="{Binding VisibleUsers}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Tên đăng nhập"
+                                                            Binding="{Binding LoginName}"
+                                                            Width="1.05*"
+                                                            ElementStyle="{StaticResource UserCellTextStyle}" />
+
+                                        <DataGridTemplateColumn Header="Nhân sự" Width="1.45*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding EmployeeName}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                        <TextBlock Margin="0,2,0,0"
+                                                                   Text="{Binding EmployeeCodeText}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                   TextWrapping="Wrap" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTextColumn Header="Vai trò"
+                                                            Binding="{Binding RoleText}"
+                                                            Width="1.8*"
+                                                            ElementStyle="{StaticResource UserCellTextStyle}" />
+
+                                        <DataGridTemplateColumn Header="Trạng thái" Width="1.0*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding StatusText}" Style="{StaticResource UserStatusTextStyle}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTextColumn Header="Cập nhật"
+                                                            Binding="{Binding UpdatedAtText}"
+                                                            Width="1.05*"
+                                                            ElementStyle="{StaticResource UserCellTextStyle}" />
+
+                                        <DataGridTemplateColumn Header="Hành động" Width="1.55*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button Margin="0,0,6,0"
+                                                                Padding="9,4"
+                                                                Tag="{Binding}"
+                                                                IsEnabled="{Binding DataContext.CanEditUsers, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                Click="Edit_OnClick"
+                                                                Content="Sửa" />
+                                                        <Button Padding="9,4"
+                                                                Tag="{Binding}"
+                                                                IsEnabled="{Binding DataContext.CanToggleUsers, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                Click="Toggle_OnClick"
+                                                                Content="{Binding ToggleActionText}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Margin="0,12,0,0"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Text="{Binding EmptyText}"
+                                           Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Phạm vi chi nhánh &amp; kho"
+                     IsEnabled="False"
+                     ToolTip="Phần phạm vi sẽ được bật ở Lô 3.">
+                <Border Margin="0,8,0,0" Style="{StaticResource OfficeCardStyle}">
+                    <TextBlock Text="Phạm vi chi nhánh và kho"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Border>
+            </TabItem>
+        </TabControl>
+
+        <Grid Background="#7F000000"
+              Visibility="{Binding IsEditorOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="720"
+                    MaxHeight="720"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="{Binding EditorTitle}" FontSize="19" FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Text="{Binding EditorDescription}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1"
+                                  Margin="0,14,0,14"
+                                  VerticalScrollBarVisibility="Auto">
                         <StackPanel>
-                            <DataGrid AutoGenerateColumns="False"
-                                      IsReadOnly="True"
-                                      RowHeight="68"
-                                      Style="{StaticResource OfficeDataGridStyle}"
-                                      ItemsSource="{Binding VisibleUsers}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Tên đăng nhập"
-                                                        Binding="{Binding LoginName}"
-                                                        Width="1.05*"
-                                                        ElementStyle="{StaticResource UserCellTextStyle}" />
+                            <Border Margin="0,0,0,10"
+                                    Padding="10"
+                                    Background="{DynamicResource AccentSoftBrush}"
+                                    Visibility="{Binding HasEditorMessage, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding EditorMessage}" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EditorMessageIsError}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
 
-                                    <DataGridTemplateColumn Header="Nhân sự" Width="1.45*">
-                                        <DataGridTemplateColumn.CellTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="Tên đăng nhập" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0"
+                                             MaxLength="128"
+                                             IsEnabled="{Binding IsCreateMode}"
+                                             Text="{Binding DraftLoginName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="Chỉ dùng chữ thường, số, dấu chấm, gạch dưới hoặc gạch ngang." />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Nhân sự liên kết" FontWeight="SemiBold" />
+                                    <ComboBox Margin="0,5,0,0"
+                                              ItemsSource="{Binding EligibleEmployees}"
+                                              SelectedValuePath="Id"
+                                              DisplayMemberPath="Label"
+                                              SelectedValue="{Binding DraftEmployeeId, Mode=TwoWay}">
+                                        <ComboBox.Style>
+                                            <Style TargetType="ComboBox">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCreateMode}" Value="False">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ComboBox.Style>
+                                    </ComboBox>
+                                    <TextBox Margin="0,5,0,0"
+                                             IsReadOnly="True"
+                                             Text="{Binding DraftEmployeeLabel}">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCreateMode}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                                    <TextBlock Text="{Binding PasswordLabel}" FontWeight="SemiBold" />
+                                    <PasswordBox x:Name="EditorPasswordBox"
+                                                 Margin="0,5,0,0"
+                                                 MaxLength="256"
+                                                 IsEnabled="{Binding CanEditPassword}"
+                                                 PasswordChanged="Password_OnChanged" />
+                                    <TextBlock Margin="0,4,0,0"
+                                               Text="{Binding PasswordHint}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Trạng thái sau khi lưu" FontWeight="SemiBold" />
+                                    <ComboBox Margin="0,5,0,0"
+                                              ItemsSource="{Binding DraftStatusOptions}"
+                                              DisplayMemberPath="Label"
+                                              SelectedValuePath="IsActive"
+                                              SelectedValue="{Binding DraftIsActive, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanEditStatus}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Margin="0,14,0,0">
+                                    <TextBlock Text="Vai trò" FontWeight="SemiBold" />
+                                    <ItemsControl Margin="0,6,0,0"
+                                                  ItemsSource="{Binding DraftRoleOptions}">
+                                        <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <StackPanel VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding EmployeeName}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                                    <TextBlock Margin="0,2,0,0"
-                                                               Text="{Binding EmployeeCodeText}"
-                                                               Foreground="{DynamicResource TextSecondaryBrush}"
-                                                               TextWrapping="Wrap" />
-                                                </StackPanel>
+                                                <Border Margin="0,0,0,6"
+                                                        Padding="8"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6">
+                                                    <StackPanel>
+                                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding DataContext.CanEditRoles, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                                        </CheckBox>
+                                                        <TextBlock Margin="22,2,0,0"
+                                                                   Text="{Binding Note}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                   TextWrapping="Wrap">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding HasNote}" Value="False">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Border>
                                             </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-
-                                    <DataGridTextColumn Header="Vai trò"
-                                                        Binding="{Binding RoleText}"
-                                                        Width="1.8*"
-                                                        ElementStyle="{StaticResource UserCellTextStyle}" />
-
-                                    <DataGridTemplateColumn Header="Trạng thái" Width="1.0*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding StatusText}" Style="{StaticResource UserStatusTextStyle}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-
-                                    <DataGridTextColumn Header="Cập nhật"
-                                                        Binding="{Binding UpdatedAtText}"
-                                                        Width="1.05*"
-                                                        ElementStyle="{StaticResource UserCellTextStyle}" />
-
-                                    <DataGridTemplateColumn Header="Hành động" Width="1.45*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Button Margin="0,0,6,0"
-                                                            Padding="9,4"
-                                                            IsEnabled="False"
-                                                            ToolTip="Cập nhật tài khoản sẽ được bật sau khi hoàn tất kiểm soát thay đổi."
-                                                            Content="Sửa" />
-                                                    <Button Padding="9,4"
-                                                            IsEnabled="False"
-                                                            ToolTip="Thay đổi trạng thái sẽ được bật sau khi hoàn tất kiểm soát thay đổi."
-                                                            Content="{Binding ToggleActionText}" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-
-                            <TextBlock Margin="0,12,0,0"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Text="{Binding EmptyText}"
-                                       Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Margin="0,4,0,0"
+                                               Text="Chọn ít nhất một vai trò để tài khoản mới có quyền sử dụng hệ thống."
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCreateMode}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Margin="0,4,0,0"
+                                               Text="Không có vai trò đang sử dụng."
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasDraftRoles}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
-        </TabItem>
+                    </ScrollViewer>
 
-        <TabItem Header="Phạm vi chi nhánh &amp; kho"
-                 IsEnabled="False"
-                 ToolTip="Phần phạm vi sẽ được bật khi hoàn tất quản lý tài khoản.">
-            <Border Margin="0,8,0,0" Style="{StaticResource OfficeCardStyle}">
-                <TextBlock Text="Phạm vi chi nhánh và kho"
-                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Visibility="{Binding ShowReloadAfterConflict, Converter={StaticResource BoolToVisibility}}"
+                                Click="ReloadAfterConflict_OnClick"
+                                Content="TẢI LẠI DỮ LIỆU" />
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CloseEditor_OnClick"
+                                Content="HỦY" />
+                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanPersist}"
+                                Click="Save_OnClick"
+                                Content="{Binding SaveButtonText}" />
+                    </StackPanel>
+                </Grid>
             </Border>
-        </TabItem>
-    </TabControl>
+        </Grid>
+
+        <Grid Background="#7F000000"
+              Visibility="{Binding IsToggleConfirmOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="540"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{Binding ToggleTitle}" FontSize="19" FontWeight="SemiBold" />
+                    <TextBlock Margin="0,12,0,0"
+                               Text="{Binding ToggleText}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Margin="0,10,0,0"
+                               Text="{Binding ToggleMessage}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding HasToggleMessage, Converter={StaticResource BoolToVisibility}}" />
+                    <StackPanel Margin="0,16,0,0"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CancelToggle_OnClick"
+                                Content="HỦY" />
+                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanConfirmToggle}"
+                                Click="ConfirmToggle_OnClick"
+                                Content="{Binding ToggleConfirmButtonText}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
 </UserControl>
