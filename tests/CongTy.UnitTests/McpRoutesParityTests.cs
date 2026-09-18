@@ -33,11 +33,11 @@ public sealed class McpRoutesParityTests
         StringAssert.Contains(shell, "settings.mcp-routes");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 50");
         StringAssert.Contains(shell, "IsCompanySettingsOpen = true");
-        StringAssert.Contains(host, "text.Text == \"MCP và tuyến\"");
+        Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host, "workspaceTabs.Items[50]");
         StringAssert.Contains(host, "Hiệu suất nhân viên thị trường");
         StringAssert.Contains(bootstrap, "WireMcpRoutesWorkspace()");
-        StringAssert.Contains(xaml, "Text=\"MCP và tuyến\"");
+        StringAssert.Contains(xaml, "Click=\"McpRoutes_OnClick\"");
     }
 
     [TestMethod]

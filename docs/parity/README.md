@@ -184,3 +184,16 @@ Kết luận audit:
 Rebaseline chỉ cập nhật `webAppTree`, hai blob shared contracts và revision audit. Các snapshot identity, API route fingerprint,
 permission fingerprint, server fingerprint và idempotency fingerprint giữ nguyên.
 
+## Rebaseline 2026-09-18 — stocktake line details/annotation
+
+Trong khi PR khôi phục navigation Desktop chạy CI, `NPP-Platform/main` tiến tới
+`d8baadc5e9447de3d5785b63851997163a3de1b6`.
+
+Audit diff từ baseline trước xác nhận thay đổi chỉ thuộc nghiệp vụ kiểm kê kho: migration 138–139,
+repository/service/route stocktake và UI stocktake bổ sung chi tiết/ghi chú dòng. Inventory tổng vẫn giữ
+**73 screens / 289 Web routes / 90 API source files / 389 endpoint candidates / 205 permissions / 281 mutation candidates**.
+Permission catalog, server blob, contracts và canonical idempotency blob không đổi.
+
+Desktop slice này chỉ khôi phục shell/navigation đã triển khai, không thay backend/API/DB. Rebaseline cập nhật
+Web app tree, API routes tree và hai snapshot identity endpoint/mutation theo source hiện hành sau audit.
+

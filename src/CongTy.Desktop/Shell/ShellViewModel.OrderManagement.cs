@@ -9,6 +9,8 @@ public sealed partial class ShellViewModel
     public bool CanViewOrderManagement=>CanViewSales;
     public bool IsOrderManagementSelected=>SelectedWorkspaceIndex==37;
 
+    internal void InitializeOrderManagementShell() => EnsureOrderManagementSelectionObserver();
+
     public Task NavigateOrderManagementAsync()
     {
         EnsureOrderManagementSelectionObserver();

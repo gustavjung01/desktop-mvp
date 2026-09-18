@@ -34,10 +34,10 @@ public sealed class EmployeeDirectoryReadParityTests
         StringAssert.Contains(shell, "SetSelectedNavigation(\"access.employees\")");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 52");
         StringAssert.Contains(shell, "IsAccessOpen = true");
-        StringAssert.Contains(host, "text.Text == \"Danh mục nhân sự\"");
+        Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host, "workspaceTabs.Items[52]");
         StringAssert.Contains(bootstrap, "WireEmployeeDirectoryWorkspace()");
-        StringAssert.Contains(xaml, "Text=\"Danh mục nhân sự\"");
+        StringAssert.Contains(xaml, "Click=\"EmployeeDirectory_OnClick\"");
     }
 
     [TestMethod]

@@ -40,7 +40,7 @@ public sealed class UserDirectoryReadParityTests
         StringAssert.Contains(shell, "core.user.read");
         StringAssert.Contains(shell, "SetSelectedNavigation(\"access.users\")");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 53");
-        StringAssert.Contains(host, "text.Text == \"Người dùng\"");
+        Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host, "workspaceTabs.Items[53]");
         StringAssert.Contains(bootstrap, "WireUserDirectoryWorkspace()");
     }

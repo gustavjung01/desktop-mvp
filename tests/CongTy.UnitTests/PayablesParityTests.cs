@@ -68,7 +68,7 @@ public sealed class PayablesParityTests
         StringAssert.Contains(host, "\"KẾ TOÁN MUA HÀNG\"");
         StringAssert.Contains(hook, "WireCustomerReturnCreditsWorkspace();");
         StringAssert.Contains(hook, "WirePayablesWorkspace();");
-        StringAssert.Contains(xaml, "IsEnabled=\"False\"><TextBlock Text=\"Công nợ phải trả\" /></Button>");
+        StringAssert.Contains(xaml, "Click=\"Payables_OnClick\"");
     }
 
     private static string ReadRepoFile(params string[] parts)

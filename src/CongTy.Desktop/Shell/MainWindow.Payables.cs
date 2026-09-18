@@ -13,24 +13,10 @@ public partial class MainWindow
     private void WirePayablesWorkspace()
     {
         if (_payablesShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button => FindVisualChildren<TextBlock>(button)
-                .Any(text => text.Text == "Công nợ phải trả"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializePayablesShell();
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(sidebarButton, Button.TagProperty, new Binding(nameof(ShellViewModel.IsPayablesSelected)));
-        BindingOperations.SetBinding(sidebarButton, UIElement.VisibilityProperty, new Binding(nameof(ShellViewModel.CanViewPayables))
-        {
-            Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-        });
-        sidebarButton.Click += Payables_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var service = new PayablesService(
             app.ResolveRequired<CompanyApiClient>(),

@@ -93,7 +93,7 @@ public sealed class SupplierPaymentParityTests
         StringAssert.Contains(host, "\"Thanh toán nhà cung cấp\"");
         StringAssert.Contains(hook, "WirePayablesWorkspace();");
         StringAssert.Contains(hook, "WireSupplierPaymentsWorkspace();");
-        StringAssert.Contains(xaml, "IsEnabled=\"False\"><TextBlock Text=\"Thanh toán nhà cung cấp\" /></Button>");
+        StringAssert.Contains(xaml, "Click=\"SupplierPayments_OnClick\"");
     }
 
     [TestMethod]

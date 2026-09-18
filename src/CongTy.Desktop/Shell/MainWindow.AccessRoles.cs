@@ -13,32 +13,10 @@ public partial class MainWindow
     private void WireAccessRolesWorkspace()
     {
         if (_accessRolesShellWired) return;
-
-        var sidebarButton = FindVisualChildren<Button>(this)
-            .FirstOrDefault(button =>
-                FindVisualChildren<TextBlock>(button)
-                    .Any(text => text.Text == "Vai trò và phân quyền"));
-        if (sidebarButton is null) return;
-
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
         _viewModel.InitializeAccessRolesShell();
-
-        sidebarButton.IsEnabled = true;
-        BindingOperations.SetBinding(
-            sidebarButton,
-            Button.TagProperty,
-            new Binding(nameof(ShellViewModel.IsAccessRolesSelected)));
-        BindingOperations.SetBinding(
-            sidebarButton,
-            UIElement.VisibilityProperty,
-            new Binding(nameof(ShellViewModel.CanViewAccessRoles))
-            {
-                Converter = (IValueConverter)FindResource("BooleanToVisibilityConverter")
-            });
-        sidebarButton.Click += AccessRoles_OnClick;
-
         var app = (CongTy.Desktop.App)Application.Current;
         var apiClient = app.ResolveRequired<CompanyApiClient>();
         var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();

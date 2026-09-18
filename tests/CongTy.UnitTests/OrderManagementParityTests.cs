@@ -95,11 +95,10 @@ public sealed class OrderManagementParityTests
         StringAssert.Contains(shell,"SelectedWorkspaceIndex=37");
         StringAssert.Contains(shell,"NavigateOrderManagementAsync");
         StringAssert.Contains(shell,"IsOrderManagementSelected");
-        StringAssert.Contains(host,"Text==\"Quản lý đơn hàng\"");
-        StringAssert.Contains(host,"sidebarButton.IsEnabled=true");
+        Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host,"new OrderManagementView()");
         StringAssert.Contains(host,"workspaceTabs.Items[37]");
-        StringAssert.Contains(xaml,"IsEnabled=\"False\"><TextBlock Text=\"Quản lý đơn hàng\" /></Button>");
+        StringAssert.Contains(xaml,"Click=\"OrderManagement_OnClick\"");
     }
 
     private static string ReadRepoFile(params string[] parts)
