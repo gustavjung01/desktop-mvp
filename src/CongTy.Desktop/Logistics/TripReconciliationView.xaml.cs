@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Logistics;
 
@@ -39,12 +40,15 @@ public partial class TripReconciliationView : UserControl
     private void DeliveryAttempts_OnClick(object sender, RoutedEventArgs e) =>
         DeliveryAttemptsRequested?.Invoke();
 
-    private void Print_OnClick(object sender, RoutedEventArgs e)
+    private async void Print_OnClick(object sender, RoutedEventArgs e)
     {
         if (_viewModel.Detail is null || !_viewModel.CanPrint) return;
+
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "TRIP_RECONCILIATION");
+        if (template is null) return;
         try
         {
-            TripReconciliationPrinter.Print(_viewModel.Detail);
+            TripReconciliationPrinter.Print(_viewModel.Detail, template);
         }
         catch (Exception exception)
         {

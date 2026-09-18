@@ -298,7 +298,10 @@ public sealed class TransferViewModel : INotifyPropertyChanged
         && _receiptBundle.ShortClosure is null
         && CanReceive
         && IsNotBusy;
-    public bool CanPrintSelected => SelectedTransfer is not null;
+    public bool CanPrintSelected =>
+        SelectedTransfer is not null
+        && SelectedTransfer.Status != "draft"
+        && !string.IsNullOrWhiteSpace(SelectedTransfer.DocumentNumber);
 
     public bool HasReceiptWorkspace => SelectedTransfer?.Status == "dispatched" && _receiptBundle is not null;
     public bool HasReceipts => ReceiptHistoryRows.Count > 0;

@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using CongTy.ApiClient;
 using CongTy.Desktop.Shell;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Sales;
 
@@ -55,7 +56,10 @@ public partial class OrderManagementView : UserControl
         if(_viewModel is null)return;
         var items=await _viewModel.LoadPrintableSelectionAsync();
         if(items.Count==0)return;
-        SalesOrderPrintPreview.ShowBatch(Window.GetWindow(this),items);
+        var owner=Window.GetWindow(this);
+        var template=await DocumentPrintTemplateRuntime.LoadForPrintAsync(owner,"SALES_ORDER");
+        if(template is null)return;
+        SalesOrderPrintPreview.ShowBatch(owner,items,template);
     }
 
     private async void CreateOrder_OnClick(object sender,RoutedEventArgs e)

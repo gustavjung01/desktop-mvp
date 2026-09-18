@@ -2,134 +2,107 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 using CongTy.Contracts;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Purchasing;
 
 public static class GoodsReceiptPrintPreview
 {
-    public static FlowDocument Create(GoodsReceiptData receipt)
+    public static FlowDocument Create(GoodsReceiptData receipt, DocumentPrintTemplateData template)
     {
-        var document = new FlowDocument
-        {
-            PagePadding = new Thickness(36),
-            FontFamily = new FontFamily("Segoe UI"),
-            FontSize = 11,
-            ColumnWidth = double.PositiveInfinity
-        };
-
-        document.Blocks.Add(new Paragraph(new Run("PHIẾU NHẬN HÀNG"))
-        {
-            FontSize = 20,
-            FontWeight = FontWeights.Bold,
-            TextAlignment = TextAlignment.Center
-        });
-        document.Blocks.Add(new Paragraph(new Run(receipt.DocumentNumber ?? "Phiếu chưa cấp số"))
-        {
-            FontSize = 14,
-            FontWeight = FontWeights.SemiBold,
-            TextAlignment = TextAlignment.Center
-        });
+        var document = DocumentPrintTemplateRuntime.CreateDocument(template);
+        DocumentPrintTemplateRuntime.AddHeader(
+            document,
+            template,
+            "PHIẾU NHẬN HÀNG",
+            receipt.DocumentNumber ?? "Phiếu chưa cấp số",
+            "Chứng từ nhập hàng");
 
         var info = new Table { CellSpacing = 0 };
         info.Columns.Add(new TableColumn { Width = new GridLength(145) });
         info.Columns.Add(new TableColumn());
         var group = new TableRowGroup();
         info.RowGroups.Add(group);
-        AddInfo(group, "Trạng thái", GoodsReceiptPresentation.Status(receipt.Status));
-        AddInfo(group, "Đơn mua hàng", receipt.PurchaseOrderNumber ?? "Chưa cấp số");
-        AddInfo(group, "Nhà cung cấp", $"{receipt.SupplierCode ?? "—"} — {receipt.SupplierName}");
-        AddInfo(group, "Kho nhận", $"{receipt.WarehouseCode ?? "—"} — {receipt.WarehouseName}");
-        AddInfo(group, "Ngày nhận", GoodsReceiptPresentation.Date(receipt.ReceiptDate));
-        AddInfo(group, "Tham chiếu giao hàng", receipt.SupplierDeliveryReference ?? "Không có");
-        document.Blocks.Add(info);
+        AddInfoIf(group, template, "status", "Trạng thái", GoodsReceiptPresentation.Status(receipt.Status));
+        AddInfoIf(group, template, "supplier", "Nhà cung cấp", $"{receipt.SupplierCode ?? "—"} — {receipt.SupplierName}");
+        AddInfoIf(group, template, "purchase_order", "Đơn mua hàng", receipt.PurchaseOrderNumber ?? "Chưa cấp số");
+        AddInfoIf(group, template, "warehouse", "Kho nhận", $"{receipt.WarehouseCode ?? "—"} — {receipt.WarehouseName}");
+        AddInfoIf(group, template, "receipt_date", "Ngày nhận", GoodsReceiptPresentation.Date(receipt.ReceiptDate));
+        AddInfoIf(group, template, "delivery_reference", "Tham chiếu giao", receipt.SupplierDeliveryReference ?? "Không có");
+        AddInfoIf(group, template, "line_count", "Số dòng", receipt.LineCount.ToString());
+        if (group.Rows.Count > 0) document.Blocks.Add(info);
 
-        document.Blocks.Add(new Paragraph(new Run("Dòng nhận hàng"))
+        var columns = new List<(string Key, string Header, Func<GoodsReceiptLineData, string> Value)>
         {
-            FontSize = 13,
-            FontWeight = FontWeights.SemiBold,
-            Margin = new Thickness(0, 16, 0, 6)
-        });
+            ("line_no", "STT", line => line.LineNumber.ToString()),
+            ("line_item", "Hàng hóa / SKU", line => $"{line.ItemName}\n{line.SkuCode}"),
+            ("line_received", "Thực nhận", line => GoodsReceiptPresentation.Number(line.ReceivedQuantity)),
+            ("line_accepted", "Chấp nhận", line => GoodsReceiptPresentation.Number(line.AcceptedQuantity)),
+            ("line_rejected", "Loại", line => GoodsReceiptPresentation.Number(line.RejectedQuantity)),
+            ("line_unit", "ĐVT", line => line.UnitCode),
+            ("line_lot", "Lô / hạn sử dụng", line => string.Join(" · ", new[] { line.LotCode, GoodsReceiptPresentation.Date(line.ExpiryDate) }.Where(value => !string.IsNullOrWhiteSpace(value) && value != "—")))
+        }.Where(column => DocumentPrintTemplateRuntime.Shows(template, column.Key)).ToList();
 
-        var table = new Table { CellSpacing = 0 };
-        foreach (var width in new[] { 90d, 190d, 65d, 65d, 65d, 65d, 90d })
+        if (columns.Count > 0)
         {
-            table.Columns.Add(new TableColumn { Width = new GridLength(width) });
-        }
-
-        var rows = new TableRowGroup();
-        table.RowGroups.Add(rows);
-        AddRow(rows, true, "SKU", "Tên hàng", "Thực nhận", "Chấp nhận", "Loại", "Chốt thiếu", "Lô");
-        foreach (var line in receipt.Lines)
-        {
-            AddRow(
-                rows,
-                false,
-                line.SkuCode,
-                line.ItemName,
-                GoodsReceiptPresentation.Number(line.ReceivedQuantity),
-                GoodsReceiptPresentation.Number(line.AcceptedQuantity),
-                GoodsReceiptPresentation.Number(line.RejectedQuantity),
-                GoodsReceiptPresentation.Number(line.ShortageClosedQuantity),
-                line.LotCode ?? "—");
-        }
-
-        document.Blocks.Add(table);
-        document.Blocks.Add(new Paragraph(new Run(
-            $"Tổng thực nhận: {GoodsReceiptPresentation.Number(receipt.ReceivedQuantityTotal)}   |   " +
-            $"Chấp nhận: {GoodsReceiptPresentation.Number(receipt.AcceptedQuantityTotal)}   |   " +
-            $"Loại: {GoodsReceiptPresentation.Number(receipt.RejectedQuantityTotal)}   |   " +
-            $"Chốt thiếu: {GoodsReceiptPresentation.Number(receipt.ShortageClosedQuantityTotal)}"))
-        {
-            FontWeight = FontWeights.Bold,
-            TextAlignment = TextAlignment.Right,
-            Margin = new Thickness(0, 12, 0, 0)
-        });
-
-        if (!string.IsNullOrWhiteSpace(receipt.Note))
-        {
-            document.Blocks.Add(new Paragraph(new Run($"Ghi chú: {receipt.Note}"))
+            document.Blocks.Add(new Paragraph(new Run("Dòng nhận hàng"))
             {
-                Margin = new Thickness(0, 12, 0, 0)
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 16, 0, 6)
             });
+
+            var table = new Table { CellSpacing = 0 };
+            foreach (var _ in columns) table.Columns.Add(new TableColumn());
+            var rows = new TableRowGroup();
+            table.RowGroups.Add(rows);
+            AddRow(rows, true, columns.Select(column => column.Header));
+            foreach (var line in receipt.Lines)
+                AddRow(rows, false, columns.Select(column => column.Value(line)));
+            document.Blocks.Add(table);
         }
+
+        var totals = new List<string>();
+        if (DocumentPrintTemplateRuntime.Shows(template, "total_received")) totals.Add($"Tổng thực nhận: {GoodsReceiptPresentation.Number(receipt.ReceivedQuantityTotal)}");
+        if (DocumentPrintTemplateRuntime.Shows(template, "total_accepted")) totals.Add($"Tổng chấp nhận: {GoodsReceiptPresentation.Number(receipt.AcceptedQuantityTotal)}");
+        if (DocumentPrintTemplateRuntime.Shows(template, "total_rejected")) totals.Add($"Tổng loại: {GoodsReceiptPresentation.Number(receipt.RejectedQuantityTotal)}");
+        if (DocumentPrintTemplateRuntime.Shows(template, "total_shortage")) totals.Add($"Tổng chốt thiếu: {GoodsReceiptPresentation.Number(receipt.ShortageClosedQuantityTotal)}");
+        if (totals.Count > 0)
+            document.Blocks.Add(new Paragraph(new Run(string.Join("   |   ", totals))) { FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Right, Margin = new Thickness(0, 12, 0, 0) });
+
+        if (DocumentPrintTemplateRuntime.Shows(template, "note") && !string.IsNullOrWhiteSpace(receipt.Note))
+            document.Blocks.Add(new Paragraph(new Run($"Ghi chú: {receipt.Note}")) { Margin = new Thickness(0, 12, 0, 0) });
 
         if (receipt.Status == "reversed" && !string.IsNullOrWhiteSpace(receipt.ReversalReason))
-        {
-            document.Blocks.Add(new Paragraph(new Run($"Lý do đảo: {receipt.ReversalReason}"))
-            {
-                Margin = new Thickness(0, 8, 0, 0)
-            });
-        }
+            document.Blocks.Add(new Paragraph(new Run($"Lý do đảo: {receipt.ReversalReason}")) { Margin = new Thickness(0, 8, 0, 0) });
 
+        DocumentPrintTemplateRuntime.AddSignatures(document, template, "Người giao", "Thủ kho", "Người kiểm nhận");
         return document;
     }
 
-    private static void AddInfo(TableRowGroup group, string label, string value)
+    private static void AddInfoIf(TableRowGroup group, DocumentPrintTemplateData template, string key, string label, string value)
     {
+        if (!DocumentPrintTemplateRuntime.Shows(template, key)) return;
         var row = new TableRow();
         row.Cells.Add(Cell(label, true));
         row.Cells.Add(Cell(value, false));
         group.Rows.Add(row);
     }
 
-    private static void AddRow(TableRowGroup group, bool header, params string[] values)
+    private static void AddRow(TableRowGroup group, bool header, IEnumerable<string> values)
     {
         var row = new TableRow();
         foreach (var value in values) row.Cells.Add(Cell(value, header));
         group.Rows.Add(row);
     }
 
-    private static TableCell Cell(string value, bool bold)
+    private static TableCell Cell(string? value, bool bold)
     {
-        var paragraph = new Paragraph(new Run(value))
+        var paragraph = new Paragraph(new Run(string.IsNullOrWhiteSpace(value) ? "—" : value))
         {
             Margin = new Thickness(4, 3, 4, 3),
             FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal
         };
-        return new TableCell(paragraph)
-        {
-            BorderBrush = Brushes.Gray,
-            BorderThickness = new Thickness(0.4)
-        };
+        return new TableCell(paragraph) { BorderBrush = Brushes.Gray, BorderThickness = new Thickness(0.4) };
     }
 }

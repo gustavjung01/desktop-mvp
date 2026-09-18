@@ -1,9 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using CongTy.Contracts;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -62,73 +60,14 @@ public partial class TransferView : UserControl
 
     private async void CloseShort_OnClick(object sender, RoutedEventArgs e) => await _viewModel.CloseShortAsync();
 
-    private void PrintTransfer_OnClick(object sender, RoutedEventArgs e)
+    private async void PrintTransfer_OnClick(object sender, RoutedEventArgs e)
     {
         var transfer = _viewModel.GetPrintableTransfer();
         if (transfer is null) return;
 
-        var dialog = new PrintDialog();
-        if (dialog.ShowDialog() != true) return;
-
-        var document = BuildPrintDocument(transfer);
-        document.PageHeight = dialog.PrintableAreaHeight;
-        document.PageWidth = dialog.PrintableAreaWidth;
-        document.PagePadding = new Thickness(40);
-        document.ColumnGap = 0;
-        document.ColumnWidth = Math.Max(1, dialog.PrintableAreaWidth - 80);
-        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, transfer.DocumentNumber ?? "Phiếu chuyển kho");
-    }
-
-    private static FlowDocument BuildPrintDocument(InventoryTransferData transfer)
-    {
-        var document = new FlowDocument
-        {
-            FontFamily = new FontFamily("Segoe UI"),
-            FontSize = 11
-        };
-        document.Blocks.Add(new Paragraph(new Run("PHIẾU CHUYỂN KHO")) { FontSize = 18, FontWeight = FontWeights.SemiBold });
-        document.Blocks.Add(new Paragraph(new Run(transfer.DocumentNumber ?? "Phiếu nháp chưa cấp số")));
-        document.Blocks.Add(new Paragraph(new Run(
-            $"{transfer.SourceWarehouseCode} — {transfer.SourceWarehouseName} → {transfer.DestinationWarehouseCode} — {transfer.DestinationWarehouseName}")));
-        document.Blocks.Add(new Paragraph(new Run($"Ngày chuyển: {InventoryPresentation.Date(transfer.TransferDate)}")));
-        if (!string.IsNullOrWhiteSpace(transfer.Note))
-            document.Blocks.Add(new Paragraph(new Run($"Ghi chú: {transfer.Note}")));
-
-        var table = new Table { CellSpacing = 0 };
-        table.Columns.Add(new TableColumn { Width = new GridLength(35) });
-        table.Columns.Add(new TableColumn { Width = new GridLength(150) });
-        table.Columns.Add(new TableColumn { Width = new GridLength(220) });
-        table.Columns.Add(new TableColumn { Width = new GridLength(100) });
-        table.Columns.Add(new TableColumn { Width = new GridLength(100) });
-        var group = new TableRowGroup();
-        table.RowGroups.Add(group);
-        group.Rows.Add(Row("STT", "SKU", "Sản phẩm", "Số lượng", "Lô", true));
-        foreach (var line in transfer.Lines)
-            group.Rows.Add(Row(
-                line.LineNumber.ToString(),
-                line.SourceSku,
-                line.ItemName,
-                $"{InventoryPresentation.Quantity(line.SourceQuantity)} {line.SourceUnitCode}",
-                InventoryPresentation.First(line.LotCode, "Không lô"),
-                false));
-        document.Blocks.Add(table);
-        return document;
-    }
-
-    private static TableRow Row(string a, string b, string c, string d, string e, bool header)
-    {
-        var row = new TableRow();
-        foreach (var text in new[] { a, b, c, d, e })
-        {
-            var paragraph = new Paragraph(new Run(text)) { Margin = new Thickness(4) };
-            if (header) paragraph.FontWeight = FontWeights.SemiBold;
-            row.Cells.Add(new TableCell(paragraph)
-            {
-                BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness(0.5)
-            });
-        }
-        return row;
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "INVENTORY_TRANSFER");
+        if (template is null) return;
+        InventoryTransferPrintPreview.Print(transfer, template);
     }
 
     private async void TransferView_OnPreviewKeyDown(object sender, KeyEventArgs e)

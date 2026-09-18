@@ -2,6 +2,15 @@ using System.Text.Json.Serialization;
 
 namespace CongTy.Contracts;
 
+public sealed record DeliveryOrderDestinationData
+{
+    [JsonPropertyName("addressLine1")] public string? AddressLine1 { get; init; }
+    [JsonPropertyName("addressLine2")] public string? AddressLine2 { get; init; }
+    [JsonPropertyName("ward")] public string? Ward { get; init; }
+    [JsonPropertyName("district")] public string? District { get; init; }
+    [JsonPropertyName("province")] public string? Province { get; init; }
+}
+
 public sealed record DeliveryOrderEligibilityData
 {
     [JsonPropertyName("fulfillmentAllocationId")] public string FulfillmentAllocationId { get; init; } = string.Empty;
@@ -60,6 +69,7 @@ public sealed record DeliveryOrderData
     [JsonPropertyName("totalBaseQuantity")] public string? TotalBaseQuantity { get; init; }
     [JsonPropertyName("requestedDeliveryDate")] public string? RequestedDeliveryDate { get; init; }
     [JsonPropertyName("collectionPolicy")] public string? CollectionPolicy { get; init; }
+    [JsonPropertyName("destination")] public DeliveryOrderDestinationData? Destination { get; init; }
     [JsonPropertyName("note")] public string? Note { get; init; }
     [JsonPropertyName("cancellationReason")] public string? CancellationReason { get; init; }
     [JsonPropertyName("lines")] public DeliveryOrderLineData[] Lines { get; init; } = [];

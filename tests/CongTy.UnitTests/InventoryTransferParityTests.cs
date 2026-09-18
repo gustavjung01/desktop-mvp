@@ -133,7 +133,9 @@ public sealed class InventoryTransferParityTests
         StringAssert.Contains(xaml, "Hàng thừa không tự cộng tồn.");
         StringAssert.Contains(xaml, "Phiếu xuất gốc vẫn được giữ nguyên.");
 
-        StringAssert.Contains(code, "new PrintDialog()");
+        StringAssert.Contains(code, "DocumentPrintTemplateRuntime.LoadForPrintAsync");
+        StringAssert.Contains(code, "\"INVENTORY_TRANSFER\"");
+        StringAssert.Contains(code, "InventoryTransferPrintPreview.Print(transfer, template)");
         StringAssert.Contains(code, "Key.F5");
         StringAssert.Contains(code, "Key.Escape");
         StringAssert.Contains(code, "ModifierKeys.Control && e.Key == Key.F");

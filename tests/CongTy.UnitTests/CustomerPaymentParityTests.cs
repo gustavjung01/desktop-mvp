@@ -107,12 +107,15 @@ public sealed class CustomerPaymentParityTests
     [TestMethod]
     public void Print_PreservesA5ReceiptSemantics()
     {
-        var code = ReadRepoFile("src", "CongTy.Desktop", "Accounting", "CustomerPaymentView.xaml.cs");
+        var action = ReadRepoFile("src", "CongTy.Desktop", "Accounting", "CustomerPaymentView.xaml.cs");
+        var code = ReadRepoFile("src", "CongTy.Desktop", "Accounting", "CustomerPaymentPrintPreview.cs");
+        var runtime = ReadRepoFile("src", "CongTy.Desktop", "Printing", "DocumentPrintTemplateRuntime.cs");
 
+        StringAssert.Contains(action, "\"CUSTOMER_PAYMENT\"");
         StringAssert.Contains(code, "PHIẾU THU");
         StringAssert.Contains(code, "Chứng từ thu tiền khách hàng");
-        StringAssert.Contains(code, "PageWidth = 559");
-        StringAssert.Contains(code, "PageHeight = 794");
+        StringAssert.Contains(runtime, "PageMediaSizeName.ISOA5");
+        StringAssert.Contains(runtime, "documentType, \"CUSTOMER_PAYMENT\"");
         StringAssert.Contains(code, "SỐ TIỀN ĐÃ NHẬN");
         StringAssert.Contains(code, "Người nộp tiền");
         StringAssert.Contains(code, "Người lập phiếu");

@@ -311,7 +311,7 @@ public sealed class StocktakeViewModel : INotifyPropertyChanged
     public string WorkflowHint => StocktakePresentation.WorkflowHint(SelectedStocktake?.Status);
     public bool IsBlindCount => SelectedStocktake?.Status is "draft" or "recount_required";
     public bool IsReviewTable => HasDetail && !IsBlindCount;
-    public bool CanPrint => HasDetail && IsNotBusy;
+    public bool CanPrint => HasDetail && SelectedStocktake?.Status != "draft" && IsNotBusy;
     public bool CanCountSelected => IsBlindCount && CanCount && IsNotBusy;
     public bool CanSubmitSelected => SelectedStocktake?.Status == "counted" && CanSubmit && IsNotBusy;
     public bool CanRecountSelected =>

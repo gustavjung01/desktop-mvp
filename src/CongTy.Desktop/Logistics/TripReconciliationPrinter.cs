@@ -3,74 +3,96 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using CongTy.Contracts;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Logistics;
 
 public static class TripReconciliationPrinter
 {
-    public static void Print(TripReconciliationData detail)
+    public static void Print(TripReconciliationData detail, DocumentPrintTemplateData template)
     {
         ArgumentNullException.ThrowIfNull(detail);
-        var dialog = new PrintDialog();
-        if (dialog.ShowDialog() != true) return;
 
-        var document = new FlowDocument
+        var document = DocumentPrintTemplateRuntime.CreateDocument(template, 10);
+        DocumentPrintTemplateRuntime.AddHeader(
+            document,
+            template,
+            "BIÊN BẢN ĐỐI SOÁT CHUYẾN",
+            detail.Number,
+            "Đối chiếu giao hàng và hàng quay về");
+
+        AddInfoIf(document, template, "status", "Trạng thái", detail.Status == "closed" ? "Đã đóng" : "Đang đối soát");
+        AddInfoIf(document, template, "warehouse", "Kho", $"{detail.WarehouseCode ?? "—"} — {detail.WarehouseName ?? "—"}");
+        AddInfoIf(document, template, "vehicle", "Xe", detail.LicensePlate ?? "—");
+        AddInfoIf(document, template, "driver", "Tài xế", detail.DriverName ?? "—");
+        AddInfoIf(document, template, "receipt_count", "Số lần nhập hàng về", detail.Receipts.Length.ToString());
+        AddInfoIf(document, template, "closed_at", "Thời điểm đóng", TripReconciliationPresentation.LocalDateTime(detail.ClosedAt));
+        AddInfoIf(document, template, "can_close", "Có thể đóng", detail.CanClose ? "Có" : "Chưa");
+
+        var columns = new List<(string Key, string Header, Func<TripReconciliationLineData, string> Value)>
         {
-            PageWidth = dialog.PrintableAreaWidth,
-            PageHeight = dialog.PrintableAreaHeight,
-            PagePadding = new Thickness(36),
-            ColumnGap = 0,
-            ColumnWidth = dialog.PrintableAreaWidth,
-            FontFamily = new FontFamily("Segoe UI"),
-            FontSize = 10
-        };
+            ("line_stop", "Điểm giao", line => line.StopSequence.ToString()),
+            ("line_delivery_order", "Phiếu giao", line => TripReconciliationPresentation.Number(line.DeliveryOrderNumber)),
+            ("line_customer", "Khách hàng", line => $"{line.CustomerName ?? "—"}\n{line.CustomerCode ?? "—"}"),
+            ("line_item", "SKU / hàng hóa", line => $"{line.ItemName}\n{line.Sku}{(string.IsNullOrWhiteSpace(line.LotCode) ? string.Empty : $" · Lô {line.LotCode}")}"),
+            ("line_result", "Kết quả", line => TripReconciliationPresentation.Result(line.AttemptResult)),
+            ("line_issued", "Xuất", line => $"{TripReconciliationPresentation.Quantity(line.IssuedBaseQuantity)} {line.UnitCode}"),
+            ("line_delivered", "Đã giao", line => TripReconciliationPresentation.Quantity(line.DeliveredBaseQuantity)),
+            ("line_returned", "Đã về", line => TripReconciliationPresentation.Quantity(line.ReturnedBaseQuantity)),
+            ("line_outstanding", "Còn xe", line => TripReconciliationPresentation.Quantity(line.OutstandingBaseQuantity))
+        }.Where(column => DocumentPrintTemplateRuntime.Shows(template, column.Key)).ToList();
 
-        document.Blocks.Add(new Paragraph(new Run("PHIẾU ĐỐI SOÁT CUỐI CHUYẾN"))
+        if (columns.Count > 0)
         {
-            FontSize = 18, FontWeight = FontWeights.Bold, TextAlignment = TextAlignment.Center
-        });
-        document.Blocks.Add(new Paragraph(new Run($"{detail.Number} · {(detail.Status == "closed" ? "Đã đóng" : "Đang đối soát")}"))
-        {
-            TextAlignment = TextAlignment.Center
-        });
-
-        var summary = new Paragraph();
-        summary.Inlines.Add(new Run($"Kho: {detail.WarehouseCode ?? detail.WarehouseName ?? "—"}   "));
-        summary.Inlines.Add(new Run($"Tài xế: {detail.DriverName ?? "—"}   "));
-        summary.Inlines.Add(new Run($"Xe: {detail.LicensePlate ?? "—"}"));
-        document.Blocks.Add(summary);
-
-        var table = new Table { CellSpacing = 0 };
-        foreach (var width in new[] { 150d, 80d, 65d, 65d, 65d, 65d })
-            table.Columns.Add(new TableColumn { Width = new GridLength(width) });
-        var group = new TableRowGroup();
-        table.RowGroups.Add(group);
-        var header = new TableRow();
-        foreach (var title in new[] { "Phiếu / hàng", "Kết quả", "Xuất", "Đã giao", "Đã về", "Còn xe" })
-            header.Cells.Add(Cell(title, true));
-        group.Rows.Add(header);
-
-        foreach (var line in detail.Lines)
-        {
-            var row = new TableRow();
-            row.Cells.Add(Cell($"{TripReconciliationPresentation.Number(line.DeliveryOrderNumber)}\n{line.Sku} — {line.ItemName}"));
-            row.Cells.Add(Cell(TripReconciliationPresentation.Result(line.AttemptResult)));
-            row.Cells.Add(Cell(TripReconciliationPresentation.Quantity(line.IssuedBaseQuantity)));
-            row.Cells.Add(Cell(TripReconciliationPresentation.Quantity(line.DeliveredBaseQuantity)));
-            row.Cells.Add(Cell(TripReconciliationPresentation.Quantity(line.ReturnedBaseQuantity)));
-            row.Cells.Add(Cell(TripReconciliationPresentation.Quantity(line.OutstandingBaseQuantity)));
-            group.Rows.Add(row);
+            var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 12, 0, 0) };
+            foreach (var _ in columns) table.Columns.Add(new TableColumn());
+            var group = new TableRowGroup();
+            table.RowGroups.Add(group);
+            group.Rows.Add(Row(columns.Select(column => column.Header), true));
+            foreach (var line in detail.Lines)
+                group.Rows.Add(Row(columns.Select(column => column.Value(line)), false));
+            document.Blocks.Add(table);
         }
-        document.Blocks.Add(table);
 
+        if (DocumentPrintTemplateRuntime.Shows(template, "note"))
+        {
+            var note = detail.CanClose
+                ? "Đã đối chiếu đủ điều kiện đóng chuyến."
+                : "Còn hàng/chứng từ cần đối chiếu trước khi đóng chuyến.";
+            document.Blocks.Add(new Paragraph(new Run($"Ghi chú: {note}")) { Margin = new Thickness(0, 10, 0, 0) });
+        }
+
+        DocumentPrintTemplateRuntime.AddSignatures(document, template, "Điều phối", "Thủ kho", "Tài xế");
+
+        var dialog = new PrintDialog();
+        DocumentPrintTemplateRuntime.PrepareDialog(dialog, template);
+        if (dialog.ShowDialog() != true) return;
+        DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template);
         dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, $"Đối soát {detail.Number}");
     }
 
-    private static TableCell Cell(string text, bool bold = false) =>
-        new(new Paragraph(new Run(text)) { Margin = new Thickness(4), FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal })
+    private static void AddInfoIf(FlowDocument document, DocumentPrintTemplateData template, string key, string label, string value)
+    {
+        if (!DocumentPrintTemplateRuntime.Shows(template, key)) return;
+        document.Blocks.Add(new Paragraph(new Run($"{label}: {value}")) { Margin = new Thickness(0, 2, 0, 2) });
+    }
+
+    private static TableRow Row(IEnumerable<string> values, bool header)
+    {
+        var row = new TableRow();
+        foreach (var value in values)
         {
-            BorderBrush = Brushes.LightGray,
-            BorderThickness = new Thickness(0.5),
-            Padding = new Thickness(2)
-        };
+            row.Cells.Add(new TableCell(new Paragraph(new Run(value))
+            {
+                Margin = new Thickness(4),
+                FontWeight = header ? FontWeights.SemiBold : FontWeights.Normal
+            })
+            {
+                BorderBrush = Brushes.LightGray,
+                BorderThickness = new Thickness(0.5),
+                Padding = new Thickness(2)
+            });
+        }
+        return row;
+    }
 }
