@@ -1,0 +1,404 @@
+<UserControl x:Class="CongTy.Desktop.Settings.EmployeeMcpReportingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="True"
+             Loaded="EmployeeMcpReportingView_OnLoaded"
+             PreviewKeyDown="EmployeeMcpReportingView_OnPreviewKeyDown">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="McpCellTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="McpNumericTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style x:Key="McpMessageStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="0,0,4,12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Padding="12" Style="{StaticResource OfficeCardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190" />
+                                <ColumnDefinition Width="190" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Từ ngày" FontWeight="SemiBold" />
+                                <DatePicker Margin="0,5,0,0"
+                                            SelectedDate="{Binding FromDate, Mode=TwoWay}"
+                                            IsEnabled="{Binding CanApply}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                <TextBlock Text="Đến ngày" FontWeight="SemiBold" />
+                                <DatePicker Margin="0,5,0,0"
+                                            SelectedDate="{Binding ToDate, Mode=TwoWay}"
+                                            IsEnabled="{Binding CanApply}" />
+                            </StackPanel>
+
+                            <Button Grid.Column="2"
+                                    Margin="12,18,0,0"
+                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    IsEnabled="{Binding CanApply}"
+                                    Click="Apply_OnClick"
+                                    Content="{Binding ApplyText}" />
+
+                            <Button Grid.Column="3"
+                                    Margin="8,18,0,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding CanApply}"
+                                    Click="Reset_OnClick"
+                                    Content="Tháng hiện tại" />
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="False"
+                                ToolTip="Màn Danh mục nhân sự sẽ được nối khi phần Quản trị hệ thống được triển khai."
+                                Content="Danh mục nhân sự" />
+                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CustomerOnboarding_OnClick"
+                                Content="Đề nghị mở mã khách" />
+                    </StackPanel>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Margin="0,8,0,0"
+                        Style="{StaticResource McpMessageStyle}"
+                        Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding Message, Mode=OneWay}" TextWrapping="Wrap" />
+                </Border>
+
+                <TextBlock Grid.Row="1"
+                           Margin="0,12,0,0"
+                           Text="Đang tải hiệu suất nhân viên thị trường…"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Visibility="{Binding ShowInitialLoading, Converter={StaticResource BoolToVisibility}}" />
+
+                <Border Grid.Row="2"
+                        Margin="0,10,0,0"
+                        Padding="12"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="Nguồn số liệu dùng chung: " FontWeight="SemiBold" />
+                        <Run Text="báo cáo lấy trực tiếp hoạt động thị trường đã ghi nhận. Điểm bán chưa được duyệt mở hoặc liên kết mã không tự trở thành khách hàng Công Ty." />
+                    </TextBlock>
+                </Border>
+
+                <TabControl Grid.Row="3"
+                            Margin="0,10,0,0"
+                            Style="{StaticResource OfficeTabControlStyle}"
+                            SelectedIndex="{Binding ActiveTabIndex, Mode=TwoWay}"
+                            Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                    <TabItem Header="Tổng quan">
+                        <UniformGrid Margin="0,8,0,0" Columns="3">
+                            <Border Margin="0,0,6,6" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Phiên / tuyến" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding SessionRouteText}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="Phiên đi thị trường và tuyến có hoạt động trong kỳ." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="6,0,6,6" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Điểm kế hoạch / đã ghé" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding PlannedVisitedText}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="{Binding PlannedVisitedHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="6,0,0,6" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Có mặt / lượt ghé" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding CheckedInVisitText}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="Số điểm đã ghi nhận có mặt và tổng lượt ghé trong kỳ." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="0,6,6,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Nhu cầu mua" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding OrderIntentText}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="{Binding OrderIntentHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="6,6,6,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Mở mã khách thành công" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding OnboardingText}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="{Binding OnboardingHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Margin="6,6,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Đơn Công Ty chính thức" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Margin="0,4,0,0" Text="{Binding CoreOrderText}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0" Text="{Binding CoreOrderHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                    </TabItem>
+
+                    <TabItem Header="Tuyến và phiên">
+                        <StackPanel Margin="0,8,0,0">
+                            <Border Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Hiệu suất theo tuyến" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,8" Text="Khu vực hiển thị theo dữ liệu tuyến đã được ghi nhận." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <DataGrid Height="300"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              RowHeight="42"
+                                              ItemsSource="{Binding RouteRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Tuyến" Binding="{Binding Route}" Width="1.6*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Khu vực" Binding="{Binding Area}" Width="0.8*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Nhân viên" Binding="{Binding Employee}" Width="1.6*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Phiên" Binding="{Binding SessionCount}" Width="0.55*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Kế hoạch" Binding="{Binding PlannedOutletCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Đã ghé" Binding="{Binding VisitedOutletCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Có mặt" Binding="{Binding CheckedInOutletCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Nhu cầu mua" Binding="{Binding OrderIntentCount}" Width="0.8*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Đơn Công Ty" Binding="{Binding CoreSalesOrderCount}" Width="0.8*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Hoàn thành KH" Binding="{Binding PlannedVisitRatePercent}" Width="0.9*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,7,0,0" Text="{Binding RouteEmptyText}" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="0,10,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="100 phiên gần nhất trong bộ lọc" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,8" Text="Đối chiếu hoạt động theo ngày, tuyến và nhân viên." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <DataGrid Height="330"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              RowHeight="42"
+                                              ItemsSource="{Binding SessionRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Ngày" Binding="{Binding Date}" Width="0.75*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Tuyến" Binding="{Binding Route}" Width="1.4*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Nhân viên" Binding="{Binding Employee}" Width="1.5*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTemplateColumn Header="Trạng thái" Width="0.9*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Status}" VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding NeedsReconciliation}" Value="True">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTextColumn Header="Kế hoạch" Binding="{Binding PlannedOutletCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Đã ghé" Binding="{Binding VisitedOutletCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Có mặt" Binding="{Binding CheckedInOutletCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Lượt ghé" Binding="{Binding VisitCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Nhu cầu" Binding="{Binding OrderIntentCount}" Width="0.65*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Mở mã khách" Binding="{Binding OnboardingCount}" Width="0.85*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Đơn Công Ty" Binding="{Binding CoreSalesOrderCount}" Width="0.75*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,7,0,0" Text="{Binding SessionEmptyText}" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </TabItem>
+
+                    <TabItem Header="Điểm bán và lượt ghé">
+                        <Border Margin="0,8,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Điểm bán và lượt ghé theo nhân viên" FontSize="16" FontWeight="SemiBold" />
+                                <TextBlock Margin="0,3,0,8" Text="Tổng hợp kế hoạch, điểm đã ghé và số lần ghi nhận hoạt động thực tế." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <DataGrid Height="430"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="42"
+                                          ItemsSource="{Binding ActorRows}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nhân viên" Binding="{Binding Employee}" Width="2*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                        <DataGridTextColumn Header="Điểm kế hoạch" Binding="{Binding PlannedOutletCount}" Width="0.9*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Đã ghé" Binding="{Binding VisitedOutletCount}" Width="0.8*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Có mặt" Binding="{Binding CheckedInOutletCount}" Width="0.8*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Lượt ghé" Binding="{Binding VisitCount}" Width="0.8*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Hoàn thành KH" Binding="{Binding PlannedVisitRatePercent}" Width="1*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock Margin="0,7,0,0" Text="{Binding ActorVisitEmptyText}" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </TabItem>
+
+                    <TabItem Header="Nhu cầu và đơn hàng">
+                        <Border Margin="0,8,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Nhu cầu và đơn hàng theo nhân viên" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0" Text="Theo dõi từ nhu cầu mua, đề nghị mở mã khách đến đơn Công Ty chính thức." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                            Click="CustomerOnboarding_OnClick"
+                                            Content="Mở đề nghị mã khách" />
+                                </Grid>
+                                <DataGrid Margin="0,8,0,0"
+                                          Height="430"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="42"
+                                          ItemsSource="{Binding ActorRows}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nhân viên" Binding="{Binding Employee}" Width="2*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                        <DataGridTextColumn Header="Nhu cầu mua" Binding="{Binding OrderIntentCount}" Width="0.9*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Đề nghị đã gửi" Binding="{Binding OnboardingSubmittedCount}" Width="1*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Mở mã thành công" Binding="{Binding OnboardingConvertedCount}" Width="1*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Đơn Công Ty" Binding="{Binding CoreSalesOrderCount}" Width="0.9*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Nhu cầu / ghé" Binding="{Binding OrderIntentConversionPercent}" Width="0.9*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        <DataGridTextColumn Header="Đơn / nhu cầu" Binding="{Binding CoreOrderConversionPercent}" Width="0.9*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock Margin="0,7,0,0" Text="{Binding ActorOrderEmptyText}" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </TabItem>
+
+                    <TabItem Header="Hiệu quả hoạt động">
+                        <StackPanel Margin="0,8,0,0">
+                            <Border Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Hiệu suất theo nhân viên" FontSize="16" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,3,0,0" Text="Chỉ gắn số liệu với hồ sơ nhân viên khi mã nhân viên khớp chính xác." Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                IsEnabled="False"
+                                                ToolTip="Màn Danh mục nhân sự sẽ được nối khi phần Quản trị hệ thống được triển khai."
+                                                Content="Mở danh mục nhân sự" />
+                                    </Grid>
+                                    <DataGrid Margin="0,8,0,0"
+                                              Height="330"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              RowHeight="42"
+                                              ItemsSource="{Binding ActorRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Nhân viên" Binding="{Binding Employee}" Width="1.8*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Phiên" Binding="{Binding SessionCount}" Width="0.55*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Tuyến" Binding="{Binding RouteCount}" Width="0.55*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Kế hoạch" Binding="{Binding PlannedOutletCount}" Width="0.7*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Đã ghé" Binding="{Binding VisitedOutletCount}" Width="0.7*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Có mặt" Binding="{Binding CheckedInOutletCount}" Width="0.7*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Nhu cầu mua" Binding="{Binding OrderIntentCount}" Width="0.8*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Đơn Công Ty" Binding="{Binding CoreSalesOrderCount}" Width="0.8*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Hoàn thành KH" Binding="{Binding PlannedVisitRatePercent}" Width="0.95*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                            <DataGridTextColumn Header="Nhu cầu / ghé" Binding="{Binding OrderIntentConversionPercent}" Width="0.95*" ElementStyle="{StaticResource McpNumericTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,7,0,0" Text="{Binding ActorEffectivenessEmptyText}" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="0,10,0,0" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Chất lượng dữ liệu và đối soát" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,8" Text="Các trường hợp dưới đây cần được kiểm tra hoặc liên kết lại trước khi dùng để đánh giá cá nhân." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <DataGrid Height="270"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              RowHeight="42"
+                                              ItemsSource="{Binding QualityRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Loại" Binding="{Binding Type}" Width="1.3*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Nhân viên" Binding="{Binding Employee}" Width="1*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Khoảng ngày / tuyến" Binding="{Binding PeriodRoute}" Width="1.2*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Số liệu ghi nhận" Binding="{Binding Recorded}" Width="1.3*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                            <DataGridTextColumn Header="Số liệu đối chiếu" Binding="{Binding Compared}" Width="1.3*" ElementStyle="{StaticResource McpCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,7,0,0" Text="{Binding QualityEmptyText}" HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
+
+                <Border Grid.Row="4"
+                        Margin="0,10,0,0"
+                        Padding="10"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock Text="Thông tin kỹ thuật" FontWeight="SemiBold" />
+                        <TextBlock Margin="0,3,0,0" Text="{Binding ScopeText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Margin="0,2,0,0" Text="{Binding GeneratedText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Row="5"
+                           Margin="0,8,0,0"
+                           Text="F5: tải lại"
+                           HorizontalAlignment="Right"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}" />
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
