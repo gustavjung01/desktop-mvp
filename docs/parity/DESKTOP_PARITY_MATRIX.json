@@ -3,24 +3,59 @@
   "name": "DESKTOP_PARITY_MATRIX",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "d6b2962fcbb8778d766c16f0f0d8d5a701778ee6",
+    "baselineRevision": "d90755933095bc6ec894529eb1135f8cf4686607",
     "fingerprints": {
-      "webAppTree": "dc6922172c4543cd9a70788d649a2d34d00fa567",
+      "webAppTree": "1008403602c19b2326d7dbe2c2146f5566c1f222",
       "apiRoutesTree": "beded8f4410fb2e58ff131afd07a3d73df0c1ae3",
       "accessTree": "6156db21006867891127560bb96f0b82da362bad",
       "serverBlob": "68d7329c8f6f551838b98b81e74f874a889c76ee",
-      "contractsJsBlob": "d7e564a37017400bb316826d5511a4291cd4c1d5",
-      "contractsTypesBlob": "5295cf3621425de771daede736284b5d6f329010",
+      "contractsJsBlob": "e8237e6ee036ab3f2eabb36b4273cc40fab11351",
+      "contractsTypesBlob": "87722433f55681df66dce40c5179caf153c29380",
       "idempotencyBlob": "faba39af51fd81d0b8d778b20f669a17825da3f7"
     }
   },
   "mappingRules": [
-    {"sourceKind":"company-screen","status":"planned","desktopTarget":"native WPF screen in the matching business lot"},
-    {"sourceKind":"next-runtime-route","status":"not_applicable","desktopTarget":"none","reason":"No Vercel runtime dependency in Desktop."},
-    {"sourceKind":"backend-endpoint","status":"planned","desktopTarget":"typed HTTPS client; backend remains business authority"},
-    {"sourceKind":"permission","status":"planned","desktopTarget":"canonical authorization state; deny by default"},
-    {"sourceKind":"mutation","status":"planned","desktopTarget":"typed HTTPS mutation with canonical Idempotency-Key and audit-aware backend contract"}
+    {
+      "sourceKind": "company-screen",
+      "status": "planned",
+      "desktopTarget": "native WPF screen in the matching business lot"
+    },
+    {
+      "sourceKind": "next-runtime-route",
+      "status": "not_applicable",
+      "desktopTarget": "none",
+      "reason": "No Vercel runtime dependency in Desktop."
+    },
+    {
+      "sourceKind": "backend-endpoint",
+      "status": "planned",
+      "desktopTarget": "typed HTTPS client; backend remains business authority"
+    },
+    {
+      "sourceKind": "permission",
+      "status": "planned",
+      "desktopTarget": "canonical authorization state; deny by default"
+    },
+    {
+      "sourceKind": "mutation",
+      "status": "planned",
+      "desktopTarget": "typed HTTPS mutation with canonical Idempotency-Key and audit-aware backend contract"
+    }
   ],
-  "allowedStatuses": ["implemented","planned","not_applicable","blocked"],
-  "driftErrors": ["UNCLASSIFIED_BACKEND_API","UNCLASSIFIED_WEB_ROUTE","UNCLASSIFIED_COMPANY_SCREEN","UNCLASSIFIED_PERMISSION","API_CONTRACT_DRIFT","PERMISSION_CONTRACT_DRIFT","IDEMPOTENCY_CONTRACT_DRIFT","UNMAPPED_MUTATION"]
+  "allowedStatuses": [
+    "implemented",
+    "planned",
+    "not_applicable",
+    "blocked"
+  ],
+  "driftErrors": [
+    "UNCLASSIFIED_BACKEND_API",
+    "UNCLASSIFIED_WEB_ROUTE",
+    "UNCLASSIFIED_COMPANY_SCREEN",
+    "UNCLASSIFIED_PERMISSION",
+    "API_CONTRACT_DRIFT",
+    "PERMISSION_CONTRACT_DRIFT",
+    "IDEMPOTENCY_CONTRACT_DRIFT",
+    "UNMAPPED_MUTATION"
+  ]
 }

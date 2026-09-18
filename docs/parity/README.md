@@ -166,3 +166,21 @@ Audit compare từ `0f645e584378e6763720594bd3604828644cb583` xác nhận thay �
 - API/permission/mutation inventory giữ nguyên 88 / 388 / 205 / 280.
 
 Snapshot Web mới: 73 screens / 286 routes. Chỉ Web screen/route fingerprint được rebaseline; UI-5.2 không đổi contract.
+
+## Rebaseline 2026-09-18 — kiểm kê lớn 2.000 dòng và shared contract
+
+Trong lúc CI của slice **Global quick actions Desktop** chạy, `NPP-Platform/main` tiến tới
+`d90755933095bc6ec894529eb1135f8cf4686607` (PR #1100: tối ưu kiểm kê lớn đến 2.000 dòng). Desktop đã audit diff nguồn trước khi rebaseline.
+
+Kết luận audit:
+
+- inventory parity không đổi: **73 screens / 289 Web routes / 90 API source files / 389 endpoint candidates / 205 permissions / 281 mutation candidates**;
+- `npp-core/api/src/routes`, `npp-core/api/src/server.js`, permission catalog và canonical idempotency implementation không đổi fingerprint;
+- Web app tree đổi do implementation hiện hữu, không thêm/xóa screen hoặc Next route;
+- shared contracts thêm đúng `STOCKTAKE_MAX_LINES = 2000` trong JS và type declaration, phục vụ giới hạn kiểm kê; không đổi envelope/contract của Sản phẩm, Khách hàng hoặc Đơn bán;
+- backend stocktake chuyển sang batch insert và tiếp tục dùng canonical `Idempotency-Key`; thay đổi này không yêu cầu Desktop quick actions sửa backend/API/DB;
+- component `global-quick-actions.tsx` hiện hành vẫn giữ đúng ba shortcut `Sản phẩm`, `Khách hàng`, `Tạo đơn bán` và mở bằng `target="_blank"`; Desktop ánh xạ hành vi đó sang modeless WPF Window trong cùng process.
+
+Rebaseline chỉ cập nhật `webAppTree`, hai blob shared contracts và revision audit. Các snapshot identity, API route fingerprint,
+permission fingerprint, server fingerprint và idempotency fingerprint giữ nguyên.
+

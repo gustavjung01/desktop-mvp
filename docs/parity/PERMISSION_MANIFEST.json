@@ -3,18 +3,31 @@
   "name": "PERMISSION_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "d6b2962fcbb8778d766c16f0f0d8d5a701778ee6",
-    "fingerprints": {"accessTree":"6156db21006867891127560bb96f0b82da362bad"}
+    "baselineRevision": "d90755933095bc6ec894529eb1135f8cf4686607",
+    "fingerprints": {
+      "accessTree": "6156db21006867891127560bb96f0b82da362bad"
+    }
   },
   "snapshot": {
-    "permissions": {"count":205,"sha256":"25f558dbadfd28e4d65fd74fa16b243f6c7d92ba77c6e41186d36b0c9f31b2dd"}
+    "permissions": {
+      "count": 205,
+      "sha256": "25f558dbadfd28e4d65fd74fa16b243f6c7d92ba77c6e41186d36b0c9f31b2dd"
+    }
   },
   "discovery": {
     "root": "npp-core/api/src/access",
-    "keyPrefixes": ["core.","mcp."],
+    "keyPrefixes": [
+      "core.",
+      "mcp."
+    ],
     "classificationForExactBaseline": "planned",
     "classificationForChangedSource": "unclassified"
   },
   "desktopRule": "Desktop never invents permission semantics. It consumes the canonical Công Ty authorization contract and keeps deny-by-default behavior.",
-  "allowedStatuses": ["implemented","planned","not_applicable","blocked"]
+  "allowedStatuses": [
+    "implemented",
+    "planned",
+    "not_applicable",
+    "blocked"
+  ]
 }

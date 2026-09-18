@@ -1323,6 +1323,35 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
+    public void GlobalQuickActions_MatchWebShortcutsAndUseIndependentFeatureWindows()
+    {
+        var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
+        var shellCode = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml.cs");
+        var windowService = ReadRepoFile("src", "CongTy.Desktop", "Shell", "QuickActionWindowService.cs");
+        var sales = ReadRepoFile("src", "CongTy.Desktop", "Sales", "SalesViewModel.cs");
+        var app = ReadRepoFile("src", "CongTy.Desktop", "App.xaml.cs");
+
+        StringAssert.Contains(shell, "Text=\"Sản phẩm\"");
+        StringAssert.Contains(shell, "Text=\"Khách hàng\"");
+        StringAssert.Contains(shell, "Text=\"Tạo đơn bán\"");
+        StringAssert.Contains(shell, "QuickActionProducts_OnClick");
+        StringAssert.Contains(shell, "QuickActionCustomers_OnClick");
+        StringAssert.Contains(shell, "QuickActionCreateSalesOrder_OnClick");
+        StringAssert.Contains(shellCode, "OpenProductsAsync(this)");
+        StringAssert.Contains(shellCode, "OpenCustomersAsync(this)");
+        StringAssert.Contains(shellCode, "OpenSalesOrderCreateAsync(this)");
+        StringAssert.Contains(windowService, "ActivatorUtilities.CreateInstance<ProductViewModel>");
+        StringAssert.Contains(windowService, "ActivatorUtilities.CreateInstance<PartnerViewModel>");
+        StringAssert.Contains(windowService, "ActivatorUtilities.CreateInstance<SalesViewModel>");
+        StringAssert.Contains(windowService, "window.Show()");
+        Assert.IsFalse(windowService.Contains(".ShowDialog(", StringComparison.Ordinal));
+        Assert.IsFalse(windowService.Contains("new MainWindow", StringComparison.Ordinal));
+        StringAssert.Contains(sales, "OpenQuickCreateEditor()");
+        StringAssert.Contains(sales, "Bạn không có quyền tạo đơn bán hàng.");
+        StringAssert.Contains(app, "AddSingleton<QuickActionWindowService>()");
+    }
+
+    [TestMethod]
     public void MainWindow_StartupFailure_IsDiagnosedWithoutClosingApplication()
     {
         var code = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml.cs");
