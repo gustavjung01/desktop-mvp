@@ -47,13 +47,13 @@
                     IsEnabled="False"
                     Content="Dữ liệu &amp; sao lưu" />
             <Button Style="{StaticResource SettingsTabStyle}"
-                    IsEnabled="False"
+                    Click="PrintTemplates_OnClick"
                     Content="Mẫu in" />
             <Button Style="{StaticResource SettingsTabStyle}"
                     IsEnabled="False"
                     Content="Ứng dụng máy tính" />
             <Button Style="{StaticResource SettingsTabStyle}"
-                    IsEnabled="False"
+                    Click="Appearance_OnClick"
                     Content="Giao diện" />
         </StackPanel>
 

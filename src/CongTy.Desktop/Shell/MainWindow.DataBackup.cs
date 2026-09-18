@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using CongTy.ApiClient;
 using CongTy.Desktop.Settings;
+using CongTy.Windows;
 
 namespace CongTy.Desktop.Shell;
 
@@ -41,19 +42,34 @@ public partial class MainWindow
 
         var app = (CongTy.Desktop.App)Application.Current;
         var idempotency = app.ResolveRequired<ICanonicalIdempotencyKeyProvider>();
-        var service = new DataBackupService(
-            app.ResolveRequired<CompanyApiClient>(),
-            app.ResolveRequired<ICompanyEndpointProvider>(),
-            app.ResolveRequired<IAuthenticatedSessionAccessor>());
-        var viewModel = new DataBackupViewModel(
-            service,
-            app.ResolveRequired<IAccessStateService>(),
-            idempotency);
-        var view = new DataBackupView(viewModel);
+        var access = app.ResolveRequired<IAccessStateService>();
+        var apiClient = app.ResolveRequired<CompanyApiClient>();
+        var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();
 
-        while (workspaceTabs.Items.Count <= 47)
+        var dataBackupService = new DataBackupService(
+            apiClient,
+            app.ResolveRequired<ICompanyEndpointProvider>(),
+            session);
+        var dataBackupView = new DataBackupView(new DataBackupViewModel(dataBackupService, access, idempotency));
+        dataBackupView.PrintTemplatesRequested += SettingsPrintTemplatesRequested;
+        dataBackupView.AppearanceRequested += SettingsAppearanceRequested;
+
+        var printService = new DocumentPrintTemplateService(apiClient, session);
+        var printView = new PrintTemplatesView(new PrintTemplatesViewModel(printService, access, idempotency));
+        printView.DataBackupRequested += SettingsDataBackupRequested;
+        printView.AppearanceRequested += SettingsAppearanceRequested;
+
+        var appearanceView = new AppearanceView(new AppearanceViewModel(
+            app.ResolveRequired<ILocalSettingsStore>(),
+            app.ResolveRequired<DesktopSettingsState>()));
+        appearanceView.DataBackupRequested += SettingsDataBackupRequested;
+        appearanceView.PrintTemplatesRequested += SettingsPrintTemplatesRequested;
+
+        while (workspaceTabs.Items.Count <= 49)
             workspaceTabs.Items.Add(new TabItem());
-        workspaceTabs.Items[47] = new TabItem { Content = view };
+        workspaceTabs.Items[47] = new TabItem { Content = dataBackupView };
+        workspaceTabs.Items[48] = new TabItem { Content = printView };
+        workspaceTabs.Items[49] = new TabItem { Content = appearanceView };
 
         _dataBackupShellWired = true;
     }
@@ -61,14 +77,46 @@ public partial class MainWindow
     private async void DataBackup_OnClick(object sender, RoutedEventArgs e)
     {
         await _viewModel.NavigateDataBackupAsync();
-        ApplyDataBackupHeader();
+        ApplySettingsHeader();
     }
 
-    private void ApplyDataBackupHeader()
+    private async void SettingsDataBackupRequested(object? sender, EventArgs e)
+    {
+        await _viewModel.NavigateDataBackupAsync();
+        ApplySettingsHeader();
+    }
+
+    private async void SettingsPrintTemplatesRequested(object? sender, EventArgs e)
+    {
+        await _viewModel.NavigatePrintTemplatesAsync();
+        ApplySettingsHeader();
+    }
+
+    private async void SettingsAppearanceRequested(object? sender, EventArgs e)
+    {
+        await _viewModel.NavigateAppearanceAsync();
+        ApplySettingsHeader();
+    }
+
+    private void ApplySettingsHeader()
     {
         if (!_viewModel.IsDataBackupSelected) return;
 
         SetShellHeaderText(nameof(ShellViewModel.HeaderKicker), "CÀI ĐẶT CÔNG TY");
+        if (_viewModel.IsPrintTemplatesSelected)
+        {
+            SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Mẫu in");
+            SetShellHeaderText(nameof(ShellViewModel.PageSubtitle), "Thiết lập mẫu in dùng chung cho các chứng từ của Công Ty.");
+            return;
+        }
+
+        if (_viewModel.IsAppearanceSelected)
+        {
+            SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Giao diện");
+            SetShellHeaderText(nameof(ShellViewModel.PageSubtitle), "Chọn màu sắc và kích thước hiển thị phù hợp trên máy tính này.");
+            return;
+        }
+
         SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Dữ liệu & sao lưu");
         SetShellHeaderText(
             nameof(ShellViewModel.PageSubtitle),

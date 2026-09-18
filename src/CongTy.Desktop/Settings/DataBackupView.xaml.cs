@@ -20,6 +20,9 @@ public partial class DataBackupView : UserControl
         _pollTimer.Tick += PollTimer_OnTick;
     }
 
+    public event EventHandler? PrintTemplatesRequested;
+    public event EventHandler? AppearanceRequested;
+
     private DataBackupViewModel ViewModel => (DataBackupViewModel)DataContext;
 
     private async void DataBackupView_OnLoaded(object sender, RoutedEventArgs e)
@@ -36,6 +39,12 @@ public partial class DataBackupView : UserControl
         if (ViewModel.ShouldPoll)
             await ViewModel.RefreshAsync();
     }
+
+    private void PrintTemplates_OnClick(object sender, RoutedEventArgs e) =>
+        PrintTemplatesRequested?.Invoke(this, EventArgs.Empty);
+
+    private void Appearance_OnClick(object sender, RoutedEventArgs e) =>
+        AppearanceRequested?.Invoke(this, EventArgs.Empty);
 
     private async void Refresh_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.RefreshAsync();
