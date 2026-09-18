@@ -63,8 +63,7 @@ public sealed class UserDirectoryReadParityTests
             "Nhân sự",
             "Vai trò",
             "Cập nhật",
-            "Hành động",
-            "Không có người dùng phù hợp."
+            "Hành động"
         })
             StringAssert.Contains(view, text);
 
@@ -84,6 +83,7 @@ public sealed class UserDirectoryReadParityTests
         StringAssert.Contains(viewModel, "core.employee.read");
         StringAssert.Contains(viewModel, "core.role.read");
         StringAssert.Contains(viewModel, "CanMutateUsers => false");
+        StringAssert.Contains(viewModel, "Không có người dùng phù hợp.");
         Assert.IsFalse(viewModel.Contains("Idempotency", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(viewModel.Contains("expectedUpdatedAt", StringComparison.OrdinalIgnoreCase));
     }

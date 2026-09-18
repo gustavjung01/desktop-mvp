@@ -14,7 +14,7 @@ public sealed class EmployeeDirectoryReadParityTests
 
         StringAssert.Contains(service, "\"/api/employees?limit=1000&offset=0\"");
         StringAssert.Contains(service, "\"/api/employees/{Uri.EscapeDataString(employeeId.Trim())}\"");
-        StringAssert.Contains(service, "\"/api/organization/branches?limit=1000&offset=0\"");
+        StringAssert.Contains(service, "\"/api/branches?limit=1000&offset=0\"");
         StringAssert.Contains(service, "GetDataAsync<EmployeeDirectoryData[]>");
         StringAssert.Contains(service, "GetDataAsync<EmployeeDirectoryBranchData[]>");
         Assert.IsFalse(service.Contains("Post", StringComparison.Ordinal));
