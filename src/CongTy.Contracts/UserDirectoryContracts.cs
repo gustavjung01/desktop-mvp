@@ -20,3 +20,27 @@ public sealed record AccessUserData
     [JsonPropertyName("warehouse_ids")] public string[] WarehouseIds { get; init; } = [];
     [JsonPropertyName("owner_kind")] public string? OwnerKind { get; init; }
 }
+
+
+public sealed record AccessUserCreateRequest(
+    [property: JsonPropertyName("loginName")] string LoginName,
+    [property: JsonPropertyName("employeeId")] string EmployeeId,
+    [property: JsonPropertyName("isActive")] bool IsActive);
+
+public sealed record AccessUserRolesRequest(
+    [property: JsonPropertyName("roleIds")] string[] RoleIds,
+    [property: JsonPropertyName("expectedUpdatedAt")] string ExpectedUpdatedAt);
+
+public sealed record AccessUserStatusRequest(
+    [property: JsonPropertyName("isActive")] bool IsActive,
+    [property: JsonPropertyName("expectedUpdatedAt")] string ExpectedUpdatedAt);
+
+public sealed record AccessUserCredentialRequest(
+    [property: JsonPropertyName("password")] string Password);
+
+public sealed record AccessUserCredentialResult
+{
+    [JsonPropertyName("userId")] public string UserId { get; init; } = string.Empty;
+    [JsonPropertyName("credentialUpdated")] public bool CredentialUpdated { get; init; }
+    [JsonPropertyName("revokedSessionCount")] public int RevokedSessionCount { get; init; }
+}

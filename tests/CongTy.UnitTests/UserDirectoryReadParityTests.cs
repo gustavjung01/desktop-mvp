@@ -67,9 +67,9 @@ public sealed class UserDirectoryReadParityTests
         })
             StringAssert.Contains(view, text);
 
-        StringAssert.Contains(view, "IsEnabled=\"{Binding CanMutateUsers}\"");
-        Assert.IsFalse(view.Contains("Save_OnClick", StringComparison.Ordinal));
-        Assert.IsFalse(view.Contains("Toggle_OnClick", StringComparison.Ordinal));
+        StringAssert.Contains(view, "IsEnabled=\"{Binding CanOpenCreate}\"");
+        StringAssert.Contains(view, "Click=\"Save_OnClick\"");
+        StringAssert.Contains(view, "Click=\"Toggle_OnClick\"");
     }
 
     [TestMethod]
@@ -82,10 +82,8 @@ public sealed class UserDirectoryReadParityTests
         StringAssert.Contains(viewModel, "core.user-role.write");
         StringAssert.Contains(viewModel, "core.employee.read");
         StringAssert.Contains(viewModel, "core.role.read");
-        StringAssert.Contains(viewModel, "CanMutateUsers => false");
+        StringAssert.Contains(viewModel, "CanOpenCreate");
         StringAssert.Contains(viewModel, "Không có người dùng phù hợp.");
-        Assert.IsFalse(viewModel.Contains("Idempotency", StringComparison.OrdinalIgnoreCase));
-        Assert.IsFalse(viewModel.Contains("expectedUpdatedAt", StringComparison.OrdinalIgnoreCase));
     }
 
     [TestMethod]
