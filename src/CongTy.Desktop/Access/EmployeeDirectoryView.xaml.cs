@@ -28,6 +28,24 @@ public partial class EmployeeDirectoryView : UserControl
             ViewModel.OpenEdit(row.Source);
     }
 
+    private async void Save_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SaveAsync();
+
+    private void Toggle_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: EmployeeDirectoryRowView row })
+            ViewModel.OpenToggle(row.Source);
+    }
+
+    private void CancelToggle_OnClick(object sender, RoutedEventArgs e) =>
+        ViewModel.CancelToggle();
+
+    private async void ConfirmToggle_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.ConfirmToggleAsync();
+
+    private async void ReloadAfterConflict_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.ReloadAfterConflictAsync();
+
     private void CloseEditor_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.CloseEditor();
 }

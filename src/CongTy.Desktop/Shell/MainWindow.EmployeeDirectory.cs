@@ -40,11 +40,14 @@ public partial class MainWindow
         sidebarButton.Click += EmployeeDirectory_OnClick;
 
         var app = (CongTy.Desktop.App)Application.Current;
-        var service = new EmployeeDirectoryReadService(
-            app.ResolveRequired<CompanyApiClient>(),
-            app.ResolveRequired<IAuthenticatedSessionAccessor>());
+        var apiClient = app.ResolveRequired<CompanyApiClient>();
+        var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();
+        var readService = new EmployeeDirectoryReadService(apiClient, session);
+        var mutationService = new EmployeeDirectoryMutationService(apiClient, session);
         var view = new EmployeeDirectoryView(new EmployeeDirectoryViewModel(
-            service,
+            readService,
+            mutationService,
+            app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
 
         while (workspaceTabs.Items.Count <= 52)

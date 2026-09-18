@@ -234,8 +234,9 @@
                                                         Click="Edit_OnClick"
                                                         Content="Chỉnh sửa" />
                                                 <Button Padding="9,4"
-                                                        IsEnabled="False"
-                                                        ToolTip="Thay đổi trạng thái sẽ được bật sau khi hoàn tất kiểm soát cập nhật hồ sơ."
+                                                        Tag="{Binding}"
+                                                        IsEnabled="{Binding DataContext.CanToggleEmployees, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Click="Toggle_OnClick"
                                                         Content="{Binding ToggleActionText}" />
                                             </StackPanel>
                                         </DataTemplate>
@@ -289,6 +290,24 @@
                                   Margin="0,14,0,14"
                                   VerticalScrollBarVisibility="Auto">
                         <StackPanel>
+                            <Border Margin="0,0,0,10"
+                                    Padding="10"
+                                    Background="{DynamicResource AccentSoftBrush}"
+                                    Visibility="{Binding HasEditorMessage, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding EditorMessage}" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EditorMessageIsError}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+
                             <TextBlock Text="Mã nhân sự" FontWeight="SemiBold" />
                             <TextBox Margin="0,5,0,10"
                                      MaxLength="64"
@@ -335,14 +354,57 @@
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Margin="0,0,8,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Visibility="{Binding ShowReloadAfterConflict, Converter={StaticResource BoolToVisibility}}"
+                                    Click="ReloadAfterConflict_OnClick"
+                                    Content="TẢI LẠI DỮ LIỆU" />
+                            <Button Margin="0,0,8,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Click="CloseEditor_OnClick"
                                     Content="HỦY" />
                             <Button Style="{StaticResource OfficePrimaryButtonStyle}"
                                     IsEnabled="{Binding CanPersist}"
+                                    Click="Save_OnClick"
                                     Content="{Binding SaveButtonText}" />
                         </StackPanel>
                     </Grid>
                 </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Background="#7F000000"
+              Visibility="{Binding IsToggleConfirmOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="520"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="XÁC NHẬN TRẠNG THÁI" FontSize="10" FontWeight="Bold" />
+                    <TextBlock Margin="0,4,0,0"
+                               Text="{Binding ToggleTitle}"
+                               FontSize="19"
+                               FontWeight="SemiBold" />
+                    <TextBlock Margin="0,12,0,0"
+                               Text="{Binding ToggleText}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Margin="0,10,0,0"
+                               Text="{Binding ToggleMessage}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding HasToggleMessage, Converter={StaticResource BoolToVisibility}}" />
+                    <StackPanel Margin="0,16,0,0"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CancelToggle_OnClick"
+                                Content="HỦY" />
+                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanConfirmToggle}"
+                                Click="ConfirmToggle_OnClick"
+                                Content="{Binding ToggleConfirmButtonText}" />
+                    </StackPanel>
+                </StackPanel>
             </Border>
         </Grid>
     </Grid>
