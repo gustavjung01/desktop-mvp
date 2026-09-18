@@ -1309,6 +1309,20 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
+    public void Login_UsesBlurredPackagedBackgroundBehindLoginCard()
+    {
+        var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
+        var project = ReadRepoFile("src", "CongTy.Desktop", "CongTy.Desktop.csproj");
+
+        StringAssert.Contains(shell, "x:Name=\"LoginBackgroundImage\"");
+        StringAssert.Contains(shell, "Source=\"/Assets/Login/nguyen-lieu-mi-cay.png\"");
+        StringAssert.Contains(shell, "<BlurEffect Radius=\"18\" />");
+        StringAssert.Contains(shell, "Background=\"#32000000\"");
+        StringAssert.Contains(project, "<Resource Include=\"..\\..\\nguyen-lieu-mi-cay.png\">");
+        StringAssert.Contains(project, "<Link>Assets\\Login\\nguyen-lieu-mi-cay.png</Link>");
+    }
+
+    [TestMethod]
     public void MainWindow_StartupFailure_IsDiagnosedWithoutClosingApplication()
     {
         var code = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml.cs");

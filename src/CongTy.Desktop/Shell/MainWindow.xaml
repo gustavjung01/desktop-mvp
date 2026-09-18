@@ -270,7 +270,22 @@
             </Border>
         </Grid>
 
-        <Grid Visibility="{Binding IsLogin, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <Grid ClipToBounds="True"
+              Visibility="{Binding IsLogin, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Image x:Name="LoginBackgroundImage"
+                   Margin="-28"
+                   Source="/Assets/Login/nguyen-lieu-mi-cay.png"
+                   Stretch="UniformToFill"
+                   Opacity="0.96"
+                   IsHitTestVisible="False"
+                   RenderOptions.BitmapScalingMode="HighQuality">
+                <Image.Effect>
+                    <BlurEffect Radius="18" />
+                </Image.Effect>
+            </Image>
+            <Border Background="#32000000"
+                    IsHitTestVisible="False" />
+
             <Border Width="520"
                     Padding="34"
                     HorizontalAlignment="Center"
