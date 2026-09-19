@@ -79,6 +79,55 @@ public sealed class AppUpdaterTests
     }
 
     [TestMethod]
+    public async Task PartialWriter_ReleasesFileBeforeSha256Verification()
+    {
+        var directory = Path.Combine(
+            Path.GetTempPath(),
+            $"congty-updater-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        var partialPath = Path.Combine(directory, "CONGTY-Setup-test.exe.partial");
+
+        try
+        {
+            var bytes = Encoding.UTF8.GetBytes("congty-update-payload");
+            await using var input = new MemoryStream(bytes, writable: false);
+            long progress = 0;
+
+            await AppUpdatePartialFileWriter.WriteAsync(
+                input,
+                partialPath,
+                bytes.Length,
+                transferred => progress = transferred);
+
+            Assert.AreEqual(bytes.Length, progress);
+
+            await using (var exclusive = new FileStream(
+                partialPath,
+                FileMode.Open,
+                FileAccess.ReadWrite,
+                FileShare.None))
+            {
+                Assert.AreEqual(bytes.Length, exclusive.Length);
+            }
+
+            var manifest = CreateManifest() with
+            {
+                Size = bytes.Length,
+                Sha256 = Convert.ToHexString(SHA256.HashData(bytes))
+            };
+            var verification = await AppUpdateArtifactVerifier.VerifyAsync(
+                partialPath,
+                manifest);
+
+            Assert.IsTrue(verification.IsValid);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [TestMethod]
     public void PendingMarker_OnlyReportsSuccessAfterVersionReallyChanged()
     {
         var marker = new AppUpdatePendingMarker(
