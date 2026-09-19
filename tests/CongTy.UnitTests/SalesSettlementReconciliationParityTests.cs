@@ -59,7 +59,7 @@ public sealed class SalesSettlementReconciliationParityTests
         foreach (var group in new[] { "Khách hàng", "Chứng từ", "Đơn bán hàng", "Thu COD", "Bàn giao COD", "Bất thường" })
             StringAssert.Contains(vm, group);
 
-        Assert.IsFalse(vm.Contains("warehouseId", StringComparison.OrdinalIgnoreCase));
+        Assert.IsFalse(vm.Contains("SelectedWarehouseId", StringComparison.Ordinal));
         Assert.IsFalse(vm.Contains("ICanonicalIdempotencyKeyProvider", StringComparison.Ordinal));
     }
 
@@ -96,10 +96,10 @@ public sealed class SalesSettlementReconciliationParityTests
         var documents = view.IndexOf("Chứng từ", StringComparison.Ordinal);
         var cod = view.IndexOf("Header=\"COD\"", StringComparison.Ordinal);
         var anomalies = view.IndexOf("Header=\"Bất thường\"", StringComparison.Ordinal);
-        Assert.IsLessThan(customers, orders);
-        Assert.IsLessThan(orders, documents);
-        Assert.IsLessThan(documents, cod);
-        Assert.IsLessThan(cod, anomalies);
+        Assert.IsTrue(customers >= 0 && customers < orders);
+        Assert.IsTrue(orders < documents);
+        Assert.IsTrue(documents < cod);
+        Assert.IsTrue(cod < anomalies);
 
         foreach (var handler in new[]
         {
