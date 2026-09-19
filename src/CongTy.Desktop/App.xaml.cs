@@ -28,7 +28,9 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        var startupSmoke = e.Args.Any(argument =>
+        var installedPackageSmoke = e.Args.Any(argument =>
+            string.Equals(argument, "--installed-package-smoke", StringComparison.Ordinal));
+        var startupSmoke = installedPackageSmoke || e.Args.Any(argument =>
             string.Equals(argument, "--startup-smoke", StringComparison.Ordinal));
 
         try
@@ -209,8 +211,18 @@ public partial class App : Application
             var mainWindow = _services.GetRequiredService<MainWindow>();
             MainWindow = mainWindow;
             ThemeManager.ApplyScale(settings.DisplayScale);
+
+            if (installedPackageSmoke)
+            {
+                var updater = _services.GetRequiredService<IAppUpdateService>();
+                if (updater.Current.Phase == AppUpdatePhase.Unsupported)
+                {
+                    throw new InvalidOperationException(
+                        "Installed package smoke failed: updater did not recognize the installed application directory.");
+                }
+            }
     
-            if (e.Args.Any(argument => string.Equals(argument, "--startup-smoke", StringComparison.Ordinal)))
+            if (startupSmoke)
             {
                 mainWindow.ShowActivated = false;
                 mainWindow.ShowInTaskbar = false;
