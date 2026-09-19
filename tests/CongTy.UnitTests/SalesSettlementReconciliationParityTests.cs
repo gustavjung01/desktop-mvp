@@ -96,10 +96,11 @@ public sealed class SalesSettlementReconciliationParityTests
         var documents = view.IndexOf("Chứng từ", StringComparison.Ordinal);
         var cod = view.IndexOf("Header=\"COD\"", StringComparison.Ordinal);
         var anomalies = view.IndexOf("Header=\"Bất thường\"", StringComparison.Ordinal);
-        Assert.IsTrue(customers >= 0 && customers < orders);
-        Assert.IsTrue(orders < documents);
-        Assert.IsTrue(documents < cod);
-        Assert.IsTrue(cod < anomalies);
+        Assert.AreNotEqual(-1, customers);
+        Assert.IsLessThan(orders, customers);
+        Assert.IsLessThan(documents, orders);
+        Assert.IsLessThan(cod, documents);
+        Assert.IsLessThan(anomalies, cod);
 
         foreach (var handler in new[]
         {
