@@ -68,6 +68,7 @@ public sealed class SalesSettlementReconciliationParityTests
     {
         var view = ReadRepoFile("src", "CongTy.Desktop", "Accounting", "SalesSettlementReconciliationView.xaml");
 
+        StringAssert.Contains(view, "<BooleanToVisibilityConverter x:Key=\"BoolToVisibility\" />");
         foreach (var text in new[]
         {
             "Lọc dữ liệu đối soát",
@@ -130,6 +131,8 @@ public sealed class SalesSettlementReconciliationParityTests
         StringAssert.Contains(shellCore, "Đối soát bán hàng & COD");
         StringAssert.Contains(shellCore, "IsSalesSettlementSelected");
         StringAssert.Contains(shellCore, "CanViewSalesSettlement");
+        StringAssert.Contains(shellCore, "OnPropertyChanged(nameof(CanViewSalesSettlement));");
+        Assert.IsFalse(shellCore.Contains("nameof(CodAccountingViewModel.CanReadReport))\n            {\n                OnPropertyChanged(nameof(CanViewCodAccounting));\n        OnPropertyChanged(nameof(CanViewSalesSettlement));", StringComparison.Ordinal));
 
         StringAssert.Contains(host, "workspaceTabs.Items[53]");
         StringAssert.Contains(host, "SalesSettlementReconciliationService");

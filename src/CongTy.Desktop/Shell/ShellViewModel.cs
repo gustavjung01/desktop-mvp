@@ -607,7 +607,6 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
             if (args.PropertyName == nameof(CodAccountingViewModel.CanReadReport))
             {
                 OnPropertyChanged(nameof(CanViewCodAccounting));
-        OnPropertyChanged(nameof(CanViewSalesSettlement));
             }
         };
         _purchasingReporting.PropertyChanged += (_, args) =>
@@ -2341,6 +2340,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanViewSupplierReturns));
         OnPropertyChanged(nameof(CanViewAging));
         OnPropertyChanged(nameof(CanViewCodAccounting));
+        OnPropertyChanged(nameof(CanViewSalesSettlement));
         OnPropertyChanged(nameof(CanRunCostingRebuild));
         OnPropertyChanged(nameof(CostingRebuildActionText));
     }

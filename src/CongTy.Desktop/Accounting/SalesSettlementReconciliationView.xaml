@@ -4,6 +4,8 @@
              Loaded="SalesSettlementReconciliationView_OnLoaded"
              PreviewKeyDown="SalesSettlementReconciliationView_OnPreviewKeyDown">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
         <Style x:Key="SettlementCellTextStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="TextWrapping" Value="Wrap" />
