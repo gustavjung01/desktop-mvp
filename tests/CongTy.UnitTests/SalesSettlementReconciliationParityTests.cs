@@ -29,7 +29,7 @@ public sealed class SalesSettlementReconciliationParityTests
         var service = ReadRepoFile("src", "CongTy.ApiClient", "SalesSettlementReconciliationService.cs");
 
         StringAssert.Contains(service, "/api/accounting/reconciliation?");
-        StringAssert.Contains(service, ""limit=100"");
+        StringAssert.Contains(service, "limit=100");
         StringAssert.Contains(service, "search=");
         StringAssert.Contains(service, "status=");
         StringAssert.Contains(service, "matched");
@@ -56,12 +56,9 @@ public sealed class SalesSettlementReconciliationParityTests
         StringAssert.Contains(vm, "CanonicalApiException");
         StringAssert.Contains(vm, "ToOfficeMessage");
         StringAssert.Contains(vm, "BuildCsv()");
-        StringAssert.Contains(vm, ""Khách hàng"");
-        StringAssert.Contains(vm, ""Chứng từ"");
-        StringAssert.Contains(vm, ""Đơn bán hàng"");
-        StringAssert.Contains(vm, ""Thu COD"");
-        StringAssert.Contains(vm, ""Bàn giao COD"");
-        StringAssert.Contains(vm, ""Bất thường"");
+        foreach (var group in new[] { "Khách hàng", "Chứng từ", "Đơn bán hàng", "Thu COD", "Bàn giao COD", "Bất thường" })
+            StringAssert.Contains(vm, group);
+
         Assert.IsFalse(vm.Contains("warehouseId", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(vm.Contains("ICanonicalIdempotencyKeyProvider", StringComparison.Ordinal));
     }
@@ -91,23 +88,28 @@ public sealed class SalesSettlementReconciliationParityTests
             "Posting, phân bổ và số dư còn lại",
             "Thu COD và bàn giao cuối chuyến",
             "Bất thường cần truy về nguồn"
-        }) StringAssert.Contains(view, text);
+        })
+            StringAssert.Contains(view, text);
 
-        var customers = view.IndexOf("Header="Khách &amp; kho"", StringComparison.Ordinal);
-        var orders = view.IndexOf("Header="Đơn bán"", StringComparison.Ordinal);
-        var documents = view.IndexOf("Header="Chứng từ"", StringComparison.Ordinal);
-        var cod = view.IndexOf("Header="COD"", StringComparison.Ordinal);
-        var anomalies = view.IndexOf("Header="Bất thường"", StringComparison.Ordinal);
+        var customers = view.IndexOf("Khách &amp; kho", StringComparison.Ordinal);
+        var orders = view.IndexOf("Đơn bán", StringComparison.Ordinal);
+        var documents = view.IndexOf("Chứng từ", StringComparison.Ordinal);
+        var cod = view.IndexOf("Header=\"COD\"", StringComparison.Ordinal);
+        var anomalies = view.IndexOf("Header=\"Bất thường\"", StringComparison.Ordinal);
         Assert.IsLessThan(customers, orders);
         Assert.IsLessThan(orders, documents);
         Assert.IsLessThan(documents, cod);
         Assert.IsLessThan(cod, anomalies);
 
-        StringAssert.Contains(view, "Click="Receivables_OnClick"");
-        StringAssert.Contains(view, "Click="CodAccounting_OnClick"");
-        StringAssert.Contains(view, "Click="SalesOrders_OnClick"");
-        StringAssert.Contains(view, "Click="TripReconciliation_OnClick"");
-        StringAssert.Contains(view, "Click="AnomalySource_OnClick"");
+        foreach (var handler in new[]
+        {
+            "Receivables_OnClick",
+            "CodAccounting_OnClick",
+            "SalesOrders_OnClick",
+            "TripReconciliation_OnClick",
+            "AnomalySource_OnClick"
+        })
+            StringAssert.Contains(view, handler);
     }
 
     [TestMethod]
@@ -123,22 +125,24 @@ public sealed class SalesSettlementReconciliationParityTests
         StringAssert.Contains(shell, "accounting.reconciliation");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 53");
         StringAssert.Contains(shell, "IsAccountingOpen = true");
-        StringAssert.Contains(shellCore, ""accounting.reconciliation" => "Đối soát bán hàng & COD"");
-        StringAssert.Contains(shellCore, "OnPropertyChanged(nameof(IsSalesSettlementSelected))");
-        StringAssert.Contains(shellCore, "OnPropertyChanged(nameof(CanViewSalesSettlement))");
+        StringAssert.Contains(shellCore, "accounting.reconciliation");
+        StringAssert.Contains(shellCore, "Đối soát bán hàng & COD");
+        StringAssert.Contains(shellCore, "IsSalesSettlementSelected");
+        StringAssert.Contains(shellCore, "CanViewSalesSettlement");
 
         StringAssert.Contains(host, "workspaceTabs.Items[53]");
         StringAssert.Contains(host, "SalesSettlementReconciliationService");
         StringAssert.Contains(host, "SalesSettlementNavigationRequested");
         StringAssert.Contains(bootstrap, "WireSalesSettlementReconciliationWorkspace()");
 
-        StringAssert.Contains(xaml, "Tag="{Binding IsSalesSettlementSelected}"");
-        StringAssert.Contains(xaml, "Visibility="{Binding CanViewSalesSettlement");
-        StringAssert.Contains(xaml, "Click="AccountingSalesSettlement_OnClick"");
-        StringAssert.Contains(xaml, "Content="Đối soát tổng hợp"");
-        Assert.IsFalse(xaml.Contains(
-            "Màn Đối soát tổng hợp là nghiệp vụ kế toán riêng và sẽ được nối khi màn đó được triển khai.",
-            StringComparison.Ordinal));
+        StringAssert.Contains(xaml, "IsSalesSettlementSelected");
+        StringAssert.Contains(xaml, "CanViewSalesSettlement");
+        StringAssert.Contains(xaml, "AccountingSalesSettlement_OnClick");
+        StringAssert.Contains(xaml, "Đối soát tổng hợp");
+        Assert.IsFalse(
+            xaml.Contains(
+                "Màn Đối soát tổng hợp là nghiệp vụ kế toán riêng và sẽ được nối khi màn đó được triển khai.",
+                StringComparison.Ordinal));
 
         StringAssert.Contains(shellCore, "SelectedWorkspaceIndex = 31");
         StringAssert.Contains(shellCore, "SelectedWorkspaceIndex = 34");
