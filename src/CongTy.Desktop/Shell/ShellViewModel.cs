@@ -997,6 +997,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "purchasing.supplier-returns" => "Phiếu trả nhà cung cấp",
         "accounting.aging" => "Tuổi nợ phải thu / phải trả",
         "accounting.cod-reporting" => "COD & đối soát",
+        "accounting.reconciliation" => "Đối soát bán hàng & COD",
         "desktop.settings" => "Cài đặt ứng dụng",
         _ => "Tổng quan điều hành"
     };
@@ -1044,6 +1045,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "purchasing.supplier-returns" => "Lập phiếu trả từ hàng đã nhận, duyệt, ghi sổ xuất kho và đảo chứng từ khi cần.",
         "accounting.aging" => "Theo dõi số dư công nợ hiện tại trong phạm vi kho được cấp. Phải thu phân tuổi theo ngày chứng từ; phải trả theo ngày đến hạn trên chứng từ.",
         "accounting.cod-reporting" => "Theo dõi tiền khách đã trả, tiền tài xế đang giữ, bàn giao và kế toán tiếp nhận từ cùng một nguồn dữ liệu COD chính thức.",
+        "accounting.reconciliation" => "Đối chiếu riêng trạng thái đơn, giao hàng, công nợ, tiền thu và tiền COD; mọi số tổng hợp đều mở được về nguồn gốc.",
         "desktop.settings" => "Tài khoản, kết nối và giao diện ứng dụng máy tính",
         _ => "Thông tin tổng hợp phục vụ điều hành"
     };
@@ -1085,6 +1087,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "purchasing.supplier-returns" => "MUA HÀNG",
         "accounting.aging" => "KẾ TOÁN & CÔNG NỢ",
         "accounting.cod-reporting" => "KẾ TOÁN & CÔNG NỢ",
+        "accounting.reconciliation" => "KẾ TOÁN BÁN HÀNG",
         _ => "HỆ THỐNG CÔNG TY"
     };
 
@@ -2182,6 +2185,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsSupplierReturnsSelected));
         OnPropertyChanged(nameof(IsAgingSelected));
         OnPropertyChanged(nameof(IsCodAccountingSelected));
+        OnPropertyChanged(nameof(IsSalesSettlementSelected));
     }
 
     public void CloseNavigationGroup(string group)
@@ -2336,6 +2340,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanViewSupplierReturns));
         OnPropertyChanged(nameof(CanViewAging));
         OnPropertyChanged(nameof(CanViewCodAccounting));
+        OnPropertyChanged(nameof(CanViewSalesSettlement));
         OnPropertyChanged(nameof(CanRunCostingRebuild));
         OnPropertyChanged(nameof(CostingRebuildActionText));
     }

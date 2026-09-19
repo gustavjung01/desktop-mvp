@@ -269,6 +269,10 @@
                                         Tag="{Binding IsCodAccountingSelected}"
                                         Visibility="{Binding CanViewCodAccounting, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="AccountingCod_OnClick"><TextBlock Text="COD và đối soát" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
+                                         Tag="{Binding IsSalesSettlementSelected}"
+                                         Visibility="{Binding CanViewSalesSettlement, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                         Click="AccountingSalesSettlement_OnClick"><TextBlock Text="Đối soát bán hàng &amp; COD" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsReceivablesSelected}" Visibility="{Binding CanViewReceivables, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Receivables_OnClick"><TextBlock Text="Công nợ phải thu" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCustomerPaymentsSelected}" Visibility="{Binding CanViewCustomerPayments, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CustomerPayments_OnClick"><TextBlock Text="Thu tiền khách hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCustomerReturnCreditsSelected}" Visibility="{Binding CanViewCustomerReturnCredits, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CustomerReturnCredits_OnClick"><TextBlock Text="Điều chỉnh công nợ hàng trả" /></Button>
@@ -900,8 +904,9 @@
                             <Button Margin="8,0,0,0"
                                     Style="{StaticResource OfficeSecondaryButtonStyle}"
                                     Visibility="{Binding IsCodAccountingSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                    IsEnabled="False"
-                                    ToolTip="Màn Đối soát tổng hợp là nghiệp vụ kế toán riêng và sẽ được nối khi màn đó được triển khai."
+                                    IsEnabled="{Binding CanViewSalesSettlement}"
+                                    Click="AccountingSalesSettlement_OnClick"
+                                    ToolTip="Mở Đối soát bán hàng &amp; COD"
                                     Content="Đối soát tổng hợp" />
 
                             <Button Margin="8,0,0,0"
