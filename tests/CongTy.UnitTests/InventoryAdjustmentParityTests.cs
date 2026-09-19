@@ -1,3 +1,4 @@
+using System.Text;
 using CongTy.Contracts;
 using CongTy.Desktop.Inventory;
 
@@ -44,7 +45,7 @@ public sealed class InventoryAdjustmentParityTests
     }
 
     [TestMethod]
-    public void Source_KeepsThreeWebTabsLifecyclePermissionsAndCanonicalIdempotency()
+    public void Source_KeepsFourWebTabsLifecyclePermissionsAndCanonicalIdempotency()
     {
         var service = ReadRepoFile("src", "CongTy.ApiClient", "InventoryAdjustmentService.cs");
         var contracts = ReadRepoFile("src", "CongTy.Contracts", "InventoryAdjustmentContracts.cs");
@@ -74,6 +75,12 @@ public sealed class InventoryAdjustmentParityTests
             StringAssert.Contains(service, endpoint);
         }
 
+        StringAssert.Contains(service, "ListForExportAsync");
+        StringAssert.Contains(service, "PageSize = 500");
+        StringAssert.Contains(service, "MaxExportRows = 2000");
+        StringAssert.Contains(service, "MaxExportScanRows = 5000");
+        StringAssert.Contains(service, "offset += batch.Count");
+        StringAssert.Contains(service, "Có hơn 2.000 phiếu phù hợp");
         StringAssert.Contains(service, "PostIdempotentDataAsync");
         StringAssert.Contains(service, "idempotencyKeys.IsValid(idempotencyKey)");
         StringAssert.Contains(viewModel, "ICanonicalIdempotencyKeyProvider");
@@ -98,9 +105,11 @@ public sealed class InventoryAdjustmentParityTests
         var tabDocuments = view.IndexOf("Content=\"Phiếu điều chỉnh\"", StringComparison.Ordinal);
         var tabManual = view.IndexOf("Content=\"Điều chỉnh thủ công\"", StringComparison.Ordinal);
         var tabBulk = view.IndexOf("Content=\"Điều chỉnh hàng loạt\"", StringComparison.Ordinal);
+        var tabExport = view.IndexOf("Content=\"Xuất dữ liệu\"", StringComparison.Ordinal);
         Assert.IsGreaterThanOrEqualTo(0, tabDocuments);
         Assert.IsGreaterThan(tabDocuments, tabManual);
         Assert.IsGreaterThan(tabManual, tabBulk);
+        Assert.IsGreaterThan(tabBulk, tabExport);
 
         foreach (var action in new[]
         {
@@ -130,11 +139,38 @@ public sealed class InventoryAdjustmentParityTests
             StringAssert.Contains(view, bulkStep);
         }
 
+        foreach (var exportText in new[]
+        {
+            "Phiếu điều chỉnh tồn",
+            "Dữ liệu được lấy từ server theo phạm vi kho được cấp",
+            "Thông tin muốn xuất",
+            "Chọn tất cả",
+            "Bỏ chọn",
+            "Cột mặc định",
+            "ExportStatusFilter",
+            "ExportKindFilter",
+            "ExportFormatOptions",
+            "ExportColumns",
+            "ExportData_OnClick"
+        })
+        {
+            StringAssert.Contains(view, exportText);
+        }
+
+        StringAssert.Contains(viewModel, "ListForExportAsync");
+        StringAssert.Contains(viewModel, "InventoryAdjustmentExportFile.Create");
+        StringAssert.Contains(viewModel, "IsExportTab");
+        StringAssert.Contains(viewModel, "CanExportData");
+        StringAssert.Contains(viewModel, "Vui lòng chọn ít nhất một cột để xuất.");
+
         StringAssert.Contains(code, "Filter = \"Excel hoặc CSV (*.xlsx;*.csv)");
+        StringAssert.Contains(code, "Lưu dữ liệu Điều chỉnh tồn");
+        StringAssert.Contains(code, "File.WriteAllBytesAsync");
         StringAssert.Contains(code, "Key.F5");
         StringAssert.Contains(code, "Key.D1");
         StringAssert.Contains(code, "Key.D2");
         StringAssert.Contains(code, "Key.D3");
+        StringAssert.Contains(code, "Key.D4");
 
         StringAssert.Contains(shell, "\"inventory.adjustments\" => \"Điều chỉnh tồn\"");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 9");
@@ -153,6 +189,64 @@ public sealed class InventoryAdjustmentParityTests
 
         StringAssert.Contains(contracts, "BulkInventoryAdjustmentPreviewData");
         StringAssert.Contains(contracts, "BulkInventoryAdjustmentConfirmRequest");
+    }
+
+    [TestMethod]
+    public void Export_UsesWebColumnsDefaultsCsvGuardAndXlsx()
+    {
+        var definitions = InventoryAdjustmentExportFile.Columns;
+        Assert.HasCount(15, definitions);
+        CollectionAssert.AreEqual(
+            new[]
+            {
+                "adjustmentNumber", "createdAt", "warehouseCode", "warehouseName", "documentKind",
+                "adjustmentDirection", "status", "reasonLabel", "reasonNote", "lineCount",
+                "submittedAt", "approvedAt", "postedAt", "cancelledAt", "reversedAt"
+            },
+            definitions.Select(item => item.Key).ToArray());
+        CollectionAssert.AreEqual(
+            new[]
+            {
+                "adjustmentNumber", "createdAt", "warehouseCode", "warehouseName", "documentKind",
+                "adjustmentDirection", "status", "reasonLabel", "lineCount", "postedAt"
+            },
+            definitions.Where(item => item.DefaultSelected).Select(item => item.Key).ToArray());
+
+        var document = new InventoryAdjustmentData
+        {
+            AdjustmentNumber = "=ADJ-001",
+            WarehouseCode = "K01",
+            WarehouseName = "Kho 1",
+            DocumentKind = "MANUAL_ADJUSTMENT",
+            AdjustmentDirection = "IN",
+            Status = "POSTED",
+            ReasonCode = "COUNT",
+            ReasonLabel = "Kiểm đếm",
+            ReasonNote = "Điều chỉnh sau kiểm đếm",
+            LineCount = 2,
+            CreatedAt = "2026-09-18T18:30:00.000Z",
+            PostedAt = "2026-09-18T19:00:00.000Z"
+        };
+        var columns = definitions.Where(item => item.DefaultSelected).Select(item => item.Key).ToArray();
+        var generatedAt = new DateTimeOffset(2026, 9, 19, 0, 0, 0, TimeSpan.Zero);
+
+        var csv = InventoryAdjustmentExportFile.Create([document], columns, "csv", generatedAt);
+        Assert.AreEqual("Dieu-chinh-ton-2026-09-19.csv", csv.FileName);
+        Assert.AreEqual("text/csv; charset=utf-8", csv.ContentType);
+        CollectionAssert.AreEqual(new byte[] { 0xEF, 0xBB, 0xBF }, csv.Content.Take(3).ToArray());
+        var csvText = Encoding.UTF8.GetString(csv.Content);
+        StringAssert.Contains(csvText, "\"Số phiếu\"");
+        StringAssert.Contains(csvText, "\"'=ADJ-001\"");
+        StringAssert.Contains(csvText, "\"19/09/2026 01:30\"");
+        StringAssert.Contains(csvText, "\"Tăng tồn\"");
+        StringAssert.Contains(csvText, "\"Hoàn tất\"");
+
+        var xlsx = InventoryAdjustmentExportFile.Create([document], columns, "xlsx", generatedAt);
+        Assert.AreEqual("Dieu-chinh-ton-2026-09-19.xlsx", xlsx.FileName);
+        Assert.AreEqual(InventoryAdjustmentExportFile.XlsxContentType, xlsx.ContentType);
+        Assert.IsGreaterThan(100, xlsx.Content.Length);
+        Assert.AreEqual((byte)'P', xlsx.Content[0]);
+        Assert.AreEqual((byte)'K', xlsx.Content[1]);
     }
 
     [TestMethod]

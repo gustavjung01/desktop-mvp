@@ -49,6 +49,11 @@ public partial class InventoryAdjustmentView : UserControl
                 e.Handled = true;
                 _viewModel.SetTab("bulk");
             }
+            else if (e.Key == Key.D4)
+            {
+                e.Handled = true;
+                _viewModel.SetTab("export");
+            }
         }
     }
 
@@ -60,6 +65,49 @@ public partial class InventoryAdjustmentView : UserControl
 
     private void BulkTab_OnClick(object sender, RoutedEventArgs e) =>
         _viewModel.SetTab("bulk");
+
+    private void ExportTab_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.SetTab("export");
+
+    private void SelectAllExportColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.SelectAllExportColumns();
+
+    private void ClearExportColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.ClearExportColumns();
+
+    private void DefaultExportColumns_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.ResetExportColumns();
+
+    private async void ExportData_OnClick(object sender, RoutedEventArgs e)
+    {
+        var file = await _viewModel.ExportAsync().ConfigureAwait(true);
+        if (file is null) return;
+
+        var extension = Path.GetExtension(file.FileName);
+        var dialog = new SaveFileDialog
+        {
+            Title = "Lưu dữ liệu Điều chỉnh tồn",
+            FileName = file.FileName,
+            DefaultExt = extension,
+            Filter = _viewModel.ExportFormat == "csv"
+                ? "CSV (*.csv)|*.csv|Tất cả tệp (*.*)|*.*"
+                : "Excel (*.xlsx)|*.xlsx|Tất cả tệp (*.*)|*.*",
+            AddExtension = true,
+            OverwritePrompt = true
+        };
+
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true) return;
+
+        try
+        {
+            await File.WriteAllBytesAsync(dialog.FileName, file.Content).ConfigureAwait(true);
+            _viewModel.NotifyExportSaved(Path.GetFileName(dialog.FileName));
+        }
+        catch (Exception exception)
+        {
+            _viewModel.NotifyExportSaveError(exception.Message);
+        }
+    }
 
     private void ResetFilters_OnClick(object sender, RoutedEventArgs e) =>
         _viewModel.ResetFilters();
