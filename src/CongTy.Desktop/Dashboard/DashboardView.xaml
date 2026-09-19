@@ -132,7 +132,7 @@
                     </Grid>
 
                     <WrapPanel>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.operations" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.operations" IsEnabled="{Binding DataContext.CanViewSalesOperations, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Điều hành bán hàng" FontWeight="SemiBold" /><TextBlock Text="Bán hàng và khách hàng" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
                         <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.orders" IsEnabled="{Binding CanOpenSalesOrders}" Click="Shortcut_OnClick">
@@ -141,49 +141,49 @@
                         <Button Style="{StaticResource DashboardShortcutStyle}" Tag="catalog.customers" IsEnabled="{Binding CanOpenCustomers}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Khách hàng" FontWeight="SemiBold" /><TextBlock Text="Bán hàng và khách hàng" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.customer-onboarding" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.customer-onboarding" IsEnabled="{Binding DataContext.CanViewCustomerOnboarding, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Mở/liên kết mã khách" FontWeight="SemiBold" /><TextBlock Text="Bán hàng và khách hàng" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.orders" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.orders" IsEnabled="{Binding DataContext.CanViewPurchaseOrders, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Đơn mua hàng" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.receipts" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.receipts" IsEnabled="{Binding DataContext.CanViewGoodsReceipts, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Phiếu nhận hàng" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="inventory.fulfillment" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="inventory.fulfillment" IsEnabled="{Binding DataContext.CanViewFulfillment, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Chuẩn bị hàng" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
                         <Button Style="{StaticResource DashboardShortcutStyle}" Tag="inventory.balances" IsEnabled="{Binding CanOpenInventory}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Tra cứu tồn kho" FontWeight="SemiBold" /><TextBlock Text="Mua hàng và kho" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.delivery-orders" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.delivery-orders" IsEnabled="{Binding DataContext.CanViewDeliveryOrders, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Phiếu giao hàng" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.trips" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.trips" IsEnabled="{Binding DataContext.CanViewTripPlanning, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Lập và xếp chuyến" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.receivables" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.receivables" IsEnabled="{Binding DataContext.CanViewReceivables, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Công nợ phải thu" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.customer-payments" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.customer-payments" IsEnabled="{Binding DataContext.CanViewCustomerPayments, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Thu tiền khách hàng" FontWeight="SemiBold" /><TextBlock Text="Giao hàng và công nợ" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
 
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.reporting" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="sales.reporting" IsEnabled="{Binding DataContext.CanViewSalesReporting, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Báo cáo bán hàng" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.reporting" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="purchasing.reporting" IsEnabled="{Binding DataContext.CanViewPurchasingReporting, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Báo cáo mua hàng" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
                         <Button Style="{StaticResource DashboardShortcutStyle}" Tag="inventory.reporting" IsEnabled="{Binding CanOpenInventory}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Báo cáo tồn kho" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.reporting" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="logistics.reporting" IsEnabled="{Binding DataContext.CanViewLogisticsReporting, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Hiệu suất giao hàng" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
-                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.aging" IsEnabled="False">
+                        <Button Style="{StaticResource DashboardShortcutStyle}" Tag="accounting.aging" IsEnabled="{Binding DataContext.CanViewAging, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Click="Shortcut_OnClick">
                             <StackPanel><TextBlock Text="Tuổi nợ" FontWeight="SemiBold" /><TextBlock Text="Báo cáo điều hành" FontSize="9" Foreground="{DynamicResource TextSecondaryBrush}" /></StackPanel>
                         </Button>
                     </WrapPanel>

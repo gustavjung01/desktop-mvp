@@ -8,6 +8,9 @@ public partial class AgingReportingView : UserControl
 {
     private readonly AgingReportingViewModel _viewModel;
 
+    public event Action? ReceivablesRequested;
+    public event Action? PayablesRequested;
+
     public AgingReportingView(AgingReportingViewModel viewModel)
     {
         _viewModel = viewModel;
@@ -30,4 +33,10 @@ public partial class AgingReportingView : UserControl
 
     private async void Reset_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.ResetAsync();
+
+    private void Receivables_OnClick(object sender, RoutedEventArgs e) =>
+        ReceivablesRequested?.Invoke();
+
+    private void Payables_OnClick(object sender, RoutedEventArgs e) =>
+        PayablesRequested?.Invoke();
 }

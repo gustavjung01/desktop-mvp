@@ -143,7 +143,9 @@ public partial class MainWindow : Window
         OpeningBalanceHost.Content = openingBalanceView;
         openingBalanceView.BackToLookupRequested += OpeningBalanceView_OnBackToLookupRequested;
         LogisticsReportingHost.Content = logisticsReportingView;
+        logisticsReportingView.NavigationRequested += LogisticsReportingView_OnNavigationRequested;
         DeliveryOrderHost.Content = deliveryOrderView;
+        deliveryOrderView.CustomerReturnsRequested += DeliveryOrderView_OnCustomerReturnsRequested;
         TripPlanningHost.Content = tripPlanningView;
         TripDispatchHost.Content = tripDispatchView;
         DeliveryAttemptHost.Content = deliveryAttemptView;
@@ -152,6 +154,8 @@ public partial class MainWindow : Window
         CustomerReturnHost.Content = customerReturnView;
         customerReturnView.TripReconciliationRequested += CustomerReturnView_OnTripReconciliationRequested;
         AgingReportingHost.Content = agingReportingView;
+        agingReportingView.ReceivablesRequested += AgingReportingView_OnReceivablesRequested;
+        agingReportingView.PayablesRequested += AgingReportingView_OnPayablesRequested;
         CodAccountingHost.Content = codAccountingView;
         PurchasingReportingHost.Content = purchasingReportingView;
         purchasingReportingView.PurchaseOrdersRequested += PurchasingReportingView_OnPurchaseOrdersRequested;
@@ -239,8 +243,23 @@ public partial class MainWindow : Window
                 _partnerView.SelectNavigationTarget("customers");
                 await _viewModel.NavigatePartnersAsync("catalog.customers");
                 break;
+            case "sales.operations":
+                await _viewModel.NavigateSalesOperationsAsync();
+                break;
             case "sales.orders":
                 await _viewModel.NavigateSalesAsync();
+                break;
+            case "sales.customer-onboarding":
+                await _viewModel.NavigateCustomerOnboardingAsync();
+                break;
+            case "purchasing.orders":
+                await _viewModel.NavigatePurchaseOrdersAsync();
+                break;
+            case "purchasing.receipts":
+                await _viewModel.NavigateGoodsReceiptsAsync();
+                break;
+            case "inventory.fulfillment":
+                await _viewModel.NavigateFulfillmentAsync();
                 break;
             case "inventory.reporting":
                 await _viewModel.NavigateInventoryReportingAsync();
@@ -265,6 +284,23 @@ public partial class MainWindow : Window
                 break;
             case "logistics.delivery-orders":
                 await _viewModel.NavigateDeliveryOrdersAsync();
+                break;
+            case "accounting.receivables":
+                await _viewModel.NavigateReceivablesAsync();
+                ApplyReceivablesHeader();
+                break;
+            case "accounting.customer-payments":
+                await _viewModel.NavigateCustomerPaymentsAsync();
+                ApplyCustomerPaymentsHeader();
+                break;
+            case "sales.reporting":
+                await _viewModel.NavigateSalesReportingAsync();
+                break;
+            case "purchasing.reporting":
+                await _viewModel.NavigatePurchasingReportingAsync();
+                break;
+            case "accounting.aging":
+                await _viewModel.NavigateAgingAsync();
                 break;
         }
     }
@@ -529,6 +565,25 @@ public partial class MainWindow : Window
     private async void LogisticsReporting_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateLogisticsReportingAsync();
 
+    private async void LogisticsReportingView_OnNavigationRequested(string key)
+    {
+        switch (key)
+        {
+            case "trips":
+                await _viewModel.NavigateTripPlanningAsync();
+                break;
+            case "delivery-attempts":
+                await _viewModel.NavigateDeliveryAttemptsAsync();
+                break;
+            case "delivery-orders":
+                await _viewModel.NavigateDeliveryOrdersAsync();
+                break;
+            case "trip-reconciliation":
+                await _viewModel.NavigateTripReconciliationAsync();
+                break;
+        }
+    }
+
     private async void DeliveryOrders_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateDeliveryOrdersAsync();
 
@@ -559,6 +614,9 @@ public partial class MainWindow : Window
     private async void CustomerReturns_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateCustomerReturnsAsync();
 
+    private async void DeliveryOrderView_OnCustomerReturnsRequested() =>
+        await _viewModel.NavigateCustomerReturnsAsync();
+
     private async void CustomerReturnsBack_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateDeliveryOrdersAsync();
 
@@ -567,6 +625,18 @@ public partial class MainWindow : Window
 
     private async void AccountingAging_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateAgingAsync();
+
+    private async void AgingReportingView_OnReceivablesRequested()
+    {
+        await _viewModel.NavigateReceivablesAsync();
+        ApplyReceivablesHeader();
+    }
+
+    private async void AgingReportingView_OnPayablesRequested()
+    {
+        await _viewModel.NavigatePayablesAsync();
+        ApplyPayablesHeader();
+    }
 
     private async void AccountingCod_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.NavigateCodAccountingAsync();

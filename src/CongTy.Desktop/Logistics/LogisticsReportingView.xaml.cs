@@ -8,6 +8,8 @@ public partial class LogisticsReportingView : UserControl
 {
     private readonly LogisticsReportingViewModel _viewModel;
 
+    public event Action<string>? NavigationRequested;
+
     public LogisticsReportingView(LogisticsReportingViewModel viewModel)
     {
         _viewModel = viewModel;
@@ -30,4 +32,16 @@ public partial class LogisticsReportingView : UserControl
 
     private async void CurrentMonth_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.ResetToCurrentMonthAsync();
+
+    private void TripPlanning_OnClick(object sender, RoutedEventArgs e) =>
+        NavigationRequested?.Invoke("trips");
+
+    private void DeliveryAttempts_OnClick(object sender, RoutedEventArgs e) =>
+        NavigationRequested?.Invoke("delivery-attempts");
+
+    private void DeliveryOrders_OnClick(object sender, RoutedEventArgs e) =>
+        NavigationRequested?.Invoke("delivery-orders");
+
+    private void TripReconciliation_OnClick(object sender, RoutedEventArgs e) =>
+        NavigationRequested?.Invoke("trip-reconciliation");
 }

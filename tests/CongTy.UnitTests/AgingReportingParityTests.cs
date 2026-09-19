@@ -93,7 +93,10 @@ public sealed class AgingReportingParityTests
             "Quá hạn lớn nhất"
         }) StringAssert.Contains(view, text);
 
-        StringAssert.Contains(view, "IsEnabled=\"False\"");
+        StringAssert.Contains(view, "Click=\"Receivables_OnClick\"");
+        StringAssert.Contains(view, "Click=\"Payables_OnClick\"");
+        StringAssert.Contains(view, "DataContext.CanViewReceivables");
+        StringAssert.Contains(view, "DataContext.CanViewPayables");
         var vm = ReadRepoFile("src", "CongTy.Desktop", "Accounting", "AgingReportingViewModel.cs");
         StringAssert.Contains(vm, "Không có khoản phải thu đang mở.");
         StringAssert.Contains(vm, "Không có khoản phải trả đang mở.");

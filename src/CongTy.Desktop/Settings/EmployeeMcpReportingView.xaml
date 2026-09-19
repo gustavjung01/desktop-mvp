@@ -85,8 +85,9 @@
                     <StackPanel Grid.Column="1" Margin="12,0,0,0" Orientation="Horizontal" VerticalAlignment="Top">
                         <Button Margin="0,0,8,0"
                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                IsEnabled="False"
-                                ToolTip="Màn Danh mục nhân sự sẽ được nối khi phần Quản trị hệ thống được triển khai."
+                                IsEnabled="{Binding DataContext.CanViewEmployeeDirectory, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                Click="EmployeeDirectory_OnClick"
+                                ToolTip="Mở Danh mục nhân sự"
                                 Content="Danh mục nhân sự" />
                         <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
                                 Click="CustomerOnboarding_OnClick"
@@ -327,8 +328,9 @@
                                         </StackPanel>
                                         <Button Grid.Column="1"
                                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                                IsEnabled="False"
-                                                ToolTip="Màn Danh mục nhân sự sẽ được nối khi phần Quản trị hệ thống được triển khai."
+                                                IsEnabled="{Binding DataContext.CanViewEmployeeDirectory, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                Click="EmployeeDirectory_OnClick"
+                                                ToolTip="Mở Danh mục nhân sự"
                                                 Content="Mở danh mục nhân sự" />
                                     </Grid>
                                     <DataGrid Margin="0,8,0,0"
