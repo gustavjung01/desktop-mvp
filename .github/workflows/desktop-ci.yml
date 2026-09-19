@@ -96,6 +96,10 @@ jobs:
           if ($manifest.sha256 -ne $hash) { throw "Manifest hash mismatch." }
           if ([Int64]$manifest.size -ne (Get-Item $installer).Length) { throw "Manifest size mismatch." }
 
+      - name: Installed package smoke
+        shell: pwsh
+        run: .\scripts\installed-package-smoke.ps1
+
       - name: Native startup smoke
         shell: pwsh
         run: |

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CongTy.Windows.Updates;
 
 namespace CongTy.UnitTests;
 
@@ -9,7 +10,12 @@ public sealed class ReleasePipelineParityTests
     public void ReleaseSourceOfTruthAndScriptsMatchKeyManagerContract()
     {
         using var release = JsonDocument.Parse(ReadRepoFile("release.json"));
-        Assert.AreEqual("1.0.0", release.RootElement.GetProperty("version").GetString());
+        var releaseVersion = release.RootElement.GetProperty("version").GetString();
+        Assert.IsTrue(AppSemanticVersion.TryParse(releaseVersion, out var currentVersion));
+        Assert.IsTrue(AppSemanticVersion.TryParse("1.1.2", out var minimumVersion));
+        Assert.IsTrue(
+            currentVersion.CompareTo(minimumVersion) >= 0,
+            $"release.json.version must not regress below 1.1.2. Actual: {releaseVersion}");
 
         var script = ReadRepoFile("scripts", "release.ps1");
         StringAssert.Contains(script, "KM_RELEASE_VERSION");
@@ -48,6 +54,39 @@ public sealed class ReleasePipelineParityTests
         Assert.IsFalse(installer.Contains(
             "$LOCALAPPDATA\\CongTy\\Desktop\\settings.json",
             StringComparison.OrdinalIgnoreCase));
+    }
+
+    [TestMethod]
+    public void CiInstallsPackagedBuildVerifiesUpdaterDetectionAndCleansUp()
+    {
+        var workflow = ReadRepoFile(".github", "workflows", "desktop-ci.yml");
+        var smoke = ReadRepoFile("scripts", "installed-package-smoke.ps1");
+        var app = ReadRepoFile("src", "CongTy.Desktop", "App.xaml.cs");
+        var docs = ReadRepoFile("docs", "RELEASE_UPDATER.md");
+
+        StringAssert.Contains(workflow, "- name: Installed package smoke");
+        StringAssert.Contains(workflow, ".\\scripts\\installed-package-smoke.ps1");
+
+        StringAssert.Contains(smoke, "GITHUB_ACTIONS");
+        StringAssert.Contains(smoke, "CI runner is not clean");
+        StringAssert.Contains(smoke, "CONGTY-Setup-$version.exe");
+        StringAssert.Contains(smoke, "/D=$installDirectory");
+        StringAssert.Contains(smoke, "HKCU:\\Software\\CongTy\\Desktop");
+        StringAssert.Contains(smoke, "DisplayVersion");
+        StringAssert.Contains(smoke, "VersionInfo.ProductVersion");
+        StringAssert.Contains(smoke, "--installed-package-smoke");
+        StringAssert.Contains(smoke, "Silent uninstall");
+        StringAssert.Contains(smoke, "cleanup failed");
+
+        StringAssert.Contains(app, "--installed-package-smoke");
+        StringAssert.Contains(app, "updater.Current.Phase == AppUpdatePhase.Unsupported");
+        StringAssert.Contains(
+            app,
+            "Installed package smoke failed: updater did not recognize the installed application directory.");
+
+        StringAssert.Contains(docs, "silently installs the generated installer");
+        StringAssert.Contains(docs, "--installed-package-smoke");
+        StringAssert.Contains(docs, "CI never uploads to production R2");
     }
 
     [TestMethod]
