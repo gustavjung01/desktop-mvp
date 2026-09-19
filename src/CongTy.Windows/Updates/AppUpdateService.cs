@@ -36,6 +36,53 @@ public static class AppUpdateArtifactVerifier
     }
 }
 
+public static class AppUpdatePartialFileWriter
+{
+    public static async Task WriteAsync(
+        Stream input,
+        string filePath,
+        long expectedSize,
+        Action<long>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        if (expectedSize <= 0)
+            throw new ArgumentOutOfRangeException(nameof(expectedSize));
+
+        long transferred = 0;
+        await using (var output = new FileStream(
+            filePath,
+            FileMode.CreateNew,
+            FileAccess.Write,
+            FileShare.None,
+            81920,
+            FileOptions.Asynchronous | FileOptions.SequentialScan))
+        {
+            var buffer = new byte[81920];
+
+            while (true)
+            {
+                var read = await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+                if (read == 0) break;
+
+                await output.WriteAsync(buffer.AsMemory(0, read), cancellationToken)
+                    .ConfigureAwait(false);
+                transferred += read;
+                if (transferred > expectedSize)
+                    throw new InvalidDataException("File tải xuống lớn hơn size trong manifest.");
+
+                progress?.Invoke(transferred);
+            }
+
+            await output.FlushAsync(cancellationToken).ConfigureAwait(false);
+            if (transferred != expectedSize)
+                throw new InvalidDataException(
+                    $"Dung lượng file tải xuống không đủ ({transferred} / {expectedSize} byte).");
+        }
+    }
+}
+
 public sealed class AppUpdateService : IAppUpdateService, IDisposable
 {
     public const string UpdateFeedUrl =
@@ -342,50 +389,31 @@ public sealed class AppUpdateService : IAppUpdateService, IDisposable
 
             await using var input =
                 await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            await using var output = new FileStream(
-                partialPath,
-                FileMode.CreateNew,
-                FileAccess.Write,
-                FileShare.None,
-                81920,
-                FileOptions.Asynchronous | FileOptions.SequentialScan);
-
-            var buffer = new byte[81920];
-            long transferred = 0;
             var stopwatch = Stopwatch.StartNew();
 
-            while (true)
-            {
-                var read = await input.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-                if (read == 0) break;
-
-                await output.WriteAsync(buffer.AsMemory(0, read), cancellationToken)
-                    .ConfigureAwait(false);
-                transferred += read;
-                if (transferred > manifest.Size)
-                    throw new InvalidDataException("File tải xuống lớn hơn size trong manifest.");
-
-                var elapsed = Math.Max(0.001, stopwatch.Elapsed.TotalSeconds);
-                var percent = Math.Min(100d, transferred * 100d / manifest.Size);
-                Publish(new AppUpdateSnapshot(
-                    AppUpdatePhase.Downloading,
-                    _currentVersion,
-                    manifest.LatestVersion,
-                    null,
-                    manifest.ReleaseNotes,
-                    new AppUpdateProgress(
-                        percent,
-                        transferred,
-                        manifest.Size,
-                        transferred / elapsed),
-                    $"Đang tải bản cập nhật v{manifest.LatestVersion}…",
-                    null));
-            }
-
-            await output.FlushAsync(cancellationToken).ConfigureAwait(false);
-            if (transferred != manifest.Size)
-                throw new InvalidDataException(
-                    $"Dung lượng file tải xuống không đủ ({transferred} / {manifest.Size} byte).");
+            await AppUpdatePartialFileWriter.WriteAsync(
+                input,
+                partialPath,
+                manifest.Size,
+                transferred =>
+                {
+                    var elapsed = Math.Max(0.001, stopwatch.Elapsed.TotalSeconds);
+                    var percent = Math.Min(100d, transferred * 100d / manifest.Size);
+                    Publish(new AppUpdateSnapshot(
+                        AppUpdatePhase.Downloading,
+                        _currentVersion,
+                        manifest.LatestVersion,
+                        null,
+                        manifest.ReleaseNotes,
+                        new AppUpdateProgress(
+                            percent,
+                            transferred,
+                            manifest.Size,
+                            transferred / elapsed),
+                        $"Đang tải bản cập nhật v{manifest.LatestVersion}…",
+                        null));
+                },
+                cancellationToken).ConfigureAwait(false);
 
             var verification = await AppUpdateArtifactVerifier.VerifyAsync(
                 partialPath,
