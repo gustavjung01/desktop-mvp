@@ -132,8 +132,9 @@
                                     </StackPanel>
                                     <Button Grid.Column="1"
                                             Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                            IsEnabled="False"
-                                            ToolTip="Màn Công nợ phải thu sẽ được nối khi UI-7.3 hoàn thiện."
+                                            IsEnabled="{Binding DataContext.CanViewReceivables, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            Click="Receivables_OnClick"
+                                            ToolTip="Mở Công nợ phải thu"
                                             Content="Mở công nợ phải thu" />
                                 </Grid>
 
@@ -263,8 +264,9 @@
                                     </StackPanel>
                                     <Button Grid.Column="1"
                                             Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                            IsEnabled="False"
-                                            ToolTip="Màn Công nợ phải trả sẽ được nối khi UI-7.6 hoàn thiện."
+                                            IsEnabled="{Binding DataContext.CanViewPayables, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            Click="Payables_OnClick"
+                                            ToolTip="Mở Công nợ phải trả"
                                             Content="Mở công nợ phải trả" />
                                 </Grid>
 

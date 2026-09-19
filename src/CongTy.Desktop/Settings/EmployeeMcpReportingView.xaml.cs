@@ -13,6 +13,7 @@ public partial class EmployeeMcpReportingView : UserControl
     }
 
     public event EventHandler? CustomerOnboardingRequested;
+    public event EventHandler? EmployeeDirectoryRequested;
 
     private EmployeeMcpReportingViewModel ViewModel => (EmployeeMcpReportingViewModel)DataContext;
 
@@ -27,6 +28,9 @@ public partial class EmployeeMcpReportingView : UserControl
 
     private void CustomerOnboarding_OnClick(object sender, RoutedEventArgs e) =>
         CustomerOnboardingRequested?.Invoke(this, EventArgs.Empty);
+
+    private void EmployeeDirectory_OnClick(object sender, RoutedEventArgs e) =>
+        EmployeeDirectoryRequested?.Invoke(this, EventArgs.Empty);
 
     private async void EmployeeMcpReportingView_OnPreviewKeyDown(object sender, KeyEventArgs e)
     {

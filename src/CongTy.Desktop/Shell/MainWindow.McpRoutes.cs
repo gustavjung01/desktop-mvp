@@ -26,6 +26,7 @@ public partial class MainWindow
             app.ResolveRequired<IAccessStateService>());
         var view = new EmployeeMcpReportingView(viewModel);
         view.CustomerOnboardingRequested += McpRoutesCustomerOnboardingRequested;
+        view.EmployeeDirectoryRequested += McpRoutesEmployeeDirectoryRequested;
 
         while (workspaceTabs.Items.Count <= 50)
             workspaceTabs.Items.Add(new TabItem());
@@ -42,6 +43,12 @@ public partial class MainWindow
 
     private async void McpRoutesCustomerOnboardingRequested(object? sender, EventArgs e) =>
         await _viewModel.NavigateCustomerOnboardingAsync();
+
+    private async void McpRoutesEmployeeDirectoryRequested(object? sender, EventArgs e)
+    {
+        await _viewModel.NavigateEmployeeDirectoryAsync();
+        ApplyEmployeeDirectoryHeader();
+    }
 
     private void ApplyMcpRoutesHeader()
     {

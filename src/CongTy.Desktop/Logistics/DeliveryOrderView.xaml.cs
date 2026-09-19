@@ -9,6 +9,8 @@ public partial class DeliveryOrderView : UserControl
 {
     private readonly DeliveryOrderViewModel _viewModel;
 
+    public event Action? CustomerReturnsRequested;
+
     public DeliveryOrderView(DeliveryOrderViewModel viewModel)
     {
         _viewModel = viewModel;
@@ -33,6 +35,9 @@ public partial class DeliveryOrderView : UserControl
     private async void Pickup_OnClick(object sender, RoutedEventArgs e) => await _viewModel.PickupHandoverAsync();
     private async void Manual_OnClick(object sender, RoutedEventArgs e) => await _viewModel.ManualHandoverAsync();
     private async void Reverse_OnClick(object sender, RoutedEventArgs e) => await _viewModel.ReverseInventoryIssueAsync();
+
+    private void CustomerReturns_OnClick(object sender, RoutedEventArgs e) =>
+        CustomerReturnsRequested?.Invoke();
 
     private async void Print_OnClick(object sender, RoutedEventArgs e)
     {

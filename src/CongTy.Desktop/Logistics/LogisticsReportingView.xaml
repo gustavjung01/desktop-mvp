@@ -54,11 +54,13 @@
                     <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
                         <Button Margin="0,0,6,0"
                                 Style="{StaticResource OfficeMiniButtonStyle}"
-                                IsEnabled="False"
+                                IsEnabled="{Binding DataContext.CanViewTripPlanning, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                Click="TripPlanning_OnClick"
                                 Content="Mở chuyến giao" />
                         <Button Margin="0,0,12,0"
                                 Style="{StaticResource OfficeMiniButtonStyle}"
-                                IsEnabled="False"
+                                IsEnabled="{Binding DataContext.CanViewDeliveryAttempts, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                Click="DeliveryAttempts_OnClick"
                                 Content="Kết quả lần giao" />
                         <Button Margin="0,0,8,0"
                                 Style="{StaticResource OfficePrimaryButtonStyle}"
@@ -209,7 +211,11 @@
                                     <TextBlock Text="Lý do giao thất bại / hẹn lại" FontSize="16" FontWeight="SemiBold" />
                                     <TextBlock Margin="0,3,0,0" Text="Chỉ dùng lý do đã được ghi nhận cùng kết quả giao chính thức." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
                                 </StackPanel>
-                                <Button Grid.Column="1" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="False" Content="Mở kết quả lần giao" />
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding DataContext.CanViewDeliveryAttempts, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                        Click="DeliveryAttempts_OnClick"
+                                        Content="Mở kết quả lần giao" />
                             </Grid>
                             <DataGrid Margin="0,8,0,0" ItemsSource="{Binding FailureReasons}" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource LogisticsRowStyle}" IsReadOnly="True" MaxHeight="420">
                                 <DataGrid.Columns>
@@ -231,9 +237,20 @@
                                     <TextBlock Margin="0,3,0,0" Text="Dùng số chuyến và dữ liệu nghiệp vụ chính thức; các màn chi tiết sẽ được mở từ nhóm Giao nhận và điều phối." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button Margin="0,0,6,0" Style="{StaticResource OfficeMiniButtonStyle}" IsEnabled="False" Content="Chuyến giao" />
-                                    <Button Margin="0,0,6,0" Style="{StaticResource OfficeMiniButtonStyle}" IsEnabled="False" Content="Phiếu giao hàng" />
-                                    <Button Style="{StaticResource OfficeMiniButtonStyle}" IsEnabled="False" Content="Đối soát cuối chuyến" />
+                                    <Button Margin="0,0,6,0"
+                                            Style="{StaticResource OfficeMiniButtonStyle}"
+                                            IsEnabled="{Binding DataContext.CanViewTripPlanning, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            Click="TripPlanning_OnClick"
+                                            Content="Chuyến giao" />
+                                    <Button Margin="0,0,6,0"
+                                            Style="{StaticResource OfficeMiniButtonStyle}"
+                                            IsEnabled="{Binding DataContext.CanViewDeliveryOrders, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            Click="DeliveryOrders_OnClick"
+                                            Content="Phiếu giao hàng" />
+                                    <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                            IsEnabled="{Binding DataContext.CanViewTripReconciliation, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                            Click="TripReconciliation_OnClick"
+                                            Content="Đối soát cuối chuyến" />
                                 </StackPanel>
                             </Grid>
                             <DataGrid Margin="0,8,0,0" ItemsSource="{Binding Trips}" Style="{StaticResource OfficeDataGridStyle}" RowStyle="{StaticResource LogisticsRowStyle}" IsReadOnly="True" MaxHeight="540" HorizontalScrollBarVisibility="Auto">

@@ -33,7 +33,8 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
                         <Button Margin="0,0,8,0"
                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                IsEnabled="False"
+                                IsEnabled="{Binding DataContext.CanViewCustomerReturns, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                Click="CustomerReturns_OnClick"
                                 Content="Hàng khách trả" />
                         <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
                                 IsEnabled="{Binding IsNotBusy}"
