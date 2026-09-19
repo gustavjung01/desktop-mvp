@@ -273,7 +273,7 @@ public sealed class SalesSettlementReconciliationViewModel : INotifyPropertyChan
 
         var rows = new List<string[]>
         {
-            ["Nhóm", "Mã nguồn", "Khách/Tài xế", "Kho/Chuyến", "Số tiền/Trạng thái", "Kết quả"]
+            new[] { "Nhóm", "Mã nguồn", "Khách/Tài xế", "Kho/Chuyến", "Số tiền/Trạng thái", "Kết quả" }
         };
 
         rows.AddRange(_report.Customers.Select(row => new[]
