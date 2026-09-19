@@ -13,8 +13,9 @@ public sealed class ReleasePipelineParityTests
         var releaseVersion = release.RootElement.GetProperty("version").GetString();
         Assert.IsTrue(AppSemanticVersion.TryParse(releaseVersion, out var currentVersion));
         Assert.IsTrue(AppSemanticVersion.TryParse("1.1.2", out var minimumVersion));
-        Assert.IsTrue(
-            currentVersion.CompareTo(minimumVersion) >= 0,
+        Assert.IsGreaterThanOrEqualTo(
+            0,
+            currentVersion.CompareTo(minimumVersion),
             $"release.json.version must not regress below 1.1.2. Actual: {releaseVersion}");
 
         var script = ReadRepoFile("scripts", "release.ps1");
