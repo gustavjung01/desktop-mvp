@@ -53,6 +53,10 @@
                         Tag="{Binding IsBulkTab}"
                         Click="BulkTab_OnClick"
                         Content="Điều chỉnh hàng loạt" />
+                <Button Style="{StaticResource AdjustmentTabButtonStyle}"
+                        Tag="{Binding IsExportTab}"
+                        Click="ExportTab_OnClick"
+                        Content="Xuất dữ liệu" />
             </StackPanel>
 
             <!-- PHIẾU ĐIỀU CHỈNH -->
@@ -982,6 +986,151 @@
                                 Content="Lập phiếu điều chỉnh" />
                     </StackPanel>
                 </Border>
+            </StackPanel>
+
+            <!-- XUẤT DỮ LIỆU -->
+            <StackPanel Visibility="{Binding IsExportTab, Converter={StaticResource BoolToVisibility}}">
+                <Border Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="XUẤT DỮ LIỆU"
+                                   FontSize="9.5"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Text="Phiếu điều chỉnh tồn"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Margin="0,4,0,0"
+                                   Text="Dữ liệu được lấy từ server theo phạm vi kho được cấp, không lấy riêng danh sách đang hiển thị trên ứng dụng."
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="TRẠNG THÁI"
+                                           FontSize="9"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <ComboBox Margin="0,4,0,0"
+                                          Style="{StaticResource OfficeComboBoxStyle}"
+                                          IsEnabled="{Binding IsNotBusy}"
+                                          ItemsSource="{Binding StatusOptions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding ExportStatusFilter, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="LOẠI PHIẾU"
+                                           FontSize="9"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <ComboBox Margin="0,4,0,0"
+                                          Style="{StaticResource OfficeComboBoxStyle}"
+                                          IsEnabled="{Binding IsNotBusy}"
+                                          ItemsSource="{Binding KindOptions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding ExportKindFilter, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="ĐỊNH DẠNG"
+                                           FontSize="9"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <ComboBox Margin="0,4,0,0"
+                                          Style="{StaticResource OfficeComboBoxStyle}"
+                                          IsEnabled="{Binding IsNotBusy}"
+                                          ItemsSource="{Binding ExportFormatOptions}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Id"
+                                          SelectedValue="{Binding ExportFormat, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,10,0,0"
+                        Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Thông tin muốn xuất"
+                                           FontSize="17"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Text="{Binding ExportSelectedCountText}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Top">
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanSelectAllExportColumns}"
+                                        Click="SelectAllExportColumns_OnClick"
+                                        Content="Chọn tất cả" />
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanClearExportColumns}"
+                                        Click="ClearExportColumns_OnClick"
+                                        Content="Bỏ chọn" />
+                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding IsNotBusy}"
+                                        Click="DefaultExportColumns_OnClick"
+                                        Content="Cột mặc định" />
+                            </StackPanel>
+                        </Grid>
+
+                        <ItemsControl Margin="0,12,0,0"
+                                      ItemsSource="{Binding ExportColumns}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Width="205"
+                                              Margin="0,0,12,10"
+                                              VerticalAlignment="Center"
+                                              IsEnabled="{Binding DataContext.IsNotBusy, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              Content="{Binding Label}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,10,0,0"
+                        Padding="10"
+                        Style="{StaticResource OfficeCardStyle}"
+                        Visibility="{Binding HasExportError, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding ExportError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <Button Margin="0,12,0,0"
+                        HorizontalAlignment="Right"
+                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                        IsEnabled="{Binding CanExportData}"
+                        Click="ExportData_OnClick"
+                        Content="{Binding ExportButtonText}" />
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

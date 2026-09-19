@@ -9,6 +9,11 @@ public interface IInventoryAdjustmentService
         string? documentKind = null,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<InventoryAdjustmentData>> ListForExportAsync(
+        string? status = null,
+        string? documentKind = null,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<InventoryAdjustmentReasonData>> ListReasonsAsync(
         CancellationToken cancellationToken = default);
 
@@ -66,10 +71,63 @@ public sealed class InventoryAdjustmentService(
     IAuthenticatedSessionAccessor sessionAccessor,
     ICanonicalIdempotencyKeyProvider idempotencyKeys) : IInventoryAdjustmentService
 {
-    public async Task<IReadOnlyList<InventoryAdjustmentData>> ListAsync(
+    private const int PageSize = 500;
+    private const int MaxExportRows = 2000;
+    private const int MaxExportScanRows = 5000;
+
+    public Task<IReadOnlyList<InventoryAdjustmentData>> ListAsync(
+        string? status = null,
+        string? documentKind = null,
+        CancellationToken cancellationToken = default) =>
+        ListPageAsync(status, documentKind, PageSize, 0, cancellationToken);
+
+    public async Task<IReadOnlyList<InventoryAdjustmentData>> ListForExportAsync(
         string? status = null,
         string? documentKind = null,
         CancellationToken cancellationToken = default)
+    {
+        var rows = new List<InventoryAdjustmentData>();
+        var offset = 0;
+        var scanned = 0;
+
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var batch = await ListPageAsync(
+                status,
+                documentKind,
+                PageSize,
+                offset,
+                cancellationToken).ConfigureAwait(false);
+
+            scanned += batch.Count;
+            rows.AddRange(batch);
+
+            if (rows.Count > MaxExportRows)
+            {
+                throw new InvalidOperationException(
+                    "Có hơn 2.000 phiếu phù hợp. Hãy thu hẹp Trạng thái hoặc Loại phiếu trước khi xuất.");
+            }
+
+            if (batch.Count < PageSize) break;
+
+            offset += batch.Count;
+            if (scanned >= MaxExportScanRows)
+            {
+                throw new InvalidOperationException(
+                    "Phạm vi dữ liệu quá lớn để xuất an toàn. Hãy thu hẹp bộ lọc trước khi xuất.");
+            }
+        }
+
+        return rows;
+    }
+
+    private async Task<IReadOnlyList<InventoryAdjustmentData>> ListPageAsync(
+        string? status,
+        string? documentKind,
+        int limit,
+        int offset,
+        CancellationToken cancellationToken)
     {
         var parameters = new List<string>();
         if (!string.IsNullOrWhiteSpace(status))
@@ -82,8 +140,8 @@ public sealed class InventoryAdjustmentService(
             parameters.Add($"documentKind={Uri.EscapeDataString(documentKind.Trim())}");
         }
 
-        parameters.Add("limit=500");
-        parameters.Add("offset=0");
+        parameters.Add($"limit={limit}");
+        parameters.Add($"offset={offset}");
 
         return await apiClient.GetDataAsync<InventoryAdjustmentData[]>(
             $"/api/inventory/adjustments?{string.Join("&", parameters)}",

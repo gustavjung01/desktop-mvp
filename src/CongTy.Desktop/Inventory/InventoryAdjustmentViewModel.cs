@@ -195,6 +195,11 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
     private BulkInventoryAdjustmentPreviewData? _bulkPreview;
     private bool _bulkPreviewStale;
 
+    private string _exportStatusFilter = string.Empty;
+    private string _exportKindFilter = string.Empty;
+    private string _exportFormat = "xlsx";
+    private string _exportError = string.Empty;
+
     public InventoryAdjustmentViewModel(
         IInventoryAdjustmentService service,
         IInventoryService inventoryService,
@@ -226,6 +231,9 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         ManualKindOptions.Add(new AdjustmentOption("SCRAP", "Tiêu hủy"));
         DirectionOptions.Add(new AdjustmentOption("IN", "Tăng tồn"));
         DirectionOptions.Add(new AdjustmentOption("OUT", "Giảm tồn"));
+        ExportFormatOptions.Add(new AdjustmentOption("xlsx", "Excel (.xlsx)"));
+        ExportFormatOptions.Add(new AdjustmentOption("csv", "CSV (.csv)"));
+        ResetExportColumns();
 
         _access.Changed += (_, _) => RunOnUiThread(() =>
         {
@@ -263,6 +271,8 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
     public ObservableCollection<InventoryAdjustmentLineRow> DetailLines { get; } = [];
     public ObservableCollection<BulkAdjustmentRowView> BulkRows { get; } = [];
     public ObservableCollection<string> BulkErrors { get; } = [];
+    public ObservableCollection<AdjustmentOption> ExportFormatOptions { get; } = [];
+    public ObservableCollection<InventoryAdjustmentExportColumnOption> ExportColumns { get; } = [];
 
     public bool CanRead => _access.HasPermission("core.inventory-adjustment.read");
     public bool CanCreate => _access.HasPermission("core.inventory-adjustment.create");
@@ -271,6 +281,7 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
     public bool CanPost => _access.HasPermission("core.inventory-adjustment.post");
     public bool CanCancel => _access.HasPermission("core.inventory-adjustment.cancel");
     public bool CanReverse => _access.HasPermission("core.inventory-adjustment.reverse");
+    public bool CanExportData => CanRead && IsNotBusy && ExportColumns.Any(column => column.IsSelected);
 
     public bool IsBusy => _busyAction is not null;
     public bool IsNotBusy => !IsBusy;
@@ -297,12 +308,14 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsDocumentsTab));
             OnPropertyChanged(nameof(IsManualTab));
             OnPropertyChanged(nameof(IsBulkTab));
+            OnPropertyChanged(nameof(IsExportTab));
         }
     }
 
     public bool IsDocumentsTab => ActiveTab == "documents";
     public bool IsManualTab => ActiveTab == "manual";
     public bool IsBulkTab => ActiveTab == "bulk";
+    public bool IsExportTab => ActiveTab == "export";
 
     public string StatusFilter
     {
@@ -321,6 +334,47 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             if (SetField(ref _kindFilter, value ?? string.Empty)) ApplyListFilter();
         }
     }
+
+    public string ExportStatusFilter
+    {
+        get => _exportStatusFilter;
+        set => SetField(ref _exportStatusFilter, value ?? string.Empty);
+    }
+
+    public string ExportKindFilter
+    {
+        get => _exportKindFilter;
+        set => SetField(ref _exportKindFilter, value ?? string.Empty);
+    }
+
+    public string ExportFormat
+    {
+        get => _exportFormat;
+        set
+        {
+            var normalized = string.Equals(value, "csv", StringComparison.OrdinalIgnoreCase) ? "csv" : "xlsx";
+            if (!SetField(ref _exportFormat, normalized)) return;
+            OnPropertyChanged(nameof(ExportButtonText));
+        }
+    }
+
+    public string ExportError
+    {
+        get => _exportError;
+        private set
+        {
+            if (!SetField(ref _exportError, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(HasExportError));
+        }
+    }
+
+    public bool HasExportError => !string.IsNullOrWhiteSpace(ExportError);
+    public bool CanSelectAllExportColumns =>
+        IsNotBusy && ExportColumns.Count > 0 && ExportColumns.Any(column => !column.IsSelected);
+    public bool CanClearExportColumns =>
+        IsNotBusy && ExportColumns.Any(column => column.IsSelected);
+    public string ExportSelectedCountText => $"Đã chọn {ExportColumns.Count(column => column.IsSelected)}/{ExportColumns.Count} cột.";
+    public string ExportButtonText => _busyAction == "export" ? "Đang tạo file…" : "Xuất dữ liệu";
 
     public InventoryAdjustmentListRow? SelectedListRow
     {
@@ -638,9 +692,109 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
 
     public void SetTab(string tab)
     {
-        if (tab is not ("documents" or "manual" or "bulk")) return;
+        if (tab is not ("documents" or "manual" or "bulk" or "export")) return;
         ActiveTab = tab;
+        ExportError = string.Empty;
         ClearMessage();
+    }
+
+    public void SelectAllExportColumns()
+    {
+        foreach (var column in ExportColumns) column.IsSelected = true;
+        RaiseExportState();
+    }
+
+    public void ClearExportColumns()
+    {
+        foreach (var column in ExportColumns) column.IsSelected = false;
+        RaiseExportState();
+    }
+
+    public void ResetExportColumns()
+    {
+        foreach (var existing in ExportColumns)
+            existing.PropertyChanged -= ExportColumn_OnPropertyChanged;
+
+        ExportColumns.Clear();
+        foreach (var definition in InventoryAdjustmentExportFile.Columns)
+        {
+            var option = new InventoryAdjustmentExportColumnOption(
+                definition.Key,
+                definition.Label,
+                definition.DefaultSelected);
+            option.PropertyChanged += ExportColumn_OnPropertyChanged;
+            ExportColumns.Add(option);
+        }
+
+        RaiseExportState();
+    }
+
+    public async Task<ApiDownloadFile?> ExportAsync()
+    {
+        var columns = ExportColumns
+            .Where(column => column.IsSelected)
+            .Select(column => column.Key)
+            .ToArray();
+
+        if (!CanRead)
+        {
+            ExportError = ReadDeniedMessage;
+            SetErrorMessage(ExportError);
+            return null;
+        }
+
+        if (columns.Length == 0)
+        {
+            ExportError = "Vui lòng chọn ít nhất một cột để xuất.";
+            SetErrorMessage(ExportError);
+            return null;
+        }
+
+        if (IsBusy) return null;
+
+        var generation = _accessGeneration;
+        SetBusy("export");
+        ExportError = string.Empty;
+        ClearMessage();
+
+        try
+        {
+            var rows = await _service.ListForExportAsync(
+                ExportStatusFilter,
+                ExportKindFilter).ConfigureAwait(true);
+
+            if (generation != _accessGeneration || !CanRead) return null;
+
+            return InventoryAdjustmentExportFile.Create(
+                rows,
+                columns,
+                ExportFormat);
+        }
+        catch (Exception exception)
+        {
+            if (generation == _accessGeneration)
+            {
+                SetError(exception);
+                ExportError = Message;
+            }
+            return null;
+        }
+        finally
+        {
+            if (generation == _accessGeneration && _busyAction == "export")
+                SetBusy(null);
+        }
+    }
+
+    public void NotifyExportSaved(string fileName) =>
+        SetNotice($"Đã lưu file {fileName}.");
+
+    public void NotifyExportSaveError(string message)
+    {
+        ExportError = string.IsNullOrWhiteSpace(message)
+            ? "Không lưu được file dữ liệu điều chỉnh tồn."
+            : message.Trim();
+        SetErrorMessage(ExportError);
     }
 
     public void ResetFilters()
@@ -1187,6 +1341,11 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         DetailLines.Clear();
         BulkRows.Clear();
         BulkErrors.Clear();
+        ExportStatusFilter = string.Empty;
+        ExportKindFilter = string.Empty;
+        ExportFormat = "xlsx";
+        ExportError = string.Empty;
+        ResetExportColumns();
         SelectedAdjustment = null;
         SelectedListRow = null;
         ActionReason = string.Empty;
@@ -1234,6 +1393,22 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanConfirmBulk));
     }
 
+    private void ExportColumn_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(InventoryAdjustmentExportColumnOption.IsSelected))
+            RaiseExportState();
+    }
+
+    private void RaiseExportState()
+    {
+        OnPropertyChanged(nameof(CanExportData));
+        OnPropertyChanged(nameof(CanSelectAllExportColumns));
+        OnPropertyChanged(nameof(CanClearExportColumns));
+        OnPropertyChanged(nameof(ExportSelectedCountText));
+        OnPropertyChanged(nameof(ExportButtonText));
+        OnPropertyChanged(nameof(HasExportError));
+    }
+
     private void RaisePermissions()
     {
         OnPropertyChanged(nameof(CanRead));
@@ -1245,6 +1420,7 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanReverse));
         RaiseDetailState();
         RaiseBulkState();
+        RaiseExportState();
     }
 
     private void SetBusy(string? action)
@@ -1256,6 +1432,7 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(RefreshText));
         RaiseDetailState();
         RaiseBulkState();
+        RaiseExportState();
     }
 
     private string KeyFor(string prefix, string id, string fingerprint)
