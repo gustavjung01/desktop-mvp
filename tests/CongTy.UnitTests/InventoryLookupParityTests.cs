@@ -71,9 +71,9 @@ public sealed class InventoryLookupParityTests
             .ToArray();
 
         var pages = InventoryLookupPresentation.PaginateBalanceGroups(firstGroup.Concat(secondGroup), 100);
-        Assert.AreEqual(2, pages.Count);
-        Assert.AreEqual(60, pages[0].Count);
-        Assert.AreEqual(60, pages[1].Count);
+        Assert.HasCount(2, pages);
+        Assert.HasCount(60, pages[0]);
+        Assert.HasCount(60, pages[1]);
 
         var enriched = firstGroup
             .Select(row => row with { BusinessHeldQuantity = "7", BusinessAvailableQuantity = "53" })
