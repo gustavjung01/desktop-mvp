@@ -31,6 +31,9 @@ public sealed record InventoryBalanceData
     [JsonPropertyName("on_hand_quantity")] public string OnHandQuantity { get; init; } = "0";
     [JsonPropertyName("reserved_quantity")] public string ReservedQuantity { get; init; } = "0";
     [JsonPropertyName("available_quantity")] public string AvailableQuantity { get; init; } = "0";
+    [JsonPropertyName("business_on_hand_quantity")] public string? BusinessOnHandQuantity { get; init; }
+    [JsonPropertyName("business_held_quantity")] public string? BusinessHeldQuantity { get; init; }
+    [JsonPropertyName("business_available_quantity")] public string? BusinessAvailableQuantity { get; init; }
 }
 
 public sealed record InventoryHistoryData

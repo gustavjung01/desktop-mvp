@@ -3,7 +3,12 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Inventory;
 
-public sealed record InventoryLookupBalanceRow(int Sequence, InventoryBalanceData Data)
+public sealed record InventoryLookupBalanceRow(
+    int Sequence,
+    InventoryBalanceData Data,
+    string? GroupHeldQuantity = null,
+    string? GroupAvailableQuantity = null,
+    bool IsBusinessSummaryRow = true)
 {
     public string Warehouse => $"{Data.WarehouseCode} · {Data.WarehouseName}";
     public string Location => string.IsNullOrWhiteSpace(Data.LocationCode)
@@ -22,10 +27,18 @@ public sealed record InventoryLookupBalanceRow(int Sequence, InventoryBalanceDat
     public string Expiry => InventoryLookupPresentation.Date(Data.ExpiryDate);
     public string OnHand => InventoryLookupPresentation.QuantityWithUnit(Data.OnHandQuantity, Data);
     public string OnHandBreakdown => InventoryLookupPresentation.PackageBreakdown(Data.OnHandQuantity, Data);
-    public string Reserved => InventoryLookupPresentation.QuantityWithUnit(Data.ReservedQuantity, Data);
-    public string ReservedBreakdown => InventoryLookupPresentation.PackageBreakdown(Data.ReservedQuantity, Data);
-    public string Available => InventoryLookupPresentation.QuantityWithUnit(Data.AvailableQuantity, Data);
-    public string AvailableBreakdown => InventoryLookupPresentation.PackageBreakdown(Data.AvailableQuantity, Data);
+    public string Held => InventoryLookupPresentation.QuantityWithUnit(
+        GroupHeldQuantity ?? Data.BusinessHeldQuantity ?? Data.ReservedQuantity,
+        Data);
+    public string HeldBreakdown => InventoryLookupPresentation.PackageBreakdown(
+        GroupHeldQuantity ?? Data.BusinessHeldQuantity ?? Data.ReservedQuantity,
+        Data);
+    public string Available => InventoryLookupPresentation.QuantityWithUnit(
+        GroupAvailableQuantity ?? Data.BusinessAvailableQuantity ?? Data.AvailableQuantity,
+        Data);
+    public string AvailableBreakdown => InventoryLookupPresentation.PackageBreakdown(
+        GroupAvailableQuantity ?? Data.BusinessAvailableQuantity ?? Data.AvailableQuantity,
+        Data);
 }
 
 public sealed record InventoryLookupHistoryRow(InventoryHistoryData Data)
@@ -45,7 +58,8 @@ public static class InventoryLookupPresentation
     private static readonly CultureInfo Vi = CultureInfo.GetCultureInfo("vi-VN");
 
     public static bool HasDisplayableBalance(InventoryBalanceData row) =>
-        Parse(row.OnHandQuantity) != 0m || Parse(row.ReservedQuantity) != 0m;
+        Parse(row.OnHandQuantity) != 0m
+        || Parse(row.BusinessHeldQuantity ?? row.ReservedQuantity) != 0m;
 
     public static string SearchText(InventoryBalanceData row) =>
         string.Join(' ', new[]
@@ -162,6 +176,60 @@ public static class InventoryLookupPresentation
         "INVENTORY_REVERSAL" => "Phiếu hoàn tác kho",
         _ => "Chứng từ kho"
     };
+
+    public static IReadOnlyList<IReadOnlyList<InventoryBalanceData>> GroupBalancesByWarehouseSku(
+        IEnumerable<InventoryBalanceData> rows)
+    {
+        var comparer = StringComparer.Create(Vi, ignoreCase: false);
+        return rows
+            .GroupBy(row => $"{row.WarehouseId}:{row.BaseVariantId}", StringComparer.Ordinal)
+            .OrderBy(group => group.First().WarehouseCode, comparer)
+            .ThenBy(group => group.First().BaseSku, comparer)
+            .Select(group => (IReadOnlyList<InventoryBalanceData>)group.ToArray())
+            .ToArray();
+    }
+
+    public static IReadOnlyList<IReadOnlyList<InventoryBalanceData>> PaginateBalanceGroups(
+        IEnumerable<InventoryBalanceData> rows,
+        int pageSize)
+    {
+        if (pageSize < 1) throw new ArgumentOutOfRangeException(nameof(pageSize));
+
+        var pages = new List<IReadOnlyList<InventoryBalanceData>>();
+        var current = new List<InventoryBalanceData>();
+        foreach (var group in GroupBalancesByWarehouseSku(rows))
+        {
+            if (current.Count > 0 && current.Count + group.Count > pageSize)
+            {
+                pages.Add(current.ToArray());
+                current = [];
+            }
+
+            current.AddRange(group);
+        }
+
+        if (current.Count > 0) pages.Add(current.ToArray());
+        return pages;
+    }
+
+    public static string BusinessHeldQuantity(IReadOnlyList<InventoryBalanceData> rows) =>
+        BusinessQuantity(rows, row => row.BusinessHeldQuantity, row => row.ReservedQuantity);
+
+    public static string BusinessAvailableQuantity(IReadOnlyList<InventoryBalanceData> rows) =>
+        BusinessQuantity(rows, row => row.BusinessAvailableQuantity, row => row.AvailableQuantity);
+
+    private static string BusinessQuantity(
+        IReadOnlyList<InventoryBalanceData> rows,
+        Func<InventoryBalanceData, string?> businessValue,
+        Func<InventoryBalanceData, string?> fallbackValue)
+    {
+        if (rows.Count == 0) return "0";
+        var value = businessValue(rows[0]);
+        if (value is not null) return value;
+
+        return rows.Sum(row => Parse(fallbackValue(row)))
+            .ToString("0.############", CultureInfo.InvariantCulture);
+    }
 
     public static decimal SumWarehouseOnHand(
         IEnumerable<InventoryBalanceData> rows,

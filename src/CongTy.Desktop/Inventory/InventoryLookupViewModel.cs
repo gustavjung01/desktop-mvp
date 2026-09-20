@@ -27,6 +27,7 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
     private string _search = string.Empty;
     private int _page;
     private int _filteredCount;
+    private int _pageCount = 1;
     private InventoryLookupBalanceRow? _selectedBalance;
     private int _historyPage;
     private bool _historyHasNext;
@@ -99,7 +100,7 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
     }
 
     public int FilteredCount => _filteredCount;
-    public int PageCount => Math.Max(1, (int)Math.Ceiling(_filteredCount / (double)PageSize));
+    public int PageCount => _pageCount;
     public int PageNumber => Math.Min(_page, PageCount - 1) + 1;
     public string PageSummary => $"{FilteredCount} dòng · Trang {PageNumber}/{PageCount}";
     public bool HasPreviousPage => _page > 0 && IsNotBusy;
@@ -346,17 +347,34 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
             .Where(row => search.Length == 0 || InventoryLookupPresentation.SearchText(row).Contains(search, StringComparison.Ordinal))
             .ToArray();
 
+        var pages = InventoryLookupPresentation.PaginateBalanceGroups(filtered, PageSize);
         _filteredCount = filtered.Length;
-        var pageCount = Math.Max(1, (int)Math.Ceiling(filtered.Length / (double)PageSize));
-        _page = Math.Min(_page, pageCount - 1);
+        _pageCount = Math.Max(1, pages.Count);
+        _page = Math.Min(_page, _pageCount - 1);
 
-        Replace(
-            Balances,
-            filtered
-                .Skip(_page * PageSize)
-                .Take(PageSize)
-                .Select((row, index) => new InventoryLookupBalanceRow((_page * PageSize) + index + 1, row)));
+        var pageRows = pages.Count == 0
+            ? Array.Empty<InventoryBalanceData>()
+            : pages[_page];
+        var pageStart = pages.Take(_page).Sum(page => page.Count);
+        var displayRows = new List<InventoryLookupBalanceRow>(pageRows.Count);
+        var sequence = pageStart + 1;
 
+        foreach (var group in InventoryLookupPresentation.GroupBalancesByWarehouseSku(pageRows))
+        {
+            var held = InventoryLookupPresentation.BusinessHeldQuantity(group);
+            var available = InventoryLookupPresentation.BusinessAvailableQuantity(group);
+            for (var index = 0; index < group.Count; index++)
+            {
+                displayRows.Add(new InventoryLookupBalanceRow(
+                    sequence++,
+                    group[index],
+                    held,
+                    available,
+                    index == 0));
+            }
+        }
+
+        Replace(Balances, displayRows);
         RaisePage();
     }
 
