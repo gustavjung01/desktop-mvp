@@ -32,6 +32,56 @@ public sealed class InventoryLookupParityTests
 
         var zero = row with { OnHandQuantity = "0", ReservedQuantity = "0" };
         Assert.IsFalse(InventoryLookupPresentation.HasDisplayableBalance(zero));
+
+        var heldByBusiness = zero with { BusinessHeldQuantity = "2" };
+        Assert.IsTrue(InventoryLookupPresentation.HasDisplayableBalance(heldByBusiness));
+
+        var businessOverridesLegacyReserved = zero with { ReservedQuantity = "5", BusinessHeldQuantity = "0" };
+        Assert.IsFalse(InventoryLookupPresentation.HasDisplayableBalance(businessOverridesLegacyReserved));
+    }
+
+    [TestMethod]
+    public void Presentation_GroupsWarehouseSkuAndDoesNotSplitGroupAcrossPages()
+    {
+        var template = new InventoryBalanceData
+        {
+            WarehouseId = "11111111-1111-4111-8111-111111111111",
+            WarehouseCode = "K01",
+            WarehouseName = "Kho chính",
+            BaseVariantId = "22222222-2222-4222-8222-222222222222",
+            BaseSku = "SKU-01",
+            ProductName = "Sản phẩm 01",
+            OnHandQuantity = "1",
+            ReservedQuantity = "1",
+            AvailableQuantity = "0"
+        };
+
+        var firstGroup = Enumerable.Range(0, 60)
+            .Select(index => template with { LocationId = $"A-{index:000}" })
+            .ToArray();
+        var secondGroup = Enumerable.Range(0, 60)
+            .Select(index => template with
+            {
+                WarehouseId = "33333333-3333-4333-8333-333333333333",
+                WarehouseCode = "K02",
+                BaseVariantId = "44444444-4444-4444-8444-444444444444",
+                BaseSku = "SKU-02",
+                LocationId = $"B-{index:000}"
+            })
+            .ToArray();
+
+        var pages = InventoryLookupPresentation.PaginateBalanceGroups(firstGroup.Concat(secondGroup), 100);
+        Assert.AreEqual(2, pages.Count);
+        Assert.AreEqual(60, pages[0].Count);
+        Assert.AreEqual(60, pages[1].Count);
+
+        var enriched = firstGroup
+            .Select(row => row with { BusinessHeldQuantity = "7", BusinessAvailableQuantity = "53" })
+            .ToArray();
+        Assert.AreEqual("7", InventoryLookupPresentation.BusinessHeldQuantity(enriched));
+        Assert.AreEqual("53", InventoryLookupPresentation.BusinessAvailableQuantity(enriched));
+        Assert.AreEqual("60", InventoryLookupPresentation.BusinessHeldQuantity(firstGroup));
+        Assert.AreEqual("0", InventoryLookupPresentation.BusinessAvailableQuantity(firstGroup));
     }
 
     [TestMethod]
@@ -41,6 +91,7 @@ public sealed class InventoryLookupParityTests
         var code = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryLookupView.xaml.cs");
         var vm = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryLookupViewModel.cs");
         var service = ReadRepoFile("src", "CongTy.ApiClient", "InventoryService.cs");
+        var contracts = ReadRepoFile("src", "CongTy.Contracts", "InventoryContracts.cs");
 
         var balances = view.IndexOf("Content=\"Tồn kho\"", StringComparison.Ordinal);
         var history = view.IndexOf("Content=\"Lịch sử kho\"", StringComparison.Ordinal);
@@ -76,7 +127,21 @@ public sealed class InventoryLookupParityTests
         StringAssert.Contains(vm, "private const int HistoryPageSize = 50;");
         StringAssert.Contains(vm, "_access.HasPermission(\"core.inventory.read\")");
         StringAssert.Contains(vm, "InventoryLookupPresentation.SumWarehouseOnHand");
+        StringAssert.Contains(vm, "InventoryLookupPresentation.PaginateBalanceGroups(filtered, PageSize)");
+        StringAssert.Contains(vm, "InventoryLookupPresentation.GroupBalancesByWarehouseSku(pageRows)");
+        StringAssert.Contains(vm, "InventoryLookupPresentation.BusinessHeldQuantity(group)");
+        StringAssert.Contains(vm, "InventoryLookupPresentation.BusinessAvailableQuantity(group)");
+        StringAssert.Contains(vm, "index == 0");
         StringAssert.Contains(vm, "rows.Take(HistoryPageSize)");
+
+        StringAssert.Contains(view, "Text=\"{Binding Held}\"");
+        StringAssert.Contains(view, "Text=\"Theo kho\"");
+        StringAssert.Contains(view, "Visibility=\"{Binding IsBusinessSummaryRow");
+        Assert.IsFalse(view.Contains("Text=\"{Binding Reserved}\"", StringComparison.Ordinal));
+
+        StringAssert.Contains(contracts, "[JsonPropertyName(\"business_on_hand_quantity\")]");
+        StringAssert.Contains(contracts, "[JsonPropertyName(\"business_held_quantity\")]");
+        StringAssert.Contains(contracts, "[JsonPropertyName(\"business_available_quantity\")]");
 
         StringAssert.Contains(service, "/api/inventory/balances");
         StringAssert.Contains(service, "/api/inventory/balances/history?warehouseId=");

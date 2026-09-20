@@ -216,13 +216,17 @@
                                                         Width="125">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <StackPanel Margin="0,3">
-                                                <TextBlock Text="{Binding Reserved}"
+                                            <StackPanel Margin="0,3"
+                                                        Visibility="{Binding IsBusinessSummaryRow, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Text="{Binding Held}"
                                                            FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding ReservedBreakdown}"
+                                                <TextBlock Text="{Binding HeldBreakdown}"
                                                            FontSize="10.5"
                                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                                            TextWrapping="Wrap" />
+                                                <TextBlock Text="Theo kho"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -231,13 +235,17 @@
                                                         Width="120">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <StackPanel Margin="0,3">
+                                            <StackPanel Margin="0,3"
+                                                        Visibility="{Binding IsBusinessSummaryRow, Converter={StaticResource BoolToVisibility}}">
                                                 <TextBlock Text="{Binding Available}"
                                                            FontWeight="SemiBold" />
                                                 <TextBlock Text="{Binding AvailableBreakdown}"
                                                            FontSize="10.5"
                                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                                            TextWrapping="Wrap" />
+                                                <TextBlock Text="Theo kho"
+                                                           FontSize="10.5"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
