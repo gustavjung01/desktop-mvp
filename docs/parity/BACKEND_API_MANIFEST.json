@@ -3,9 +3,9 @@
   "name": "BACKEND_API_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "ebbe90ce4559f27e501ad74c48346f09e3e4dcee",
+    "baselineRevision": "1f211f128cc50bd478ef31b3892e172e5554e6bc",
     "fingerprints": {
-      "apiRoutesTree": "853a3a4334ad01f58007a014c1310712108f542b",
+      "apiRoutesTree": "48b13e107ebd1409363a9ede61cee3c73a18fa8f",
       "serverBlob": "68d7329c8f6f551838b98b81e74f874a889c76ee",
       "contractsJsBlob": "e8237e6ee036ab3f2eabb36b4273cc40fab11351",
       "contractsTypesBlob": "87722433f55681df66dce40c5179caf153c29380",
@@ -19,11 +19,11 @@
     },
     "endpointCandidates": {
       "count": 389,
-      "sha256": "8d94c1957c9bba92b9bbc0a6a81e11b8f29669722a3394cd0fc057bca40ab5f4"
+      "sha256": "490b8f5fb3105990a290cf2d27c0fd7a0513b82ad272fa25b7c6fee83b8c71ca"
     },
     "mutationCandidates": {
       "count": 281,
-      "sha256": "9dad0de90dd7de8f5de56c8e059fb177feff67f18f9147695ba88ce35cc13706"
+      "sha256": "9679dc047ba7ef9cc46b280d2e6ad084382fb070f677f99b51ad8203760a5368"
     }
   },
   "authorityOwner": "Công Ty backend",

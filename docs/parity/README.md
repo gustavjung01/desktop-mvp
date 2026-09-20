@@ -210,3 +210,20 @@ Không thêm/xóa screen, Next route, backend route source/endpoint candidate, p
 shared contracts, server registry và canonical Idempotency-Key implementation không đổi.
 Vì vậy snapshot identity giữ nguyên và chỉ `webAppTree` được rebaseline
 `1316b14c83b2cc9744453ff9cfacb9ba8acf7e7e` → `e95285d6207a0ea76468280b9153561b80446959`.
+
+
+## Rebaseline 2026-09-20 — Tra cứu tồn theo số giữ cấp kho
+
+Baseline parity được audit từ `ebbe90ce4559f27e501ad74c48346f09e3e4dcee` tới
+`NPP-Platform/main@1f211f128cc50bd478ef31b3892e172e5554e6bc` trong PR Desktop đồng bộ **Tra cứu tồn kho**.
+
+Audit compare xác nhận:
+- `npp-core/web/app` chỉ đổi `inventory/balances/inventory-balances-workspace.tsx`; không thêm/xóa screen hoặc Next route;
+- `npp-core/api/src/routes` chỉ đổi `inventory-core.js`, enrich **GET `/api/inventory/balances`** bằng
+  `business_on_hand_quantity`, `business_held_quantity`, `business_available_quantity`;
+- service `inventory-business-holds.js` chỉ bổ sung lọc `baseVariantIds` để tính hold theo trang; các thay đổi reporting-sales nằm ngoài route surface Tra cứu tồn;
+- inventory parity giữ nguyên **73 screens / 289 Web routes / 90 API source files / 389 endpoint candidates / 205 permissions / 281 mutation candidates**;
+- permission tree, server registry, shared contracts và canonical Idempotency-Key implementation không đổi;
+- endpoint/mutation identity hash đổi do source của route hiện hữu thay đổi, không có endpoint hay mutation mới.
+
+Desktop map contract business-level hiện hành, gom hiển thị theo **Kho + SKU**, giữ dòng vị trí/lô và paging 100 không cắt đôi nhóm.
