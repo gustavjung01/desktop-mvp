@@ -38,6 +38,9 @@ public sealed record InventoryAdjustmentLineData
     [JsonPropertyName("expiryDate")] public string? ExpiryDate { get; init; }
     [JsonPropertyName("sourceSnapshotScopeVersion")] public string SourceSnapshotScopeVersion { get; init; } = string.Empty;
     [JsonPropertyName("destinationSnapshotScopeVersion")] public string? DestinationSnapshotScopeVersion { get; init; }
+    [JsonPropertyName("productName")] public string? ProductName { get; init; }
+    [JsonPropertyName("systemBaseQuantity")] public string? SystemBaseQuantity { get; init; }
+    [JsonPropertyName("countedBaseQuantity")] public string? CountedBaseQuantity { get; init; }
 }
 
 public sealed record InventoryAdjustmentData
@@ -52,6 +55,7 @@ public sealed record InventoryAdjustmentData
     [JsonPropertyName("reasonCode")] public string ReasonCode { get; init; } = string.Empty;
     [JsonPropertyName("reasonLabel")] public string? ReasonLabel { get; init; }
     [JsonPropertyName("reasonNote")] public string ReasonNote { get; init; } = string.Empty;
+    [JsonPropertyName("reconciliationBatchCode")] public string? ReconciliationBatchCode { get; init; }
     [JsonPropertyName("status")] public string Status { get; init; } = string.Empty;
     [JsonPropertyName("revision")] public string Revision { get; init; } = string.Empty;
     [JsonPropertyName("correctionOfAdjustmentId")] public string? CorrectionOfAdjustmentId { get; init; }
@@ -182,5 +186,6 @@ public sealed record BulkInventoryAdjustmentConfirmRequest(
 public sealed record BulkInventoryAdjustmentConfirmData
 {
     [JsonPropertyName("adjustments")] public InventoryAdjustmentData[] Adjustments { get; init; } = [];
+    [JsonPropertyName("reconciliationBatchCode")] public string? ReconciliationBatchCode { get; init; }
     [JsonPropertyName("preview")] public BulkInventoryAdjustmentPreviewData Preview { get; init; } = new();
 }

@@ -10,7 +10,7 @@ namespace CongTy.Desktop.Inventory;
 
 public static partial class InventoryAdjustmentBulkFile
 {
-    public const int MaxRows = 200;
+    public const int MaxRows = 2000;
     public const string TemplateCsv = "\uFEFFSKU,Tồn thực tế\r\n";
 
     public static IReadOnlyList<BulkInventoryAdjustmentInputRow> Read(string path)
@@ -83,7 +83,7 @@ public static partial class InventoryAdjustmentBulkFile
 
         if (rows.Count > MaxRows)
         {
-            throw new InvalidOperationException($"Mỗi lần kiểm tra tối đa {MaxRows} dòng.");
+            throw new InvalidOperationException($"Mỗi lần kiểm tra tối đa {MaxRows:N0} dòng.");
         }
 
         return rows;

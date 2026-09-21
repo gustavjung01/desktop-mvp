@@ -10,7 +10,7 @@ using CongTy.Contracts;
 namespace CongTy.Desktop.Inventory;
 
 public sealed record AdjustmentOption(string Id, string Label);
-public sealed record AdjustmentWarehouseOption(string Id, string Label);
+public sealed record AdjustmentWarehouseOption(string Id, string Label, string? LocationManagementMode);
 public sealed record AdjustmentLocationOption(string Id, string Label);
 public sealed record AdjustmentReasonOption(string Id, string Label);
 public sealed record AdjustmentSourceOption(string Id, string Label, InventoryBalanceData Data);
@@ -22,6 +22,9 @@ public sealed record InventoryAdjustmentListRow(InventoryAdjustmentData Data)
     public string Warehouse => InventoryAdjustmentPresentation.Warehouse(Data.WarehouseCode, Data.WarehouseName);
     public string Status => InventoryAdjustmentPresentation.Status(Data.Status);
     public string Created => InventoryAdjustmentPresentation.DateTimeText(Data.CreatedAt);
+    public string Batch => string.IsNullOrWhiteSpace(Data.ReconciliationBatchCode)
+        ? string.Empty
+        : $"Đợt {Data.ReconciliationBatchCode}";
     public string Summary => $"{Warehouse} · {Status} · {Created}";
 }
 
@@ -33,6 +36,9 @@ public sealed record InventoryAdjustmentLineRow(
     string SourceLocation,
     string DestinationLocation,
     string Quantity,
+    string SystemQuantity,
+    string CountedQuantity,
+    string Difference,
     string Effect);
 
 public sealed class BulkAdjustmentRowView : INotifyPropertyChanged
@@ -281,6 +287,7 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
     public bool CanPost => _access.HasPermission("core.inventory-adjustment.post");
     public bool CanCancel => _access.HasPermission("core.inventory-adjustment.cancel");
     public bool CanReverse => _access.HasPermission("core.inventory-adjustment.reverse");
+    public bool CanPrintSelected => CanRead && IsNotBusy && SelectedAdjustment is not null;
     public bool CanExportData => CanRead && IsNotBusy && ExportColumns.Any(column => column.IsSelected);
 
     public bool IsBusy => _busyAction is not null;
@@ -401,6 +408,9 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
     public string DetailNumber => SelectedAdjustment?.AdjustmentNumber ?? "Điều chỉnh tồn";
     public string DetailStatus => InventoryAdjustmentPresentation.Status(SelectedAdjustment?.Status);
     public string DetailKind => InventoryAdjustmentPresentation.Kind(SelectedAdjustment?.DocumentKind);
+    public string DetailBatchText => string.IsNullOrWhiteSpace(SelectedAdjustment?.ReconciliationBatchCode)
+        ? string.Empty
+        : $"Mã đợt đối soát: {SelectedAdjustment.ReconciliationBatchCode}";
     public string DetailReason => SelectedAdjustment is null
         ? string.Empty
         : $"{SelectedAdjustment.ReasonLabel ?? SelectedAdjustment.ReasonCode} · {SelectedAdjustment.ReasonNote}";
@@ -460,6 +470,12 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
     public bool IsManualAdjustment => ManualKind == "MANUAL_ADJUSTMENT";
     public bool NeedsDestination => ManualKind is "QUARANTINE_TRANSFER" or "DAMAGED_TRANSFER";
     public string DestinationLabel => ManualKind == "QUARANTINE_TRANSFER" ? "Vị trí cách ly" : "Vị trí hư hỏng";
+    public string? SelectedWarehouseLocationMode =>
+        Warehouses.FirstOrDefault(item => item.Id == ManualWarehouseId)?.LocationManagementMode;
+    public string ManualSourceLabel =>
+        string.Equals(SelectedWarehouseLocationMode, "UNMANAGED", StringComparison.OrdinalIgnoreCase)
+            ? "SẢN PHẨM / LÔ"
+            : "SẢN PHẨM / LÔ / VỊ TRÍ";
 
     public string ManualWarehouseId
     {
@@ -469,6 +485,8 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             if (!SetField(ref _manualWarehouseId, value ?? string.Empty)) return;
             ManualSourceKey = string.Empty;
             ManualDestinationLocationId = string.Empty;
+            OnPropertyChanged(nameof(SelectedWarehouseLocationMode));
+            OnPropertyChanged(nameof(ManualSourceLabel));
             RebuildManualDependencies();
         }
     }
@@ -666,7 +684,10 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
                 .Where(item => !string.Equals(item.WarehouseType, "vehicle", StringComparison.OrdinalIgnoreCase))
                 .Where(item => !string.Equals(item.WarehouseType, "transit", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(item => item.Code, StringComparer.OrdinalIgnoreCase)
-                .Select(item => new AdjustmentWarehouseOption(item.Id, $"{item.Code} · {item.Name}")));
+                .Select(item => new AdjustmentWarehouseOption(
+                    item.Id,
+                    $"{item.Code} · {item.Name}",
+                    item.LocationManagementMode)));
 
         RebuildReasons();
         RebuildManualDependencies();
@@ -834,7 +855,14 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             || string.IsNullOrWhiteSpace(ManualReasonNote)
             || string.IsNullOrWhiteSpace(ManualQuantity))
         {
-            SetErrorMessage("Chọn đủ kho, sản phẩm/lô/vị trí, lý do và số lượng.");
+            SetErrorMessage("Chọn đủ kho, dòng tồn, lý do và số lượng.");
+            return;
+        }
+
+        if (ManualKind is "QUARANTINE_TRANSFER" or "DAMAGED_TRANSFER"
+            && !string.Equals(SelectedWarehouseLocationMode, "MANAGED", StringComparison.OrdinalIgnoreCase))
+        {
+            SetErrorMessage("Kho tồn chung không dùng chuyển cách ly hoặc chuyển hư hỏng. Hãy chọn kho quản lý vị trí.");
             return;
         }
 
@@ -914,8 +942,6 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             _bulkPreview = null;
             _bulkPreviewStale = false;
             BulkErrors.Clear();
-            BulkIncreaseReasonCode = string.Empty;
-            BulkDecreaseReasonCode = string.Empty;
             BulkReasonNote = string.Empty;
             SetNotice(BulkWarehouseId.Length > 0
                 ? $"Đã đọc {parsed.Count} dòng. Bấm Kiểm tra tệp để tiếp tục. Tồn kho chưa thay đổi."
@@ -955,7 +981,7 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             if (preview.Ready)
             {
                 SetNotice(changed > 0
-                    ? $"Đã kiểm tra toàn bộ {preview.Totals.InputRowCount} dòng. Có {changed} dòng chênh lệch; tiếp tục chọn lý do để lập phiếu."
+                    ? $"Đã kiểm tra toàn bộ {preview.Totals.InputRowCount} dòng. Có {changed} dòng chênh lệch; nhập diễn giải để lập phiếu."
                     : "Tất cả dòng đang khớp tồn hệ thống. Không cần lập phiếu điều chỉnh.");
             }
             else
@@ -1012,7 +1038,10 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             {
                 ActiveTab = "documents";
                 ApplyDetail(first);
-                SetNotice($"Đã lập {numbers}. Đang mở phiếu vừa lập để kiểm tra và Gửi duyệt.");
+                var batchText = string.IsNullOrWhiteSpace(result.ReconciliationBatchCode)
+                    ? string.Empty
+                    : $" · Mã đợt {result.ReconciliationBatchCode}";
+                SetNotice($"Đã lập {numbers}{batchText}. Đang mở phiếu vừa lập để kiểm tra và Gửi duyệt.");
                 ResetBulkDraft();
             }
             else
@@ -1129,11 +1158,13 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
                         && item.BaseVariantId == line.BaseVariantId
                         && item.LotId == line.LotId);
 
-                    var product = balance is null
-                        ? line.BaseSku
-                        : string.IsNullOrWhiteSpace(balance.ProductName)
-                            ? balance.BaseVariantName ?? balance.BaseSku
-                            : balance.ProductName;
+                    var product = !string.IsNullOrWhiteSpace(line.ProductName)
+                        ? line.ProductName!
+                        : balance is null
+                            ? line.BaseSku
+                            : string.IsNullOrWhiteSpace(balance.ProductName)
+                                ? balance.BaseVariantName ?? balance.BaseSku
+                                : balance.ProductName;
 
                     var source = string.IsNullOrWhiteSpace(line.SourceLocationCode)
                         ? "Không vị trí"
@@ -1159,6 +1190,9 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
                         source,
                         destination,
                         $"{InventoryAdjustmentPresentation.Quantity(line.Quantity)} {line.SourceUnitCode}",
+                        line.SystemBaseQuantity is null ? "—" : InventoryAdjustmentPresentation.Quantity(line.SystemBaseQuantity),
+                        line.CountedBaseQuantity is null ? "—" : InventoryAdjustmentPresentation.Quantity(line.CountedBaseQuantity),
+                        InventoryAdjustmentPresentation.SignedQuantity(delta),
                         effect);
                 }));
 
@@ -1211,16 +1245,26 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
 
     private void RebuildManualDependencies()
     {
+        var locationMode = SelectedWarehouseLocationMode;
+        var warehouseSelected = !string.IsNullOrWhiteSpace(ManualWarehouseId);
+
         Replace(
             ManualSourceOptions,
             _balances
-                .Where(item => !string.IsNullOrWhiteSpace(item.LocationId))
-                .Where(item => string.IsNullOrWhiteSpace(ManualWarehouseId) || item.WarehouseId == ManualWarehouseId)
+                .Where(item => !warehouseSelected || item.WarehouseId == ManualWarehouseId)
+                .Where(item => !warehouseSelected
+                    ? !string.IsNullOrWhiteSpace(item.LocationId)
+                    : string.Equals(locationMode, "UNMANAGED", StringComparison.OrdinalIgnoreCase)
+                        ? string.IsNullOrWhiteSpace(item.LocationId)
+                        : string.Equals(locationMode, "MANAGED", StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(item.LocationId))
                 .OrderBy(item => item.ProductName, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(item => item.BaseSku, StringComparer.OrdinalIgnoreCase)
                 .Select(item => new AdjustmentSourceOption(
                     InventoryAdjustmentPresentation.BalanceKey(item),
-                    $"{DisplayProduct(item)} · {item.BaseSku} · Lô {(string.IsNullOrWhiteSpace(item.LotCode) ? "Không lô" : item.LotCode)} · Vị trí {(string.IsNullOrWhiteSpace(item.LocationCode) ? "Không vị trí" : item.LocationCode)} · Tồn {InventoryAdjustmentPresentation.Quantity(item.OnHandQuantity)} · Có thể xử lý {InventoryAdjustmentPresentation.Quantity(item.AvailableQuantity)}",
+                    string.Equals(locationMode, "UNMANAGED", StringComparison.OrdinalIgnoreCase)
+                        ? $"{DisplayProduct(item)} · {item.BaseSku} · Lô {(string.IsNullOrWhiteSpace(item.LotCode) ? "Không lô" : item.LotCode)} · Tồn {InventoryAdjustmentPresentation.Quantity(item.OnHandQuantity)} · Có thể xử lý {InventoryAdjustmentPresentation.Quantity(item.AvailableQuantity)}"
+                        : $"{DisplayProduct(item)} · {item.BaseSku} · Lô {(string.IsNullOrWhiteSpace(item.LotCode) ? "Không lô" : item.LotCode)} · Vị trí {(string.IsNullOrWhiteSpace(item.LocationCode) ? "Chưa xác định" : item.LocationCode)} · Tồn {InventoryAdjustmentPresentation.Quantity(item.OnHandQuantity)} · Có thể xử lý {InventoryAdjustmentPresentation.Quantity(item.AvailableQuantity)}",
                     item)));
 
         var locationType = ManualKind == "QUARANTINE_TRANSFER"
@@ -1233,7 +1277,10 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
             DestinationLocations,
             _locations
                 .Where(item => item.WarehouseId == ManualWarehouseId)
-                .Where(item => string.IsNullOrWhiteSpace(locationType) || string.Equals(item.LocationType, locationType, StringComparison.OrdinalIgnoreCase))
+                .Where(item => string.IsNullOrWhiteSpace(locationType)
+                    || string.Equals(locationMode, "MANAGED", StringComparison.OrdinalIgnoreCase))
+                .Where(item => string.IsNullOrWhiteSpace(locationType)
+                    || string.Equals(item.LocationType, locationType, StringComparison.OrdinalIgnoreCase))
                 .OrderBy(item => item.Code, StringComparer.OrdinalIgnoreCase)
                 .Select(item => new AdjustmentLocationOption(item.Id, $"{item.Code} · {item.Name}")));
 
@@ -1268,6 +1315,15 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
                 .Where(item => item.DocumentKind == "MANUAL_ADJUSTMENT" && item.AdjustmentDirection == "OUT")
                 .OrderBy(item => item.Label, StringComparer.OrdinalIgnoreCase)
                 .Select(item => new AdjustmentReasonOption(item.Code, item.Label)));
+
+        BulkIncreaseReasonCode = _reasons.FirstOrDefault(item =>
+            item.Code == "MANUAL_COUNT_CORRECTION_IN"
+            && item.DocumentKind == "MANUAL_ADJUSTMENT"
+            && item.AdjustmentDirection == "IN")?.Code ?? string.Empty;
+        BulkDecreaseReasonCode = _reasons.FirstOrDefault(item =>
+            item.Code == "MANUAL_COUNT_CORRECTION_OUT"
+            && item.DocumentKind == "MANUAL_ADJUSTMENT"
+            && item.AdjustmentDirection == "OUT")?.Code ?? string.Empty;
     }
 
     private void RebuildBulkRows(
@@ -1317,8 +1373,6 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         BulkErrors.Clear();
         BulkFileName = string.Empty;
         BulkWarehouseId = string.Empty;
-        BulkIncreaseReasonCode = string.Empty;
-        BulkDecreaseReasonCode = string.Empty;
         BulkReasonNote = string.Empty;
         _bulkPreview = null;
         _bulkPreviewStale = false;
@@ -1359,6 +1413,7 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(DetailNumber));
         OnPropertyChanged(nameof(DetailStatus));
         OnPropertyChanged(nameof(DetailKind));
+        OnPropertyChanged(nameof(DetailBatchText));
         OnPropertyChanged(nameof(DetailReason));
         OnPropertyChanged(nameof(DetailWarehouse));
         OnPropertyChanged(nameof(DetailSource));
@@ -1372,6 +1427,7 @@ public sealed class InventoryAdjustmentViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanPostSelected));
         OnPropertyChanged(nameof(CanCancelSelected));
         OnPropertyChanged(nameof(CanReverseSelected));
+        OnPropertyChanged(nameof(CanPrintSelected));
         OnPropertyChanged(nameof(ShowActionReason));
     }
 
