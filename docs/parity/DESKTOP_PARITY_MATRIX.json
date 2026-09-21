@@ -3,13 +3,13 @@
   "name": "DESKTOP_PARITY_MATRIX",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "1f211f128cc50bd478ef31b3892e172e5554e6bc",
+    "baselineRevision": "7a6cee4d647b6a639bb8300a6d4dd5beba678045",
     "fingerprints": {
-      "webAppTree": "6bf63e63f1e5645a93ee0690c4d93f895491b75c",
-      "apiRoutesTree": "48b13e107ebd1409363a9ede61cee3c73a18fa8f",
-      "accessTree": "6156db21006867891127560bb96f0b82da362bad",
-      "serverBlob": "68d7329c8f6f551838b98b81e74f874a889c76ee",
-      "contractsJsBlob": "e8237e6ee036ab3f2eabb36b4273cc40fab11351",
+      "webAppTree": "476e9703dac0a9b796e2b304c82523d137cc8d96",
+      "apiRoutesTree": "0c540249255c4f8cdfc6f95761481c154028edec",
+      "accessTree": "310feab5453726e5e4a3f17c12f768e93e3268c1",
+      "serverBlob": "326c713609d01eca6d06fc59fcd231b41c0352b9",
+      "contractsJsBlob": "41c6d4676951ac66c95708e62b136c5bc13b2acb",
       "contractsTypesBlob": "87722433f55681df66dce40c5179caf153c29380",
       "idempotencyBlob": "faba39af51fd81d0b8d778b20f669a17825da3f7"
     }

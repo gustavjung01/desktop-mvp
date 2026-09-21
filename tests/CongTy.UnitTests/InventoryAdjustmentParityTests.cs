@@ -41,7 +41,7 @@ public sealed class InventoryAdjustmentParityTests
         Assert.AreEqual("A-01", rows[0].LocationCode);
         Assert.AreEqual("LOT-01", rows[0].LotCode);
         Assert.AreEqual("SKU,Tồn thực tế", InventoryAdjustmentBulkFile.TemplateCsv.TrimStart('\uFEFF').Trim());
-        StringAssert.Contains(ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryAdjustmentBulkFile.cs"), "public const int MaxRows = 200;");
+        StringAssert.Contains(ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryAdjustmentBulkFile.cs"), "public const int MaxRows = 2000;");
     }
 
     [TestMethod]
@@ -52,6 +52,7 @@ public sealed class InventoryAdjustmentParityTests
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryAdjustmentViewModel.cs");
         var view = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryAdjustmentView.xaml");
         var code = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryAdjustmentView.xaml.cs");
+        var print = ReadRepoFile("src", "CongTy.Desktop", "Inventory", "InventoryAdjustmentPrintPreview.cs");
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");
         var main = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
         var mainCode = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml.cs");
@@ -162,6 +163,24 @@ public sealed class InventoryAdjustmentParityTests
         StringAssert.Contains(viewModel, "IsExportTab");
         StringAssert.Contains(viewModel, "CanExportData");
         StringAssert.Contains(viewModel, "Vui lòng chọn ít nhất một cột để xuất.");
+        StringAssert.Contains(viewModel, "MANUAL_COUNT_CORRECTION_IN");
+        StringAssert.Contains(viewModel, "MANUAL_COUNT_CORRECTION_OUT");
+        StringAssert.Contains(viewModel, "LocationManagementMode");
+        StringAssert.Contains(viewModel, "SelectedWarehouseLocationMode");
+        StringAssert.Contains(viewModel, "UNMANAGED");
+        StringAssert.Contains(view, "Lý do phiếu được hệ thống tự xác định theo chênh lệch tăng hoặc giảm sau đối soát.");
+        StringAssert.Contains(view, "Mỗi lần xử lý tối đa 2.000 dòng.");
+        StringAssert.Contains(view, "Content=\"In / lưu PDF\"");
+        Assert.IsFalse(view.Contains("LÝ DO TĂNG TỒN", StringComparison.Ordinal));
+        Assert.IsFalse(view.Contains("LÝ DO GIẢM TỒN", StringComparison.Ordinal));
+
+        StringAssert.Contains(code, "InventoryAdjustmentPrintPreview.Print");
+        StringAssert.Contains(code, "INVENTORY_ADJUSTMENT");
+        StringAssert.Contains(print, "PHIẾU ĐIỀU CHỈNH");
+        StringAssert.Contains(print, "Mã đợt đối soát");
+        StringAssert.Contains(print, "Tồn hệ thống");
+        StringAssert.Contains(print, "Tồn thực tế");
+        StringAssert.Contains(print, "Chênh lệch");
 
         StringAssert.Contains(code, "Filter = \"Excel hoặc CSV (*.xlsx;*.csv)");
         StringAssert.Contains(code, "Lưu dữ liệu Điều chỉnh tồn");
@@ -189,6 +208,10 @@ public sealed class InventoryAdjustmentParityTests
 
         StringAssert.Contains(contracts, "BulkInventoryAdjustmentPreviewData");
         StringAssert.Contains(contracts, "BulkInventoryAdjustmentConfirmRequest");
+        StringAssert.Contains(contracts, "[JsonPropertyName(\"reconciliationBatchCode\")]");
+        StringAssert.Contains(contracts, "[JsonPropertyName(\"productName\")]");
+        StringAssert.Contains(contracts, "[JsonPropertyName(\"systemBaseQuantity\")]");
+        StringAssert.Contains(contracts, "[JsonPropertyName(\"countedBaseQuantity\")]");
     }
 
     [TestMethod]

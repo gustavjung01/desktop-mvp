@@ -227,3 +227,30 @@ Audit compare xác nhận:
 - endpoint/mutation identity hash đổi do source của route hiện hữu thay đổi, không có endpoint hay mutation mới.
 
 Desktop map contract business-level hiện hành, gom hiển thị theo **Kho + SKU**, giữ dòng vị trí/lô và paging 100 không cắt đôi nhóm.
+
+
+## Rebaseline 2026-09-21 — Điều chỉnh tồn Web mới; Workforce chỉ ghi nhận planned
+
+Trong lúc PR Desktop đồng bộ **Điều chỉnh tồn** chạy CI, `NPP-Platform/main` đã tiến từ
+`1f211f128cc50bd478ef31b3892e172e5554e6bc` tới
+`7a6cee4d647b6a639bb8300a6d4dd5beba678045`.
+
+Audit compare xác nhận hai nhóm thay đổi tách biệt:
+
+- **Inventory Adjustment**: Web/backend bổ sung đúng contract mà PR Desktop này đang đồng bộ:
+  kho `UNMANAGED` dùng tồn không vị trí, bulk tự chọn reason đối soát canonical,
+  giới hạn 2.000 dòng, `reconciliationBatchCode`, snapshot dòng và mẫu in phiếu.
+- **Workforce/Nhân sự**: thêm các màn, Next adapters, backend route, permission và mutation mới.
+  Theo phạm vi đã khóa với Owner, PR Desktop này **không triển khai Workforce**; các phần tử mới chỉ được
+  đưa vào baseline parity với trạng thái mặc định `planned` để gate tiếp tục phát hiện drift ở các PR sau.
+- Ngoài ra có thay đổi deployment/migration runtime; không tạo thay đổi Desktop runtime trong PR này.
+- Canonical idempotency implementation giữ nguyên blob
+  `faba39af51fd81d0b8d778b20f669a17825da3f7`; retry cùng logical mutation trên Desktop vẫn reuse key hiện có.
+- Shared `packages/contracts/index.js` đổi để công bố giới hạn bulk inventory adjustment; type declaration và
+  canonical idempotency source không đổi.
+
+Snapshot hiện hành sau audit: **81 screens / 316 Web routes / 91 API source files /
+410 endpoint candidates / 223 permissions / 302 mutation candidates**.
+
+Rebaseline này chỉ cập nhật metadata parity theo source đã audit; không mang nghiệp vụ Nhân sự,
+backend, DB hay migration vào Desktop.

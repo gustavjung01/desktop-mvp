@@ -3,6 +3,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Printing;
 using Microsoft.Win32;
 
 namespace CongTy.Desktop.Inventory;
@@ -137,6 +138,17 @@ public partial class InventoryAdjustmentView : UserControl
 
     private async void Reverse_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.ReverseAsync();
+
+    private async void Print_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (!_viewModel.CanPrintSelected || _viewModel.SelectedAdjustment is not { } adjustment) return;
+
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(
+            Window.GetWindow(this),
+            "INVENTORY_ADJUSTMENT");
+        if (template is null) return;
+        InventoryAdjustmentPrintPreview.Print(adjustment, template);
+    }
 
     private void DownloadBulkTemplate_OnClick(object sender, RoutedEventArgs e)
     {

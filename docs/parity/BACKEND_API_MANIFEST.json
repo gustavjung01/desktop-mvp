@@ -3,27 +3,27 @@
   "name": "BACKEND_API_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "1f211f128cc50bd478ef31b3892e172e5554e6bc",
+    "baselineRevision": "7a6cee4d647b6a639bb8300a6d4dd5beba678045",
     "fingerprints": {
-      "apiRoutesTree": "48b13e107ebd1409363a9ede61cee3c73a18fa8f",
-      "serverBlob": "68d7329c8f6f551838b98b81e74f874a889c76ee",
-      "contractsJsBlob": "e8237e6ee036ab3f2eabb36b4273cc40fab11351",
+      "apiRoutesTree": "0c540249255c4f8cdfc6f95761481c154028edec",
+      "serverBlob": "326c713609d01eca6d06fc59fcd231b41c0352b9",
+      "contractsJsBlob": "41c6d4676951ac66c95708e62b136c5bc13b2acb",
       "contractsTypesBlob": "87722433f55681df66dce40c5179caf153c29380",
       "idempotencyBlob": "faba39af51fd81d0b8d778b20f669a17825da3f7"
     }
   },
   "snapshot": {
     "apiRouteSources": {
-      "count": 90,
-      "sha256": "6375115ab32148ea8fed0781be84216367c18ed3ff0b2c0e0d47ce096451bd12"
+      "count": 91,
+      "sha256": "83cf7f4a83962b14a4fd675d675f19934fb0f2112d5cc0826c0935f9e764c48c"
     },
     "endpointCandidates": {
-      "count": 389,
-      "sha256": "490b8f5fb3105990a290cf2d27c0fd7a0513b82ad272fa25b7c6fee83b8c71ca"
+      "count": 410,
+      "sha256": "1138d8ae0d0aa225618b52960d9385226b3e91054d3ac8ca761552875a92d948"
     },
     "mutationCandidates": {
-      "count": 281,
-      "sha256": "9679dc047ba7ef9cc46b280d2e6ad084382fb070f677f99b51ad8203760a5368"
+      "count": 302,
+      "sha256": "99e83fe99e0fb50259816094ce10b0a9577215efd59246db407f134b0424dc8e"
     }
   },
   "authorityOwner": "Công Ty backend",

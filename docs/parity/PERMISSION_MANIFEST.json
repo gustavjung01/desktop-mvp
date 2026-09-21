@@ -3,15 +3,15 @@
   "name": "PERMISSION_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "1f211f128cc50bd478ef31b3892e172e5554e6bc",
+    "baselineRevision": "7a6cee4d647b6a639bb8300a6d4dd5beba678045",
     "fingerprints": {
-      "accessTree": "6156db21006867891127560bb96f0b82da362bad"
+      "accessTree": "310feab5453726e5e4a3f17c12f768e93e3268c1"
     }
   },
   "snapshot": {
     "permissions": {
-      "count": 205,
-      "sha256": "25f558dbadfd28e4d65fd74fa16b243f6c7d92ba77c6e41186d36b0c9f31b2dd"
+      "count": 223,
+      "sha256": "77a9cb798066780be0e9d62c1e94d53af948ec5f16425c5e4647edd7801848af"
     }
   },
   "discovery": {
