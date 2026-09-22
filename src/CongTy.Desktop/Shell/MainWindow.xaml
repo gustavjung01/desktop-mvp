@@ -668,12 +668,12 @@
                             </Popup>
 
                             <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="QUẢN TRỊ HỆ THỐNG" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <Button x:Name="AccessButton" ToolTip="Người dùng & phân quyền" Style="{StaticResource NavButtonStyle}" CommandParameter="access" Click="NavGroup_OnClick">
+                            <Button x:Name="AccessButton" ToolTip="Người dùng &amp; phân quyền" Style="{StaticResource NavButtonStyle}" CommandParameter="access" Click="NavGroup_OnClick">
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                     <TextBlock Text="♙" HorizontalAlignment="Center" />
                                     <StackPanel Grid.Column="1" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <TextBlock Text="Người dùng & phân quyền" FontWeight="SemiBold" />
+                                        <TextBlock Text="Người dùng &amp; phân quyền" FontWeight="SemiBold" />
                                         <TextBlock Text="Tài khoản, vai trò và phạm vi truy cập" Style="{StaticResource NavHintTextStyle}" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{Binding AccessChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
@@ -682,7 +682,7 @@
                             <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsAccessOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource AccessMenuTemplate}" />
                             <Popup Uid="access" DataContext="{Binding}" Tag="{Binding IsAccessOpen}" PlacementTarget="{Binding ElementName=AccessButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
-                                    <StackPanel><TextBlock Margin="8,4,8,8" Text="Người dùng & phân quyền" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
+                                    <StackPanel><TextBlock Margin="8,4,8,8" Text="Người dùng &amp; phân quyền" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
                                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><ContentControl Content="{Binding}" ContentTemplate="{StaticResource AccessMenuTemplate}" /></ScrollViewer>
                                     </StackPanel>
                                 </Border>
