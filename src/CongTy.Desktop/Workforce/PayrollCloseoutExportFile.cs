@@ -1,3 +1,4 @@
+using System.IO;
 using System.Globalization;
 using ClosedXML.Excel;
 using CongTy.ApiClient;
@@ -115,7 +116,8 @@ public static class PayrollCloseoutExportFile
             {
                 DrawLine(
                     canvas,
-                    textPaint,
+                    textFont,
+                    paint,
                     ref y,
                     $"{adjustment.Name} · {(adjustment.Direction == "REVERSE" ? "Ghi giảm" : "Ghi thêm")} · {PayrollFoundationPresentation.MoneyText(adjustment.Amount)}");
                 DrawLine(canvas, textFont, paint, ref y, $"Lý do: {adjustment.Reason}");
