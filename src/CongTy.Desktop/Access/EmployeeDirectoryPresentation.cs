@@ -83,8 +83,10 @@ public sealed record EmployeeDirectoryRowView(
     EmployeeDirectoryData Source,
     string Code,
     string FullName,
-    string JobTitleText,
+    string PositionText,
+    string DepartmentText,
     string BranchText,
+    string ManagerText,
     string PhoneText,
     string EmailText,
     string StatusText,
@@ -104,6 +106,9 @@ public sealed record EmployeeAssignmentHistoryRowView(
     string EffectiveFromText,
     string EffectiveToText,
     string BranchText,
+    string DepartmentText,
+    string PositionText,
+    string ManagerText,
     string QualityText,
     string ReasonText,
     bool NeedsConfirmation);
@@ -127,3 +132,34 @@ public sealed record EmployeeBranchOption(string Id, string Label)
 {
     public override string ToString() => Label;
 }
+
+public sealed record EmployeeDepartmentOption(string Id, string Label)
+{
+    public override string ToString() => Label;
+}
+
+public sealed record EmployeePositionOption(string Id, string Label, string? DepartmentId, string Name)
+{
+    public override string ToString() => Label;
+}
+
+public sealed record EmployeeManagerOption(string Id, string Label)
+{
+    public override string ToString() => Label;
+}
+
+public sealed record EmployeeDepartmentRowView(
+    HrDepartmentData Source,
+    string Code,
+    string Name,
+    string ParentText,
+    string StatusText,
+    string ToggleActionText);
+
+public sealed record EmployeePositionRowView(
+    HrPositionData Source,
+    string Code,
+    string Name,
+    string DepartmentText,
+    string StatusText,
+    string ToggleActionText);

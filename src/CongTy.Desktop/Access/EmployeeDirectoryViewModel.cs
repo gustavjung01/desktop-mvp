@@ -77,6 +77,7 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
             _mutationKeys.Clear();
             VisibleEmployees.Clear();
             ResetBranchOptions();
+            ResetOrganization();
             CloseEditor();
             CancelToggle();
             Message = string.Empty;
@@ -104,7 +105,7 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
     public bool CanViewEmployees => _access.HasPermission(EmployeeRead);
     public bool CanWriteEmployees => _access.HasPermission(EmployeeWrite);
     public bool CanReadBranches => _access.HasPermission(BranchRead);
-    public bool CanOpenEditor => CanWriteEmployees && CanReadBranches && !IsBusy;
+    public bool CanOpenEditor => CanWriteEmployees && CanReadBranches && OrganizationLoaded && !IsBusy;
     public bool CanToggleEmployees => CanWriteEmployees && !IsBusy;
     public bool CanConfirmToggle => IsToggleConfirmOpen && CanWriteEmployees && !IsBusy && ToggleDraftValid();
     public bool CanPersist =>
@@ -125,6 +126,12 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanToggleEmployees));
             OnPropertyChanged(nameof(CanConfirmToggle));
             OnPropertyChanged(nameof(CanPersist));
+            OnPropertyChanged(nameof(CanOpenOrganization));
+            OnPropertyChanged(nameof(CanManageOrganization));
+            OnPropertyChanged(nameof(CanSaveDepartment));
+            OnPropertyChanged(nameof(CanSavePosition));
+            OnPropertyChanged(nameof(ShowOrganizationBusy));
+            OnPropertyChanged(nameof(OrganizationBusyText));
             OnPropertyChanged(nameof(RefreshText));
             OnPropertyChanged(nameof(SaveButtonText));
             OnPropertyChanged(nameof(ToggleConfirmButtonText));
@@ -249,6 +256,8 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
         {
             if (!SetField(ref _draftJobTitle, value ?? string.Empty)) return;
             OnPropertyChanged(nameof(CanPersist));
+            OnPropertyChanged(nameof(LegacyJobTitleHint));
+            OnPropertyChanged(nameof(HasLegacyJobTitleHint));
         }
     }
 
@@ -364,6 +373,7 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
 
         IReadOnlyList<EmployeeDirectoryData>? employees = null;
         IReadOnlyList<EmployeeDirectoryBranchData>? branches = null;
+        EmployeeOrganizationCatalogData? organization = null;
         var errors = new List<string>();
 
         try
@@ -375,6 +385,15 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
                 errors.Add(PublicError(exception, "Không tải được danh mục nhân sự."));
+            }
+
+            try
+            {
+                organization = await _readService.GetOrganizationAsync(token).ConfigureAwait(false);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                errors.Add(PublicError(exception, "Không tải được cơ cấu tổ chức."));
             }
 
             if (CanReadBranches)
@@ -413,7 +432,11 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
                     _branches.AddRange(branches);
                 }
 
+                if (organization is not null)
+                    ApplyOrganization(organization);
+
                 RebuildBranchOptions();
+                RebuildEmployeeOrganizationOptions();
                 ApplyFilter();
                 RaiseSummary();
                 MessageIsError = errors.Count > 0;
@@ -448,6 +471,7 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
         DraftEmail = string.Empty;
         DraftBranchId = DraftBranchOptions.FirstOrDefault(option => option.Id.Length > 0)?.Id ?? string.Empty;
         PrepareCreateWorkforceHistory();
+        PrepareCreateOrganizationAssignment();
         IsEditorOpen = true;
     }
 
@@ -474,6 +498,7 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
             DraftEmail = detail.Email ?? string.Empty;
             DraftBranchId = detail.BranchId ?? string.Empty;
             PrepareEditWorkforceHistory(detail);
+            PrepareEditOrganizationAssignment(detail);
             IsEditorOpen = true;
         }
         catch (CanonicalApiException exception)
@@ -496,6 +521,7 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
     {
         IsEditorOpen = false;
         _editingEmployee = null;
+        ClearOrganizationAssignment();
         HasConflict = false;
         EditorMessage = string.Empty;
         EditorMessageIsError = false;
@@ -520,6 +546,9 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
                 phone,
                 email,
                 branchId,
+                EmptyToNull(DraftDepartmentId),
+                EmptyToNull(DraftPositionId),
+                EmptyToNull(DraftManagerEmployeeId),
                 CanonicalDate(DraftEmploymentStartDate),
                 DraftEmploymentType,
                 CanonicalDate(DraftAssignmentEffectiveFrom),
@@ -558,7 +587,9 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
 
         if (_editingEmployee is null) return;
 
-        var assignmentChanged = !string.Equals(branchId, _editingEmployee.BranchId, StringComparison.Ordinal);
+        var assignmentChanged =
+            !string.Equals(branchId, _editingEmployee.BranchId, StringComparison.Ordinal)
+            || OrganizationAssignmentChanged(_editingEmployee);
         var includeAssignment = assignmentChanged || DraftConfirmAssignment;
         var update = new EmployeeDirectoryUpdateRequest(
             fullName,
@@ -567,6 +598,9 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
             email,
             branchId,
             _editingEmployee.UpdatedAt,
+            EmptyToNull(DraftDepartmentId),
+            EmptyToNull(DraftPositionId),
+            EmptyToNull(DraftManagerEmployeeId),
             DraftConfirmEmployment ? true : null,
             DraftConfirmEmployment ? CanonicalDate(DraftEmploymentStartDate) : null,
             DraftConfirmEmployment ? CanonicalDate(DraftEmploymentEndDate) : null,
@@ -756,8 +790,9 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
                 if (string.IsNullOrWhiteSpace(search)) return true;
 
                 branchMap.TryGetValue(employee.BranchId ?? string.Empty, out var branch);
+                var assignment = employee.CurrentAssignment;
                 var haystack = EmployeeDirectoryPresentation.NormalizeSearch(
-                    $"{employee.Code} {employee.FullName} {employee.JobTitle} {employee.Phone} {employee.Email} {branch?.Code} {branch?.Name}");
+                    $"{employee.Code} {employee.FullName} {assignment?.PositionName} {employee.JobTitle} {assignment?.DepartmentName} {assignment?.ManagerName} {employee.Phone} {employee.Email} {branch?.Code} {branch?.Name}");
                 return haystack.Contains(search, StringComparison.Ordinal);
             })
             .OrderBy(employee => employee.Code, StringComparer.Ordinal)
@@ -770,12 +805,27 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
                         ? "Chưa tải được thông tin chi nhánh"
                         : EmployeeDirectoryPresentation.BranchLabel(branch);
 
+                var assignment = employee.CurrentAssignment;
+                var positionText = !string.IsNullOrWhiteSpace(assignment?.PositionName)
+                    ? assignment.PositionName.Trim()
+                    : !string.IsNullOrWhiteSpace(employee.JobTitle)
+                        ? $"{employee.JobTitle.Trim()} · chức danh cũ"
+                        : "Chưa phân công vị trí";
+                var departmentText = string.IsNullOrWhiteSpace(assignment?.DepartmentName)
+                    ? "Chưa phân công Phòng/Bộ phận"
+                    : assignment.DepartmentName.Trim();
+                var managerText = string.IsNullOrWhiteSpace(assignment?.ManagerName)
+                    ? "Chưa có quản lý trực tiếp"
+                    : $"Quản lý: {assignment.ManagerName.Trim()}";
+
                 return new EmployeeDirectoryRowView(
                     employee,
                     employee.Code,
                     employee.FullName,
-                    string.IsNullOrWhiteSpace(employee.JobTitle) ? "Chưa khai báo chức danh" : employee.JobTitle.Trim(),
+                    positionText,
+                    departmentText,
                     branchText,
+                    managerText,
                     string.IsNullOrWhiteSpace(employee.Phone) ? "Chưa có số điện thoại" : employee.Phone.Trim(),
                     string.IsNullOrWhiteSpace(employee.Email) ? "Chưa có email" : employee.Email.Trim(),
                     employee.IsActive ? "Đang làm việc" : "Ngừng làm việc",
@@ -843,7 +893,7 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
 
         var branchValid = string.IsNullOrWhiteSpace(DraftBranchId)
             || DraftBranchOptions.Any(option => string.Equals(option.Id, DraftBranchId, StringComparison.Ordinal));
-        return branchValid && WorkforceHistoryDraftValid();
+        return branchValid && OrganizationAssignmentDraftValid() && WorkforceHistoryDraftValid();
     }
 
     private string MutationKey(string slot, string scope)
@@ -857,10 +907,10 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
     }
 
     private static string BuildCreateSlot(EmployeeDirectoryCreateRequest request) =>
-        $"create|{request.Code}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.EmploymentStartDate}|{request.EmploymentType}|{request.AssignmentEffectiveFrom}|{request.AssignmentReason}";
+        $"create|{request.Code}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.DepartmentId}|{request.PositionId}|{request.ManagerEmployeeId}|{request.EmploymentStartDate}|{request.EmploymentType}|{request.AssignmentEffectiveFrom}|{request.AssignmentReason}";
 
     private static string BuildUpdateSlot(string employeeId, EmployeeDirectoryUpdateRequest request) =>
-        $"update|{employeeId}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.ExpectedUpdatedAt}|{request.ConfirmEmployment}|{request.EmploymentEffectiveFrom}|{request.EmploymentEffectiveTo}|{request.EmploymentType}|{request.EmploymentEndReason}|{request.ConfirmAssignment}|{request.AssignmentEffectiveFrom}|{request.AssignmentReason}";
+        $"update|{employeeId}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.DepartmentId}|{request.PositionId}|{request.ManagerEmployeeId}|{request.ExpectedUpdatedAt}|{request.ConfirmEmployment}|{request.EmploymentEffectiveFrom}|{request.EmploymentEffectiveTo}|{request.EmploymentType}|{request.EmploymentEndReason}|{request.ConfirmAssignment}|{request.AssignmentEffectiveFrom}|{request.AssignmentReason}";
 
     private static bool IsOptimisticConflict(CanonicalApiException exception) =>
         exception.StatusCode == HttpStatusCode.Conflict
@@ -886,6 +936,12 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
         return trimmed.Length == 0 ? null : trimmed;
     }
 
+    private static string? EmptyToNull(string? value)
+    {
+        var trimmed = value?.Trim() ?? string.Empty;
+        return trimmed.Length == 0 ? null : trimmed;
+    }
+
     private void SetMessage(string message, bool isError)
     {
         MessageIsError = isError;
@@ -907,6 +963,10 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanToggleEmployees));
         OnPropertyChanged(nameof(CanConfirmToggle));
         OnPropertyChanged(nameof(CanPersist));
+        OnPropertyChanged(nameof(CanOpenOrganization));
+        OnPropertyChanged(nameof(CanManageOrganization));
+        OnPropertyChanged(nameof(CanSaveDepartment));
+        OnPropertyChanged(nameof(CanSavePosition));
     }
 
     private void RaiseSummary()

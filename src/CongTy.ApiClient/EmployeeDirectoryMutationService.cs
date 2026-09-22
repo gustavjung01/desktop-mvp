@@ -20,6 +20,11 @@ public interface IEmployeeDirectoryMutationService
         EmployeeDirectoryToggleRequest request,
         string idempotencyKey,
         CancellationToken cancellationToken = default);
+
+    Task<EmployeeOrganizationMutationResult> SaveOrganizationAsync(
+        EmployeeOrganizationMutationRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class EmployeeDirectoryMutationService(
@@ -56,6 +61,17 @@ public sealed class EmployeeDirectoryMutationService(
         CancellationToken cancellationToken = default) =>
         apiClient.PatchIdempotentDataAsync<EmployeeDirectoryToggleRequest, EmployeeDirectoryData>(
             BuildEmployeePath(employeeId),
+            request,
+            idempotencyKey,
+            RequireToken(),
+            cancellationToken);
+
+    public Task<EmployeeOrganizationMutationResult> SaveOrganizationAsync(
+        EmployeeOrganizationMutationRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default) =>
+        apiClient.PostIdempotentDataAsync<EmployeeOrganizationMutationRequest, EmployeeOrganizationMutationResult>(
+            "/api/employees/organization",
             request,
             idempotencyKey,
             RequireToken(),
