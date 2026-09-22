@@ -12,6 +12,8 @@ public interface IPayrollFoundationService
     Task<PayrollPeriodComponentData> AddPeriodComponentAsync(AddPayrollPeriodComponentRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<PayrollAggregationMutationData> AggregateAsync(AggregatePayrollRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<PayrollAggregationMutationData> ReconcileAsync(ReconcilePayrollRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
+    Task<ClosePayrollMutationData> CloseAsync(ClosePayrollRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
+    Task<AdjustPayrollMutationData> AdjustAsync(AdjustPayrollRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
 }
 
 public sealed class PayrollFoundationService(
@@ -74,6 +76,18 @@ public sealed class PayrollFoundationService(
         string idempotencyKey,
         CancellationToken cancellationToken = default) =>
         PostAsync<ReconcilePayrollRequest, PayrollAggregationMutationData>(request, idempotencyKey, cancellationToken);
+
+    public Task<ClosePayrollMutationData> CloseAsync(
+        ClosePayrollRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default) =>
+        PostAsync<ClosePayrollRequest, ClosePayrollMutationData>(request, idempotencyKey, cancellationToken);
+
+    public Task<AdjustPayrollMutationData> AdjustAsync(
+        AdjustPayrollRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default) =>
+        PostAsync<AdjustPayrollRequest, AdjustPayrollMutationData>(request, idempotencyKey, cancellationToken);
 
     private Task<TResponse> PostAsync<TRequest, TResponse>(
         TRequest request,
