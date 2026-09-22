@@ -19,11 +19,11 @@
     },
     "endpointCandidates": {
       "count": 421,
-      "sha256": "10e2ed196da6f93e042f1692be1b23d4047e742e2dbccf5c6a694648ad0c2e97"
+      "sha256": "4871cf80b9e20101c15f3c45f4d3f048e2190acbaba3f459b645af5b98964687"
     },
     "mutationCandidates": {
       "count": 312,
-      "sha256": "4267806c664b4394c2ad2b8b0debd539666463cafb7ba539d29df85dabffb8a0"
+      "sha256": "87761862dff4492fc6763673a451d84238bd8ec460ec3daef27dee7aed8adf49"
     }
   },
   "authorityOwner": "Công Ty backend",
