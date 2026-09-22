@@ -122,6 +122,9 @@ public sealed class WorkforceOrganizationProfileLot2Tests
         StringAssert.Contains(view, "DraftManagerEmployeeId");
         StringAssert.Contains(view, "DepartmentRows");
         StringAssert.Contains(view, "PositionRows");
+        StringAssert.Contains(view, "Chưa có Phòng/Bộ phận.");
+        StringAssert.Contains(view, "Chưa có Vị trí công việc.");
+        StringAssert.Contains(view, "OrganizationBusyText");
 
         Assert.IsFalse(shell.Contains("workforce.organization", StringComparison.Ordinal));
         Assert.IsFalse(shell.Contains("Cơ cấu tổ chức", StringComparison.Ordinal));
@@ -166,7 +169,7 @@ public sealed class WorkforceOrganizationProfileLot2Tests
         StringAssert.Contains(audit, "shared.hr_positions");
         StringAssert.Contains(audit, "cùng shared.employee_assignments");
         StringAssert.Contains(audit, "manager_employee_id");
-        StringAssert.Contains(audit, "không tạo lịch sử tổ chức song song");
+        StringAssert.Contains(audit, "Không tạo lịch sử tổ chức song song");
         StringAssert.Contains(audit, "không sửa Web/backend/DB/migration");
     }
 

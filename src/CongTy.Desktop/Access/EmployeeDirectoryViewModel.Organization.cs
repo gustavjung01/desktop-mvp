@@ -115,6 +115,10 @@ public sealed partial class EmployeeDirectoryViewModel
     }
 
     public bool HasOrganizationMessage => !string.IsNullOrWhiteSpace(OrganizationMessage);
+    public bool IsDepartmentEmpty => DepartmentRows.Count == 0;
+    public bool IsPositionEmpty => PositionRows.Count == 0;
+    public bool ShowOrganizationBusy => IsOrganizationOpen && IsBusy;
+    public string OrganizationBusyText => ShowOrganizationBusy ? "Đang xử lý cơ cấu tổ chức…" : string.Empty;
 
     public string DepartmentDraftCode
     {
@@ -393,6 +397,8 @@ public sealed partial class EmployeeDirectoryViewModel
                 item.IsActive ? "Ngừng sử dụng" : "Dùng lại"));
         }
 
+        OnPropertyChanged(nameof(IsDepartmentEmpty));
+
         PositionRows.Clear();
         foreach (var item in _organization.Positions
                      .OrderByDescending(item => item.IsActive)
@@ -406,6 +412,8 @@ public sealed partial class EmployeeDirectoryViewModel
                 item.IsActive ? "Đang sử dụng" : "Ngừng sử dụng",
                 item.IsActive ? "Ngừng sử dụng" : "Dùng lại"));
         }
+
+        OnPropertyChanged(nameof(IsPositionEmpty));
 
         DepartmentParentOptions.Clear();
         DepartmentParentOptions.Add(new EmployeeDepartmentOption(string.Empty, "Không có"));
@@ -565,6 +573,8 @@ public sealed partial class EmployeeDirectoryViewModel
         OnPropertyChanged(nameof(CanPersist));
         DepartmentRows.Clear();
         PositionRows.Clear();
+        OnPropertyChanged(nameof(IsDepartmentEmpty));
+        OnPropertyChanged(nameof(IsPositionEmpty));
         DepartmentParentOptions.Clear();
         PositionDepartmentOptions.Clear();
         ClearOrganizationAssignment();

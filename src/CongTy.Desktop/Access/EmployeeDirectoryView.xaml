@@ -591,6 +591,13 @@
                         </TextBlock>
                     </Border>
 
+                    <TextBlock Grid.Row="1"
+                               Margin="0,48,0,0"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Text="{Binding OrganizationBusyText}"
+                               Visibility="{Binding ShowOrganizationBusy, Converter={StaticResource BoolToVisibility}}" />
+
                     <ScrollViewer Grid.Row="2"
                                   Margin="0,14,0,0"
                                   VerticalScrollBarVisibility="Auto">
@@ -659,6 +666,11 @@
                                         </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
+                                <TextBlock Margin="0,8,0,0"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Text="Chưa có Phòng/Bộ phận."
+                                           Visibility="{Binding IsDepartmentEmpty, Converter={StaticResource BoolToVisibility}}" />
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
@@ -719,6 +731,11 @@
                                         </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
+                                <TextBlock Margin="0,8,0,0"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Text="Chưa có Vị trí công việc."
+                                           Visibility="{Binding IsPositionEmpty, Converter={StaticResource BoolToVisibility}}" />
                             </StackPanel>
                         </Grid>
                     </ScrollViewer>

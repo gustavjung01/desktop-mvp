@@ -130,6 +130,8 @@ public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanManageOrganization));
             OnPropertyChanged(nameof(CanSaveDepartment));
             OnPropertyChanged(nameof(CanSavePosition));
+            OnPropertyChanged(nameof(ShowOrganizationBusy));
+            OnPropertyChanged(nameof(OrganizationBusyText));
             OnPropertyChanged(nameof(RefreshText));
             OnPropertyChanged(nameof(SaveButtonText));
             OnPropertyChanged(nameof(ToggleConfirmButtonText));
