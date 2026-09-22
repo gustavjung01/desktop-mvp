@@ -257,7 +257,7 @@ public sealed class WorkforceOvertimeCloseoutLot5Tests
         StringAssert.Contains(audit, "append-only");
         StringAssert.Contains(audit, "backend là authority");
         StringAssert.Contains(audit, "Không sửa Web/backend/DB/migration");
-        StringAssert.Contains(audit, "không deploy production");
+        StringAssert.Contains(audit, "Không deploy production");
     }
 
     private static string ReadRepoFile(params string[] parts)
