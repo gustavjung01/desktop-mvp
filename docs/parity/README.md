@@ -270,3 +270,27 @@ Audit exact source xác nhận:
 - server registry, shared contracts và canonical Idempotency-Key source không đổi;
 - Desktop Lô 0 chỉ tách navigation **Nhân sự** khỏi **Người dùng & phân quyền**, chuyển Danh mục nhân sự hiện có về đúng nhóm và dựng các mục planned cho Lô 2–9;
 - không thêm Desktop business API/mutation, không sửa Web/backend/DB/migration và không deploy production.
+
+
+## Rebaseline 2026-09-22 — FACE backend drift sau merge Lô 2
+
+Ngay sau khi PR Desktop #60 merge, `NPP-Platform/main` tiến từ
+`4186ea9638470d2f89882f51de8fa0aa51347654` tới
+`1fbedf9d5407401ae930880276ff1892008a9048` với commit **FACE backend**.
+
+Push-CI của Desktop `main` vì thế bắt đúng parity drift mới:
+- API source files: **91 → 92**;
+- endpoint candidates: **421 → 436**;
+- mutation candidates: **312 → 322**.
+
+Audit diff xác nhận thay đổi Web mới chỉ chạm FACE attendance/backend:
+`157_workforce_face_attendance.sql`, `workforce-face.js`, registry `server.js`,
+service/repository FACE và test tương ứng. Không đổi:
+- Web app tree (**83 screens / 331 Web routes**);
+- permission tree (**233 permissions**);
+- shared contracts;
+- canonical Idempotency-Key implementation;
+- contract `employees` / `employee-organization` mà Desktop Lô 2 đang dùng.
+
+Rebaseline này chỉ phân loại drift FACE mới là **planned backend surface** theo parity policy hiện hành.
+Không triển khai FACE UI/client trong Desktop Lô 2, không sửa Web/backend/DB/migration.
