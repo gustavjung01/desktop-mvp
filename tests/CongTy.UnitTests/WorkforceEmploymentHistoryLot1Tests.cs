@@ -68,8 +68,8 @@ public sealed class WorkforceEmploymentHistoryLot1Tests
         var employee = JsonSerializer.Deserialize<EmployeeDirectoryData>(json, options)
             ?? throw new InvalidOperationException("Không đọc được lịch sử nhân sự.");
 
-        Assert.AreEqual(1, employee.EmploymentHistory.Length);
-        Assert.AreEqual(1, employee.AssignmentHistory.Length);
+        Assert.HasCount(1, employee.EmploymentHistory);
+        Assert.HasCount(1, employee.AssignmentHistory);
         Assert.AreEqual("PERMANENT", employee.CurrentEmployment?.EmploymentType);
         Assert.AreEqual("2026-08-10", employee.CurrentEmployment?.EffectiveFrom);
         Assert.AreEqual("CN02", employee.CurrentAssignment?.BranchCode);
