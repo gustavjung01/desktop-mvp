@@ -120,7 +120,7 @@ public sealed class WorkScheduleLot3Tests
             "SAO CHÉP LỊCH",
             "Lý do xếp / điều chỉnh lịch",
             "Lịch đã điều chỉnh riêng theo người/ngày sẽ được giữ nguyên",
-            "Ngày nghỉ Công Ty được ưu tiên"
+            "ngày nghỉ Công Ty được ưu tiên"
         })
             StringAssert.Contains(view, label);
 
