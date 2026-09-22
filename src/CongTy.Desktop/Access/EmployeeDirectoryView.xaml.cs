@@ -22,19 +22,19 @@ public partial class EmployeeDirectoryView : UserControl
     private void Create_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.OpenCreate();
 
-    private void Edit_OnClick(object sender, RoutedEventArgs e)
+    private async void Edit_OnClick(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: EmployeeDirectoryRowView row })
-            ViewModel.OpenEdit(row.Source);
+            await ViewModel.OpenEditAsync(row.Source);
     }
 
     private async void Save_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.SaveAsync();
 
-    private void Toggle_OnClick(object sender, RoutedEventArgs e)
+    private async void Toggle_OnClick(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: EmployeeDirectoryRowView row })
-            ViewModel.OpenToggle(row.Source);
+            await ViewModel.OpenToggleAsync(row.Source);
     }
 
     private void CancelToggle_OnClick(object sender, RoutedEventArgs e) =>
