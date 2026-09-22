@@ -112,10 +112,9 @@ public sealed class WorkforcePayrollFoundationLot6Tests
     }
 
     [TestMethod]
-    public void Lot6_Workspace_ContainsSixInnerTabsAndKeepsLaterActionsOut()
+    public void Lot6_Workspace_ContainsSixInnerTabsAndFoundationCommands()
     {
         var view = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "PayrollFoundationView.xaml");
-        var actions = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "PayrollFoundationViewModel.Actions.cs");
 
         foreach (var label in new[]
         {
@@ -141,13 +140,6 @@ public sealed class WorkforcePayrollFoundationLot6Tests
             StringAssert.Contains(contracts, command);
         }
 
-        Assert.IsFalse(actions.Contains("\"AGGREGATE\"", StringComparison.Ordinal));
-        Assert.IsFalse(actions.Contains("\"RECONCILE\"", StringComparison.Ordinal));
-        Assert.IsFalse(actions.Contains("\"CLOSE\"", StringComparison.Ordinal));
-        Assert.IsFalse(actions.Contains("\"ADJUST\"", StringComparison.Ordinal));
-        Assert.IsFalse(view.Contains("CHỐT LƯƠNG", StringComparison.OrdinalIgnoreCase));
-        Assert.IsFalse(view.Contains("XUẤT PDF", StringComparison.OrdinalIgnoreCase));
-        Assert.IsFalse(view.Contains("XUẤT EXCEL", StringComparison.OrdinalIgnoreCase));
     }
 
     [TestMethod]

@@ -108,9 +108,6 @@ public sealed class WorkforcePayrollAggregationLot7Tests
         })
             StringAssert.Contains(view, label);
 
-        Assert.IsFalse(view.Contains("CHỐT LƯƠNG", StringComparison.OrdinalIgnoreCase));
-        Assert.IsFalse(view.Contains("XUẤT PDF", StringComparison.OrdinalIgnoreCase));
-        Assert.IsFalse(view.Contains("XUẤT EXCEL", StringComparison.OrdinalIgnoreCase));
     }
 
     [TestMethod]

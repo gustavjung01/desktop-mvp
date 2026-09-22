@@ -89,7 +89,7 @@
                 </Border>
             </UniformGrid>
 
-            <TabControl Margin="0,10,0,0">
+            <TabControl x:Name="PayrollTabs" Margin="0,10,0,0">
                 <TabItem Header="Bảng lương">
                     <StackPanel Margin="0,10,0,0">
                         <Border Style="{StaticResource OfficeCardStyle}">
@@ -308,6 +308,29 @@
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0"
+                                Style="{StaticResource OfficeCardStyle}"
+                                Visibility="{Binding HasSelectedPeriod, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock Text="HOÀN TẤT KỲ" FontSize="10" FontWeight="Bold" />
+                                <TextBlock Margin="0,4,0,0"
+                                           Text="Chốt kỳ lương"
+                                           FontSize="16"
+                                           FontWeight="SemiBold" />
+                                <TextBlock Margin="0,6,0,0"
+                                           Text="{Binding CloseoutStatusText}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" />
+                                <Button Margin="0,10,0,0"
+                                        HorizontalAlignment="Right"
+                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        Visibility="{Binding CanShowCloseButton, Converter={StaticResource BoolToVisibility}}"
+                                        IsEnabled="{Binding CanClosePayroll}"
+                                        Click="ClosePayroll_OnClick"
+                                        Content="CHỐT LƯƠNG" />
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -634,39 +657,192 @@
                 </TabItem>
 
                 <TabItem Header="Phiếu lương">
-                    <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="PHIẾU LƯƠNG" FontSize="10" FontWeight="Bold" />
-                            <TextBlock Margin="0,4,0,0" Text="Phiếu lương nhân sự" FontSize="16" FontWeight="SemiBold" />
-                            <TextBlock Margin="0,8,0,0"
-                                       Text="Phiếu lương sẽ xuất hiện sau khi kỳ lương được chốt."
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
+                    <StackPanel Margin="0,10,0,0">
+                        <Border Style="{StaticResource OfficeCardStyle}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="PHIẾU LƯƠNG" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Margin="0,4,0,0" Text="Phiếu lương nhân sự" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   Text="{Binding PayslipAvailabilityText}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Padding="10,5"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            Visibility="{Binding CanExportPayroll, Converter={StaticResource BoolToVisibility}}"
+                                            Click="ExportPayrollExcel_OnClick"
+                                            Content="XUẤT EXCEL" />
+                                </Grid>
+
+                                <DataGrid Margin="0,10,0,0"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="58"
+                                          MaxHeight="430"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          Visibility="{Binding HasPayslips, Converter={StaticResource BoolToVisibility}}"
+                                          ItemsSource="{Binding PayslipRows}"
+                                          SelectedItem="{Binding SelectedPayslipRow, Mode=TwoWay}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nhân sự" Binding="{Binding EmployeeText}" Width="1.5*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Thu nhập" Binding="{Binding GrossIncomeText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Hoàn chi" Binding="{Binding ReimbursementText}" Width="0.9*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Khấu trừ" Binding="{Binding DeductionText}" Width="0.9*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Thực nhận" Binding="{Binding NetPayText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Phiên bản" Binding="{Binding RevisionText}" Width="0.7*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="0,10,0,0"
+                                Style="{StaticResource OfficeCardStyle}"
+                                Visibility="{Binding HasSelectedPayslip, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="CHI TIẾT PHIẾU LƯƠNG" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Margin="0,4,0,0" Text="{Binding SelectedPayslipTitle}" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0" Text="{Binding SelectedPayslipPeriodText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Padding="10,5"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            Visibility="{Binding CanExportPayroll, Converter={StaticResource BoolToVisibility}}"
+                                            Click="ExportPayslipPdf_OnClick"
+                                            Content="XUẤT PDF" />
+                                </Grid>
+
+                                <UniformGrid Margin="0,10,0,0" Columns="2">
+                                    <Border Margin="0,0,5,5" Padding="9" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6">
+                                        <StackPanel>
+                                            <TextBlock Text="Công &amp; lương" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,3,0,0" Text="{Binding SelectedPayslipWorkText}" />
+                                            <TextBlock Margin="0,2,0,0" Text="{Binding SelectedPayslipSalaryText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Margin="5,0,0,5" Padding="9" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6">
+                                        <StackPanel>
+                                            <TextBlock Text="Thực nhận" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,3,0,0" Text="{Binding SelectedPayslipNetText}" FontSize="16" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,2,0,0" Text="Đọc từ phiếu lương bất biến của kỳ" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        </StackPanel>
+                                    </Border>
+                                </UniformGrid>
+
+                                <TextBlock Margin="0,10,0,4" Text="Lịch sử phiếu lương" FontWeight="SemiBold" />
+                                <DataGrid AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          RowHeight="46"
+                                          MaxHeight="220"
+                                          Style="{StaticResource OfficeDataGridStyle}"
+                                          ItemsSource="{Binding SelectedPayslipRevisionRows}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Phiên bản" Binding="{Binding RevisionText}" Width="0.7*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Nguồn" Binding="{Binding SourceText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Thực nhận" Binding="{Binding NetPayText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        <DataGridTextColumn Header="Thời điểm" Binding="{Binding CreatedText}" Width="1.1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <StackPanel Margin="0,10,0,0"
+                                            Visibility="{Binding HasSelectedPayslipAdjustments, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Các điều chỉnh đã ghi" FontWeight="SemiBold" />
+                                    <ItemsControl Margin="0,4,0,0" ItemsSource="{Binding SelectedPayslipAdjustmentRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Margin="0,2,0,0"
+                                                           Text="{Binding DisplayText}"
+                                                           TextWrapping="Wrap" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <Border Margin="0,12,0,0"
+                                        Padding="10"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="7"
+                                        Visibility="{Binding CanAdjustPayroll, Converter={StaticResource BoolToVisibility}}">
+                                    <StackPanel>
+                                        <TextBlock Text="Điều chỉnh lương sau chốt" FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0"
+                                                   Text="Mỗi điều chỉnh tạo phiên bản phiếu lương mới; phiếu cũ vẫn được giữ nguyên."
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                        <WrapPanel Margin="0,9,0,0">
+                                            <StackPanel Width="250" Margin="0,0,10,8">
+                                                <TextBlock Style="{StaticResource PayrollLabelStyle}" Text="Khoản điều chỉnh" />
+                                                <ComboBox ItemsSource="{Binding AdjustmentComponentOptions}"
+                                                          SelectedItem="{Binding AdjustmentComponent, Mode=TwoWay}" />
+                                            </StackPanel>
+                                            <StackPanel Width="190" Margin="0,0,10,8">
+                                                <TextBlock Style="{StaticResource PayrollLabelStyle}" Text="Cách điều chỉnh" />
+                                                <ComboBox ItemsSource="{Binding AdjustmentDirectionOptions}"
+                                                          SelectedItem="{Binding AdjustmentDirection, Mode=TwoWay}" />
+                                            </StackPanel>
+                                            <StackPanel Width="170" Margin="0,0,10,8">
+                                                <TextBlock Style="{StaticResource PayrollLabelStyle}" Text="Số tiền" />
+                                                <TextBox Text="{Binding AdjustmentAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
+                                            <StackPanel Width="300" Margin="0,0,10,8">
+                                                <TextBlock Style="{StaticResource PayrollLabelStyle}" Text="Lý do" />
+                                                <TextBox MaxLength="1000"
+                                                         Text="{Binding AdjustmentReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
+                                            <Button Margin="0,19,0,8"
+                                                    VerticalAlignment="Top"
+                                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                    IsEnabled="{Binding CanRecordAdjustment}"
+                                                    Click="RecordPayrollAdjustment_OnClick"
+                                                    Content="GHI ĐIỀU CHỈNH" />
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </TabItem>
 
                 <TabItem Header="Lịch sử kỳ lương">
                     <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
                         <StackPanel>
                             <TextBlock Text="LỊCH SỬ" FontSize="10" FontWeight="Bold" />
-                            <TextBlock Margin="0,3,0,0" Text="Các kỳ lương đã tạo" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,3,0,0" Text="Kỳ lương đã chốt" FontSize="16" FontWeight="SemiBold" />
                             <TextBlock Margin="0,4,0,8"
-                                       Text="Mỗi kỳ giữ nguyên nguồn bản chốt công đã dùng lúc tạo."
-                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                                       Text="Đọc từ hồ sơ kỳ đã chốt; lịch sử không thay đổi theo hồ sơ lương hiện tại."
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
                             <DataGrid AutoGenerateColumns="False"
                                       IsReadOnly="True"
-                                      RowHeight="60"
+                                      RowHeight="58"
+                                      MaxHeight="470"
                                       Style="{StaticResource OfficeDataGridStyle}"
-                                      ItemsSource="{Binding PeriodRows}">
+                                      ItemsSource="{Binding CloseHistoryRows}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Kỳ" Binding="{Binding PeriodText}" Width="1.7*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
-                                    <DataGridTextColumn Header="Nguồn bảng công" Binding="{Binding SourceText}" Width="1.15*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
-                                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding StatusText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
-                                    <DataGridTemplateColumn Header="Xử lý" Width="0.8*">
+                                    <DataGridTextColumn Header="Kỳ" Binding="{Binding PeriodText}" Width="1.4*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                    <DataGridTextColumn Header="Nhân sự" Binding="{Binding EmployeeCountText}" Width="0.8*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                    <DataGridTextColumn Header="Tổng thu nhập" Binding="{Binding GrossIncomeText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                    <DataGridTextColumn Header="Khấu trừ" Binding="{Binding DeductionText}" Width="0.9*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                    <DataGridTextColumn Header="Thực nhận" Binding="{Binding NetPayText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                    <DataGridTemplateColumn Header="Xử lý" Width="0.7*">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Padding="8,3" Tag="{Binding}" Click="OpenPeriod_OnClick" Content="Mở kỳ" />
+                                                <Button Padding="8,3" Tag="{Binding}" Click="OpenCloseHistory_OnClick" Content="Mở kỳ" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -675,8 +851,8 @@
                             <TextBlock Margin="0,12,0,0"
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Text="Chưa có lịch sử kỳ lương."
-                                       Visibility="{Binding IsPeriodEmpty, Converter={StaticResource BoolToVisibility}}" />
+                                       Text="Chưa có kỳ lương đã chốt."
+                                       Visibility="{Binding ShowNoCloseHistory, Converter={StaticResource BoolToVisibility}}" />
                         </StackPanel>
                     </Border>
                 </TabItem>
