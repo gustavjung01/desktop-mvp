@@ -16,6 +16,7 @@ public partial class MainWindow
         var workspaceTabs = FindLogicalParent<TabControl>(HomeHost);
         if (workspaceTabs is null) return;
 
+        _viewModel.InitializeWorkforceNavigationShell();
         _viewModel.InitializeEmployeeDirectoryShell();
         var app = (CongTy.Desktop.App)Application.Current;
         var apiClient = app.ResolveRequired<CompanyApiClient>();
