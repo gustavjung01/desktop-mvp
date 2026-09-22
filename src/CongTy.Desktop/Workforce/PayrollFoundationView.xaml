@@ -101,30 +101,22 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="KỲ LƯƠNG" FontSize="10" FontWeight="Bold" />
-                                        <TextBlock Margin="0,3,0,0"
-                                                   Text="Bảng lương kỳ hiện tại"
-                                                   FontSize="16"
-                                                   FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0" Text="Bảng lương kỳ hiện tại" FontSize="16" FontWeight="SemiBold" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1"
-                                               VerticalAlignment="Center"
+                                    <TextBlock Grid.Column="1" VerticalAlignment="Center"
                                                Text="{Binding SelectedPeriodStatusText}"
                                                Foreground="{DynamicResource TextSecondaryBrush}" />
                                 </Grid>
 
-                                <Border Margin="0,10,0,0"
-                                        Padding="10"
-                                        CornerRadius="8"
-                                        BorderBrush="{DynamicResource BorderBrush}"
-                                        BorderThickness="1"
+                                <Border Margin="0,10,0,0" Padding="10" CornerRadius="8"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                                         Visibility="{Binding CanManage, Converter={StaticResource BoolToVisibility}}">
                                     <StackPanel>
                                         <TextBlock Text="Tạo kỳ lương từ kỳ công đã chốt" FontWeight="SemiBold" />
                                         <ComboBox Margin="0,7,0,0"
                                                   ItemsSource="{Binding AttendanceSources}"
                                                   SelectedItem="{Binding SelectedAttendanceSource, Mode=TwoWay}" />
-                                        <Button Margin="0,8,0,0"
-                                                HorizontalAlignment="Right"
+                                        <Button Margin="0,8,0,0" HorizontalAlignment="Right"
                                                 Style="{StaticResource OfficePrimaryButtonStyle}"
                                                 IsEnabled="{Binding CanCreatePeriod}"
                                                 Click="CreatePeriod_OnClick"
@@ -132,11 +124,8 @@
                                     </StackPanel>
                                 </Border>
 
-                                <DataGrid Margin="0,10,0,0"
-                                          AutoGenerateColumns="False"
-                                          IsReadOnly="True"
-                                          RowHeight="60"
-                                          Style="{StaticResource OfficeDataGridStyle}"
+                                <DataGrid Margin="0,10,0,0" AutoGenerateColumns="False" IsReadOnly="True"
+                                          RowHeight="60" Style="{StaticResource OfficeDataGridStyle}"
                                           ItemsSource="{Binding PeriodRows}">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Kỳ lương" Binding="{Binding PeriodText}" Width="1.7*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
@@ -146,34 +135,179 @@
                                         <DataGridTemplateColumn Header="Xử lý" Width="0.75*">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Button Padding="8,3"
-                                                            Tag="{Binding}"
-                                                            Click="OpenPeriod_OnClick"
-                                                            Content="Xem kỳ" />
+                                                    <Button Padding="8,3" Tag="{Binding}" Click="OpenPeriod_OnClick" Content="Xem kỳ" />
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
 
-                                <TextBlock Margin="0,12,0,0"
-                                           HorizontalAlignment="Center"
+                                <TextBlock Margin="0,12,0,0" HorizontalAlignment="Center"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            Text="Chưa có kỳ lương. Hãy chọn một kỳ công đã chốt để bắt đầu."
                                            Visibility="{Binding IsPeriodEmpty, Converter={StaticResource BoolToVisibility}}" />
                             </StackPanel>
                         </Border>
 
-                        <Border Margin="0,10,0,0"
-                                Style="{StaticResource OfficeCardStyle}"
+                        <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}"
                                 Visibility="{Binding HasSelectedPeriod, Converter={StaticResource BoolToVisibility}}">
                             <StackPanel>
-                                <TextBlock Text="KỲ ĐANG XEM" FontSize="10" FontWeight="Bold" />
-                                <TextBlock Margin="0,4,0,0" Text="{Binding SelectedPeriodTitle}" FontSize="16" FontWeight="SemiBold" />
-                                <TextBlock Margin="0,3,0,0" Text="{Binding SelectedPeriodSourceText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="KỲ ĐANG XEM" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Margin="0,4,0,0" Text="{Binding SelectedPeriodTitle}" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock Margin="0,3,0,0" Text="{Binding SelectedPeriodSourceText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Padding="12,6" VerticalAlignment="Center"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            Visibility="{Binding CanManage, Converter={StaticResource BoolToVisibility}}"
+                                            IsEnabled="{Binding CanAggregate}"
+                                            Click="AggregatePayroll_OnClick"
+                                            Content="TỔNG HỢP LƯƠNG" />
+                                </Grid>
                                 <TextBlock Margin="0,8,0,0"
-                                           Text="Kỳ lương được ghim vào đúng bản chốt kỳ công; thay đổi hồ sơ hiện tại không được làm đổi nguồn lịch sử."
-                                           TextWrapping="Wrap" />
+                                           Text="Tổng lương, thực nhận và các khoản bên dưới lấy nguyên từ bản tổng hợp canonical của backend; Desktop không tự tính lại."
+                                           Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+
+                                <StackPanel Margin="0,12,0,0"
+                                            Visibility="{Binding ShowNoCalculation, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Chưa có bản tổng hợp lương cho kỳ này." FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Hãy tổng hợp để lấy dữ liệu công đã chốt, OT/phép và các khoản lương đã thiết lập."
+                                               Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                                </StackPanel>
+
+                                <StackPanel Margin="0,12,0,0"
+                                            Visibility="{Binding HasCalculation, Converter={StaticResource BoolToVisibility}}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding CalculationRevisionText}" FontWeight="SemiBold" />
+                                        <Button Grid.Column="1" Padding="10,4"
+                                                IsEnabled="{Binding CanAggregate}"
+                                                Click="AggregatePayroll_OnClick"
+                                                Content="Tổng hợp lại" />
+                                    </Grid>
+
+                                    <UniformGrid Margin="0,10,0,0" Columns="4">
+                                        <Border Margin="0,0,5,0" Padding="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7">
+                                            <StackPanel>
+                                                <TextBlock Text="TỔNG THU NHẬP" FontSize="10" FontWeight="Bold" />
+                                                <TextBlock Margin="0,4,0,0" Text="{Binding GrossIncomeText}" FontSize="17" FontWeight="SemiBold" />
+                                                <TextBlock Margin="0,2,0,0" Text="{Binding CalculationEmployeeCountText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Margin="5,0" Padding="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7">
+                                            <StackPanel>
+                                                <TextBlock Text="HOÀN CHI PHÍ" FontSize="10" FontWeight="Bold" />
+                                                <TextBlock Margin="0,4,0,0" Text="{Binding ReimbursementTotalText}" FontSize="17" FontWeight="SemiBold" />
+                                                <TextBlock Margin="0,2,0,0" Text="Tách riêng tiền lương" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Margin="5,0" Padding="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7">
+                                            <StackPanel>
+                                                <TextBlock Text="KHẤU TRỪ" FontSize="10" FontWeight="Bold" />
+                                                <TextBlock Margin="0,4,0,0" Text="{Binding DeductionTotalText}" FontSize="17" FontWeight="SemiBold" />
+                                                <TextBlock Margin="0,2,0,0" Text="Theo khoản đã thiết lập" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Margin="5,0,0,0" Padding="10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7">
+                                            <StackPanel>
+                                                <TextBlock Text="THỰC NHẬN" FontSize="10" FontWeight="Bold" />
+                                                <TextBlock Margin="0,4,0,0" Text="{Binding NetPayText}" FontSize="17" FontWeight="SemiBold" />
+                                                <TextBlock Margin="0,2,0,0" Text="Trước khi chốt lương" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </UniformGrid>
+
+                                    <Border Margin="0,10,0,0" Padding="10"
+                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7"
+                                            Visibility="{Binding HasBoardIssues, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Kỳ lương còn nội dung cần xử lý / kiểm tra" FontWeight="SemiBold" />
+                                            <ItemsControl Margin="0,5,0,0" ItemsSource="{Binding BoardIssueRows}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Margin="0,2,0,0" Text="{Binding DisplayText}" TextWrapping="Wrap" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <DataGrid Margin="0,10,0,0" AutoGenerateColumns="False" IsReadOnly="True"
+                                              SelectionMode="Single" MaxHeight="440" RowHeight="58"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              ItemsSource="{Binding CalculationRows}"
+                                              SelectedItem="{Binding SelectedCalculationRow, Mode=TwoWay}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Nhân sự" Binding="{Binding EmployeeText}" Width="1.55*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                            <DataGridTextColumn Header="Lương theo công" Binding="{Binding SalaryAmountText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                            <DataGridTextColumn Header="Công / OT" Binding="{Binding WorkOvertimeText}" Width="1.2*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                            <DataGridTextColumn Header="Thu nhập thêm" Binding="{Binding IncomeTotalText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                            <DataGridTextColumn Header="Hoàn chi" Binding="{Binding ReimbursementTotalText}" Width="0.9*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                            <DataGridTextColumn Header="Khấu trừ" Binding="{Binding DeductionTotalText}" Width="0.9*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                            <DataGridTextColumn Header="Thực nhận" Binding="{Binding NetPayText}" Width="1*" ElementStyle="{StaticResource PayrollCellTextStyle}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <Border Margin="0,10,0,0" Padding="12"
+                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8"
+                                            Visibility="{Binding HasSelectedCalculationRow, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel DataContext="{Binding SelectedCalculationRow}">
+                                            <TextBlock Text="CHI TIẾT LƯƠNG" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,4,0,0" Text="{Binding EmployeeText}" FontSize="16" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,3,0,10" Text="{Binding BranchText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+
+                                            <UniformGrid Columns="2">
+                                                <Border Margin="0,0,5,5" Padding="9" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Lương cố định" FontWeight="SemiBold" />
+                                                        <TextBlock Margin="0,3,0,0" Text="{Binding MonthlySalaryText}" />
+                                                        <TextBlock Margin="0,2,0,0" Text="{Binding SalaryAmountDetailText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                    </StackPanel>
+                                                </Border>
+                                                <Border Margin="5,0,0,5" Padding="9" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Theo công &amp; OT" FontWeight="SemiBold" />
+                                                        <TextBlock Margin="0,3,0,0" Text="{Binding WorkdayDetailText}" />
+                                                        <TextBlock Margin="0,2,0,0" Text="{Binding LeaveOvertimeDetailText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </UniformGrid>
+
+                                            <TextBlock Margin="0,6,0,2" Text="Thưởng &amp; phụ cấp" FontWeight="SemiBold" />
+                                            <ItemsControl ItemsSource="{Binding IncomeComponents}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate><TextBlock Margin="0,1" Text="{Binding DisplayText}" /></DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <TextBlock Margin="0,8,0,2" Text="Công tác phí &amp; hoàn chi phí" FontWeight="SemiBold" />
+                                            <ItemsControl ItemsSource="{Binding ReimbursementComponents}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate><TextBlock Margin="0,1" Text="{Binding DisplayText}" /></DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <TextBlock Margin="0,8,0,2" Text="Khấu trừ" FontWeight="SemiBold" />
+                                            <ItemsControl ItemsSource="{Binding DeductionComponents}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate><TextBlock Margin="0,1" Text="{Binding DisplayText}" /></DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <TextBlock Margin="0,10,0,2" Text="Thực nhận" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding NetBreakdownText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -183,17 +317,66 @@
                     <Border Margin="0,10,0,0" Style="{StaticResource OfficeCardStyle}">
                         <StackPanel>
                             <TextBlock Text="ĐỐI SOÁT" FontSize="10" FontWeight="Bold" />
-                            <TextBlock Margin="0,4,0,0"
-                                       Text="Kiểm tra kỳ lương"
-                                       FontSize="16"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Margin="0,8,0,0"
-                                       Text="{Binding SelectedPeriodTitle}"
-                                       FontWeight="SemiBold" />
+                            <TextBlock Margin="0,4,0,0" Text="Kiểm tra kỳ lương" FontSize="16" FontWeight="SemiBold" />
+                            <TextBlock Margin="0,8,0,0" Text="{Binding SelectedPeriodTitle}" FontWeight="SemiBold" />
                             <TextBlock Margin="0,3,0,0"
-                                       Text="Dữ liệu tổng hợp và thao tác đối soát sẽ sử dụng kỳ lương đang chọn. Màn hình nền này không tự tính tổng lương."
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       TextWrapping="Wrap" />
+                                       Text="Đối soát dùng đúng bản tổng hợp hiện tại. Kỳ còn dữ liệu bắt buộc phải xử lý sẽ không thể xác nhận."
+                                       Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+
+                            <TextBlock Margin="0,12,0,0"
+                                       Text="Chưa có bản tổng hợp lương cho kỳ đang chọn."
+                                       FontWeight="SemiBold"
+                                       Visibility="{Binding ShowNoCalculation, Converter={StaticResource BoolToVisibility}}" />
+
+                            <Border Margin="0,12,0,0" Padding="10"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7"
+                                    Visibility="{Binding HasBlockers, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <TextBlock Text="Cần xử lý trước khi đối soát" FontWeight="SemiBold" />
+                                    <ItemsControl Margin="0,5,0,0" ItemsSource="{Binding BlockerRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate><TextBlock Margin="0,2" Text="{Binding DisplayText}" TextWrapping="Wrap" /></DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="0,10,0,0" Padding="10"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7"
+                                    Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <TextBlock Text="Cần kiểm tra" FontWeight="SemiBold" />
+                                    <ItemsControl Margin="0,5,0,0" ItemsSource="{Binding WarningRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate><TextBlock Margin="0,2" Text="{Binding DisplayText}" TextWrapping="Wrap" /></DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Margin="0,12,0,0"
+                                       Text="Số liệu tổng hợp không còn cảnh báo cần xử lý."
+                                       FontWeight="SemiBold"
+                                       Visibility="{Binding NoReconciliationIssues, Converter={StaticResource BoolToVisibility}}" />
+                            <TextBlock Margin="0,12,0,0"
+                                       Text="Kỳ lương đã được đối soát trên bản tổng hợp hiện tại."
+                                       FontWeight="SemiBold"
+                                       Visibility="{Binding IsReconciled, Converter={StaticResource BoolToVisibility}}" />
+
+                            <StackPanel Margin="0,12,0,0"
+                                        Visibility="{Binding CanShowReconcileForm, Converter={StaticResource BoolToVisibility}}">
+                                <CheckBox Content="Tôi đã kiểm tra các cảnh báo trên và xác nhận số liệu phù hợp để đối soát."
+                                          IsChecked="{Binding ReconcileWarningsAcknowledged, Mode=TwoWay}"
+                                          Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Margin="0,9,0,3" Text="Ghi chú đối soát" FontWeight="SemiBold" />
+                                <TextBox MinHeight="68" MaxLength="1000" AcceptsReturn="True" TextWrapping="Wrap"
+                                         Text="{Binding ReconcileNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button Margin="0,10,0,0" HorizontalAlignment="Right"
+                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                        IsEnabled="{Binding CanReconcile}"
+                                        Click="ReconcilePayroll_OnClick"
+                                        Content="XÁC NHẬN ĐỐI SOÁT" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                 </TabItem>

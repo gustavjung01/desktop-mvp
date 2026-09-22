@@ -40,4 +40,10 @@ public partial class PayrollFoundationView : UserControl
 
     private async void AddPeriodComponent_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.AddPeriodComponentAsync();
+
+    private async void AggregatePayroll_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.AggregatePayrollAsync();
+
+    private async void ReconcilePayroll_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.ReconcilePayrollAsync();
 }

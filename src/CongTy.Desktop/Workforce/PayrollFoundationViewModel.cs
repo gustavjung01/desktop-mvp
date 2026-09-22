@@ -485,6 +485,7 @@ public sealed partial class PayrollFoundationViewModel : INotifyPropertyChanged
         RebuildFixedRows(data.FixedComponents ?? []);
         RebuildComponentTypeRows(data.ComponentTypes ?? []);
         RebuildPeriodComponentRows(data.PeriodComponents ?? []);
+        ApplyAggregation(data.Calculation);
     }
 
     private void RebuildAttendanceSources(IEnumerable<PayrollAttendanceSourceData> items)
@@ -686,6 +687,7 @@ public sealed partial class PayrollFoundationViewModel : INotifyPropertyChanged
         FixedComponent = null;
         PeriodEmployee = null;
         PeriodComponent = null;
+        ResetAggregation();
         Message = string.Empty;
         MessageIsError = false;
         RaiseAccess();
@@ -708,6 +710,7 @@ public sealed partial class PayrollFoundationViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanSaveFixed));
         OnPropertyChanged(nameof(CanCreateComponent));
         OnPropertyChanged(nameof(CanAddPeriodComponent));
+        RaiseAggregationAvailability();
     }
 
     private void RaiseSummary()
