@@ -191,6 +191,8 @@ public sealed class WorkforceOvertimeCloseoutLot5Tests
         StringAssert.Contains(vm, "_access.HasPermission(AttendanceReconcilePermission)");
         StringAssert.Contains(vm, "_access.HasPermission(AttendanceLockPermission)");
         StringAssert.Contains(actions, "!HasPayrollInputReadAccess");
+        StringAssert.Contains(vm, "item.Status == \"CLOSED\" && HasPayrollInputReadAccess");
+        StringAssert.Contains(actions, "result.Period.Status == \"CLOSED\" && HasPayrollInputReadAccess");
         Assert.IsFalse(vm.Contains("SourceFingerprint =", StringComparison.Ordinal));
         Assert.IsFalse(actions.Contains("AttendanceEvent", StringComparison.Ordinal));
         Assert.IsFalse(actions.Contains("countedMinutes =", StringComparison.OrdinalIgnoreCase));
@@ -254,7 +256,7 @@ public sealed class WorkforceOvertimeCloseoutLot5Tests
         StringAssert.Contains(audit, "CONFIRMED");
         StringAssert.Contains(audit, "append-only");
         StringAssert.Contains(audit, "backend là authority");
-        StringAssert.Contains(audit, "không sửa Web/backend/DB/migration");
+        StringAssert.Contains(audit, "Không sửa Web/backend/DB/migration");
         StringAssert.Contains(audit, "không deploy production");
     }
 

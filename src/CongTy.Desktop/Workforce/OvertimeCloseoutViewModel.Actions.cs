@@ -370,7 +370,7 @@ public sealed partial class OvertimeCloseoutViewModel
                 OvertimeCloseoutPresentation.DecimalText(OvertimeCloseoutPresentation.BlockerTotal(result.Issues)),
                 OvertimeCloseoutPresentation.DecimalText(OvertimeCloseoutPresentation.WarningTotal(result.Issues)),
                 result.Period.Revision > 0 ? result.Period.Revision.ToString(System.Globalization.CultureInfo.InvariantCulture) : "—",
-                result.Period.Status == "CLOSED");
+                result.Period.Status == "CLOSED" && HasPayrollInputReadAccess);
         SetMessage(successMessage, false);
     }
 

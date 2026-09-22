@@ -487,7 +487,7 @@ public sealed partial class OvertimeCloseoutViewModel : INotifyPropertyChanged
                 OvertimeCloseoutPresentation.DecimalText(OvertimeCloseoutPresentation.BlockerTotal(item.IssueSummary)),
                 OvertimeCloseoutPresentation.DecimalText(OvertimeCloseoutPresentation.WarningTotal(item.IssueSummary)),
                 item.Revision > 0 ? item.Revision.ToString(CultureInfo.InvariantCulture) : "—",
-                item.Status == "CLOSED"));
+                item.Status == "CLOSED" && HasPayrollInputReadAccess));
         }
     }
 
