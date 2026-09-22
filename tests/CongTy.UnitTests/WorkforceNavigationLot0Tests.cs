@@ -15,7 +15,7 @@ public sealed class WorkforceNavigationLot0Tests
         foreach (var label in labels)
         {
             var current = workforce.IndexOf($"Text=\"{label}\"", StringComparison.Ordinal);
-            Assert.IsTrue(current > previous, $"Sai thứ tự hoặc thiếu mục Workforce: {label}");
+            Assert.IsGreaterThan(previous, current, $"Sai thứ tự hoặc thiếu mục Workforce: {label}");
             previous = current;
         }
 
@@ -62,9 +62,9 @@ public sealed class WorkforceNavigationLot0Tests
     {
         var startToken = $"<DataTemplate x:Key=\"{key}\">";
         var start = xaml.IndexOf(startToken, StringComparison.Ordinal);
-        Assert.IsTrue(start >= 0, $"Không tìm thấy template {key}");
+        Assert.IsGreaterThanOrEqualTo(0, start, $"Không tìm thấy template {key}");
         var end = xaml.IndexOf("</DataTemplate>", start, StringComparison.Ordinal);
-        Assert.IsTrue(end > start, $"Template {key} không đóng đúng");
+        Assert.IsGreaterThan(start, end, $"Template {key} không đóng đúng");
         return xaml[start..(end + "</DataTemplate>".Length)];
     }
 
