@@ -191,7 +191,7 @@
                                        Text="{Binding SelectedPeriodTitle}"
                                        FontWeight="SemiBold" />
                             <TextBlock Margin="0,3,0,0"
-                                       Text="Dữ liệu tổng hợp và thao tác đối soát sẽ được thực hiện trên nền kỳ lương này ở bước nghiệp vụ tiếp theo. Lô hiện tại không tự tính tổng lương ở Desktop."
+                                       Text="Dữ liệu tổng hợp và thao tác đối soát sẽ sử dụng kỳ lương đang chọn. Màn hình nền này không tự tính tổng lương."
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
@@ -456,7 +456,7 @@
                             <TextBlock Text="PHIẾU LƯƠNG" FontSize="10" FontWeight="Bold" />
                             <TextBlock Margin="0,4,0,0" Text="Phiếu lương nhân sự" FontSize="16" FontWeight="SemiBold" />
                             <TextBlock Margin="0,8,0,0"
-                                       Text="Phiếu lương chỉ xuất hiện sau khi kỳ lương được chốt. Lô nền hiện tại chưa sinh PDF hoặc file xuất."
+                                       Text="Phiếu lương sẽ xuất hiện sau khi kỳ lương được chốt."
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextWrapping="Wrap" />
                         </StackPanel>

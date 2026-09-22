@@ -101,10 +101,10 @@ public sealed class WorkforcePayrollFoundationLot6Tests
         var wire = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.PayrollFoundation.cs");
         var hostWire = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.OrderManagement.cs");
 
-        Assert.AreEqual(1, Count(shellXaml, "<TextBlock Text="Tính lương""));
-        StringAssert.Contains(shellXaml, "Click="PayrollFoundation_OnClick"");
-        StringAssert.Contains(shellXaml, "Tag="{Binding IsPayrollFoundationSelected}"");
-        StringAssert.Contains(shell, "SetSelectedNavigation("workforce.payroll")");
+        Assert.AreEqual(1, Count(shellXaml, "<TextBlock Text=\"Tính lương\""));
+        StringAssert.Contains(shellXaml, "Click=\"PayrollFoundation_OnClick\"");
+        StringAssert.Contains(shellXaml, "Tag=\"{Binding IsPayrollFoundationSelected}\"");
+        StringAssert.Contains(shell, "SetSelectedNavigation(\"workforce.payroll\")");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex == 56");
         StringAssert.Contains(wire, "new PayrollFoundationService(");
         StringAssert.Contains(wire, "new PayrollFoundationView(new PayrollFoundationViewModel(");
@@ -119,12 +119,12 @@ public sealed class WorkforcePayrollFoundationLot6Tests
 
         foreach (var label in new[]
         {
-            "Header="Bảng lương"",
-            "Header="Đối soát"",
-            "Header="Thiết lập lương"",
-            "Header="Khoản thu &amp; khấu trừ"",
-            "Header="Phiếu lương"",
-            "Header="Lịch sử kỳ lương""
+            "Header=\"Bảng lương\"",
+            "Header=\"Đối soát\"",
+            "Header=\"Thiết lập lương\"",
+            "Header=\"Khoản thu &amp; khấu trừ\"",
+            "Header=\"Phiếu lương\"",
+            "Header=\"Lịch sử kỳ lương\""
         })
             StringAssert.Contains(view, label);
 
@@ -141,10 +141,10 @@ public sealed class WorkforcePayrollFoundationLot6Tests
             StringAssert.Contains(contracts, command);
         }
 
-        Assert.IsFalse(actions.Contains(""AGGREGATE"", StringComparison.Ordinal));
-        Assert.IsFalse(actions.Contains(""RECONCILE"", StringComparison.Ordinal));
-        Assert.IsFalse(actions.Contains(""CLOSE"", StringComparison.Ordinal));
-        Assert.IsFalse(actions.Contains(""ADJUST"", StringComparison.Ordinal));
+        Assert.IsFalse(actions.Contains("\"AGGREGATE\"", StringComparison.Ordinal));
+        Assert.IsFalse(actions.Contains("\"RECONCILE\"", StringComparison.Ordinal));
+        Assert.IsFalse(actions.Contains("\"CLOSE\"", StringComparison.Ordinal));
+        Assert.IsFalse(actions.Contains("\"ADJUST\"", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("CHỐT LƯƠNG", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains("XUẤT PDF", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains("XUẤT EXCEL", StringComparison.OrdinalIgnoreCase));
@@ -179,7 +179,7 @@ public sealed class WorkforcePayrollFoundationLot6Tests
         var actions = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "PayrollFoundationViewModel.Actions.cs");
 
         StringAssert.Contains(vm, "if (_mutationKeys.TryGetValue(slot, out var existing)) return existing;");
-        StringAssert.Contains(vm, "_idempotencyKeys.Create("payroll-foundation")");
+        StringAssert.Contains(vm, "_idempotencyKeys.Create(\"payroll-foundation\")");
         StringAssert.Contains(vm, "JsonSerializer.Serialize(payload)");
         StringAssert.Contains(actions, "_mutationKeys.Remove(slot);");
 
@@ -220,8 +220,8 @@ public sealed class WorkforcePayrollFoundationLot6Tests
             "CREATE_PERIOD",
             "ADD_PERIOD_COMPONENT",
             "numeric(18,2)",
-            "không sửa Web/backend/DB/migration",
-            "không deploy production"
+            "Không sửa Web/backend/DB/migration",
+            "Không deploy production"
         })
             StringAssert.Contains(audit, marker);
     }
