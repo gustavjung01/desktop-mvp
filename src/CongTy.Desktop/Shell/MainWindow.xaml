@@ -288,12 +288,24 @@
                             
             </StackPanel>
         </DataTemplate>
+        <DataTemplate x:Key="WorkforceMenuTemplate">
+            <StackPanel>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceAttendance, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 3"><TextBlock Text="Chấm công" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceTimesheet, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 4"><TextBlock Text="Bảng công" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceOvertime, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 6"><TextBlock Text="Tăng ca &amp; chốt công" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforcePayroll, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 7–9"><TextBlock Text="Tính lương" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceLeave, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 5"><TextBlock Text="Nghỉ và đơn nghỉ" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceViolations, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 4"><TextBlock Text="Xử lý vi phạm công" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceAdjustments, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 4"><TextBlock Text="Điều chỉnh công" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsEmployeeDirectorySelected}" Visibility="{Binding CanViewEmployeeDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="EmployeeDirectory_OnClick"><TextBlock Text="Danh mục nhân sự" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceSchedules, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 2"><TextBlock Text="Ca / lịch làm việc" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforcePolicies, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 2"><TextBlock Text="Chính sách làm việc" /></Button>
+            </StackPanel>
+        </DataTemplate>
         <DataTemplate x:Key="AccessMenuTemplate">
             <StackPanel>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsAccessRolesSelected}" Visibility="{Binding CanViewAccessRoles, Converter={StaticResource BooleanToVisibilityConverter}}" Click="AccessRoles_OnClick"><TextBlock Text="Vai trò và phân quyền" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsEmployeeDirectorySelected}" Visibility="{Binding CanViewEmployeeDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="EmployeeDirectory_OnClick"><TextBlock Text="Danh mục nhân sự" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsUserDirectorySelected}" Visibility="{Binding CanViewUserDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="UserDirectory_OnClick"><TextBlock Text="Người dùng" /></Button>
-                            
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsAccessRolesSelected}" Visibility="{Binding CanViewAccessRoles, Converter={StaticResource BooleanToVisibilityConverter}}" Click="AccessRoles_OnClick"><TextBlock Text="Vai trò và phân quyền" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsUserDirectorySelected}" Visibility="{Binding CanViewUserDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="UserDirectory_OnClick"><TextBlock Text="Người dùng" /></Button>
             </StackPanel>
         </DataTemplate>
 
@@ -608,6 +620,27 @@
                                 </Border>
                             </Popup>
 
+                            <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="NHÂN SỰ" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            <Button x:Name="WorkforceButton" ToolTip="Nhân sự" Style="{StaticResource NavButtonStyle}" CommandParameter="workforce" Click="NavGroup_OnClick" Visibility="{Binding CanViewWorkforce, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="♙" HorizontalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="Nhân sự" FontWeight="SemiBold" />
+                                        <TextBlock Text="Hồ sơ, chấm công, chính sách và lịch làm việc" Style="{StaticResource NavHintTextStyle}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding WorkforceChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </Grid>
+                            </Button>
+                            <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsWorkforceOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource WorkforceMenuTemplate}" />
+                            <Popup Uid="workforce" DataContext="{Binding}" Tag="{Binding IsWorkforceOpen}" PlacementTarget="{Binding ElementName=WorkforceButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
+                                <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
+                                    <StackPanel><TextBlock Margin="8,4,8,8" Text="Nhân sự" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><ContentControl Content="{Binding}" ContentTemplate="{StaticResource WorkforceMenuTemplate}" /></ScrollViewer>
+                                    </StackPanel>
+                                </Border>
+                            </Popup>
+
                             <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="VẬN HÀNH HỆ THỐNG" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <Button Style="{StaticResource NavButtonStyle}" Tag="{Binding IsDataExchangeSelected}" Visibility="{Binding CanViewDataExchange, Converter={StaticResource BooleanToVisibilityConverter}}" Click="DataExchange_OnClick"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="☰" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Nhập/xuất dữ liệu" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
                             <Button Style="{StaticResource NavButtonStyle}" Tag="{Binding IsAuditHistorySelected}" Visibility="{Binding CanViewAuditHistory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="AuditHistory_OnClick"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="▦" HorizontalAlignment="Center" /><TextBlock Grid.Column="1" Text="Lịch sử thay đổi" FontWeight="SemiBold" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" /></Grid></Button>
@@ -635,13 +668,13 @@
                             </Popup>
 
                             <TextBlock Style="{StaticResource NavSectionLabelStyle}" Text="QUẢN TRỊ HỆ THỐNG" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <Button x:Name="AccessButton" ToolTip="Nhân sự và phân quyền" Style="{StaticResource NavButtonStyle}" CommandParameter="access" Click="NavGroup_OnClick">
+                            <Button x:Name="AccessButton" ToolTip="Người dùng &amp; phân quyền" Style="{StaticResource NavButtonStyle}" CommandParameter="access" Click="NavGroup_OnClick">
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                     <TextBlock Text="♙" HorizontalAlignment="Center" />
                                     <StackPanel Grid.Column="1" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <TextBlock Text="Nhân sự và phân quyền" FontWeight="SemiBold" />
-                                        <TextBlock Text="Hồ sơ, tài khoản, vai trò và phạm vi truy cập" Style="{StaticResource NavHintTextStyle}" />
+                                        <TextBlock Text="Người dùng &amp; phân quyền" FontWeight="SemiBold" />
+                                        <TextBlock Text="Tài khoản, vai trò và phạm vi truy cập" Style="{StaticResource NavHintTextStyle}" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{Binding AccessChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
@@ -649,7 +682,7 @@
                             <ContentControl Margin="37,1,8,8" Content="{Binding}" Tag="{Binding IsAccessOpen}" Style="{StaticResource SidebarInlineGroupStyle}" ContentTemplate="{StaticResource AccessMenuTemplate}" />
                             <Popup Uid="access" DataContext="{Binding}" Tag="{Binding IsAccessOpen}" PlacementTarget="{Binding ElementName=AccessButton}" Closed="SidebarFlyoutPopup_OnClosed" Style="{StaticResource SidebarFlyoutPopupStyle}">
                                 <Border Width="244" MaxHeight="520" Padding="10" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource SidebarActiveBorderBrush}" BorderThickness="1" CornerRadius="12">
-                                    <StackPanel><TextBlock Margin="8,4,8,8" Text="Nhân sự và phân quyền" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
+                                    <StackPanel><TextBlock Margin="8,4,8,8" Text="Người dùng &amp; phân quyền" Foreground="{DynamicResource SidebarTextBrush}" FontSize="12.5" FontWeight="SemiBold" />
                                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><ContentControl Content="{Binding}" ContentTemplate="{StaticResource AccessMenuTemplate}" /></ScrollViewer>
                                     </StackPanel>
                                 </Border>

@@ -15,8 +15,8 @@ public sealed partial class ShellViewModel
     public Task NavigateEmployeeDirectoryAsync()
     {
         EnsureEmployeeDirectorySelectionObserver();
-        SetSelectedNavigation("access.employees");
-        IsAccessOpen = true;
+        SetSelectedNavigation("workforce.employees");
+        IsWorkforceOpen = true;
 
         if (!CanViewEmployeeDirectory)
         {

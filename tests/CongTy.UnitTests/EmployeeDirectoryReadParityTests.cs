@@ -31,9 +31,9 @@ public sealed class EmployeeDirectoryReadParityTests
         var xaml = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
 
         StringAssert.Contains(shell, "core.employee.read");
-        StringAssert.Contains(shell, "SetSelectedNavigation(\"access.employees\")");
+        StringAssert.Contains(shell, "SetSelectedNavigation(\"workforce.employees\")");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 52");
-        StringAssert.Contains(shell, "IsAccessOpen = true");
+        StringAssert.Contains(shell, "IsWorkforceOpen = true");
         Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
         StringAssert.Contains(host, "workspaceTabs.Items[52]");
         StringAssert.Contains(bootstrap, "WireEmployeeDirectoryWorkspace()");

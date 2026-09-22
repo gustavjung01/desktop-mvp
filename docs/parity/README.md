@@ -254,3 +254,19 @@ Snapshot hiện hành sau audit: **81 screens / 316 Web routes / 91 API source f
 
 Rebaseline này chỉ cập nhật metadata parity theo source đã audit; không mang nghiệp vụ Nhân sự,
 backend, DB hay migration vào Desktop.
+
+
+## Rebaseline 2026-09-22 — Workforce hoàn chỉnh và khung Desktop Lô 0
+
+Baseline cập nhật từ `7a6cee4d647b6a639bb8300a6d4dd5beba678045` sang
+`NPP-Platform/main@4186ea9638470d2f89882f51de8fa0aa51347654` sau khi Workforce Web hoàn tất tới chốt lương/phiếu lương.
+
+Audit exact source xác nhận:
+- Workforce hiện có 10 màn menu; hai screen mới so với baseline cũ là `/workforce/overtime` và `/workforce/payroll`;
+- Web inventory: **83 screens / 331 Web routes**;
+- backend inventory: **91 API source files / 421 endpoint candidates / 312 mutation candidates**;
+- permission inventory: **233 permissions**;
+- route source đổi đúng ở `employees.js` và `workforce.js`; access đổi ở `permissions.js`;
+- server registry, shared contracts và canonical Idempotency-Key source không đổi;
+- Desktop Lô 0 chỉ tách navigation **Nhân sự** khỏi **Người dùng & phân quyền**, chuyển Danh mục nhân sự hiện có về đúng nhóm và dựng các mục planned cho Lô 2–9;
+- không thêm Desktop business API/mutation, không sửa Web/backend/DB/migration và không deploy production.

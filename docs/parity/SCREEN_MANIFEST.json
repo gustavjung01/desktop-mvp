@@ -3,15 +3,15 @@
   "name": "SCREEN_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "7a6cee4d647b6a639bb8300a6d4dd5beba678045",
+    "baselineRevision": "4186ea9638470d2f89882f51de8fa0aa51347654",
     "fingerprints": {
-      "webAppTree": "476e9703dac0a9b796e2b304c82523d137cc8d96"
+      "webAppTree": "cf7f4ff8064217c8ba79f58cc23dac05dd3bc018"
     }
   },
   "snapshot": {
     "screens": {
-      "count": 81,
-      "sha256": "1aa8f9e9156286df1f18bcb0f571310f3bdfc7f85ab84361df976fb83d8d57f8"
+      "count": 83,
+      "sha256": "99e2d66407cc7be4520785ff9efe092e000fad49b741c0cf2c3b5958e6ad18c6"
     }
   },
   "discovery": {

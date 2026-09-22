@@ -1295,7 +1295,7 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(shell, "Text=\"Danh mục nghiệp vụ\"");
         StringAssert.Contains(shell, "Text=\"Tồn kho và lô hàng\"");
         StringAssert.Contains(shell, "Text=\"Giao nhận và điều phối\"");
-        StringAssert.Contains(shell, "Text=\"Nhân sự và phân quyền\"");
+        StringAssert.Contains(shell, "Text=\"Người dùng &amp; phân quyền\"");
         StringAssert.Contains(shell, "ToolTip=\"Cài đặt ứng dụng\"");
         Assert.IsFalse(shell.Contains("01-hero-nganh-hang.webp", StringComparison.Ordinal));
         StringAssert.Contains(viewModel, "SidebarWidth => new(IsSidebarExpanded ? 224 : 64)");

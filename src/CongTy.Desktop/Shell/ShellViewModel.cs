@@ -998,6 +998,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "accounting.aging" => "Tuổi nợ phải thu / phải trả",
         "accounting.cod-reporting" => "COD & đối soát",
         "accounting.reconciliation" => "Đối soát bán hàng & COD",
+        "workforce.employees" => "Danh mục nhân sự",
         "desktop.settings" => "Cài đặt ứng dụng",
         _ => "Tổng quan điều hành"
     };
@@ -1046,6 +1047,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "accounting.aging" => "Theo dõi số dư công nợ hiện tại trong phạm vi kho được cấp. Phải thu phân tuổi theo ngày chứng từ; phải trả theo ngày đến hạn trên chứng từ.",
         "accounting.cod-reporting" => "Theo dõi tiền khách đã trả, tiền tài xế đang giữ, bàn giao và kế toán tiếp nhận từ cùng một nguồn dữ liệu COD chính thức.",
         "accounting.reconciliation" => "Đối chiếu riêng trạng thái đơn, giao hàng, công nợ, tiền thu và tiền COD; mọi số tổng hợp đều mở được về nguồn gốc.",
+        "workforce.employees" => "Quản lý hồ sơ nhân sự và đơn vị công tác theo phạm vi được cấp.",
         "desktop.settings" => "Tài khoản, kết nối và giao diện ứng dụng máy tính",
         _ => "Thông tin tổng hợp phục vụ điều hành"
     };
@@ -1088,6 +1090,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "accounting.aging" => "KẾ TOÁN & CÔNG NỢ",
         "accounting.cod-reporting" => "KẾ TOÁN & CÔNG NỢ",
         "accounting.reconciliation" => "KẾ TOÁN BÁN HÀNG",
+        "workforce.employees" => "NHÂN SỰ",
         _ => "HỆ THỐNG CÔNG TY"
     };
 
@@ -1511,6 +1514,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
             "purchasing" => !IsPurchasingOpen,
             "accounting" => !IsAccountingOpen,
             "company-settings" => !IsCompanySettingsOpen,
+            "workforce" => !IsWorkforceOpen,
             "access" => !IsAccessOpen,
             _ => false
         };
@@ -1530,6 +1534,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
             case "purchasing": IsPurchasingOpen = true; break;
             case "accounting": IsAccountingOpen = true; break;
             case "company-settings": IsCompanySettingsOpen = true; break;
+            case "workforce": IsWorkforceOpen = true; break;
             case "access": IsAccessOpen = true; break;
         }
     }
@@ -2199,6 +2204,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
             case "purchasing": IsPurchasingOpen = false; break;
             case "accounting": IsAccountingOpen = false; break;
             case "company-settings": IsCompanySettingsOpen = false; break;
+            case "workforce": IsWorkforceOpen = false; break;
             case "access": IsAccessOpen = false; break;
         }
     }
@@ -2212,6 +2218,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         IsPurchasingOpen = false;
         IsAccountingOpen = false;
         IsCompanySettingsOpen = false;
+        IsWorkforceOpen = false;
         IsAccessOpen = false;
     }
 
