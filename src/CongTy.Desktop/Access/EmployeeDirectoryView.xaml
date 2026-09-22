@@ -46,7 +46,7 @@
                                    FontSize="10"
                                    FontWeight="Bold" />
                         <TextBlock Margin="0,3,0,0"
-                                   Text="Quản lý hồ sơ nhân sự, chức danh, thông tin liên hệ và đơn vị công tác."
+                                   Text="Quản lý hồ sơ nhân sự, lịch sử lao động, điều chuyển và đơn vị công tác."
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextWrapping="Wrap" />
                     </StackPanel>
@@ -319,6 +319,51 @@
                                      MaxLength="256"
                                      Text="{Binding DraftFullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Ngày bắt đầu làm việc" FontWeight="SemiBold" />
+                                    <DatePicker Margin="0,5,0,0"
+                                                SelectedDate="{Binding DraftEmploymentStartDate, Mode=TwoWay}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Hình thức lao động" FontWeight="SemiBold" />
+                                    <ComboBox Margin="0,5,0,0"
+                                              ItemsSource="{Binding EmploymentTypeOptions}"
+                                              DisplayMemberPath="Label"
+                                              SelectedValuePath="Key"
+                                              SelectedValue="{Binding DraftEmploymentType, Mode=TwoWay}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisibility}}">
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="Ngày kết thúc/nghỉ việc" FontWeight="SemiBold" />
+                                        <DatePicker Margin="0,5,0,0"
+                                                    SelectedDate="{Binding DraftEmploymentEndDate, Mode=TwoWay}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Lý do kết thúc" FontWeight="SemiBold" />
+                                        <TextBox Margin="0,5,0,0"
+                                                 MaxLength="256"
+                                                 Text="{Binding DraftEmploymentEndReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+                                <CheckBox Margin="0,0,0,10"
+                                          IsChecked="{Binding DraftConfirmEmployment, Mode=TwoWay}"
+                                          Content="Xác nhận lịch sử lao động theo thông tin đã kiểm tra" />
+                            </StackPanel>
+
                             <TextBlock Text="Chức danh công việc" FontWeight="SemiBold" />
                             <TextBox Margin="0,5,0,10"
                                      MaxLength="128"
@@ -331,6 +376,29 @@
                                       SelectedValuePath="Id"
                                       SelectedValue="{Binding DraftBranchId, Mode=TwoWay}" />
 
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Ngày bắt đầu đơn vị công tác" FontWeight="SemiBold" />
+                                    <DatePicker Margin="0,5,0,0"
+                                                SelectedDate="{Binding DraftAssignmentEffectiveFrom, Mode=TwoWay}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Lý do điều chuyển/xác nhận" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0"
+                                             MaxLength="256"
+                                             Text="{Binding DraftAssignmentReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                            </Grid>
+                            <CheckBox Margin="0,0,0,10"
+                                      Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisibility}}"
+                                      IsChecked="{Binding DraftConfirmAssignment, Mode=TwoWay}"
+                                      Content="Xác nhận lịch sử điều chuyển hiện tại" />
+
                             <TextBlock Text="Số điện thoại" FontWeight="SemiBold" />
                             <TextBox Margin="0,5,0,10"
                                      MaxLength="20"
@@ -340,6 +408,49 @@
                             <TextBox Margin="0,5,0,0"
                                      MaxLength="256"
                                      Text="{Binding DraftEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <StackPanel Margin="0,18,0,0"
+                                        Visibility="{Binding ShowHistory, Converter={StaticResource BoolToVisibility}}">
+                                <Border Margin="0,0,0,10"
+                                        Padding="10"
+                                        Background="{DynamicResource AccentSoftBrush}"
+                                        Visibility="{Binding HasHistoryRequiringConfirmation, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Có dữ liệu lịch sử cũ đang ở trạng thái Cần HR xác nhận. Hãy kiểm tra ngày thực tế trước khi xác nhận."
+                                               TextWrapping="Wrap" />
+                                </Border>
+
+                                <TextBlock Text="Lịch sử lao động" FontSize="16" FontWeight="SemiBold" />
+                                <DataGrid Margin="0,7,0,14"
+                                          Height="150"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding EmploymentHistoryRows}"
+                                          Style="{StaticResource OfficeDataGridStyle}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Từ ngày" Binding="{Binding EffectiveFromText}" Width="1*" />
+                                        <DataGridTextColumn Header="Đến ngày" Binding="{Binding EffectiveToText}" Width="1*" />
+                                        <DataGridTextColumn Header="Hình thức" Binding="{Binding EmploymentTypeText}" Width="1.4*" />
+                                        <DataGridTextColumn Header="Trạng thái dữ liệu" Binding="{Binding QualityText}" Width="1.5*" />
+                                        <DataGridTextColumn Header="Lý do kết thúc" Binding="{Binding EndReasonText}" Width="1.6*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <TextBlock Text="Lịch sử điều chuyển" FontSize="16" FontWeight="SemiBold" />
+                                <DataGrid Margin="0,7,0,0"
+                                          Height="150"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding AssignmentHistoryRows}"
+                                          Style="{StaticResource OfficeDataGridStyle}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Từ ngày" Binding="{Binding EffectiveFromText}" Width="1*" />
+                                        <DataGridTextColumn Header="Đến ngày" Binding="{Binding EffectiveToText}" Width="1*" />
+                                        <DataGridTextColumn Header="Chi nhánh" Binding="{Binding BranchText}" Width="1.8*" />
+                                        <DataGridTextColumn Header="Trạng thái dữ liệu" Binding="{Binding QualityText}" Width="1.5*" />
+                                        <DataGridTextColumn Header="Lý do" Binding="{Binding ReasonText}" Width="1.7*" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
 
@@ -387,6 +498,22 @@
                     <TextBlock Margin="0,12,0,0"
                                Text="{Binding ToggleText}"
                                TextWrapping="Wrap" />
+                    <TextBlock Margin="0,12,0,0" Text="Ngày hiệu lực" FontWeight="SemiBold" />
+                    <DatePicker Margin="0,5,0,0"
+                                SelectedDate="{Binding ToggleEffectiveDate, Mode=TwoWay}" />
+                    <TextBlock Margin="0,10,0,0" Text="Lý do" FontWeight="SemiBold" />
+                    <TextBox Margin="0,5,0,0"
+                             MaxLength="256"
+                             Text="{Binding ToggleReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <StackPanel Margin="0,10,0,0"
+                                Visibility="{Binding ShowToggleEmploymentType, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Hình thức lao động khi trở lại" FontWeight="SemiBold" />
+                        <ComboBox Margin="0,5,0,0"
+                                  ItemsSource="{Binding EmploymentTypeOptions}"
+                                  DisplayMemberPath="Label"
+                                  SelectedValuePath="Key"
+                                  SelectedValue="{Binding ToggleEmploymentType, Mode=TwoWay}" />
+                    </StackPanel>
                     <TextBlock Margin="0,10,0,0"
                                Text="{Binding ToggleMessage}"
                                Foreground="{DynamicResource DangerBrush}"

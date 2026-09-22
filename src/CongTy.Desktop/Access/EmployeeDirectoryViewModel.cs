@@ -8,7 +8,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Access;
 
-public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
+public sealed partial class EmployeeDirectoryViewModel : INotifyPropertyChanged
 {
     private const string EmployeeRead = "core.employee.read";
     private const string EmployeeWrite = "core.employee.write";
@@ -106,7 +106,7 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     public bool CanReadBranches => _access.HasPermission(BranchRead);
     public bool CanOpenEditor => CanWriteEmployees && CanReadBranches && !IsBusy;
     public bool CanToggleEmployees => CanWriteEmployees && !IsBusy;
-    public bool CanConfirmToggle => IsToggleConfirmOpen && CanWriteEmployees && !IsBusy;
+    public bool CanConfirmToggle => IsToggleConfirmOpen && CanWriteEmployees && !IsBusy && ToggleDraftValid();
     public bool CanPersist =>
         CanWriteEmployees
         && CanReadBranches
@@ -198,6 +198,7 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         {
             if (!SetField(ref _isEditorOpen, value)) return;
             OnPropertyChanged(nameof(CanPersist));
+            OnPropertyChanged(nameof(ShowHistory));
         }
     }
 
@@ -212,6 +213,7 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsCodeEditable));
             OnPropertyChanged(nameof(SaveButtonText));
             OnPropertyChanged(nameof(CanPersist));
+            OnPropertyChanged(nameof(ShowHistory));
         }
     }
 
@@ -433,9 +435,11 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         if (!CanOpenEditor) return;
 
         _editingEmployee = null;
+        _editorDetail = null;
         HasConflict = false;
         EditorMessage = string.Empty;
         EditorMessageIsError = false;
+        ClearWorkforceHistory();
         IsCreateMode = true;
         DraftCode = string.Empty;
         DraftFullName = string.Empty;
@@ -443,25 +447,49 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         DraftPhone = string.Empty;
         DraftEmail = string.Empty;
         DraftBranchId = DraftBranchOptions.FirstOrDefault(option => option.Id.Length > 0)?.Id ?? string.Empty;
+        PrepareCreateWorkforceHistory();
         IsEditorOpen = true;
     }
 
-    public void OpenEdit(EmployeeDirectoryData employee)
+    public async Task OpenEditAsync(EmployeeDirectoryData employee)
     {
         if (!CanOpenEditor) return;
 
-        _editingEmployee = employee;
-        HasConflict = false;
-        EditorMessage = string.Empty;
-        EditorMessageIsError = false;
-        IsCreateMode = false;
-        DraftCode = employee.Code;
-        DraftFullName = employee.FullName;
-        DraftJobTitle = employee.JobTitle ?? string.Empty;
-        DraftPhone = employee.Phone ?? string.Empty;
-        DraftEmail = employee.Email ?? string.Empty;
-        DraftBranchId = employee.BranchId ?? string.Empty;
-        IsEditorOpen = true;
+        IsBusy = true;
+        Message = string.Empty;
+        MessageIsError = false;
+        try
+        {
+            var detail = await _readService.GetEmployeeAsync(employee.Id).ConfigureAwait(true);
+            _editingEmployee = detail;
+            _editorDetail = detail;
+            HasConflict = false;
+            EditorMessage = string.Empty;
+            EditorMessageIsError = false;
+            IsCreateMode = false;
+            DraftCode = detail.Code;
+            DraftFullName = detail.FullName;
+            DraftJobTitle = detail.JobTitle ?? string.Empty;
+            DraftPhone = detail.Phone ?? string.Empty;
+            DraftEmail = detail.Email ?? string.Empty;
+            DraftBranchId = detail.BranchId ?? string.Empty;
+            PrepareEditWorkforceHistory(detail);
+            IsEditorOpen = true;
+        }
+        catch (CanonicalApiException exception)
+        {
+            SetMessage(CanonicalErrorMessages.WithRequestId(
+                "Không tải được lịch sử hồ sơ nhân sự.",
+                exception.RequestId), true);
+        }
+        catch (Exception)
+        {
+            SetMessage("Không tải được lịch sử hồ sơ nhân sự. Vui lòng thử lại.", true);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     public void CloseEditor()
@@ -491,7 +519,11 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
                 jobTitle,
                 phone,
                 email,
-                branchId);
+                branchId,
+                CanonicalDate(DraftEmploymentStartDate),
+                DraftEmploymentType,
+                CanonicalDate(DraftAssignmentEffectiveFrom),
+                Optional(DraftAssignmentReason));
             var slot = BuildCreateSlot(request);
             var key = MutationKey(slot, "employee-create");
 
@@ -526,13 +558,23 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
 
         if (_editingEmployee is null) return;
 
+        var assignmentChanged = !string.Equals(branchId, _editingEmployee.BranchId, StringComparison.Ordinal);
+        var includeAssignment = assignmentChanged || DraftConfirmAssignment;
         var update = new EmployeeDirectoryUpdateRequest(
             fullName,
             jobTitle,
             phone,
             email,
             branchId,
-            _editingEmployee.UpdatedAt);
+            _editingEmployee.UpdatedAt,
+            DraftConfirmEmployment ? true : null,
+            DraftConfirmEmployment ? CanonicalDate(DraftEmploymentStartDate) : null,
+            DraftConfirmEmployment ? CanonicalDate(DraftEmploymentEndDate) : null,
+            DraftConfirmEmployment ? DraftEmploymentType : null,
+            DraftConfirmEmployment ? Optional(DraftEmploymentEndReason) : null,
+            DraftConfirmAssignment ? true : null,
+            includeAssignment ? CanonicalDate(DraftAssignmentEffectiveFrom) : null,
+            includeAssignment ? Optional(DraftAssignmentReason) : null);
         var updateSlot = BuildUpdateSlot(_editingEmployee.Id, update);
         var updateKey = MutationKey(updateSlot, "employee-update");
 
@@ -580,16 +622,39 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         SetMessage("Đã tải lại dữ liệu nhân sự. Vui lòng kiểm tra trước khi thực hiện lại.", false);
     }
 
-    public void OpenToggle(EmployeeDirectoryData employee)
+    public async Task OpenToggleAsync(EmployeeDirectoryData employee)
     {
         if (!CanToggleEmployees) return;
 
-        _pendingToggleEmployee = employee;
-        _pendingToggleNextActive = !employee.IsActive;
-        ToggleMessage = string.Empty;
-        IsToggleConfirmOpen = true;
-        OnPropertyChanged(nameof(ToggleTitle));
-        OnPropertyChanged(nameof(ToggleText));
+        IsBusy = true;
+        Message = string.Empty;
+        MessageIsError = false;
+        try
+        {
+            var detail = await _readService.GetEmployeeAsync(employee.Id).ConfigureAwait(true);
+            _pendingToggleEmployee = detail;
+            _pendingToggleNextActive = !detail.IsActive;
+            PrepareToggleWorkforceHistory(detail);
+            ToggleMessage = string.Empty;
+            IsToggleConfirmOpen = true;
+            OnPropertyChanged(nameof(ToggleTitle));
+            OnPropertyChanged(nameof(ToggleText));
+            OnPropertyChanged(nameof(ShowToggleEmploymentType));
+        }
+        catch (CanonicalApiException exception)
+        {
+            SetMessage(CanonicalErrorMessages.WithRequestId(
+                "Không tải được lịch sử lao động trước khi đổi trạng thái.",
+                exception.RequestId), true);
+        }
+        catch (Exception)
+        {
+            SetMessage("Không tải được lịch sử lao động trước khi đổi trạng thái. Vui lòng thử lại.", true);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     public void CancelToggle()
@@ -597,8 +662,10 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         IsToggleConfirmOpen = false;
         _pendingToggleEmployee = null;
         ToggleMessage = string.Empty;
+        ClearToggleWorkforceHistory();
         OnPropertyChanged(nameof(ToggleTitle));
         OnPropertyChanged(nameof(ToggleText));
+        OnPropertyChanged(nameof(ShowToggleEmploymentType));
     }
 
     public async Task ConfirmToggleAsync()
@@ -607,8 +674,13 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
 
         var employee = _pendingToggleEmployee;
         var nextActive = _pendingToggleNextActive;
-        var request = new EmployeeDirectoryToggleRequest(nextActive, employee.UpdatedAt);
-        var slot = $"toggle|{employee.Id}|{nextActive}|{employee.UpdatedAt}";
+        var request = new EmployeeDirectoryToggleRequest(
+            nextActive,
+            employee.UpdatedAt,
+            CanonicalDate(ToggleEffectiveDate),
+            Optional(ToggleReason),
+            nextActive ? ToggleEmploymentType : null);
+        var slot = $"toggle|{employee.Id}|{nextActive}|{employee.UpdatedAt}|{request.EmploymentEffectiveDate}|{request.EmploymentReason}|{request.EmploymentType}";
         var key = MutationKey(slot, "employee-status");
 
         IsBusy = true;
@@ -769,8 +841,9 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
         if (email.Length > 0 && !Regex.IsMatch(email, @"^[^\s@]+@[^\s@]+\.[^\s@]+$", RegexOptions.CultureInvariant))
             return false;
 
-        return string.IsNullOrWhiteSpace(DraftBranchId)
+        var branchValid = string.IsNullOrWhiteSpace(DraftBranchId)
             || DraftBranchOptions.Any(option => string.Equals(option.Id, DraftBranchId, StringComparison.Ordinal));
+        return branchValid && WorkforceHistoryDraftValid();
     }
 
     private string MutationKey(string slot, string scope)
@@ -784,10 +857,10 @@ public sealed class EmployeeDirectoryViewModel : INotifyPropertyChanged
     }
 
     private static string BuildCreateSlot(EmployeeDirectoryCreateRequest request) =>
-        $"create|{request.Code}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}";
+        $"create|{request.Code}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.EmploymentStartDate}|{request.EmploymentType}|{request.AssignmentEffectiveFrom}|{request.AssignmentReason}";
 
     private static string BuildUpdateSlot(string employeeId, EmployeeDirectoryUpdateRequest request) =>
-        $"update|{employeeId}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.ExpectedUpdatedAt}";
+        $"update|{employeeId}|{request.FullName}|{request.JobTitle}|{request.Phone}|{request.Email}|{request.BranchId}|{request.ExpectedUpdatedAt}|{request.ConfirmEmployment}|{request.EmploymentEffectiveFrom}|{request.EmploymentEffectiveTo}|{request.EmploymentType}|{request.EmploymentEndReason}|{request.ConfirmAssignment}|{request.AssignmentEffectiveFrom}|{request.AssignmentReason}";
 
     private static bool IsOptimisticConflict(CanonicalApiException exception) =>
         exception.StatusCode == HttpStatusCode.Conflict
