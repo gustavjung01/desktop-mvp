@@ -114,11 +114,11 @@ public sealed class WorkforceLeaveLot4Tests
         })
             StringAssert.Contains(workforce, permission);
 
-        StringAssert.Contains(leaveShell, "SetSelectedNavigation("workforce.leave")");
+        StringAssert.Contains(leaveShell, "SetSelectedNavigation(\"workforce.leave\")");
         StringAssert.Contains(leaveShell, "SelectedWorkspaceIndex == 54");
-        StringAssert.Contains(shell, "Click="Leave_OnClick"");
-        StringAssert.Contains(shell, "Tag="{Binding IsLeaveSelected}"");
-        Assert.IsFalse(shell.Contains("IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 5"><TextBlock Text="Nghỉ và đơn nghỉ"", StringComparison.Ordinal));
+        StringAssert.Contains(shell, "Click=\"Leave_OnClick\"");
+        StringAssert.Contains(shell, "Tag=\"{Binding IsLeaveSelected}\"");
+        Assert.IsFalse(shell.Contains("IsEnabled=\"False\" ToolTip=\"Sẽ được triển khai ở Lô 5\"><TextBlock Text=\"Nghỉ và đơn nghỉ\"", StringComparison.Ordinal));
         StringAssert.Contains(wire, "new LeaveService(");
         StringAssert.Contains(wire, "new LeaveView(new LeaveViewModel(");
         StringAssert.Contains(orderWire, "WireLeaveWorkspace();");
@@ -132,13 +132,13 @@ public sealed class WorkforceLeaveLot4Tests
 
         StringAssert.Contains(viewModel, "if (_mutationKeys.TryGetValue(slot, out var existing)) return existing;");
         StringAssert.Contains(viewModel, "_idempotencyKeys.Create(scope)");
-        StringAssert.Contains(viewModel, "$"{kind}|{JsonSerializer.Serialize(payload)}"");
+        StringAssert.Contains(viewModel, "$\"{kind}|{JsonSerializer.Serialize(payload)}\"");
         foreach (var scope in new[]
         {
             "leave-request-submit","leave-request-review","leave-request-cancel",
             "leave-balance-entry","leave-type-create","leave-type-update"
         })
-            StringAssert.Contains(actions, $""{scope}"");
+            StringAssert.Contains(actions, $"\"{scope}\"");
 
         StringAssert.Contains(actions, "_mutationKeys.Remove(slot);");
         Assert.IsFalse(actions.Contains("_mutationKeys.Clear();", StringComparison.Ordinal));
@@ -169,7 +169,7 @@ public sealed class WorkforceLeaveLot4Tests
 
         StringAssert.Contains(actions, "ExpectedVersion = target.Source.Version");
         StringAssert.Contains(actions, "days < 0");
-        StringAssert.Contains(actions, ""ADJUSTMENT"");
+        StringAssert.Contains(actions, "\"ADJUSTMENT\"");
         Assert.IsFalse(actions.Contains("BalanceDays -=", StringComparison.Ordinal));
         Assert.IsFalse(actions.Contains("BalanceDays +=", StringComparison.Ordinal));
     }
