@@ -127,6 +127,7 @@ public sealed record PayrollFoundationData
     [JsonPropertyName("salaryProfiles")] public PayrollSalaryProfileData[] SalaryProfiles { get; init; } = [];
     [JsonPropertyName("fixedComponents")] public PayrollFixedComponentData[] FixedComponents { get; init; } = [];
     [JsonPropertyName("periodComponents")] public PayrollPeriodComponentData[] PeriodComponents { get; init; } = [];
+    [JsonPropertyName("calculation")] public PayrollCalculationData? Calculation { get; init; }
     [JsonPropertyName("asOfDate")] public string AsOfDate { get; init; } = string.Empty;
     [JsonPropertyName("capabilities")] public PayrollCapabilitiesData Capabilities { get; init; } = new();
 }
