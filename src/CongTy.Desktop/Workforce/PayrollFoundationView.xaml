@@ -221,7 +221,7 @@
                                             <StackPanel>
                                                 <TextBlock Text="THỰC NHẬN" FontSize="10" FontWeight="Bold" />
                                                 <TextBlock Margin="0,4,0,0" Text="{Binding NetPayText}" FontSize="17" FontWeight="SemiBold" />
-                                                <TextBlock Margin="0,2,0,0" Text="Trước khi chốt lương" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                <TextBlock Margin="0,2,0,0" Text="Trước bước chốt kỳ" Foreground="{DynamicResource TextSecondaryBrush}" />
                                             </StackPanel>
                                         </Border>
                                     </UniformGrid>

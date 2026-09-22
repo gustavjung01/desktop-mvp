@@ -119,8 +119,8 @@ public sealed class WorkforcePayrollAggregationLot7Tests
         var vm = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "PayrollFoundationViewModel.Aggregation.cs");
         var presentation = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "PayrollAggregationPresentation.cs");
 
-        StringAssert.Contains(vm, "Calculation.Snapshot.Totals.GrossIncome");
-        StringAssert.Contains(vm, "Calculation.Snapshot.Totals.NetPay");
+        StringAssert.Contains(vm, "Calculation?.Snapshot.Totals.GrossIncome");
+        StringAssert.Contains(vm, "Calculation?.Snapshot.Totals.NetPay");
         Assert.IsFalse(vm.Contains(".Sum(", StringComparison.Ordinal));
         Assert.IsFalse(presentation.Contains(".Sum(", StringComparison.Ordinal));
         Assert.IsFalse(vm.Contains("decimal.Parse", StringComparison.Ordinal));
