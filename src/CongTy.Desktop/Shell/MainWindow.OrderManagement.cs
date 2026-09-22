@@ -28,6 +28,7 @@ public partial class MainWindow
         WireAccessRolesWorkspace();
         WireEmployeeDirectoryWorkspace();
         WireWorkScheduleWorkspace();
+        WireLeaveWorkspace();
         WireUserDirectoryWorkspace();
         WireSalesSettlementReconciliationWorkspace();
     }
