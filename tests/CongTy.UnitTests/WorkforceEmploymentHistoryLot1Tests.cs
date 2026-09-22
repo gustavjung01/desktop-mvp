@@ -85,7 +85,7 @@ public sealed class WorkforceEmploymentHistoryLot1Tests
         var history = ReadRepoFile("src", "CongTy.Desktop", "Access", "EmployeeDirectoryViewModel.WorkforceHistory.cs");
         var view = ReadRepoFile("src", "CongTy.Desktop", "Access", "EmployeeDirectoryView.xaml");
 
-        StringAssert.Contains(readService, ""/api/employees/{Uri.EscapeDataString(employeeId.Trim())}"");
+        StringAssert.Contains(readService, "\"/api/employees/{Uri.EscapeDataString(employeeId.Trim())}\"");
         StringAssert.Contains(viewModel, "_readService.GetEmployeeAsync(employee.Id)");
         StringAssert.Contains(history, "detail.EmploymentHistory");
         StringAssert.Contains(history, "detail.AssignmentHistory");
@@ -125,12 +125,12 @@ public sealed class WorkforceEmploymentHistoryLot1Tests
             "employmentEffectiveDate",
             "employmentReason"
         })
-            StringAssert.Contains(contracts, $"JsonPropertyName("{wireName}")");
+            StringAssert.Contains(contracts, $"JsonPropertyName(\"{wireName}\")");
 
         StringAssert.Contains(viewModel, "CanonicalDate(DraftEmploymentStartDate)");
         StringAssert.Contains(viewModel, "CanonicalDate(DraftAssignmentEffectiveFrom)");
         StringAssert.Contains(viewModel, "CanonicalDate(ToggleEffectiveDate)");
-        StringAssert.Contains(viewModel, "MutationKey(slot, "employee-status")");
+        StringAssert.Contains(viewModel, "MutationKey(slot, \"employee-status\")");
         StringAssert.Contains(viewModel, "request.EmploymentEffectiveDate");
         StringAssert.Contains(viewModel, "request.AssignmentEffectiveFrom");
         StringAssert.Contains(history, "string.IsNullOrWhiteSpace(ToggleReason)");
