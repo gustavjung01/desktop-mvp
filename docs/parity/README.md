@@ -294,3 +294,23 @@ service/repository FACE và test tương ứng. Không đổi:
 
 Rebaseline này chỉ phân loại drift FACE mới là **planned backend surface** theo parity policy hiện hành.
 Không triển khai FACE UI/client trong Desktop Lô 2, không sửa Web/backend/DB/migration.
+
+
+## Rebaseline 2026-09-22 — Workforce FACE UI trong lúc làm Desktop Lô 3
+
+Baseline cập nhật từ `1fbedf9d5407401ae930880276ff1892008a9048` tới
+`NPP-Platform/main@9cd5ed9c52932d3b078647e8e754b927af0bd27c` trong task Desktop **Ca / lịch làm việc — Lô 3**.
+
+Audit exact source xác nhận:
+- thay đổi sau baseline cũ chỉ gồm retail bottom navigation và FACE UI/rollout;
+- `npp-core/web/app` tree đổi do các workspace Chấm công/Chính sách/Bảng công FACE;
+- không thêm/xóa page hoặc Next route: snapshot giữ **83 screens / 331 Web routes**;
+- backend route tree, permission tree, server registry, shared contracts và canonical Idempotency-Key source không đổi;
+- backend snapshot giữ **92 API source files / 436 endpoint candidates / 322 mutation candidates / 233 permissions**;
+- contract Lô 3 `/api/workforce/schedules` và `/api/workforce/schedule-planning` không đổi.
+
+Desktop Lô 3 triển khai đúng workspace **Ca / lịch làm việc** từ Web PR #1146:
+lịch cá nhân, ca mẫu, lịch tuần, ngày lễ/ngày nghỉ và xếp hàng loạt.
+FACE không được kéo vào phạm vi Lô 3 này.
+
+Không sửa Web/backend/DB/migration và không deploy production.

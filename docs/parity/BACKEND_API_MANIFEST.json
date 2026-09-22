@@ -3,7 +3,7 @@
   "name": "BACKEND_API_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "1fbedf9d5407401ae930880276ff1892008a9048",
+    "baselineRevision": "9cd5ed9c52932d3b078647e8e754b927af0bd27c",
     "fingerprints": {
       "apiRoutesTree": "901fdb00bda76ced20101e4be1740075b9bd3980",
       "serverBlob": "e55ed7274eb8b2e6cf4564c8d999bb7161508531",
