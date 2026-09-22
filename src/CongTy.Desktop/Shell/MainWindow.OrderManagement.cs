@@ -30,6 +30,7 @@ public partial class MainWindow
         WireWorkScheduleWorkspace();
         WireLeaveWorkspace();
         WireOvertimeCloseoutWorkspace();
+        WirePayrollFoundationWorkspace();
         WireUserDirectoryWorkspace();
         WireSalesSettlementReconciliationWorkspace();
     }
