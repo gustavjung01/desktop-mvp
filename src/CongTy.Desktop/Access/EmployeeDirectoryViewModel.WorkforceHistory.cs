@@ -187,6 +187,9 @@ public sealed partial class EmployeeDirectoryViewModel
                 EmployeeDirectoryPresentation.DateText(item.EffectiveFrom),
                 EmployeeDirectoryPresentation.DateText(item.EffectiveTo),
                 EmployeeDirectoryPresentation.AssignmentBranchLabel(item, branchMap),
+                string.IsNullOrWhiteSpace(item.DepartmentName) ? "—" : item.DepartmentName.Trim(),
+                string.IsNullOrWhiteSpace(item.PositionName) ? "—" : item.PositionName.Trim(),
+                string.IsNullOrWhiteSpace(item.ManagerName) ? "—" : item.ManagerName.Trim(),
                 EmployeeDirectoryPresentation.HistoryQualityLabel(item.DataQuality),
                 string.IsNullOrWhiteSpace(item.Reason) ? "—" : item.Reason.Trim(),
                 EmployeeDirectoryPresentation.HistoryNeedsConfirmation(item.DataQuality)));
@@ -220,7 +223,8 @@ public sealed partial class EmployeeDirectoryViewModel
         if (_editingEmployee is null) return false;
         var selectedBranch = string.IsNullOrWhiteSpace(DraftBranchId) ? null : DraftBranchId.Trim();
         var branchChanged = !string.Equals(selectedBranch, _editingEmployee.BranchId, StringComparison.Ordinal);
-        if (branchChanged || DraftConfirmAssignment)
+        var organizationChanged = OrganizationAssignmentChanged(_editingEmployee);
+        if (branchChanged || organizationChanged || DraftConfirmAssignment)
         {
             if (DraftAssignmentEffectiveFrom is null || DraftAssignmentEffectiveFrom.Value.Date > today) return false;
             if (DraftEmploymentStartDate is { } start && DraftAssignmentEffectiveFrom.Value.Date < start.Date) return false;

@@ -22,6 +22,30 @@ public partial class EmployeeDirectoryView : UserControl
     private void Create_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.OpenCreate();
 
+    private async void Organization_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.OpenOrganizationAsync();
+
+    private void CloseOrganization_OnClick(object sender, RoutedEventArgs e) =>
+        ViewModel.CloseOrganization();
+
+    private async void SaveDepartment_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SaveDepartmentAsync();
+
+    private async void SavePosition_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SavePositionAsync();
+
+    private async void ToggleDepartment_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: EmployeeDepartmentRowView row })
+            await ViewModel.ToggleDepartmentAsync(row);
+    }
+
+    private async void TogglePosition_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: EmployeePositionRowView row })
+            await ViewModel.TogglePositionAsync(row);
+    }
+
     private async void Edit_OnClick(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: EmployeeDirectoryRowView row })

@@ -60,7 +60,10 @@ public sealed class EmployeeDirectoryReadParityTests
             "Trạng thái",
             "Cập nhật",
             "Thao tác",
-            "Chức danh công việc",
+            "Vị trí công việc",
+            "Phòng/Bộ phận",
+            "Quản lý trực tiếp",
+            "Cơ cấu tổ chức",
             "Chi nhánh công tác",
             "Số điện thoại",
             "Email công việc"

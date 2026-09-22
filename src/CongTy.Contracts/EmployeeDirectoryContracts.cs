@@ -74,6 +74,80 @@ public sealed record EmployeeDirectoryBranchData
     [JsonPropertyName("is_active")] public bool IsActive { get; init; }
 }
 
+public sealed record HrDepartmentData
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("installation_id")] public string InstallationId { get; init; } = string.Empty;
+    [JsonPropertyName("code")] public string Code { get; init; } = string.Empty;
+    [JsonPropertyName("name")] public string Name { get; init; } = string.Empty;
+    [JsonPropertyName("parent_department_id")] public string? ParentDepartmentId { get; init; }
+    [JsonPropertyName("parent_code")] public string? ParentCode { get; init; }
+    [JsonPropertyName("parent_name")] public string? ParentName { get; init; }
+    [JsonPropertyName("is_active")] public bool IsActive { get; init; }
+    [JsonPropertyName("created_at")] public string CreatedAt { get; init; } = string.Empty;
+    [JsonPropertyName("updated_at")] public string UpdatedAt { get; init; } = string.Empty;
+    [JsonPropertyName("created_by")] public string? CreatedBy { get; init; }
+    [JsonPropertyName("updated_by")] public string? UpdatedBy { get; init; }
+}
+
+public sealed record HrPositionData
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("installation_id")] public string InstallationId { get; init; } = string.Empty;
+    [JsonPropertyName("code")] public string Code { get; init; } = string.Empty;
+    [JsonPropertyName("name")] public string Name { get; init; } = string.Empty;
+    [JsonPropertyName("department_id")] public string? DepartmentId { get; init; }
+    [JsonPropertyName("department_code")] public string? DepartmentCode { get; init; }
+    [JsonPropertyName("department_name")] public string? DepartmentName { get; init; }
+    [JsonPropertyName("is_active")] public bool IsActive { get; init; }
+    [JsonPropertyName("created_at")] public string CreatedAt { get; init; } = string.Empty;
+    [JsonPropertyName("updated_at")] public string UpdatedAt { get; init; } = string.Empty;
+    [JsonPropertyName("created_by")] public string? CreatedBy { get; init; }
+    [JsonPropertyName("updated_by")] public string? UpdatedBy { get; init; }
+}
+
+public sealed record EmployeeManagerCandidateData
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("code")] public string Code { get; init; } = string.Empty;
+    [JsonPropertyName("full_name")] public string FullName { get; init; } = string.Empty;
+    [JsonPropertyName("is_active")] public bool IsActive { get; init; }
+    [JsonPropertyName("department_id")] public string? DepartmentId { get; init; }
+    [JsonPropertyName("department_code")] public string? DepartmentCode { get; init; }
+    [JsonPropertyName("department_name")] public string? DepartmentName { get; init; }
+    [JsonPropertyName("position_id")] public string? PositionId { get; init; }
+    [JsonPropertyName("position_code")] public string? PositionCode { get; init; }
+    [JsonPropertyName("position_name")] public string? PositionName { get; init; }
+}
+
+public sealed record EmployeeOrganizationCatalogData
+{
+    [JsonPropertyName("departments")] public HrDepartmentData[] Departments { get; init; } = [];
+    [JsonPropertyName("positions")] public HrPositionData[] Positions { get; init; } = [];
+    [JsonPropertyName("managers")] public EmployeeManagerCandidateData[] Managers { get; init; } = [];
+}
+
+public sealed record EmployeeOrganizationMutationRequest(
+    [property: JsonPropertyName("resource")] string Resource,
+    [property: JsonPropertyName("code")] string Code,
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("id")] string? Id = null,
+    [property: JsonPropertyName("parentDepartmentId")] string? ParentDepartmentId = null,
+    [property: JsonPropertyName("departmentId")] string? DepartmentId = null,
+    [property: JsonPropertyName("isActive")] bool? IsActive = null,
+    [property: JsonPropertyName("expectedUpdatedAt")] string? ExpectedUpdatedAt = null);
+
+public sealed record EmployeeOrganizationMutationResult
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("code")] public string Code { get; init; } = string.Empty;
+    [JsonPropertyName("name")] public string Name { get; init; } = string.Empty;
+    [JsonPropertyName("parent_department_id")] public string? ParentDepartmentId { get; init; }
+    [JsonPropertyName("department_id")] public string? DepartmentId { get; init; }
+    [JsonPropertyName("is_active")] public bool IsActive { get; init; }
+    [JsonPropertyName("updated_at")] public string UpdatedAt { get; init; } = string.Empty;
+}
+
 public sealed record EmployeeDirectoryCreateRequest(
     [property: JsonPropertyName("code")] string Code,
     [property: JsonPropertyName("fullName")] string FullName,
@@ -81,6 +155,9 @@ public sealed record EmployeeDirectoryCreateRequest(
     [property: JsonPropertyName("phone")] string? Phone,
     [property: JsonPropertyName("email")] string? Email,
     [property: JsonPropertyName("branchId")] string? BranchId,
+    [property: JsonPropertyName("departmentId")] string? DepartmentId = null,
+    [property: JsonPropertyName("positionId")] string? PositionId = null,
+    [property: JsonPropertyName("managerEmployeeId")] string? ManagerEmployeeId = null,
     [property: JsonPropertyName("employmentStartDate")] string? EmploymentStartDate = null,
     [property: JsonPropertyName("employmentType")] string? EmploymentType = null,
     [property: JsonPropertyName("assignmentEffectiveFrom")] string? AssignmentEffectiveFrom = null,
@@ -93,6 +170,9 @@ public sealed record EmployeeDirectoryUpdateRequest(
     [property: JsonPropertyName("email")] string? Email,
     [property: JsonPropertyName("branchId")] string? BranchId,
     [property: JsonPropertyName("expectedUpdatedAt")] string ExpectedUpdatedAt,
+    [property: JsonPropertyName("departmentId")] string? DepartmentId = null,
+    [property: JsonPropertyName("positionId")] string? PositionId = null,
+    [property: JsonPropertyName("managerEmployeeId")] string? ManagerEmployeeId = null,
     [property: JsonPropertyName("confirmEmployment")] bool? ConfirmEmployment = null,
     [property: JsonPropertyName("employmentEffectiveFrom")] string? EmploymentEffectiveFrom = null,
     [property: JsonPropertyName("employmentEffectiveTo")] string? EmploymentEffectiveTo = null,

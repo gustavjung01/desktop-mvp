@@ -6,6 +6,7 @@ public interface IEmployeeDirectoryReadService
 {
     Task<IReadOnlyList<EmployeeDirectoryData>> ListEmployeesAsync(CancellationToken cancellationToken = default);
     Task<EmployeeDirectoryData> GetEmployeeAsync(string employeeId, CancellationToken cancellationToken = default);
+    Task<EmployeeOrganizationCatalogData> GetOrganizationAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<EmployeeDirectoryBranchData>> ListBranchesAsync(CancellationToken cancellationToken = default);
 }
 
@@ -32,6 +33,13 @@ public sealed class EmployeeDirectoryReadService(
             RequireToken(),
             cancellationToken);
     }
+
+    public Task<EmployeeOrganizationCatalogData> GetOrganizationAsync(
+        CancellationToken cancellationToken = default) =>
+        apiClient.GetDataAsync<EmployeeOrganizationCatalogData>(
+            "/api/employees/organization",
+            RequireToken(),
+            cancellationToken);
 
     public async Task<IReadOnlyList<EmployeeDirectoryBranchData>> ListBranchesAsync(
         CancellationToken cancellationToken = default) =>
