@@ -106,6 +106,10 @@ public sealed partial class OvertimeCloseoutViewModel : INotifyPropertyChanged
         || _access.HasPermission(AttendanceLockPermission)
         || _access.HasPermission(AttendanceReadPermission);
 
+    public bool HasPayrollInputReadAccess =>
+        _access.HasPermission(AttendanceReconcilePermission)
+        || _access.HasPermission(AttendanceReadPermission);
+
     public bool CanViewWorkspace => HasOvertimeReadAccess || HasPeriodReadAccess;
 
     public bool CanSubmitOwn =>
@@ -126,6 +130,7 @@ public sealed partial class OvertimeCloseoutViewModel : INotifyPropertyChanged
 
     public bool CanClose =>
         _periodCapabilities.CanClose
+        && _access.HasPermission(AttendanceReconcilePermission)
         && _access.HasPermission(AttendanceLockPermission);
 
     public bool ShowBranchFilter => BranchOptions.Count > 1;
@@ -309,7 +314,7 @@ public sealed partial class OvertimeCloseoutViewModel : INotifyPropertyChanged
 
     public bool CanViewSelectedPayroll =>
         SelectedPeriod?.Source.Status == "CLOSED"
-        && HasPeriodReadAccess
+        && HasPayrollInputReadAccess
         && !IsBusy;
 
     public string PayrollTitle
@@ -520,11 +525,6 @@ public sealed partial class OvertimeCloseoutViewModel : INotifyPropertyChanged
             message = "Khoảng ngày tra cứu không hợp lệ.";
             return false;
         }
-        if ((to - from).TotalDays > 365)
-        {
-            message = "Mỗi lần chỉ xem tối đa 366 ngày.";
-            return false;
-        }
         return true;
     }
 
@@ -539,7 +539,7 @@ public sealed partial class OvertimeCloseoutViewModel : INotifyPropertyChanged
         var calculated = hours * 60m;
         if (calculated != decimal.Truncate(calculated)) return false;
         minutes = (int)calculated;
-        return minutes >= (allowZero ? 0 : 1) && minutes <= 1440;
+        return minutes >= (allowZero ? 0 : 1) && minutes <= 1440 && minutes % 15 == 0;
     }
 
     private string MutationKey(string slot, string scope)
@@ -603,6 +603,7 @@ public sealed partial class OvertimeCloseoutViewModel : INotifyPropertyChanged
     {
         OnPropertyChanged(nameof(HasOvertimeReadAccess));
         OnPropertyChanged(nameof(HasPeriodReadAccess));
+        OnPropertyChanged(nameof(HasPayrollInputReadAccess));
         OnPropertyChanged(nameof(CanViewWorkspace));
         OnPropertyChanged(nameof(CanSubmitOwn));
         OnPropertyChanged(nameof(CanApprove));

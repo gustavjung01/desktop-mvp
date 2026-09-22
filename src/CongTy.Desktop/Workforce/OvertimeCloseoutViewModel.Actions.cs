@@ -14,7 +14,7 @@ public sealed partial class OvertimeCloseoutViewModel
         }
         if (!TryHours(RequestHours, allowZero: false, out var requestedMinutes))
         {
-            SetMessage("Số giờ đăng ký phải lớn hơn 0, không quá 24 giờ và quy đổi được thành số phút nguyên.", true);
+            SetMessage("Số giờ đăng ký phải lớn hơn 0, không quá 24 giờ và theo bước 0,25 giờ.", true);
             return;
         }
 
@@ -139,7 +139,7 @@ public sealed partial class OvertimeCloseoutViewModel
         if (selected is null || !CanRecordActualSelected || IsBusy) return;
         if (!TryHours(ActionHours, allowZero: false, out var actualMinutes))
         {
-            SetMessage("Số giờ thực tế phải lớn hơn 0, không quá 24 giờ và quy đổi được thành số phút nguyên.", true);
+            SetMessage("Số giờ thực tế phải lớn hơn 0, không quá 24 giờ và theo bước 0,25 giờ.", true);
             return;
         }
         var note = EmptyToNull(ActionNote);
@@ -189,7 +189,7 @@ public sealed partial class OvertimeCloseoutViewModel
         if (selected is null || !CanConfirmSelected || IsBusy) return;
         if (!TryHours(ActionHours, allowZero: true, out var confirmedMinutes))
         {
-            SetMessage("Số giờ được tính phải từ 0 đến 24 giờ và quy đổi được thành số phút nguyên.", true);
+            SetMessage("Số giờ được tính phải từ 0 đến 24 giờ và theo bước 0,25 giờ.", true);
             return;
         }
         if (selected.Source.ActualMinutes is not null && confirmedMinutes > selected.Source.ActualMinutes.Value)
@@ -377,7 +377,7 @@ public sealed partial class OvertimeCloseoutViewModel
     public async Task ViewPayrollAsync(AttendancePeriodRowView? row = null)
     {
         var target = row ?? SelectedPeriod;
-        if (target is null || target.Source.Status != "CLOSED" || !HasPeriodReadAccess || IsBusy) return;
+        if (target is null || target.Source.Status != "CLOSED" || !HasPayrollInputReadAccess || IsBusy) return;
 
         IsBusy = true;
         SetMessage(string.Empty, false);

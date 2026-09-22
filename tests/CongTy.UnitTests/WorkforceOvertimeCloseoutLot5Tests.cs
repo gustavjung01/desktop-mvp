@@ -149,16 +149,18 @@ public sealed class WorkforceOvertimeCloseoutLot5Tests
             "core.overtime.read",
             "core.overtime.approve",
             "core.overtime.confirm",
+            "core.attendance.self.read",
+            "core.attendance.read",
             "core.attendance.reconcile",
             "core.attendance.lock"
         })
             StringAssert.Contains(nav, permission);
 
-        StringAssert.Contains(shell, "SetSelectedNavigation("workforce.overtime")");
+        StringAssert.Contains(shell, "SetSelectedNavigation(\"workforce.overtime\")");
         StringAssert.Contains(shell, "SelectedWorkspaceIndex == 55");
-        StringAssert.Contains(xaml, "Click="OvertimeCloseout_OnClick"");
-        StringAssert.Contains(xaml, "Tag="{Binding IsOvertimeCloseoutSelected}"");
-        Assert.IsFalse(xaml.Contains("IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 6"><TextBlock Text="Tăng ca &amp; chốt công"", StringComparison.Ordinal));
+        StringAssert.Contains(xaml, "Click=\"OvertimeCloseout_OnClick\"");
+        StringAssert.Contains(xaml, "Tag=\"{Binding IsOvertimeCloseoutSelected}\"");
+        Assert.IsFalse(xaml.Contains("IsEnabled=\"False\" ToolTip=\"Sẽ được triển khai ở Lô 6\"><TextBlock Text=\"Tăng ca &amp; chốt công\"", StringComparison.Ordinal));
         StringAssert.Contains(wire, "new OvertimeCloseoutService(");
         StringAssert.Contains(wire, "new OvertimeCloseoutView(new OvertimeCloseoutViewModel(");
         StringAssert.Contains(hostWire, "WireOvertimeCloseoutWorkspace();");
@@ -181,10 +183,14 @@ public sealed class WorkforceOvertimeCloseoutLot5Tests
         StringAssert.Contains(actions, "ExpectedVersion = selected.Source.Version");
         StringAssert.Contains(actions, "confirmedMinutes > selected.Source.ActualMinutes.Value");
         StringAssert.Contains(actions, "AcknowledgeWarnings");
-        StringAssert.Contains(actions, ""REFRESH"");
-        StringAssert.Contains(actions, ""RECONCILE"");
-        StringAssert.Contains(actions, ""CLOSE"");
+        StringAssert.Contains(actions, "\"REFRESH\"");
+        StringAssert.Contains(actions, "\"RECONCILE\"");
+        StringAssert.Contains(actions, "\"CLOSE\"");
         StringAssert.Contains(vm, "ApplyPayroll");
+        StringAssert.Contains(vm, "HasPayrollInputReadAccess");
+        StringAssert.Contains(vm, "_access.HasPermission(AttendanceReconcilePermission)");
+        StringAssert.Contains(vm, "_access.HasPermission(AttendanceLockPermission)");
+        StringAssert.Contains(actions, "!HasPayrollInputReadAccess");
         Assert.IsFalse(vm.Contains("SourceFingerprint =", StringComparison.Ordinal));
         Assert.IsFalse(actions.Contains("AttendanceEvent", StringComparison.Ordinal));
         Assert.IsFalse(actions.Contains("countedMinutes =", StringComparison.OrdinalIgnoreCase));
@@ -208,7 +214,7 @@ public sealed class WorkforceOvertimeCloseoutLot5Tests
             "overtime-confirm",
             "attendance-period-action"
         })
-            StringAssert.Contains(actions, $""{scope}"");
+            StringAssert.Contains(actions, $"\"{scope}\"");
 
         StringAssert.Contains(actions, "_mutationKeys.Remove(slot);");
     }

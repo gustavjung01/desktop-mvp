@@ -33,6 +33,8 @@ public sealed partial class ShellViewModel
         || _access.HasPermission("core.overtime.read")
         || _access.HasPermission("core.overtime.approve")
         || _access.HasPermission("core.overtime.confirm")
+        || _access.HasPermission("core.attendance.self.read")
+        || _access.HasPermission("core.attendance.read")
         || _access.HasPermission("core.attendance.reconcile")
         || _access.HasPermission("core.attendance.lock");
 

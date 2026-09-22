@@ -99,3 +99,12 @@ Kỳ cũ không được tái tính từ current employee/policy ở Desktop.
 - Không update/delete snapshot lịch sử; snapshot là append-only.
 - Không sửa Web/backend/DB/migration.
 - Không deploy production trong task này.
+
+
+## Permission detail đã khóa sau audit route
+
+- Menu gộp mở cho người có quyền đọc OT của mình/scoped hoặc quyền đọc kỳ công.
+- Chốt kỳ là mutation trên `/attendance/periods`: route yêu cầu `core.attendance.reconcile`, và hành động `CLOSE` còn yêu cầu `core.attendance.lock`; Desktop chỉ bật nút chốt khi có cả hai.
+- `attendance/payroll-input` chỉ cho `core.attendance.reconcile` hoặc `core.attendance.read`; quyền lock đơn lẻ không được dùng để đọc snapshot payroll.
+- Bộ lọc tra cứu không tự đặt giới hạn 366 ngày ngoài contract GET hiện hành; giới hạn 93 ngày của mutation kỳ công vẫn do backend authority kiểm soát.
+- Ô giờ Desktop dùng bước 0,25 giờ như Web UI; backend vẫn là authority cho giới hạn phút canonical.
