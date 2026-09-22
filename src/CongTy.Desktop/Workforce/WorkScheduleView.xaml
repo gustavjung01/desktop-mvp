@@ -1,0 +1,894 @@
+<UserControl x:Class="CongTy.Desktop.Workforce.WorkScheduleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="WorkScheduleView_OnLoaded">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="ScheduleMessageBorderStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+        </Style>
+
+        <Style x:Key="ScheduleCellTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,4,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="NHÂN SỰ"
+                                   FontSize="10"
+                                   FontWeight="Bold" />
+                        <TextBlock Margin="0,3,0,0"
+                                   Text="Xem và điều chỉnh lịch làm việc tương lai theo chính sách đã áp dụng."
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanRefresh}"
+                                Click="Refresh_OnClick"
+                                Content="LÀM MỚI" />
+                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanOpenEditor}"
+                                Click="CreateSchedule_OnClick"
+                                Content="XẾP LỊCH" />
+                    </StackPanel>
+                </Grid>
+
+                <Border Margin="0,10,0,0"
+                        Style="{StaticResource ScheduleMessageBorderStyle}"
+                        Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding Message}"
+                               TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+
+                <TextBlock Margin="0,14,0,0"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Text="Đang tải ca và lịch làm việc…"
+                           Visibility="{Binding ShowLoading, Converter={StaticResource BoolToVisibility}}" />
+
+                <Border Margin="0,12,0,0"
+                        Padding="12"
+                        Style="{StaticResource OfficeCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.8*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Nhân sự" FontWeight="SemiBold" />
+                            <ComboBox Margin="0,5,0,0"
+                                      ItemsSource="{Binding EmployeeFilters}"
+                                      DisplayMemberPath="Label"
+                                      SelectedItem="{Binding SelectedEmployeeFilter, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Từ ngày" FontWeight="SemiBold" />
+                            <DatePicker Margin="0,5,0,0"
+                                        SelectedDate="{Binding FromDate, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="Đến ngày" FontWeight="SemiBold" />
+                            <DatePicker Margin="0,5,0,0"
+                                        SelectedDate="{Binding ToDate, Mode=TwoWay}" />
+                        </StackPanel>
+                        <Button Grid.Column="6"
+                                MinWidth="110"
+                                VerticalAlignment="Bottom"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanRefresh}"
+                                Click="ViewSchedules_OnClick"
+                                Content="XEM LỊCH" />
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,10,0,0"
+                        Padding="10"
+                        Background="{DynamicResource AccentSoftBrush}"
+                        BorderBrush="{DynamicResource AccentBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <TextBlock Text="Lịch trong hôm nay và quá khứ chỉ dùng để đối chiếu. Điều chỉnh lịch bắt đầu từ ngày mai để không làm thay đổi lịch sử đã chấm."
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <Border Margin="0,10,0,0"
+                        Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,9">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="LỊCH THEO NGÀY" FontSize="10" FontWeight="Bold" />
+                                <TextBlock Margin="0,3,0,0"
+                                           Text="Ca và ngày nghỉ"
+                                           FontSize="16"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                            <Border Grid.Column="1"
+                                    Padding="9,5"
+                                    VerticalAlignment="Center"
+                                    CornerRadius="12"
+                                    Background="{DynamicResource AccentSoftBrush}">
+                                <TextBlock Text="{Binding ScheduleCountText}"
+                                           FontWeight="SemiBold" />
+                            </Border>
+                        </Grid>
+
+                        <DataGrid AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  RowHeight="62"
+                                  Style="{StaticResource OfficeDataGridStyle}"
+                                  ItemsSource="{Binding VisibleSchedules}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Ngày"
+                                                    Binding="{Binding DateText}"
+                                                    Width="0.85*"
+                                                    ElementStyle="{StaticResource ScheduleCellTextStyle}" />
+                                <DataGridTextColumn Header="Nhân sự"
+                                                    Binding="{Binding EmployeeText}"
+                                                    Width="1.45*"
+                                                    ElementStyle="{StaticResource ScheduleCellTextStyle}" />
+                                <DataGridTextColumn Header="Chính sách"
+                                                    Binding="{Binding PolicyText}"
+                                                    Width="1.45*"
+                                                    ElementStyle="{StaticResource ScheduleCellTextStyle}" />
+                                <DataGridTextColumn Header="Trạng thái"
+                                                    Binding="{Binding StatusText}"
+                                                    Width="0.95*"
+                                                    ElementStyle="{StaticResource ScheduleCellTextStyle}" />
+                                <DataGridTextColumn Header="Bắt đầu"
+                                                    Binding="{Binding StartText}"
+                                                    Width="1.2*"
+                                                    ElementStyle="{StaticResource ScheduleCellTextStyle}" />
+                                <DataGridTextColumn Header="Kết thúc"
+                                                    Binding="{Binding EndText}"
+                                                    Width="1.2*"
+                                                    ElementStyle="{StaticResource ScheduleCellTextStyle}" />
+                                <DataGridTemplateColumn Header="Nguồn / lý do" Width="1.7*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SourceText}"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Margin="0,2,0,0"
+                                                           Text="{Binding ReasonText}"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Thao tác" Width="0.9*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Padding="9,4"
+                                                    Tag="{Binding}"
+                                                    IsEnabled="{Binding CanEdit}"
+                                                    Click="EditSchedule_OnClick"
+                                                    Content="Điều chỉnh" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Margin="0,12,0,0"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Text="Chưa có lịch làm việc trong khoảng đã chọn."
+                                   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,12,0,0"
+                        Style="{StaticResource OfficeCardStyle}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="THIẾT LẬP VÀ XẾP LỊCH"
+                                           FontSize="10"
+                                           FontWeight="Bold" />
+                                <TextBlock Margin="0,3,0,0"
+                                           Text="Ca mẫu, lịch tuần và ngày nghỉ"
+                                           FontSize="16"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                            <Border Grid.Column="1"
+                                    Padding="9,5"
+                                    VerticalAlignment="Center"
+                                    CornerRadius="12"
+                                    Background="{DynamicResource AccentSoftBrush}">
+                                <TextBlock Text="Lập lịch tương lai"
+                                           FontWeight="SemiBold" />
+                            </Border>
+                        </Grid>
+
+                        <TabControl Style="{StaticResource OfficeTabControlStyle}"
+                                    SelectedIndex="{Binding PlanningTabIndex, Mode=TwoWay}">
+                            <TabItem Header="Ca mẫu">
+                                <StackPanel Margin="0,10,0,0">
+                                    <Border Padding="12"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding HasShiftMessage, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="{Binding ShiftMessage}" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ShiftMessageIsError}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1.6*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Mã ca" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="64"
+                                                     Text="{Binding ShiftCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Tên ca" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="256"
+                                                     Text="{Binding ShiftName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Bắt đầu (HH:mm)" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="5"
+                                                     Text="{Binding ShiftStartTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="6">
+                                            <TextBlock Text="Kết thúc (HH:mm)" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="5"
+                                                     Text="{Binding ShiftEndTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="8">
+                                            <TextBlock Text="Nghỉ giữa ca (phút)" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="3"
+                                                     Text="{Binding ShiftBreakMinutes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <StackPanel Margin="0,10,0,0"
+                                                Orientation="Horizontal">
+                                        <CheckBox VerticalAlignment="Center"
+                                                  IsChecked="{Binding ShiftIsActive, Mode=TwoWay}"
+                                                  Content="Đang sử dụng" />
+                                        <Button Margin="16,0,8,0"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanManagePlanning}"
+                                                Click="NewShift_OnClick"
+                                                Content="MỚI" />
+                                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                IsEnabled="{Binding CanSaveShift}"
+                                                Click="SaveShift_OnClick"
+                                                Content="LƯU CA MẪU" />
+                                    </StackPanel>
+
+                                    <DataGrid Margin="0,12,0,0"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              ItemsSource="{Binding ShiftRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Mã" Binding="{Binding Code}" Width="0.8*" />
+                                            <DataGridTextColumn Header="Tên ca" Binding="{Binding Name}" Width="1.6*" />
+                                            <DataGridTextColumn Header="Giờ làm việc" Binding="{Binding HoursText}" Width="1.2*" />
+                                            <DataGridTextColumn Header="Nghỉ giữa ca" Binding="{Binding BreakText}" Width="1*" />
+                                            <DataGridTextColumn Header="Trạng thái" Binding="{Binding StatusText}" Width="1*" />
+                                            <DataGridTemplateColumn Header="Thao tác" Width="0.8*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Padding="8,4"
+                                                                Tag="{Binding}"
+                                                                IsEnabled="{Binding DataContext.CanManagePlanning, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                Click="EditShift_OnClick"
+                                                                Content="Sửa" />
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,10,0,0"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Text="Chưa có ca mẫu."
+                                               Visibility="{Binding IsShiftEmpty, Converter={StaticResource BoolToVisibility}}" />
+                                </StackPanel>
+                            </TabItem>
+
+                            <TabItem Header="Lịch tuần">
+                                <StackPanel Margin="0,10,0,0">
+                                    <Border Padding="12"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding HasWeekMessage, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="{Binding WeekMessage}" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding WeekMessageIsError}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Mã lịch tuần" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="64"
+                                                     Text="{Binding WeekCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Tên lịch tuần" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="256"
+                                                     Text="{Binding WeekName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="4"
+                                                  VerticalAlignment="Bottom"
+                                                  Margin="0,0,0,7"
+                                                  IsChecked="{Binding WeekIsActive, Mode=TwoWay}"
+                                                  Content="Đang sử dụng" />
+                                    </Grid>
+
+                                    <DataGrid Margin="0,12,0,0"
+                                              AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="False"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              ItemsSource="{Binding WeekDayRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Ngày"
+                                                                Binding="{Binding DayLabel}"
+                                                                IsReadOnly="True"
+                                                                Width="1.2*" />
+                                            <DataGridTemplateColumn Header="Loại ngày" Width="1.2*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ComboBox ItemsSource="{Binding ScheduleKinds}"
+                                                                  DisplayMemberPath="Label"
+                                                                  SelectedValuePath="Key"
+                                                                  SelectedValue="{Binding ScheduleKind, Mode=TwoWay}" />
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTemplateColumn Header="Ca làm việc" Width="2*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ComboBox ItemsSource="{Binding ShiftOptions}"
+                                                                  DisplayMemberPath="Label"
+                                                                  SelectedValuePath="Id"
+                                                                  SelectedValue="{Binding ShiftTemplateId, Mode=TwoWay}"
+                                                                  IsEnabled="{Binding IsWorkDay}" />
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                        <Button Margin="0,0,8,0"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanManagePlanning}"
+                                                Click="NewWeek_OnClick"
+                                                Content="MỚI" />
+                                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                IsEnabled="{Binding CanSaveWeek}"
+                                                Click="SaveWeek_OnClick"
+                                                Content="LƯU LỊCH TUẦN" />
+                                    </StackPanel>
+
+                                    <DataGrid Margin="0,12,0,0"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              ItemsSource="{Binding WeekRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Mã" Binding="{Binding Code}" Width="0.8*" />
+                                            <DataGridTextColumn Header="Tên lịch" Binding="{Binding Name}" Width="1.7*" />
+                                            <DataGridTextColumn Header="Cấu hình" Binding="{Binding SummaryText}" Width="1.2*" />
+                                            <DataGridTextColumn Header="Trạng thái" Binding="{Binding StatusText}" Width="1*" />
+                                            <DataGridTemplateColumn Header="Thao tác" Width="0.8*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Padding="8,4"
+                                                                Tag="{Binding}"
+                                                                IsEnabled="{Binding DataContext.CanManagePlanning, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                Click="EditWeek_OnClick"
+                                                                Content="Sửa" />
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,10,0,0"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Text="Chưa có mẫu lịch tuần."
+                                               Visibility="{Binding IsWeekEmpty, Converter={StaticResource BoolToVisibility}}" />
+                                </StackPanel>
+                            </TabItem>
+
+                            <TabItem Header="Ngày lễ &amp; ngày nghỉ">
+                                <StackPanel Margin="0,10,0,0">
+                                    <Border Padding="12"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding HasCalendarMessage, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="{Binding CalendarMessage}" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding CalendarMessageIsError}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1.2*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Ngày" FontWeight="SemiBold" />
+                                            <DatePicker Margin="0,5,0,0"
+                                                        IsEnabled="{Binding CanChangeCalendarDate}"
+                                                        SelectedDate="{Binding CalendarDate, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Loại ngày" FontWeight="SemiBold" />
+                                            <ComboBox Margin="0,5,0,0"
+                                                      ItemsSource="{Binding CalendarKinds}"
+                                                      DisplayMemberPath="Label"
+                                                      SelectedValuePath="Key"
+                                                      SelectedValue="{Binding CalendarKind, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Tên ngày nghỉ" FontWeight="SemiBold" />
+                                            <TextBox Margin="0,5,0,0"
+                                                     MaxLength="256"
+                                                     Text="{Binding CalendarName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="6"
+                                                  VerticalAlignment="Bottom"
+                                                  Margin="0,0,0,7"
+                                                  IsChecked="{Binding CalendarIsActive, Mode=TwoWay}"
+                                                  Content="Áp dụng" />
+                                    </Grid>
+
+                                    <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                        <Button Margin="0,0,8,0"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanManagePlanning}"
+                                                Click="NewCalendar_OnClick"
+                                                Content="MỚI" />
+                                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                IsEnabled="{Binding CanSaveCalendar}"
+                                                Click="SaveCalendar_OnClick"
+                                                Content="LƯU NGÀY NGHỈ" />
+                                    </StackPanel>
+
+                                    <Border Margin="0,10,0,0"
+                                            Padding="10"
+                                            Background="{DynamicResource AccentSoftBrush}"
+                                            BorderBrush="{DynamicResource AccentBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8">
+                                        <TextBlock Text="Khi xếp lịch hàng loạt, ngày nghỉ Công Ty được ưu tiên. Ngoại lệ cho một người/ngày vẫn dùng Điều chỉnh ở bảng lịch phía trên và bắt buộc ghi lý do."
+                                                   TextWrapping="Wrap" />
+                                    </Border>
+
+                                    <DataGrid Margin="0,12,0,0"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              ItemsSource="{Binding CalendarRows}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Ngày" Binding="{Binding DateText}" Width="1*" />
+                                            <DataGridTextColumn Header="Tên" Binding="{Binding Name}" Width="1.8*" />
+                                            <DataGridTextColumn Header="Loại" Binding="{Binding KindText}" Width="1.3*" />
+                                            <DataGridTextColumn Header="Trạng thái" Binding="{Binding StatusText}" Width="1*" />
+                                            <DataGridTemplateColumn Header="Thao tác" Width="0.8*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Padding="8,4"
+                                                                Tag="{Binding}"
+                                                                IsEnabled="{Binding CanEdit}"
+                                                                Click="EditCalendar_OnClick"
+                                                                Content="Sửa" />
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,10,0,0"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Text="Chưa có ngày lễ hoặc ngày nghỉ Công Ty."
+                                               Visibility="{Binding IsCalendarEmpty, Converter={StaticResource BoolToVisibility}}" />
+                                </StackPanel>
+                            </TabItem>
+
+                            <TabItem Header="Xếp hàng loạt">
+                                <StackPanel Margin="0,10,0,0">
+                                    <Border Padding="12"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding HasBulkMessage, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="{Binding BulkMessage}" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding BulkMessageIsError}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                        <Button Margin="0,0,8,0"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanManagePlanning}"
+                                                Click="BulkApplyMode_OnClick"
+                                                Content="XẾP TỪ LỊCH TUẦN" />
+                                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanManagePlanning}"
+                                                Click="BulkCopyMode_OnClick"
+                                                Content="SAO CHÉP LỊCH" />
+                                    </StackPanel>
+
+                                    <Grid Margin="0,10,0,0"
+                                          Visibility="{Binding IsBulkApplyMode, Converter={StaticResource BoolToVisibility}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Mẫu lịch tuần" FontWeight="SemiBold" />
+                                            <ComboBox Margin="0,5,0,0"
+                                                      ItemsSource="{Binding WeekTemplateOptions}"
+                                                      DisplayMemberPath="Label"
+                                                      SelectedValuePath="Id"
+                                                      SelectedValue="{Binding BulkWeekTemplateId, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Từ ngày" FontWeight="SemiBold" />
+                                            <DatePicker Margin="0,5,0,0"
+                                                        SelectedDate="{Binding BulkFromDate, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Đến ngày" FontWeight="SemiBold" />
+                                            <DatePicker Margin="0,5,0,0"
+                                                        SelectedDate="{Binding BulkToDate, Mode=TwoWay}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid Margin="0,10,0,0"
+                                          Visibility="{Binding IsBulkCopyMode, Converter={StaticResource BoolToVisibility}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Lịch nguồn từ ngày" FontWeight="SemiBold" />
+                                            <DatePicker Margin="0,5,0,0"
+                                                        SelectedDate="{Binding BulkSourceFrom, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Lịch nguồn đến ngày" FontWeight="SemiBold" />
+                                            <DatePicker Margin="0,5,0,0"
+                                                        SelectedDate="{Binding BulkSourceTo, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Bắt đầu lịch mới" FontWeight="SemiBold" />
+                                            <DatePicker Margin="0,5,0,0"
+                                                        SelectedDate="{Binding BulkTargetFrom, Mode=TwoWay}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Margin="0,10,0,0" Text="Lý do" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0"
+                                             MaxLength="512"
+                                             Text="{Binding BulkReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="Ví dụ: xếp lịch tháng tới theo kế hoạch vận hành" />
+
+                                    <Grid Margin="0,12,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="PHẠM VI ÁP DỤNG" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,3,0,0"
+                                                       Text="Chọn nhân sự"
+                                                       FontSize="16"
+                                                       FontWeight="SemiBold" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanManagePlanning}"
+                                                Click="ToggleAllBulk_OnClick"
+                                                Content="CHỌN / BỎ TẤT CẢ" />
+                                    </Grid>
+
+                                    <DataGrid AutoGenerateColumns="False"
+                                              CanUserAddRows="False"
+                                              IsReadOnly="False"
+                                              Style="{StaticResource OfficeDataGridStyle}"
+                                              ItemsSource="{Binding BulkEmployees}">
+                                        <DataGrid.Columns>
+                                            <DataGridCheckBoxColumn Header="Chọn"
+                                                                    Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                    Width="0.6*" />
+                                            <DataGridTextColumn Header="Mã"
+                                                                Binding="{Binding Code}"
+                                                                IsReadOnly="True"
+                                                                Width="0.9*" />
+                                            <DataGridTextColumn Header="Nhân sự"
+                                                                Binding="{Binding FullName}"
+                                                                IsReadOnly="True"
+                                                                Width="2.5*" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Margin="0,10,0,0"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Text="Chưa có nhân sự đang làm việc."
+                                               Visibility="{Binding IsBulkEmployeeEmpty, Converter={StaticResource BoolToVisibility}}" />
+
+                                    <Border Margin="0,10,0,0"
+                                            Padding="10"
+                                            Background="{DynamicResource AccentSoftBrush}"
+                                            BorderBrush="{DynamicResource AccentBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="8">
+                                        <TextBlock Text="Lịch đã điều chỉnh riêng theo người/ngày sẽ được giữ nguyên, không bị xếp hàng loạt ghi đè."
+                                                   TextWrapping="Wrap" />
+                                    </Border>
+
+                                    <Button Margin="0,12,0,0"
+                                            HorizontalAlignment="Left"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            IsEnabled="{Binding CanRunBulk}"
+                                            Click="RunBulk_OnClick"
+                                            Content="{Binding BulkActionText}" />
+                                </StackPanel>
+                            </TabItem>
+                        </TabControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Grid Background="#7F000000"
+              Visibility="{Binding IsEditorOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="720"
+                    MaxHeight="680"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="{Binding EditorKicker}"
+                                       FontSize="10"
+                                       FontWeight="Bold" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="{Binding EditorTitle}"
+                                       FontSize="19"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CloseScheduleEditor_OnClick"
+                                Content="ĐÓNG" />
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1"
+                                  Margin="0,14,0,14"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Border Margin="0,0,0,10"
+                                    Padding="10"
+                                    Background="{DynamicResource AccentSoftBrush}"
+                                    Visibility="{Binding HasEditorMessage, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding EditorMessage}" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EditorMessageIsError}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Nhân sự" FontWeight="SemiBold" />
+                                    <ComboBox Margin="0,5,0,0"
+                                              ItemsSource="{Binding EmployeeEditorOptions}"
+                                              DisplayMemberPath="Label"
+                                              SelectedValuePath="Id"
+                                              SelectedValue="{Binding DraftEmployeeId, Mode=TwoWay}"
+                                              IsEnabled="{Binding CanChangeScheduleIdentity}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Ngày làm việc" FontWeight="SemiBold" />
+                                    <DatePicker Margin="0,5,0,0"
+                                                SelectedDate="{Binding DraftWorkDate, Mode=TwoWay}"
+                                                IsEnabled="{Binding CanChangeScheduleIdentity}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Margin="0,10,0,0" Text="Chính sách làm việc" FontWeight="SemiBold" />
+                            <ComboBox Margin="0,5,0,0"
+                                      ItemsSource="{Binding PolicyOptions}"
+                                      DisplayMemberPath="Label"
+                                      SelectedValuePath="Id"
+                                      SelectedValue="{Binding DraftWorkPolicyId, Mode=TwoWay}" />
+
+                            <TextBlock Margin="0,10,0,0" Text="Trạng thái" FontWeight="SemiBold" />
+                            <ComboBox Margin="0,5,0,0"
+                                      ItemsSource="{Binding ScheduleKinds}"
+                                      DisplayMemberPath="Label"
+                                      SelectedValuePath="Key"
+                                      SelectedValue="{Binding DraftScheduleKind, Mode=TwoWay}" />
+
+                            <Grid Margin="0,10,0,0"
+                                  Visibility="{Binding ShowWorkTimeFields, Converter={StaticResource BoolToVisibility}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Bắt đầu (HH:mm)" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0"
+                                             MaxLength="5"
+                                             Text="{Binding DraftStartTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Kết thúc (HH:mm)" FontWeight="SemiBold" />
+                                    <TextBox Margin="0,5,0,0"
+                                             MaxLength="5"
+                                             Text="{Binding DraftEndTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <CheckBox Margin="0,7,0,0"
+                                              IsChecked="{Binding DraftEndsNextDay, Mode=TwoWay}"
+                                              Content="Kết thúc vào ngày hôm sau" />
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Margin="0,10,0,0"
+                                       Text="Lý do xếp / điều chỉnh lịch"
+                                       FontWeight="SemiBold" />
+                            <TextBox Margin="0,5,0,0"
+                                     MaxLength="512"
+                                     Text="{Binding DraftOverrideReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Ví dụ: đổi ca theo kế hoạch tuần" />
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="2"
+                                HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CloseScheduleEditor_OnClick"
+                                Content="HỦY" />
+                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanSaveSchedule}"
+                                Click="SaveSchedule_OnClick"
+                                Content="{Binding SaveScheduleText}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
