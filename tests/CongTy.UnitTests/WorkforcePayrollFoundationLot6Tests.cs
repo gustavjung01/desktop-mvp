@@ -214,7 +214,7 @@ public sealed class WorkforcePayrollFoundationLot6Tests
         foreach (var marker in new[]
         {
             "5974a4850a8560d47d1074fbfbb1fc38361a2009",
-            "9cd5ed9c52932d3b078647e8e754b927af0bd27c",
+            "4c9d6652d900f883f8c6cf07316dd46fee8715bf",
             "Issue #1140",
             "PR #1150",
             "CREATE_PERIOD",

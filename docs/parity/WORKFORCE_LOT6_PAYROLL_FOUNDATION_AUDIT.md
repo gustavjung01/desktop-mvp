@@ -7,7 +7,7 @@
 - Push-CI sau merge Lô 5: run `35738667638`, conclusion `success`, đã qua build, unit tests, package verify, installed package smoke và native startup smoke.
 - Không có PR Desktop mở khi bắt đầu Lô 6.
 - Web chuẩn: `binhnxwjfjxm/NPP-Platform`.
-- Web `main` được audit trực tiếp: `9cd5ed9c52932d3b078647e8e754b927af0bd27c`.
+- Web `main` được audit trực tiếp: `4c9d6652d900f883f8c6cf07316dd46fee8715bf`.
 - Nghiệp vụ: Issue #1140, Lô 6 Nền Tính lương.
 - Web PR #1150 đã merge; contract cuối cùng được đọc lại trên Web `main`.
 
@@ -135,3 +135,16 @@ Deny-by-default và branch/company scope tiếp tục do backend authority quy�
 - Không thêm logic BHXH/thuế/chuyển khoản.
 - Không tính tổng bảng lương ở Desktop.
 - Không sửa ngược bảng công hoặc snapshot nguồn.
+
+
+## Re-audit Web main trước CI cuối
+
+Trong lúc PR Desktop #65 đang chạy, Web `main` tiến từ `9cd5ed9c52932d3b078647e8e754b927af0bd27c` lên `4c9d6652d900f883f8c6cf07316dd46fee8715bf`.
+
+Diff Web giữa hai revision chỉ thay đổi báo cáo bán hàng và export báo cáo; không thay đổi route, service, repository, permission hay UI payroll/Workforce dùng cho Lô 6. Contract payroll đã audit ở trên giữ nguyên.
+
+Parity baseline được refresh theo Web main mới:
+- `webAppTree`: `4b9df64b76532a790f2ffcd7ccf166474dc13f10`;
+- `apiRoutesTree`: `6d3fa036f5f69c03983dd7107d9179791bf81573`.
+
+Các fingerprint permission, server, shared contracts và idempotency không đổi.
