@@ -47,6 +47,6 @@ Downloads use:
 
 `%LOCALAPPDATA%\CongTy\Desktop\Updates\<version>\`
 
-The updater writes a partial file, validates exact size and SHA-256, then makes the installer ready. A pending marker is written before starting the silent installer. Update success is shown only after restart when the running assembly version exactly matches the requested target version and differs from the previous version.
+The updater writes each download to a per-attempt partial file, validates exact size and SHA-256, then promotes it to a runnable installer. A stale or externally locked legacy `.partial` file is never deleted as a prerequisite for a new download; if the preferred local installer filename is locked, the verified payload is promoted to a unique `.exe` fallback instead. A pending marker is written before starting the silent installer. Update success is shown only after restart when the running assembly version exactly matches the requested target version and differs from the previous version.
 
 CI builds and verifies release artifacts offline. It also silently installs the generated installer into an isolated per-user CI directory, verifies the HKCU install/uninstall markers and packaged version, launches the installed executable with `--installed-package-smoke` to confirm updater installed-build detection, then silently uninstalls and verifies cleanup. CI never uploads to production R2.

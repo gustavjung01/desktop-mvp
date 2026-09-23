@@ -83,6 +83,72 @@ public static class AppUpdatePartialFileWriter
     }
 }
 
+public static class AppUpdateStagingFiles
+{
+    public static string CreateUniquePartialPath(string finalPath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(finalPath);
+
+        var directory = Path.GetDirectoryName(finalPath);
+        if (string.IsNullOrWhiteSpace(directory))
+            throw new ArgumentException(
+                "Đường dẫn file cập nhật phải có thư mục.",
+                nameof(finalPath));
+
+        var fileName = Path.GetFileName(finalPath);
+        return Path.Combine(
+            directory,
+            $"{fileName}.{Environment.ProcessId}.{Guid.NewGuid():N}.partial");
+    }
+
+    public static string PromoteVerifiedPartial(
+        string partialPath,
+        string preferredFinalPath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(partialPath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(preferredFinalPath);
+
+        try
+        {
+            File.Move(partialPath, preferredFinalPath, overwrite: true);
+            return preferredFinalPath;
+        }
+        catch (IOException)
+        {
+            var directory = Path.GetDirectoryName(preferredFinalPath)
+                ?? throw new InvalidOperationException(
+                    "Không xác định được thư mục cập nhật.");
+            var extension = Path.GetExtension(preferredFinalPath);
+            var baseName = Path.GetFileNameWithoutExtension(preferredFinalPath);
+            var fallbackPath = Path.Combine(
+                directory,
+                $"{baseName}.{Environment.ProcessId}.{Guid.NewGuid():N}{extension}");
+
+            File.Move(partialPath, fallbackPath);
+            return fallbackPath;
+        }
+    }
+
+    public static bool TryDelete(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath)) return true;
+
+        try
+        {
+            File.Delete(filePath);
+            return true;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+}
+
 public sealed class AppUpdateService : IAppUpdateService, IDisposable
 {
     public const string UpdateFeedUrl =
@@ -354,9 +420,8 @@ public sealed class AppUpdateService : IAppUpdateService, IDisposable
         Directory.CreateDirectory(updateDirectory);
 
         var finalPath = Path.Combine(updateDirectory, manifest.DownloadPath);
-        var partialPath = $"{finalPath}.partial";
-        File.Delete(partialPath);
-        File.Delete(finalPath);
+        var legacyPartialPath = $"{finalPath}.partial";
+        var partialPath = AppUpdateStagingFiles.CreateUniquePartialPath(finalPath);
 
         Publish(new AppUpdateSnapshot(
             AppUpdatePhase.Downloading,
@@ -370,6 +435,43 @@ public sealed class AppUpdateService : IAppUpdateService, IDisposable
 
         try
         {
+            if (File.Exists(finalPath))
+            {
+                try
+                {
+                    var existingVerification = await AppUpdateArtifactVerifier.VerifyAsync(
+                        finalPath,
+                        manifest,
+                        cancellationToken).ConfigureAwait(false);
+                    if (existingVerification.IsValid)
+                    {
+                        _readyManifest = manifest;
+                        _readyInstallerPath = finalPath;
+                        AppUpdateStagingFiles.TryDelete(legacyPartialPath);
+
+                        Publish(new AppUpdateSnapshot(
+                            AppUpdatePhase.Ready,
+                            _currentVersion,
+                            manifest.LatestVersion,
+                            null,
+                            manifest.ReleaseNotes,
+                            new AppUpdateProgress(100, manifest.Size, manifest.Size, 0),
+                            $"Bản v{manifest.LatestVersion} đã tải xong. Sẵn sàng khởi động lại và cập nhật.",
+                            null));
+                        return _current;
+                    }
+                }
+                catch (IOException)
+                {
+                    // Một tiến trình khác có thể đang đọc/cài file đã tải.
+                    // Không xóa file dùng chung; tải vào staging riêng của lần này.
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Tương tự sharing violation: không phá file của tiến trình khác.
+                }
+            }
+
             using var request = new HttpRequestMessage(HttpMethod.Get, downloadUri);
             request.Headers.CacheControl = new CacheControlHeaderValue
             {
@@ -423,9 +525,13 @@ public sealed class AppUpdateService : IAppUpdateService, IDisposable
                 throw new InvalidDataException(
                     verification.Error ?? "File cập nhật không qua được kiểm tra.");
 
-            File.Move(partialPath, finalPath, overwrite: true);
+            var readyInstallerPath = AppUpdateStagingFiles.PromoteVerifiedPartial(
+                partialPath,
+                finalPath);
+            AppUpdateStagingFiles.TryDelete(legacyPartialPath);
+
             _readyManifest = manifest;
-            _readyInstallerPath = finalPath;
+            _readyInstallerPath = readyInstallerPath;
 
             Publish(new AppUpdateSnapshot(
                 AppUpdatePhase.Ready,
@@ -440,8 +546,7 @@ public sealed class AppUpdateService : IAppUpdateService, IDisposable
         }
         catch
         {
-            File.Delete(partialPath);
-            File.Delete(finalPath);
+            AppUpdateStagingFiles.TryDelete(partialPath);
             throw;
         }
     }
