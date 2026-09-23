@@ -314,3 +314,22 @@ lịch cá nhân, ca mẫu, lịch tuần, ngày lễ/ngày nghỉ và xếp hà
 FACE không được kéo vào phạm vi Lô 3 này.
 
 Không sửa Web/backend/DB/migration và không deploy production.
+
+
+## Rebaseline 2026-09-23 — pricing/workforce Web drift trong lúc sửa updater
+
+Trong lúc PR Desktop sửa lỗi updater file staging bị khóa chạy CI, `NPP-Platform/main` đã tiến từ
+`4c9d6652d900f883f8c6cf07316dd46fee8715bf` tới
+`efa215eda16ead7dfa6480fb5d11ffd9f37bccd1`.
+
+Audit compare 24 commit xác nhận:
+- `npp-core/web/app` đổi ở workspace **Pricing** và **Workforce** hiện hữu; không thêm/xóa `page.tsx` hoặc Next `route.ts`, nên snapshot giữ nguyên **83 screens / 331 Web routes**;
+- Pricing bổ sung luồng điều chỉnh giá theo thời điểm trên service hiện hữu (`replaceFrom` / `applyAt`) và chỉnh UX popup; đây là thay đổi nghiệp vụ của Pricing, không thuộc phạm vi PR updater và phải được xử lý ở lô parity Pricing riêng;
+- Workforce chủ yếu chuẩn hóa ngôn ngữ văn phòng trên các màn hiện hữu. Sửa FACE ngày 23/09 chỉ điều chỉnh service/repository xác thực credential cũ; không đổi backend route tree hay permission surface;
+- các commit Retail/Ordering AI nằm ngoài Công Ty Desktop;
+- fingerprint backend route tree, permission tree, server registry, shared contracts và canonical Idempotency-Key source đều **không đổi** so với baseline trước.
+
+Vì vậy PR updater chỉ rebaseline fingerprint `webAppTree`
+`4b9df64b76532a790f2ffcd7ccf166474dc13f10` →
+`e5b6a7b90fc748c8477e6269e1bdfbab6db8fecc`, không tự kéo Pricing/Workforce feature vào phạm vi updater,
+không sửa Web/backend/DB/migration và không deploy production.

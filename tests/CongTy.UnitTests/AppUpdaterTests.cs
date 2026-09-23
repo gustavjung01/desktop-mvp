@@ -128,6 +128,89 @@ public sealed class AppUpdaterTests
     }
 
     [TestMethod]
+    public void StagingFiles_LockedLegacyPartialDoesNotBlockNewAttempt()
+    {
+        var directory = Path.Combine(
+            Path.GetTempPath(),
+            $"congty-updater-staging-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        var finalPath = Path.Combine(directory, "CONGTY-Setup-test.exe");
+        var legacyPartialPath = $"{finalPath}.partial";
+
+        try
+        {
+            File.WriteAllText(legacyPartialPath, "legacy");
+
+            using (var legacyLock = new FileStream(
+                legacyPartialPath,
+                FileMode.Open,
+                FileAccess.ReadWrite,
+                FileShare.None))
+            {
+                var partialPath = AppUpdateStagingFiles.CreateUniquePartialPath(finalPath);
+                Assert.AreNotEqual(legacyPartialPath, partialPath);
+                StringAssert.EndsWith(partialPath, ".partial");
+
+                File.WriteAllText(partialPath, "new-payload");
+                var readyPath = AppUpdateStagingFiles.PromoteVerifiedPartial(
+                    partialPath,
+                    finalPath);
+
+                Assert.AreEqual(finalPath, readyPath);
+                Assert.AreEqual("new-payload", File.ReadAllText(finalPath));
+                Assert.IsFalse(AppUpdateStagingFiles.TryDelete(legacyPartialPath));
+            }
+
+            Assert.IsTrue(AppUpdateStagingFiles.TryDelete(legacyPartialPath));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [TestMethod]
+    public void StagingFiles_FallsBackWhenPreferredInstallerIsLocked()
+    {
+        var directory = Path.Combine(
+            Path.GetTempPath(),
+            $"congty-updater-promote-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        var finalPath = Path.Combine(directory, "CONGTY-Setup-test.exe");
+        var partialPath = AppUpdateStagingFiles.CreateUniquePartialPath(finalPath);
+
+        try
+        {
+            File.WriteAllText(finalPath, "old-payload");
+            File.WriteAllText(partialPath, "new-payload");
+
+            string readyPath;
+            using (var finalLock = new FileStream(
+                finalPath,
+                FileMode.Open,
+                FileAccess.ReadWrite,
+                FileShare.None))
+            {
+                readyPath = AppUpdateStagingFiles.PromoteVerifiedPartial(
+                    partialPath,
+                    finalPath);
+
+                Assert.AreNotEqual(finalPath, readyPath);
+                StringAssert.EndsWith(readyPath, ".exe");
+                Assert.AreEqual("new-payload", File.ReadAllText(readyPath));
+            }
+
+            Assert.AreEqual("old-payload", File.ReadAllText(finalPath));
+            File.Delete(readyPath);
+        }
+        finally
+        {
+            AppUpdateStagingFiles.TryDelete(partialPath);
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [TestMethod]
     public void PendingMarker_OnlyReportsSuccessAfterVersionReallyChanged()
     {
         var marker = new AppUpdatePendingMarker(
