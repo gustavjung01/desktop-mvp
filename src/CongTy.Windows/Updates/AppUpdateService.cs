@@ -113,7 +113,8 @@ public static class AppUpdateStagingFiles
             File.Move(partialPath, preferredFinalPath, overwrite: true);
             return preferredFinalPath;
         }
-        catch (IOException)
+        catch (Exception exception) when (
+            exception is IOException or UnauthorizedAccessException)
         {
             var directory = Path.GetDirectoryName(preferredFinalPath)
                 ?? throw new InvalidOperationException(
