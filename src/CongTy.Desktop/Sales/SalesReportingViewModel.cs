@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Sales;
 
-public sealed class SalesReportingViewModel : INotifyPropertyChanged
+public sealed partial class SalesReportingViewModel : INotifyPropertyChanged
 {
     private const string ReadPermission = "core.reporting.sales.read";
     private const string ExportPermission = "core.reporting.export";
@@ -37,7 +37,6 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     private string _selectedProductGroupId = string.Empty;
     private string _selectedCustomerGroupId = string.Empty;
     private string _selectedDimensionKey = "customers";
-    private string _selectedCurrency = string.Empty;
     private string _selectedComparison = "all";
     private string _analysisSearch = string.Empty;
     private bool _includeZeroProducts;
@@ -57,13 +56,13 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         _service = service;
         _access = access;
         _viewStateStore = viewStateStore;
+        InitializeAnalysisExport();
 
         var saved = viewStateStore.Load();
         if (saved is not null)
         {
             _selectedDimensionKey = saved.Dimension;
             _analysisSearch = saved.Search;
-            _selectedCurrency = saved.Currency;
             _selectedComparison = saved.Comparison;
         }
 
@@ -86,6 +85,7 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
             _appliedTo = null;
             _appliedWarehouseId = string.Empty;
             _appliedProductGroupId = string.Empty;
+            _appliedBrandId = string.Empty;
             _appliedCustomerGroupId = string.Empty;
             _appliedIncludeZeroProducts = false;
             IsExportOpen = false;
@@ -93,8 +93,8 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
 
             Warehouses.Clear();
             ProductGroups.Clear();
+            Brands.Clear();
             CustomerGroups.Clear();
-            Currencies.Clear();
             RevenueRows.Clear();
             AnalysisRows.Clear();
             TotalRows.Clear();
@@ -125,8 +125,8 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
 
     public ObservableCollection<SalesWarehouseOption> Warehouses { get; } = [];
     public ObservableCollection<SalesClassificationOption> ProductGroups { get; } = [];
+    public ObservableCollection<SalesClassificationOption> Brands { get; } = [];
     public ObservableCollection<SalesClassificationOption> CustomerGroups { get; } = [];
-    public ObservableCollection<SalesReportingOption> Currencies { get; } = [];
     public ObservableCollection<SalesRevenueRow> RevenueRows { get; } = [];
     public ObservableCollection<SalesAnalysisRow> AnalysisRows { get; } = [];
     public ObservableCollection<SalesAnalysisRow> TotalRows { get; } = [];
@@ -139,7 +139,9 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     public bool CanExport => _access.HasPermission(ExportPermission) && CanRead;
     public bool CanApply => CanRead && !IsBusy;
     public bool CanOpenExport => CanExport && _report is not null && !IsBusy && !IsExporting;
-    public bool CanSubmitExport => CanOpenExport && ExportColumns.Any(column => column.IsSelected);
+    public bool CanSubmitExport => CanOpenExport && (IsAnalysisExportMode
+        ? AnalysisReady
+        : ExportColumns.Any(column => column.IsSelected));
     public bool CanCloseExport => !IsExporting;
 
     public bool IsBusy
@@ -169,7 +171,9 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     }
 
     public string ApplyText => IsBusy ? "Đang cập nhật…" : "Áp dụng";
-    public string ExportButtonText => IsExporting ? "Đang tạo file…" : ExportFormat == "csv" ? "Xuất CSV" : "Xuất Excel";
+    public string ExportButtonText => IsExporting ? "Đang tạo file…"
+        : IsAnalysisExportMode ? "Xuất Excel"
+        : ExportFormat == "csv" ? "Xuất CSV" : "Xuất Excel";
 
     public string Message
     {
@@ -243,6 +247,12 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         set => SetField(ref _selectedProductGroupId, value ?? string.Empty);
     }
 
+    public string SelectedBrandId
+    {
+        get => _selectedBrandId;
+        set => SetField(ref _selectedBrandId, value ?? string.Empty);
+    }
+
     public string SelectedCustomerGroupId
     {
         get => _selectedCustomerGroupId;
@@ -262,7 +272,6 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         {
             var normalized = Dimensions.Any(option => option.Key == value) ? value : "customers";
             if (!SetField(ref _selectedDimensionKey, normalized)) return;
-            SelectedCurrency = string.Empty;
             SelectedComparison = "all";
             SelectedAnalysisRow = null;
             OnPropertyChanged(nameof(SelectedDimensionLabel));
@@ -270,17 +279,6 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsCustomersDimension));
             OnPropertyChanged(nameof(IsProductsDimension));
             OnPropertyChanged(nameof(AnalysisTitle));
-            RebuildAnalysis();
-        }
-    }
-
-    public string SelectedCurrency
-    {
-        get => _selectedCurrency;
-        set
-        {
-            if (!SetField(ref _selectedCurrency, value ?? string.Empty)) return;
-            SelectedAnalysisRow = null;
             RebuildAnalysis();
         }
     }
@@ -398,7 +396,14 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         }
     }
 
-    public string SelectedExportCountText => $"{ExportColumns.Count(column => column.IsSelected)}/{ExportColumns.Count} cột";
+    public string SelectedExportCountText
+    {
+        get
+        {
+            var columns = IsAnalysisExportMode ? AnalysisExportColumns : ExportColumns;
+            return $"{columns.Count(column => column.IsSelected)}/{columns.Count} cột";
+        }
+    }
 
     public async Task EnsureLoadedAsync()
     {
@@ -445,6 +450,7 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
                 ToDate,
                 SelectedWarehouseId,
                 SelectedProductGroupId,
+                SelectedBrandId,
                 SelectedCustomerGroupId,
                 IncludeZeroProducts,
                 cts.Token).ConfigureAwait(true);
@@ -490,10 +496,10 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         ToDate = null;
         SelectedWarehouseId = string.Empty;
         SelectedProductGroupId = string.Empty;
+        SelectedBrandId = string.Empty;
         SelectedCustomerGroupId = string.Empty;
         IncludeZeroProducts = false;
         AnalysisSearch = string.Empty;
-        SelectedCurrency = string.Empty;
         SelectedComparison = "all";
         SelectedAnalysisRow = null;
         await RefreshAsync(initializeDraft: true).ConfigureAwait(true);
@@ -536,7 +542,6 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
             var saved = new SalesReportingSavedView(
                 SelectedDimensionKey,
                 AnalysisSearch,
-                SelectedCurrency,
                 SelectedComparison);
             await _viewStateStore.SaveAsync(saved).ConfigureAwait(true);
             SavedNotice = "Đã lưu chế độ xem trên thiết bị này";
@@ -558,8 +563,10 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
     {
         if (!CanOpenExport) return;
         ExportFormat = "xlsx";
+        ExportMode = "list";
         ExportError = string.Empty;
         ReplaceExportColumns();
+        ResetAnalysisExportState();
         IsExportOpen = true;
     }
 
@@ -572,22 +579,36 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
 
     public void SelectAllExportColumns()
     {
-        foreach (var column in ExportColumns) column.IsSelected = true;
+        foreach (var column in IsAnalysisExportMode ? AnalysisExportColumns : ExportColumns) column.IsSelected = true;
         RaiseExportSelection();
     }
 
     public void ClearExportColumns()
     {
-        foreach (var column in ExportColumns) column.IsSelected = false;
+        foreach (var column in IsAnalysisExportMode ? AnalysisExportColumns : ExportColumns) column.IsSelected = false;
         RaiseExportSelection();
     }
 
-    public void ResetExportColumns() => ReplaceExportColumns();
+    public void ResetExportColumns()
+    {
+        if (IsAnalysisExportMode) RefreshAnalysisExportColumns();
+        else ReplaceExportColumns();
+    }
 
     public async Task<ApiDownloadFile?> ExportAsync()
     {
         if (!CanSubmitExport) return null;
-        var columns = ExportColumns.Where(column => column.IsSelected).Select(column => column.Key).ToArray();
+        var analysis = IsAnalysisExportMode;
+        var columns = (analysis ? AnalysisExportColumns : ExportColumns)
+            .Where(column => column.IsSelected)
+            .Select(column => column.Key)
+            .ToArray();
+        var dimension = analysis ? AnalysisExportDimension : SelectedDimensionKey;
+        var format = analysis ? "xlsx" : ExportFormat;
+        var productGroupId = analysis || SelectedDimensionKey == "products" ? _appliedProductGroupId : string.Empty;
+        var brandId = analysis || SelectedDimensionKey == "products" ? _appliedBrandId : string.Empty;
+        var customerGroupId = analysis || SelectedDimensionKey == "customers" ? _appliedCustomerGroupId : string.Empty;
+        var includeZeroProducts = !analysis && SelectedDimensionKey == "products" && _appliedIncludeZeroProducts;
         var accessGeneration = _accessGeneration;
         var request = ++_exportGeneration;
         var cts = new CancellationTokenSource();
@@ -600,12 +621,15 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
                 _appliedFrom,
                 _appliedTo,
                 _appliedWarehouseId,
-                _appliedProductGroupId,
-                _appliedCustomerGroupId,
-                _appliedIncludeZeroProducts,
-                SelectedDimensionKey,
-                ExportFormat,
+                productGroupId,
+                brandId,
+                customerGroupId,
+                includeZeroProducts,
+                dimension,
+                format,
                 columns,
+                analysis && AnalysisQuantitySelected ? AnalysisQuantityDisplay : null,
+                analysis ? AnalysisSort : null,
                 cts.Token).ConfigureAwait(true);
 
             if (accessGeneration != _accessGeneration || request != _exportGeneration || !CanExport)
@@ -662,6 +686,7 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         _appliedTo = SalesReportingPresentation.ParseDate(report.Filters.To);
         _appliedWarehouseId = report.Filters.WarehouseId ?? string.Empty;
         _appliedProductGroupId = report.Filters.ProductGroupId ?? string.Empty;
+        _appliedBrandId = report.Filters.BrandId ?? string.Empty;
         _appliedCustomerGroupId = report.Filters.CustomerGroupId ?? string.Empty;
         _appliedIncludeZeroProducts = report.Filters.IncludeZeroProducts;
 
@@ -671,6 +696,7 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
             ToDate = _appliedTo;
             SelectedWarehouseId = _appliedWarehouseId;
             SelectedProductGroupId = _appliedProductGroupId;
+            SelectedBrandId = _appliedBrandId;
             SelectedCustomerGroupId = _appliedCustomerGroupId;
             IncludeZeroProducts = _appliedIncludeZeroProducts;
         }
@@ -682,6 +708,11 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
 
         Replace(ProductGroups, new[] { new SalesClassificationOption(string.Empty, "Tất cả nhóm sản phẩm") }
             .Concat(report.Classification.Options.ProductGroups.Select(row => new SalesClassificationOption(
+                row.Id,
+                string.Join(" — ", new[] { row.Code, row.Name }.Where(value => !string.IsNullOrWhiteSpace(value)))))));
+
+        Replace(Brands, new[] { new SalesClassificationOption(string.Empty, "Tất cả nhãn hàng") }
+            .Concat(report.Classification.Options.Brands.Select(row => new SalesClassificationOption(
                 row.Id,
                 string.Join(" — ", new[] { row.Code, row.Name }.Where(value => !string.IsNullOrWhiteSpace(value)))))));
 
@@ -716,20 +747,16 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         {
             AnalysisRows.Clear();
             TotalRows.Clear();
-            Currencies.Clear();
-            Currencies.Add(new SalesReportingOption(string.Empty, "Tất cả"));
             RaiseReportState();
             return;
         }
 
         var source = GetDimensionRows();
-        var currency = SelectedCurrency;
         var comparison = SelectedComparison;
         var needle = AnalysisSearch.Trim();
 
         var filtered = source.Where(row =>
         {
-            if (!string.IsNullOrWhiteSpace(currency) && !string.Equals(row.CurrencyCode, currency, StringComparison.Ordinal)) return false;
             if (!string.Equals(comparison, "all", StringComparison.Ordinal)
                 && !string.Equals(row.ComparisonState, comparison, StringComparison.Ordinal)) return false;
             if (needle.Length == 0) return true;
@@ -738,20 +765,8 @@ public sealed class SalesReportingViewModel : INotifyPropertyChanged
         }).ToArray();
 
         Replace(AnalysisRows, filtered.Select((row, index) => SalesReportingPresentation.AnalysisRow(row, SelectedDimensionKey, index)));
-
-        var totals = GetDimensionTotals()
-            .Where(row => string.IsNullOrWhiteSpace(currency) || string.Equals(row.CurrencyCode, currency, StringComparison.Ordinal))
-            .ToArray();
-        Replace(TotalRows, totals.Select((row, index) => SalesReportingPresentation.AnalysisRow(row, SelectedDimensionKey, index)));
-
-        var currencyOptions = source
-            .Select(row => row.CurrencyCode)
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(value => value, StringComparer.Ordinal)
-            .Select(value => new SalesReportingOption(value, value));
-        Replace(Currencies, new[] { new SalesReportingOption(string.Empty, "Tất cả") }.Concat(currencyOptions));
-
+        Replace(TotalRows, GetDimensionTotals().Select((row, index) => SalesReportingPresentation.AnalysisRow(row, SelectedDimensionKey, index)));
+        RefreshAnalysisExportColumns();
         RaiseReportState();
     }
 

@@ -6,7 +6,6 @@ namespace CongTy.Desktop.Sales;
 public sealed record SalesReportingSavedView(
     string Dimension,
     string Search,
-    string Currency,
     string Comparison);
 
 public interface ISalesReportingViewStateStore
@@ -33,8 +32,7 @@ public sealed class SalesReportingViewStateStore : ISalesReportingViewStateStore
             if (saved is null || !IsDimension(saved.Dimension) || !IsComparison(saved.Comparison)) return null;
             return saved with
             {
-                Search = Limit(saved.Search, 80),
-                Currency = Limit(saved.Currency, 16)
+                Search = Limit(saved.Search, 80)
             };
         }
         catch
