@@ -27,6 +27,7 @@ public sealed record SalesReportingFiltersData
     [JsonPropertyName("to")] public string To { get; init; } = string.Empty;
     [JsonPropertyName("warehouseId")] public string? WarehouseId { get; init; }
     [JsonPropertyName("productGroupId")] public string? ProductGroupId { get; init; }
+    [JsonPropertyName("brandId")] public string? BrandId { get; init; }
     [JsonPropertyName("customerGroupId")] public string? CustomerGroupId { get; init; }
     [JsonPropertyName("includeZeroProducts")] public bool IncludeZeroProducts { get; init; }
 }
@@ -172,6 +173,7 @@ public sealed record SalesProductGroupOptionData
 public sealed record SalesReportingClassificationOptionsData
 {
     [JsonPropertyName("productGroups")] public SalesProductGroupOptionData[] ProductGroups { get; init; } = [];
+    [JsonPropertyName("brands")] public SalesClassificationOptionData[] Brands { get; init; } = [];
     [JsonPropertyName("customerGroups")] public SalesClassificationOptionData[] CustomerGroups { get; init; } = [];
 }
 

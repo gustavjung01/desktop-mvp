@@ -31,20 +31,26 @@ public sealed class SalesReportingParityTests
         StringAssert.Contains(service, "\"/api/reporting/sales\"");
         StringAssert.Contains(service, "\"/api/reporting/sales-export\"");
         StringAssert.Contains(service, "productGroupId");
+        StringAssert.Contains(service, "brandId");
         StringAssert.Contains(service, "customerGroupId");
+        StringAssert.Contains(service, "quantityDisplay");
+        StringAssert.Contains(service, "sort");
+        StringAssert.Contains(service, "parts[0] == \"analysis\"");
         StringAssert.Contains(service, "includeZeroProducts");
         StringAssert.Contains(service, "column=");
         StringAssert.Contains(service, "apiClient.GetFileAsync");
         var exportCall = service.IndexOf("\"/api/reporting/sales-export\"", StringComparison.Ordinal);
         var warehouseFilter = service.IndexOf("warehouseId,", exportCall, StringComparison.Ordinal);
         var productFilter = service.IndexOf("productGroupId,", warehouseFilter, StringComparison.Ordinal);
-        var customerFilter = service.IndexOf("customerGroupId,", productFilter, StringComparison.Ordinal);
+        var brandFilter = service.IndexOf("brandId,", productFilter, StringComparison.Ordinal);
+        var customerFilter = service.IndexOf("customerGroupId,", brandFilter, StringComparison.Ordinal);
         var zeroFilter = service.IndexOf("includeZeroProducts,", customerFilter, StringComparison.Ordinal);
         var dimensionFilter = service.IndexOf("dimension,", zeroFilter, StringComparison.Ordinal);
         Assert.IsGreaterThanOrEqualTo(0, exportCall);
         Assert.IsGreaterThan(exportCall, warehouseFilter);
         Assert.IsGreaterThan(warehouseFilter, productFilter);
-        Assert.IsGreaterThan(productFilter, customerFilter);
+        Assert.IsGreaterThan(productFilter, brandFilter);
+        Assert.IsGreaterThan(brandFilter, customerFilter);
         Assert.IsGreaterThan(customerFilter, zeroFilter);
         Assert.IsGreaterThan(zeroFilter, dimensionFilter);
         StringAssert.Contains(client, "public async Task<ApiDownloadFile> GetFileAsync(");
@@ -67,6 +73,7 @@ public sealed class SalesReportingParityTests
         StringAssert.Contains(viewModel, "SalesReportingSavedView");
         StringAssert.Contains(viewModel, "_appliedWarehouseId");
         StringAssert.Contains(viewModel, "_appliedProductGroupId");
+        StringAssert.Contains(viewModel, "_appliedBrandId");
         StringAssert.Contains(viewModel, "_appliedCustomerGroupId");
         StringAssert.Contains(viewModel, "_appliedIncludeZeroProducts");
         StringAssert.Contains(viewModel, "_accessGeneration++");
@@ -107,8 +114,8 @@ public sealed class SalesReportingParityTests
             "Chiều phân tích",
             "Nhóm khách",
             "Nhóm sản phẩm",
+            "Nhãn hàng",
             "Hiện mã không phát sinh",
-            "Tiền tệ",
             "So với kỳ trước",
             "Tìm trong danh sách",
             "Xóa lọc",
@@ -126,7 +133,14 @@ public sealed class SalesReportingParityTests
             "Xuất Báo cáo bán hàng",
             "Excel (.xlsx)",
             "CSV (.csv)",
-            "Cột cần xuất",
+            "Loại báo cáo",
+            "Danh sách",
+            "Phân tích",
+            "Số liệu cần xuất",
+            "Phân tích theo · chọn 2",
+            "Hiển thị sản lượng",
+            "Sắp xếp",
+            "Cột sẽ xuất",
             "Chọn tất cả",
             "Bỏ chọn",
             "Mặc định"
@@ -138,6 +152,7 @@ public sealed class SalesReportingParityTests
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Sales", "SalesReportingViewModel.cs");
         StringAssert.Contains(viewModel, "ApplyText => IsBusy ? \"Đang cập nhật…\" : \"Áp dụng\"");
 
+        Assert.IsFalse(view.Contains("<TextBlock Text=\"Tiền tệ\" Margin=\"0,0,0,4\" />", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("Core", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("NPP", StringComparison.Ordinal));
     }
@@ -169,11 +184,50 @@ public sealed class SalesReportingParityTests
         StringAssert.Contains(store, "sales-reporting-view.json");
         StringAssert.Contains(store, "Dimension");
         StringAssert.Contains(store, "Search");
-        StringAssert.Contains(store, "Currency");
         StringAssert.Contains(store, "Comparison");
+        Assert.IsFalse(store.Contains("Currency", StringComparison.Ordinal));
         Assert.IsFalse(store.Contains("WarehouseId", StringComparison.Ordinal));
         Assert.IsFalse(store.Contains("ProductGroupId", StringComparison.Ordinal));
         Assert.IsFalse(store.Contains("CustomerGroupId", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
+    public void AnalysisExport_BuildsCanonicalColumnsAndKeepsProductAsRow()
+    {
+        var report = new SalesReportingDashboardData
+        {
+            Summary = new SalesReportingSummaryData { Revenues = [new SalesRevenueSummaryData { CurrencyCode = "VND" }] },
+            Breakdowns = new SalesReportingBreakdownsData
+            {
+                CustomerGroups =
+                [
+                    new SalesBreakdownData { Id = "cg-1", Name = "Bán lẻ" },
+                    new SalesBreakdownData { Id = "cg-2", Name = "Khách thân thiết" }
+                ]
+            }
+        };
+
+        var columns = SalesReportingAnalysisPresentation.BuildColumns(report, "products", "customerGroups", true, true);
+        CollectionAssert.Contains(columns.Select(item => item.Key).ToArray(), "meta:unit");
+        CollectionAssert.Contains(columns.Select(item => item.Key).ToArray(), "cat:customerGroups:cg-1|revenue|VND");
+        CollectionAssert.Contains(columns.Select(item => item.Key).ToArray(), "cat:customerGroups:cg-1|quantity");
+        CollectionAssert.Contains(columns.Select(item => item.Key).ToArray(), "total:revenue:VND");
+        CollectionAssert.Contains(columns.Select(item => item.Key).ToArray(), "total:quantity");
+        Assert.AreEqual("analysis.products.customerGroups.both", SalesReportingAnalysisPresentation.ExportDimension("products", "customerGroups", true, true));
+    }
+
+    [TestMethod]
+    public void Contracts_IncludeBrandFilterAndBrandOptions()
+    {
+        const string json = """
+        {
+          "filters": { "brandId": "brand-1" },
+          "classification": { "options": { "brands": [{ "id": "brand-1", "code": "HP", "name": "Hưng Phát" }] } }
+        }
+        """;
+        var data = System.Text.Json.JsonSerializer.Deserialize<SalesReportingDashboardData>(json)!;
+        Assert.AreEqual("brand-1", data.Filters.BrandId);
+        Assert.AreEqual("Hưng Phát", data.Classification.Options.Brands.Single().Name);
     }
 
     [TestMethod]
