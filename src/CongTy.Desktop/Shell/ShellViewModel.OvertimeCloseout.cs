@@ -7,7 +7,7 @@ public sealed partial class ShellViewModel
     private bool _overtimeCloseoutSelectionObserverAttached;
 
     public bool CanOpenOvertimeCloseoutWorkspace => CanViewWorkforceOvertime;
-    public bool IsOvertimeCloseoutSelected => SelectedWorkspaceIndex == 55;
+    public bool IsOvertimeCloseoutSelected => SelectedWorkspaceIndex == WorkspaceSlots.OvertimeCloseout;
 
     internal void InitializeOvertimeCloseoutShell() => EnsureOvertimeCloseoutSelectionObserver();
 
@@ -24,7 +24,7 @@ public sealed partial class ShellViewModel
         }
 
         WorkspaceMessage = string.Empty;
-        SelectedWorkspaceIndex = 55;
+        SelectedWorkspaceIndex = WorkspaceSlots.OvertimeCloseout;
         return Task.CompletedTask;
     }
 

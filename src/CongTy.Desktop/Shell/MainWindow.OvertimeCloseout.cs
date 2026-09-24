@@ -27,9 +27,9 @@ public partial class MainWindow
             app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
 
-        while (workspaceTabs.Items.Count <= 55)
+        while (workspaceTabs.Items.Count <= WorkspaceSlots.OvertimeCloseout)
             workspaceTabs.Items.Add(new TabItem());
-        workspaceTabs.Items[55] = new TabItem { Content = view };
+        workspaceTabs.Items[WorkspaceSlots.OvertimeCloseout] = new TabItem { Content = view };
 
         _overtimeCloseoutShellWired = true;
     }

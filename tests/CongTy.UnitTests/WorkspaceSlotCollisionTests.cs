@@ -1,41 +1,97 @@
+using System.Text.RegularExpressions;
+
 namespace CongTy.UnitTests;
 
 [TestClass]
 public sealed class WorkspaceSlotCollisionTests
 {
     [TestMethod]
-    public void TailWorkspaces_DoNotReuseAccountingOrWorkforceSlots()
+    public void DynamicTailWorkspaceSlots_AreUniqueAndUsedByBothNavigationAndHost()
     {
         var slots = ReadRepoFile("src", "CongTy.Desktop", "Shell", "WorkspaceSlots.cs");
-        StringAssert.Contains(slots, "UserDirectory = 57");
-        StringAssert.Contains(slots, "WorkSchedule = 58");
-        StringAssert.Contains(slots, "DesktopApp = 59");
-
-        var sales = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.SalesSettlement.cs");
-        var leave = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.Leave.cs");
-        StringAssert.Contains(sales, "SelectedWorkspaceIndex = 53");
-        StringAssert.Contains(leave, "SelectedWorkspaceIndex = 54");
-
-        foreach (var file in new[]
+        var expected = new Dictionary<string, int>
         {
-            "MainWindow.UserDirectory.cs",
-            "ShellViewModel.UserDirectory.cs"
-        })
-            StringAssert.Contains(ReadRepoFile("src", "CongTy.Desktop", "Shell", file), "WorkspaceSlots.UserDirectory");
+            ["SalesSettlement"] = 53,
+            ["Leave"] = 54,
+            ["OvertimeCloseout"] = 55,
+            ["PayrollFoundation"] = 56,
+            ["UserDirectory"] = 57,
+            ["WorkSchedule"] = 58,
+            ["DesktopApp"] = 59,
+        };
 
-        foreach (var file in new[]
-        {
-            "MainWindow.WorkSchedule.cs",
-            "ShellViewModel.WorkSchedule.cs"
-        })
-            StringAssert.Contains(ReadRepoFile("src", "CongTy.Desktop", "Shell", file), "WorkspaceSlots.WorkSchedule");
+        var parsed = Regex.Matches(slots, @"public const int (\w+) = (\d+);")
+            .ToDictionary(
+                match => match.Groups[1].Value,
+                match => int.Parse(match.Groups[2].Value));
 
-        foreach (var file in new[]
+        foreach (var item in expected)
         {
-            "MainWindow.DataBackup.cs",
-            "ShellViewModel.DataBackup.cs"
-        })
-            StringAssert.Contains(ReadRepoFile("src", "CongTy.Desktop", "Shell", file), "WorkspaceSlots.DesktopApp");
+            Assert.IsTrue(parsed.TryGetValue(item.Key, out var value), $"Thiếu workspace slot {item.Key}.");
+            Assert.AreEqual(item.Value, value, $"Sai workspace slot {item.Key}.");
+        }
+
+        Assert.AreEqual(
+            parsed.Count,
+            parsed.Values.Distinct().Count(),
+            "Có workspace dùng trùng SelectedWorkspaceIndex.");
+
+        AssertWorkspacePair("SalesSettlement", "MainWindow.SalesSettlement.cs", "ShellViewModel.SalesSettlement.cs");
+        AssertWorkspacePair("Leave", "MainWindow.Leave.cs", "ShellViewModel.Leave.cs");
+        AssertWorkspacePair("OvertimeCloseout", "MainWindow.OvertimeCloseout.cs", "ShellViewModel.OvertimeCloseout.cs");
+        AssertWorkspacePair("PayrollFoundation", "MainWindow.PayrollFoundation.cs", "ShellViewModel.PayrollFoundation.cs");
+        AssertWorkspacePair("UserDirectory", "MainWindow.UserDirectory.cs", "ShellViewModel.UserDirectory.cs");
+        AssertWorkspacePair("WorkSchedule", "MainWindow.WorkSchedule.cs", "ShellViewModel.WorkSchedule.cs");
+
+        var settingsHost = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.DataBackup.cs");
+        var settingsShell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.DataBackup.cs");
+        StringAssert.Contains(settingsHost, "workspaceTabs.Items[WorkspaceSlots.DesktopApp]");
+        StringAssert.Contains(settingsShell, "SelectedWorkspaceIndex == WorkspaceSlots.DesktopApp");
+        StringAssert.Contains(settingsShell, "WorkspaceSlots.DesktopApp,");
+    }
+
+    [TestMethod]
+    public void DynamicTailWorkspaces_DoNotHardcode53To59OutsideWorkspaceSlots()
+    {
+        var shellDirectory = FindRepoDirectory("src", "CongTy.Desktop", "Shell");
+        var hardcodedHost = new Regex(@"workspaceTabs\.Items\[(5[3-9])\]");
+        var hardcodedSelection = new Regex(@"SelectedWorkspaceIndex\s*(?:==|=)\s*(5[3-9])");
+
+        foreach (var path in Directory.GetFiles(shellDirectory, "*.cs", SearchOption.TopDirectoryOnly))
+        {
+            if (Path.GetFileName(path).Equals("WorkspaceSlots.cs", StringComparison.Ordinal))
+                continue;
+
+            var source = File.ReadAllText(path);
+            Assert.IsFalse(
+                hardcodedHost.IsMatch(source),
+                $"Không được hard-code dynamic workspace slot trong {Path.GetFileName(path)}.");
+            Assert.IsFalse(
+                hardcodedSelection.IsMatch(source),
+                $"Không được hard-code SelectedWorkspaceIndex 53-59 trong {Path.GetFileName(path)}.");
+        }
+    }
+
+    private static void AssertWorkspacePair(string slot, string hostFile, string shellFile)
+    {
+        var host = ReadRepoFile("src", "CongTy.Desktop", "Shell", hostFile);
+        var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", shellFile);
+        StringAssert.Contains(host, $"workspaceTabs.Items[WorkspaceSlots.{slot}]");
+        StringAssert.Contains(shell, $"WorkspaceSlots.{slot}");
+    }
+
+    private static string FindRepoDirectory(params string[] parts)
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(new[] { directory.FullName }.Concat(parts).ToArray());
+            if (Directory.Exists(candidate)) return candidate;
+            directory = directory.Parent;
+        }
+
+        Assert.Fail($"Không tìm thấy thư mục trong repo: {string.Join("/", parts)}");
+        return string.Empty;
     }
 
     private static string ReadRepoFile(params string[] parts)

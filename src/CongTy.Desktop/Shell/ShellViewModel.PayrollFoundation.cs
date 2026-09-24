@@ -7,7 +7,7 @@ public sealed partial class ShellViewModel
     private bool _payrollFoundationSelectionObserverAttached;
 
     public bool CanOpenPayrollFoundationWorkspace => CanViewWorkforcePayroll;
-    public bool IsPayrollFoundationSelected => SelectedWorkspaceIndex == 56;
+    public bool IsPayrollFoundationSelected => SelectedWorkspaceIndex == WorkspaceSlots.PayrollFoundation;
 
     internal void InitializePayrollFoundationShell() => EnsurePayrollFoundationSelectionObserver();
 
@@ -24,7 +24,7 @@ public sealed partial class ShellViewModel
         }
 
         WorkspaceMessage = string.Empty;
-        SelectedWorkspaceIndex = 56;
+        SelectedWorkspaceIndex = WorkspaceSlots.PayrollFoundation;
         return Task.CompletedTask;
     }
 

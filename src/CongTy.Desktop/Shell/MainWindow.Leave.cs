@@ -27,9 +27,9 @@ public partial class MainWindow
             app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
 
-        while (workspaceTabs.Items.Count <= 54)
+        while (workspaceTabs.Items.Count <= WorkspaceSlots.Leave)
             workspaceTabs.Items.Add(new TabItem());
-        workspaceTabs.Items[54] = new TabItem { Content = view };
+        workspaceTabs.Items[WorkspaceSlots.Leave] = new TabItem { Content = view };
 
         _leaveShellWired = true;
     }
