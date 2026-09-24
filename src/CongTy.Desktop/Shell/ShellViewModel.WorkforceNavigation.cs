@@ -20,7 +20,8 @@ public sealed partial class ShellViewModel
     public bool CanViewWorkforceAttendance =>
         _access.HasPermission("core.attendance.self.read")
         || _access.HasPermission("core.attendance.self.record")
-        || _access.HasPermission("core.attendance.read");
+        || _access.HasPermission("core.attendance.read")
+        || _access.HasPermission("core.attendance-point.manage");
 
     public bool CanViewWorkforceTimesheet =>
         _access.HasPermission("core.attendance.self.read")

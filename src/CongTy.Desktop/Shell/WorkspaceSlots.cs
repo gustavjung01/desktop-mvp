@@ -12,4 +12,5 @@ internal static class WorkspaceSlots
     public const int WorkSchedule = 58;
     public const int DesktopApp = 59;
     public const int WorkPolicy = 60;
+    public const int Attendance = 61;
 }
