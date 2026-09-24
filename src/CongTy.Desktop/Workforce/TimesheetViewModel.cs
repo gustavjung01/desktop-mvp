@@ -282,6 +282,9 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
         : $"Ngưỡng chính sách: trễ {SelectedDay.Policy.LateGraceMinutes} phút · về sớm {SelectedDay.Policy.EarlyLeaveGraceMinutes} phút.";
     public bool NoDayEvents => SelectedDay is not null && DayEvents.Count == 0;
 
+    public bool CanOpenViolationHandling =>
+        SelectedDay?.ViolationEvaluation.Items.Length > 0;
+
     public bool CanOpenAdjustmentForDay =>
         SelectedDay is not null
         && _data is not null
@@ -634,6 +637,7 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(DayViolationItemsText));
         OnPropertyChanged(nameof(DayPolicyThresholdText));
         OnPropertyChanged(nameof(NoDayEvents));
+        OnPropertyChanged(nameof(CanOpenViolationHandling));
         OnPropertyChanged(nameof(CanOpenAdjustmentForDay));
         OnPropertyChanged(nameof(AdjustmentActionText));
         OnPropertyChanged(nameof(AdjustmentTargetEmployeeId));

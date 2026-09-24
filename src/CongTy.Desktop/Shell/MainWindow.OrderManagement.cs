@@ -29,6 +29,7 @@ public partial class MainWindow
         WireEmployeeDirectoryWorkspace();
         WireAttendanceWorkspace();
         WireTimesheetWorkspace();
+        WireAttendanceViolationWorkspace();
         WireAttendanceAdjustmentWorkspace();
         WireWorkScheduleWorkspace();
         WireWorkPolicyWorkspace();
