@@ -67,7 +67,8 @@ public sealed class WorkforceAttendanceLot10Tests
         StringAssert.Contains(viewModel, "remaining > 15");
         StringAssert.Contains(view, "QR nơi làm việc");
         StringAssert.Contains(view, "Mã tự làm mới trước khi hết hạn");
-        StringAssert.Contains(presentation, "PngByteQRCode.GetQRCode");
+        StringAssert.Contains(presentation, "new PngByteQRCode");
+        StringAssert.Contains(presentation, "qrCode.GetGraphic(8)");
         StringAssert.Contains(project, "QRCoder");
     }
 

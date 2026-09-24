@@ -83,7 +83,10 @@ public static class AttendancePresentation
     public static ImageSource? RenderQr(string? payload)
     {
         if (string.IsNullOrWhiteSpace(payload)) return null;
-        var bytes = PngByteQRCode.GetQRCode(payload.Trim(), QRCodeGenerator.ECCLevel.M, 8);
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(payload.Trim(), QRCodeGenerator.ECCLevel.M);
+        using var qrCode = new PngByteQRCode(data);
+        var bytes = qrCode.GetGraphic(8);
         using var stream = new MemoryStream(bytes, writable: false);
         var image = new BitmapImage();
         image.BeginInit();
