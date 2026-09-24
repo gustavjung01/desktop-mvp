@@ -27,6 +27,7 @@ public partial class MainWindow
         WireMcpRoutesWorkspace();
         WireAccessRolesWorkspace();
         WireEmployeeDirectoryWorkspace();
+        WireAttendanceWorkspace();
         WireWorkScheduleWorkspace();
         WireWorkPolicyWorkspace();
         WireLeaveWorkspace();

@@ -290,7 +290,7 @@
         </DataTemplate>
         <DataTemplate x:Key="WorkforceMenuTemplate">
             <StackPanel>
-                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceAttendance, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 3"><TextBlock Text="Chấm công" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsAttendanceSelected}" Visibility="{Binding CanViewWorkforceAttendance, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Attendance_OnClick"><TextBlock Text="Chấm công" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceTimesheet, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 4"><TextBlock Text="Bảng công" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsOvertimeCloseoutSelected}" Visibility="{Binding CanViewWorkforceOvertime, Converter={StaticResource BooleanToVisibilityConverter}}" Click="OvertimeCloseout_OnClick"><TextBlock Text="Tăng ca &amp; chốt công" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsPayrollFoundationSelected}" Visibility="{Binding CanViewWorkforcePayroll, Converter={StaticResource BooleanToVisibilityConverter}}" Click="PayrollFoundation_OnClick"><TextBlock Text="Tính lương" /></Button>

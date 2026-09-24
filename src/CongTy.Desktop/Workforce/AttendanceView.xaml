@@ -1,0 +1,393 @@
+<UserControl x:Class="CongTy.Desktop.Workforce.AttendanceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="AttendanceView_OnLoaded">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="AttendanceMessageBorderStyle" TargetType="Border" BasedOn="{StaticResource OfficeCardStyle}">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+        </Style>
+
+        <Style x:Key="AttendanceCellTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="AttendanceFieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,4,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="NHÂN SỰ"
+                                   FontSize="10"
+                                   FontWeight="Bold" />
+                        <TextBlock Margin="0,3,0,0"
+                                   Text="Chấm công theo nơi làm việc đã gắn trong hồ sơ; giờ ghi nhận do hệ thống xác định."
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                            IsEnabled="{Binding CanRefresh}"
+                            Click="Refresh_OnClick"
+                            Content="CẬP NHẬT TRẠNG THÁI" />
+                </Grid>
+
+                <Border Margin="0,10,0,0"
+                        Style="{StaticResource AttendanceMessageBorderStyle}"
+                        Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+
+                <TextBlock Margin="0,14,0,0"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Text="Đang tải trạng thái chấm công…"
+                           Visibility="{Binding ShowLoading, Converter={StaticResource BoolToVisibility}}" />
+
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Padding="12" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="NGÀY LÀM VIỆC" FontSize="10" FontWeight="Bold" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="{Binding WorkDateText}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding EmployeeText}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding WorkplaceText, StringFormat='Nơi làm việc: {0}'}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="TRẠNG THÁI HÔM NAY" FontSize="10" FontWeight="Bold" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="{Binding StatusText}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding NextActionText}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="4" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="CHÍNH SÁCH LÀM VIỆC" FontSize="10" FontWeight="Bold" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="{Binding PolicyText}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding AttendanceMethodText}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <TabControl Margin="0,12,0,0">
+                    <TabItem Header="Chấm công hôm nay">
+                        <StackPanel Margin="0,10,0,0">
+                            <Border Padding="12"
+                                    Style="{StaticResource AttendanceMessageBorderStyle}"
+                                    Visibility="{Binding CanRecordWithoutRead, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="Tài khoản có quyền ghi nhận chấm công nhưng chưa có quyền xem trạng thái của bản thân. Cần quyền xem công của bản thân để xác định thao tác tiếp theo."
+                                           TextWrapping="Wrap" />
+                            </Border>
+
+                            <Border Padding="12"
+                                    Style="{StaticResource OfficeCardStyle}"
+                                    Visibility="{Binding HasToday, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="10" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="DỰ KIẾN VÀO" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,4,0,0" Text="{Binding ExpectedStartText}" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="DỰ KIẾN RA" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,4,0,0" Text="{Binding ExpectedEndText}" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="LỊCH HÔM NAY" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,4,0,0" Text="{Binding ScheduleText}" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Border Margin="0,12,0,0"
+                                            Padding="10"
+                                            Background="{DynamicResource AccentSoftBrush}"
+                                            Visibility="{Binding ShowFaceNotice, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="Quét khuôn mặt được thực hiện tại máy chấm công của nơi làm việc. Không nhập tên hoặc giờ thủ công trên màn này."
+                                                   TextWrapping="Wrap" />
+                                    </Border>
+
+                                    <Border Margin="0,10,0,0"
+                                            Padding="10"
+                                            Background="{DynamicResource AccentSoftBrush}"
+                                            Visibility="{Binding ShowPresenceNotice, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Text="Chính sách này chỉ xác nhận có mặt. Sau khi ghi nhận vào làm, Bảng công không dùng số phút làm việc để tính công và không yêu cầu ghi nhận giờ ra."
+                                                   TextWrapping="Wrap" />
+                                    </Border>
+
+                                    <Border Margin="0,12,0,0"
+                                            Padding="12"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding ShowExitReason, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel>
+                                            <TextBlock Text="LÝ DO RỜI NƠI LÀM VIỆC" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,4,0,8"
+                                                       Text="Chọn đúng mục để Bảng công phân biệt kết thúc ngày với ra tạm thời."
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Style="{StaticResource AttendanceFieldLabelStyle}" Text="Lý do" />
+                                            <ComboBox ItemsSource="{Binding ExitReasons}"
+                                                      SelectedItem="{Binding SelectedExitReason, Mode=TwoWay}"
+                                                      DisplayMemberPath="Label" />
+                                            <StackPanel Margin="0,8,0,0"
+                                                        Visibility="{Binding ShowOtherExitNote, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Style="{StaticResource AttendanceFieldLabelStyle}" Text="Ghi rõ lý do" />
+                                                <TextBox MaxLength="1024"
+                                                         Text="{Binding ExitNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Grid Margin="0,12,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Padding="12"
+                                                Style="{StaticResource OfficeCardStyle}"
+                                                Visibility="{Binding ShowQrRecord, Converter={StaticResource BoolToVisibility}}">
+                                            <StackPanel>
+                                                <TextBlock Text="MÃ QR TẠI NƠI LÀM VIỆC" FontSize="10" FontWeight="Bold" />
+                                                <TextBlock Margin="0,4,0,8"
+                                                           Text="Dùng máy quét QR dạng bàn phím hoặc dán mã NPPATT. từ thiết bị quét. Desktop không tự chọn nơi làm việc."
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                                <TextBox Text="{Binding QrInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <StackPanel Margin="0,8,0,0"
+                                                            Orientation="Horizontal"
+                                                            HorizontalAlignment="Right">
+                                                    <Button Margin="0,0,8,0"
+                                                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                            Click="PasteQr_OnClick"
+                                                            Content="DÁN MÃ" />
+                                                    <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                            IsEnabled="{Binding CanSubmitQr}"
+                                                            Click="SubmitQr_OnClick"
+                                                            Content="GHI NHẬN QR" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Grid.Column="2"
+                                                Padding="12"
+                                                Style="{StaticResource OfficeCardStyle}"
+                                                Visibility="{Binding ShowManualRecord, Converter={StaticResource BoolToVisibility}}">
+                                            <StackPanel>
+                                                <TextBlock Text="CHẤM CÔNG TRỰC TIẾP" FontSize="10" FontWeight="Bold" />
+                                                <TextBlock Margin="0,4,0,8"
+                                                           Text="Hệ thống tự ghi nhận giờ hiện tại. Không nhập thời gian hoặc chọn nơi làm việc."
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding NextActionText}"
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap" />
+                                                <Button Margin="0,12,0,0"
+                                                        HorizontalAlignment="Right"
+                                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                        IsEnabled="{Binding CanSubmitManual}"
+                                                        Click="SubmitManual_OnClick"
+                                                        Content="GHI NHẬN" />
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+
+                                    <Border Margin="0,12,0,0"
+                                            Padding="12"
+                                            Style="{StaticResource OfficeCardStyle}">
+                                        <StackPanel>
+                                            <TextBlock Text="LỊCH SỬ TRONG NGÀY" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,3,0,10"
+                                                       Text="Attendance Event là lịch sử gốc; màn này chỉ ghi thêm sự kiện mới, không sửa đè lần chấm trước."
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextWrapping="Wrap" />
+                                            <DataGrid AutoGenerateColumns="False"
+                                                      IsReadOnly="True"
+                                                      RowHeight="54"
+                                                      Style="{StaticResource OfficeDataGridStyle}"
+                                                      ItemsSource="{Binding TodayEvents}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Sự kiện" Binding="{Binding EventText}" Width="1*" ElementStyle="{StaticResource AttendanceCellTextStyle}" />
+                                                    <DataGridTextColumn Header="Thời gian" Binding="{Binding TimeText}" Width="1.05*" ElementStyle="{StaticResource AttendanceCellTextStyle}" />
+                                                    <DataGridTextColumn Header="Nguồn / nơi làm việc" Binding="{Binding SourceText}" Width="1.25*" ElementStyle="{StaticResource AttendanceCellTextStyle}" />
+                                                    <DataGridTextColumn Header="Ghi chú" Binding="{Binding NoteText}" Width="1.5*" ElementStyle="{StaticResource AttendanceCellTextStyle}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                            <TextBlock Margin="0,10,0,0"
+                                                       HorizontalAlignment="Center"
+                                                       Text="Chưa có lần chấm công nào trong ngày làm việc này."
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       Visibility="{Binding NoEvents, Converter={StaticResource BoolToVisibility}}" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </TabItem>
+
+                    <TabItem Header="QR nơi làm việc"
+                             Visibility="{Binding ShowManagement, Converter={StaticResource BoolToVisibility}}">
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="1.35*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="DÀNH CHO QUẢN LÝ" FontSize="10" FontWeight="Bold" />
+                                    <TextBlock Margin="0,4,0,0"
+                                               Text="Mã QR theo nơi làm việc"
+                                               FontSize="18"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Margin="0,4,0,10"
+                                               Text="Chọn nơi làm việc có sẵn. Nếu chưa có điểm QR, hệ thống tự thiết lập cho nơi làm việc đó."
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock Style="{StaticResource AttendanceFieldLabelStyle}" Text="Nơi làm việc" />
+                                    <ComboBox ItemsSource="{Binding WorkplaceOptions}"
+                                              SelectedItem="{Binding SelectedWorkplace, Mode=TwoWay}"
+                                              DisplayMemberPath="Label" />
+                                    <Button Margin="0,12,0,0"
+                                            HorizontalAlignment="Right"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            IsEnabled="{Binding CanShowWorkplaceQr}"
+                                            Click="ShowWorkplaceQr_OnClick"
+                                            Content="HIỂN THỊ MÃ QR" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Padding="12" Style="{StaticResource OfficeCardStyle}">
+                                <Grid>
+                                    <TextBlock HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Text="Chọn nơi làm việc rồi bấm “Hiển thị mã QR”."
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasQrToken}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <Grid Visibility="{Binding HasQrToken, Converter={StaticResource BoolToVisibility}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="16" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Padding="10"
+                                                Background="White"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1">
+                                            <Image Width="280"
+                                                   Height="280"
+                                                   Stretch="Uniform"
+                                                   Source="{Binding QrImage}" />
+                                        </Border>
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding QrWorkplaceText}"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Margin="0,5,0,0"
+                                                       Text="Dùng mã này để chấm công tại nơi làm việc trên."
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Margin="0,8,0,0"
+                                                       Text="{Binding QrRemainingText}"
+                                                       FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,3,0,0"
+                                                       Text="{Binding QrExpiresText}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                                            <TextBlock Margin="0,8,0,0"
+                                                       Text="Mã tự làm mới trước khi hết hạn. Nhân viên chỉ dùng được mã thuộc nơi làm việc đã gắn trong hồ sơ."
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextWrapping="Wrap" />
+                                            <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                                                <Button Margin="0,0,8,0"
+                                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                        Click="ClearQr_OnClick"
+                                                        Content="TẮT MÃ QR" />
+                                                <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                        IsEnabled="{Binding CanManagePoints}"
+                                                        Click="RefreshQr_OnClick"
+                                                        Content="LÀM MỚI MÃ" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -20,7 +20,7 @@ public sealed class WorkforceNavigationLot0Tests
         }
 
         StringAssert.Contains(workforce, "Click=\"EmployeeDirectory_OnClick\"");
-        StringAssert.Contains(workforce, "ToolTip=\"Sẽ được triển khai ở Lô 3\"");
+        StringAssert.Contains(workforce, "Click=\"Attendance_OnClick\"");
         StringAssert.Contains(workforce, "Click=\"PayrollFoundation_OnClick\"");
         Assert.IsFalse(access.Contains("Danh mục nhân sự", StringComparison.Ordinal));
         StringAssert.Contains(access, "Vai trò và phân quyền");
@@ -35,7 +35,7 @@ public sealed class WorkforceNavigationLot0Tests
         var employee = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.EmployeeDirectory.cs");
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");
 
-        foreach (var permission in new[] { "core.attendance.self.read", "core.attendance.read", "core.overtime.read", "core.payroll.read", "core.leave.read", "core.attendance-violation.resolve", "core.attendance.adjust", "core.work-schedule.read", "core.work-policy.read" })
+        foreach (var permission in new[] { "core.attendance.self.read", "core.attendance-point.manage", "core.attendance.read", "core.overtime.read", "core.payroll.read", "core.leave.read", "core.attendance-violation.resolve", "core.attendance.adjust", "core.work-schedule.read", "core.work-policy.read" })
             StringAssert.Contains(workforce, permission);
 
         Assert.IsFalse(workforce.Contains("/api/", StringComparison.Ordinal));
