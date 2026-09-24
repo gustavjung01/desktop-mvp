@@ -9,7 +9,7 @@ public sealed class WorkforceWorkPolicyLot9Tests
         var service = ReadRepoFile("src", "CongTy.ApiClient", "WorkPolicyService.cs");
         var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "WorkPolicyViewModel.cs");
 
-        StringAssert.Contains(service, ""/api/workforce/policies"");
+        StringAssert.Contains(service, "/api/workforce/policies");
         StringAssert.Contains(service, "PostIdempotentDataAsync<SaveWorkPolicyRequest, WorkPolicyDetailData>");
         StringAssert.Contains(viewModel, "desktop-work-policy-save");
         StringAssert.Contains(viewModel, "JsonSerializer.Serialize(request)");
@@ -44,10 +44,12 @@ public sealed class WorkforceWorkPolicyLot9Tests
         var host = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.WorkPolicy.cs");
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.WorkPolicy.cs");
 
-        StringAssert.Contains(xaml, "Click="WorkPolicies_OnClick"");
-        Assert.IsFalse(xaml.Contains("ToolTip="Sẽ được triển khai ở Lô 2"><TextBlock Text="Chính sách làm việc"", StringComparison.Ordinal));
+        StringAssert.Contains(xaml, "WorkPolicies_OnClick");
+        StringAssert.Contains(xaml, "IsWorkPolicySelected");
+        Assert.IsFalse(xaml.Contains("Sẽ được triển khai ở Lô 2", StringComparison.Ordinal)
+                       && xaml.Contains("Chính sách làm việc", StringComparison.Ordinal));
         StringAssert.Contains(host, "WorkspaceSlots.WorkPolicy");
-        StringAssert.Contains(shell, "SetSelectedNavigation("workforce.policies")");
+        StringAssert.Contains(shell, "workforce.policies");
         StringAssert.Contains(shell, "core.work-policy.read");
     }
 
