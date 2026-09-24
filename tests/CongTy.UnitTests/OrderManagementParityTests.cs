@@ -53,6 +53,21 @@ public sealed class OrderManagementParityTests
     }
 
     [TestMethod]
+    public void View_SummaryCardsReuseHorizontalSalesCardPattern()
+    {
+        var view=ReadRepoFile("src","CongTy.Desktop","Sales","OrderManagementView.xaml");
+        StringAssert.Contains(view,"x:Key=\"StageSummaryButtonStyle\"");
+        StringAssert.Contains(view,"Background=\"{DynamicResource CardHeaderBrush}\"");
+        StringAssert.Contains(view,"BorderBrush=\"{DynamicResource CardFrameBrush}\"");
+        StringAssert.Contains(view,"CornerRadius=\"8\"");
+        StringAssert.Contains(view,"<DockPanel LastChildFill=\"False\">");
+        StringAssert.Contains(view,"DockPanel.Dock=\"Right\" Text=\"{Binding ActiveCount}\"");
+        StringAssert.Contains(view,"Text=\"{Binding ActiveValue}\" FontSize=\"10\"");
+        StringAssert.Contains(view,"Margin=\"2,0\" Tag=\"preparing\"");
+        Assert.IsFalse(view.Contains("Tag=\"active\" Click=\"StageCard_OnClick\" Style=\"{StaticResource OfficeSecondaryButtonStyle}\"",StringComparison.Ordinal));
+    }
+
+    [TestMethod]
     public void ViewModel_ClearsSelectionWhenFiltersChangeAndSelectsWholeFilteredSet()
     {
         var source=ReadRepoFile("src","CongTy.Desktop","Sales","OrderManagementViewModel.cs");
