@@ -44,7 +44,7 @@ public sealed class WorkforceAttendanceLot10Tests
             StringAssert.Contains(viewModel, reason);
 
         StringAssert.Contains(contracts, "movement_reason");
-        StringAssert.Contains(view, "Chấm công trực tiếp");
+        StringAssert.Contains(view, "CHẤM CÔNG TRỰC TIẾP");
         StringAssert.Contains(view, "máy quét QR dạng bàn phím");
         StringAssert.Contains(view, "Quét khuôn mặt được thực hiện tại máy chấm công");
         StringAssert.Contains(view, "Chính sách này chỉ xác nhận có mặt");
