@@ -37,9 +37,9 @@ public partial class MainWindow
                 idempotencyKeys,
                 access));
 
-        while (workspaceTabs.Items.Count <= 53)
+        while (workspaceTabs.Items.Count <= WorkspaceSlots.UserDirectory)
             workspaceTabs.Items.Add(new TabItem());
-        workspaceTabs.Items[53] = new TabItem { Content = view };
+        workspaceTabs.Items[WorkspaceSlots.UserDirectory] = new TabItem { Content = view };
 
         _userDirectoryShellWired = true;
     }
