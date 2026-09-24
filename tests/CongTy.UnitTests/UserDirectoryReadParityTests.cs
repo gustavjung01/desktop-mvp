@@ -31,7 +31,7 @@ public sealed class UserDirectoryReadParityTests
     }
 
     [TestMethod]
-    public void Lot1_Shell_UsesWorkspace53AndUserReadPermission()
+    public void Lot1_Shell_UsesDedicatedWorkspaceAndUserReadPermission()
     {
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.UserDirectory.cs");
         var host = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.UserDirectory.cs");
@@ -39,9 +39,9 @@ public sealed class UserDirectoryReadParityTests
 
         StringAssert.Contains(shell, "core.user.read");
         StringAssert.Contains(shell, "SetSelectedNavigation(\"access.users\")");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex = 53");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex = WorkspaceSlots.UserDirectory");
         Assert.IsFalse(host.Contains("sidebarButton", StringComparison.Ordinal));
-        StringAssert.Contains(host, "workspaceTabs.Items[53]");
+        StringAssert.Contains(host, "workspaceTabs.Items[WorkspaceSlots.UserDirectory]");
         StringAssert.Contains(bootstrap, "WireUserDirectoryWorkspace()");
     }
 

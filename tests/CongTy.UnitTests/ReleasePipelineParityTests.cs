@@ -127,8 +127,8 @@ public sealed class ReleasePipelineParityTests
         var view = ReadRepoFile("src", "CongTy.Desktop", "Settings", "DesktopAppView.xaml");
 
         StringAssert.Contains(shell, "settings.desktop-app");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex == 54");
-        StringAssert.Contains(host, "workspaceTabs.Items[54]");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex == WorkspaceSlots.DesktopApp");
+        StringAssert.Contains(host, "workspaceTabs.Items[WorkspaceSlots.DesktopApp]");
         StringAssert.Contains(view, "Phiên bản hiện tại");
         StringAssert.Contains(view, "Phiên bản mới");
         StringAssert.Contains(view, "Tiến trình tải");

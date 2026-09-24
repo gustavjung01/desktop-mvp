@@ -127,14 +127,14 @@ public sealed class SettingsPrintAppearanceParityTests
         StringAssert.Contains(shell, "settings.data-backup");
         StringAssert.Contains(shell, "settings.print-templates");
         StringAssert.Contains(shell, "settings.appearance");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex is 47 or 48 or 49 or 54");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex is 47 or 48 or 49 or WorkspaceSlots.DesktopApp");
         StringAssert.Contains(host, "workspaceTabs.Items[47]");
         StringAssert.Contains(host, "workspaceTabs.Items[48]");
         StringAssert.Contains(host, "workspaceTabs.Items[49]");
         StringAssert.Contains(shell, "settings.desktop-app");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex == 54");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex == WorkspaceSlots.DesktopApp");
         StringAssert.Contains(host, "DesktopAppView");
-        StringAssert.Contains(host, "workspaceTabs.Items[54]");
+        StringAssert.Contains(host, "workspaceTabs.Items[WorkspaceSlots.DesktopApp]");
         StringAssert.Contains(backupView, "Click=\"PrintTemplates_OnClick\"");
         StringAssert.Contains(backupView, "Click=\"DesktopApp_OnClick\"");
         StringAssert.Contains(backupView, "Click=\"Appearance_OnClick\"");
