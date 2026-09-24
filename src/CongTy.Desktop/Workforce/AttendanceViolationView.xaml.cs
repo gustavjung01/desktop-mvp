@@ -14,8 +14,6 @@ public partial class AttendanceViolationView : UserControl
 
     public AttendanceViolationViewModel ViewModel { get; }
 
-    public event EventHandler? OpenTimesheetRequested;
-
     private async void AttendanceViolationView_OnLoaded(object sender, RoutedEventArgs e) =>
         await ViewModel.EnsureLoadedAsync();
 
