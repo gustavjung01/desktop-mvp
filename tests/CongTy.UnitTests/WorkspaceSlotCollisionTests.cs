@@ -22,6 +22,7 @@ public sealed class WorkspaceSlotCollisionTests
             ["Attendance"] = 61,
             ["Timesheet"] = 62,
             ["AttendanceAdjustment"] = 63,
+            ["AttendanceViolation"] = 64,
         };
 
         var parsed = Regex.Matches(slots, @"public const int (\w+) = (\d+);")
@@ -50,6 +51,7 @@ public sealed class WorkspaceSlotCollisionTests
         AssertWorkspacePair("Attendance", "MainWindow.Attendance.cs", "ShellViewModel.Attendance.cs");
         AssertWorkspacePair("Timesheet", "MainWindow.Timesheet.cs", "ShellViewModel.Timesheet.cs");
         AssertWorkspacePair("AttendanceAdjustment", "MainWindow.AttendanceAdjustment.cs", "ShellViewModel.AttendanceAdjustment.cs");
+        AssertWorkspacePair("AttendanceViolation", "MainWindow.AttendanceViolation.cs", "ShellViewModel.AttendanceViolation.cs");
 
         var settingsHost = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.DataBackup.cs");
         var settingsShell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.DataBackup.cs");
@@ -59,11 +61,11 @@ public sealed class WorkspaceSlotCollisionTests
     }
 
     [TestMethod]
-    public void DynamicTailWorkspaces_DoNotHardcode53To63OutsideWorkspaceSlots()
+    public void DynamicTailWorkspaces_DoNotHardcode53To64OutsideWorkspaceSlots()
     {
         var shellDirectory = FindRepoDirectory("src", "CongTy.Desktop", "Shell");
-        var hardcodedHost = new Regex(@"workspaceTabs\.Items\[((?:5[3-9])|6[0-3])\]");
-        var hardcodedSelection = new Regex(@"SelectedWorkspaceIndex\s*(?:==|=)\s*((?:5[3-9])|6[0-3])");
+        var hardcodedHost = new Regex(@"workspaceTabs\.Items\[((?:5[3-9])|6[0-4])\]");
+        var hardcodedSelection = new Regex(@"SelectedWorkspaceIndex\s*(?:==|=)\s*((?:5[3-9])|6[0-4])");
 
         foreach (var path in Directory.GetFiles(shellDirectory, "*.cs", SearchOption.TopDirectoryOnly))
         {
@@ -76,7 +78,7 @@ public sealed class WorkspaceSlotCollisionTests
                 $"Không được hard-code dynamic workspace slot trong {Path.GetFileName(path)}.");
             Assert.IsFalse(
                 hardcodedSelection.IsMatch(source),
-                $"Không được hard-code SelectedWorkspaceIndex 53-63 trong {Path.GetFileName(path)}.");
+                $"Không được hard-code SelectedWorkspaceIndex 53-64 trong {Path.GetFileName(path)}.");
         }
     }
 

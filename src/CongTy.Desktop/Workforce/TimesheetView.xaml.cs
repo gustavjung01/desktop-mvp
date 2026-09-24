@@ -16,6 +16,7 @@ public partial class TimesheetView : UserControl
     public TimesheetViewModel ViewModel { get; }
 
     public event EventHandler<TimesheetAdjustmentRequestedEventArgs>? AdjustmentRequested;
+    public event EventHandler? ViolationRequested;
 
     private async void TimesheetView_OnLoaded(object sender, RoutedEventArgs e) =>
         await ViewModel.EnsureLoadedAsync();
@@ -60,6 +61,9 @@ public partial class TimesheetView : UserControl
                 ViewModel.AdjustmentTargetEmployeeId,
                 workDate));
     }
+
+    private void OpenViolationHandling_OnClick(object sender, RoutedEventArgs e) =>
+        ViolationRequested?.Invoke(this, EventArgs.Empty);
 
     private void CloseDayDetail_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.CloseDay();

@@ -52,7 +52,9 @@ public sealed partial class ShellViewModel
         || _access.HasPermission("core.leave-type.manage");
 
     public bool CanViewWorkforceViolations =>
-        _access.HasPermission("core.attendance-violation.self-explain")
+        _access.HasPermission("core.attendance.self.read")
+        || _access.HasPermission("core.attendance.read")
+        || _access.HasPermission("core.attendance-violation.self-explain")
         || _access.HasPermission("core.attendance-violation.resolve");
 
     public bool CanViewWorkforceAdjustments =>

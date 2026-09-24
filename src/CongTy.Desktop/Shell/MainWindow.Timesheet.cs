@@ -26,6 +26,7 @@ public partial class MainWindow
             service,
             app.ResolveRequired<IAccessStateService>()));
         view.AdjustmentRequested += Timesheet_AdjustmentRequested;
+        view.ViolationRequested += Timesheet_ViolationRequested;
 
         while (workspaceTabs.Items.Count <= WorkspaceSlots.Timesheet)
             workspaceTabs.Items.Add(new TabItem());
@@ -44,6 +45,9 @@ public partial class MainWindow
         object? sender,
         TimesheetAdjustmentRequestedEventArgs e) =>
         await NavigateAttendanceAdjustmentAsync(e.EmployeeId, e.WorkDate);
+
+    private async void Timesheet_ViolationRequested(object? sender, EventArgs e) =>
+        await NavigateAttendanceViolationAsync();
 
     private void ApplyTimesheetHeader()
     {
