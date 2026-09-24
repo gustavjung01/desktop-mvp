@@ -175,7 +175,7 @@ public sealed class WorkforceAttendanceAdjustmentLot12Tests
         StringAssert.Contains(audit, "core.attendance.self-adjust-request");
         StringAssert.Contains(audit, "core.attendance.adjust");
         StringAssert.Contains(audit, "core.attendance.lock");
-        StringAssert.Contains(audit, "retry cùng payload reuse key cũ");
+        StringAssert.Contains(audit, "Retry cùng payload reuse key cũ");
         StringAssert.Contains(audit, "không sửa Web/backend");
         StringAssert.Contains(audit, "không sửa DB/migration");
         StringAssert.Contains(audit, "không deploy production");
