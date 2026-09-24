@@ -908,7 +908,7 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(sales,"Header=\"Khả dụng cho đơn này\"");
         StringAssert.Contains(print,"PHIẾU XUẤT KHO");
         StringAssert.Contains(print,"FlowDocumentPageViewer");
-        StringAssert.Contains(print,"DocumentPrintTemplateRuntime.CreateDocument(template)");
+        StringAssert.Contains(print,"DocumentPrintTemplateRuntime.CreateDocument(template, baseFontSize: 10.5, padding: PrintPadding)");
         StringAssert.Contains(print,"PrintDialog");
     }
 

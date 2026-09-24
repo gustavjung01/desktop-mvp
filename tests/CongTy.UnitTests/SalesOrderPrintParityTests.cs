@@ -12,7 +12,7 @@ public sealed class SalesOrderPrintParityTests
         StringAssert.Contains(source, "Phiếu xuất kho {SalesPresentation.Number(number)}");
         StringAssert.Contains(source, "FlowDocumentPageViewer");
         StringAssert.Contains(source, "PrintDialog");
-        StringAssert.Contains(source, "DocumentPrintTemplateRuntime.CreateDocument(template)");
+        StringAssert.Contains(source, "DocumentPrintTemplateRuntime.CreateDocument(template, baseFontSize: 10.5, padding: PrintPadding)");
         StringAssert.Contains(source, "DocumentPrintTemplateRuntime.AddHeader");
         Assert.IsFalse(source.Contains("new DocumentViewer", StringComparison.Ordinal));
     }
@@ -37,7 +37,7 @@ public sealed class SalesOrderPrintParityTests
 
         StringAssert.Contains(source, "Display(version.WalkInDisplayName, \"Khách vãng lai\")");
         StringAssert.Contains(source, "JoinCodeName(version.WarehouseCode, version.WarehouseName)");
-        StringAssert.Contains(source, "DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template)");
+        StringAssert.Contains(source, "DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template, PrintPadding)");
         StringAssert.Contains(source, "fallbackHeading: \"Hưng Phát\"");
         StringAssert.Contains(source, "ShowDiscount(version)");
         StringAssert.Contains(source, "ShowTax(version)");
