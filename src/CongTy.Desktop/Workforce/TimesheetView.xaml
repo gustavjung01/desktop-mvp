@@ -485,6 +485,12 @@
                                        Text="Ngày này chưa có sự kiện chấm công."
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        Visibility="{Binding NoDayEvents, Converter={StaticResource BoolToVisibility}}" />
+                            <Button Margin="0,10,0,0"
+                                    HorizontalAlignment="Right"
+                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    Visibility="{Binding CanOpenAdjustmentForDay, Converter={StaticResource BoolToVisibility}}"
+                                    Click="OpenAdjustment_OnClick"
+                                    Content="{Binding AdjustmentActionText}" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

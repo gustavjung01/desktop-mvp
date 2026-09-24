@@ -14,4 +14,5 @@ internal static class WorkspaceSlots
     public const int WorkPolicy = 60;
     public const int Attendance = 61;
     public const int Timesheet = 62;
+    public const int AttendanceAdjustment = 63;
 }
