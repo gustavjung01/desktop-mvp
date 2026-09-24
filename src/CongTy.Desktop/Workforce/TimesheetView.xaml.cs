@@ -15,6 +15,8 @@ public partial class TimesheetView : UserControl
 
     public TimesheetViewModel ViewModel { get; }
 
+    public event EventHandler<TimesheetAdjustmentRequestedEventArgs>? AdjustmentRequested;
+
     private async void TimesheetView_OnLoaded(object sender, RoutedEventArgs e) =>
         await ViewModel.EnsureLoadedAsync();
 
@@ -48,6 +50,25 @@ public partial class TimesheetView : UserControl
     private void MonthDay_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.OpenDay((sender as FrameworkElement)?.Tag as AttendanceTimesheetDayData);
 
+    private void OpenAdjustment_OnClick(object sender, RoutedEventArgs e)
+    {
+        var workDate = ViewModel.AdjustmentTargetWorkDate;
+        if (string.IsNullOrWhiteSpace(workDate)) return;
+        AdjustmentRequested?.Invoke(
+            this,
+            new TimesheetAdjustmentRequestedEventArgs(
+                ViewModel.AdjustmentTargetEmployeeId,
+                workDate));
+    }
+
     private void CloseDayDetail_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.CloseDay();
+}
+
+public sealed class TimesheetAdjustmentRequestedEventArgs(
+    string? employeeId,
+    string workDate) : EventArgs
+{
+    public string? EmployeeId { get; } = employeeId;
+    public string WorkDate { get; } = workDate;
 }

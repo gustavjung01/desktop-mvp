@@ -22,6 +22,7 @@ public sealed class WorkforceNavigationLot0Tests
         StringAssert.Contains(workforce, "Click=\"EmployeeDirectory_OnClick\"");
         StringAssert.Contains(workforce, "Click=\"Attendance_OnClick\"");
         StringAssert.Contains(workforce, "Click=\"Timesheet_OnClick\"");
+        StringAssert.Contains(workforce, "Click=\"AttendanceAdjustment_OnClick\"");
         StringAssert.Contains(workforce, "Click=\"PayrollFoundation_OnClick\"");
         Assert.IsFalse(access.Contains("Danh mục nhân sự", StringComparison.Ordinal));
         StringAssert.Contains(access, "Vai trò và phân quyền");

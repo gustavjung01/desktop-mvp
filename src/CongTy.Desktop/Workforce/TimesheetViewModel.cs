@@ -282,6 +282,25 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
         : $"Ngưỡng chính sách: trễ {SelectedDay.Policy.LateGraceMinutes} phút · về sớm {SelectedDay.Policy.EarlyLeaveGraceMinutes} phút.";
     public bool NoDayEvents => SelectedDay is not null && DayEvents.Count == 0;
 
+    public bool CanOpenAdjustmentForDay =>
+        SelectedDay is not null
+        && _data is not null
+        && (
+            (_data.Capabilities.CanManage
+             && (SelectedDay.PeriodLock is null || _data.Capabilities.CanLock))
+            || (!_data.Capabilities.CanManage
+                && _data.Capabilities.CanSubmitOwn
+                && SelectedDay.PeriodLock is null)
+        );
+
+    public string AdjustmentActionText =>
+        _data?.Capabilities.CanManage == true ? "ĐIỀU CHỈNH CÔNG" : "YÊU CẦU ĐIỀU CHỈNH";
+
+    public string? AdjustmentTargetEmployeeId =>
+        _data?.Capabilities.CanManage == true ? SelectedDay?.Employee.Id : null;
+
+    public string? AdjustmentTargetWorkDate => SelectedDay?.WorkDate;
+
     public async Task EnsureLoadedAsync()
     {
         if (_loaded || !CanView) return;
@@ -615,6 +634,10 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(DayViolationItemsText));
         OnPropertyChanged(nameof(DayPolicyThresholdText));
         OnPropertyChanged(nameof(NoDayEvents));
+        OnPropertyChanged(nameof(CanOpenAdjustmentForDay));
+        OnPropertyChanged(nameof(AdjustmentActionText));
+        OnPropertyChanged(nameof(AdjustmentTargetEmployeeId));
+        OnPropertyChanged(nameof(AdjustmentTargetWorkDate));
     }
 
     private void RaiseAll()
