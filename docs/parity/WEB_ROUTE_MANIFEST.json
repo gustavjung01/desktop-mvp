@@ -3,9 +3,9 @@
   "name": "WEB_ROUTE_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "921ba8ccf50341a5078794eb5403b40231e57d32",
+    "baselineRevision": "9e2cd0eaaaf3f6bad53d8fefe229afe9fd37cb7c",
     "fingerprints": {
-      "webAppTree": "d59ee4eb239e207079c292685c479ebbd336bf0b"
+      "webAppTree": "5a8a22c45a0580155df2a3c99df49601703c06e1"
     }
   },
   "snapshot": {
