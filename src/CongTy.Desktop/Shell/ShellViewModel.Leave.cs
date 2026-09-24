@@ -7,7 +7,7 @@ public sealed partial class ShellViewModel
     private bool _leaveSelectionObserverAttached;
 
     public bool CanOpenLeaveWorkspace => CanViewWorkforceLeave;
-    public bool IsLeaveSelected => SelectedWorkspaceIndex == 54;
+    public bool IsLeaveSelected => SelectedWorkspaceIndex == WorkspaceSlots.Leave;
 
     internal void InitializeLeaveShell() => EnsureLeaveSelectionObserver();
 
@@ -24,7 +24,7 @@ public sealed partial class ShellViewModel
         }
 
         WorkspaceMessage = string.Empty;
-        SelectedWorkspaceIndex = 54;
+        SelectedWorkspaceIndex = WorkspaceSlots.Leave;
         return Task.CompletedTask;
     }
 

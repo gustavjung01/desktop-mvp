@@ -125,7 +125,7 @@ public sealed class SalesSettlementReconciliationParityTests
 
         StringAssert.Contains(shell, "core.receivable.read");
         StringAssert.Contains(shell, "accounting.reconciliation");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex = 53");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex = WorkspaceSlots.SalesSettlement");
         StringAssert.Contains(shell, "IsAccountingOpen = true");
         StringAssert.Contains(shellCore, "accounting.reconciliation");
         StringAssert.Contains(shellCore, "Đối soát bán hàng & COD");
@@ -134,7 +134,7 @@ public sealed class SalesSettlementReconciliationParityTests
         StringAssert.Contains(shellCore, "OnPropertyChanged(nameof(CanViewSalesSettlement));");
         Assert.IsFalse(shellCore.Contains("nameof(CodAccountingViewModel.CanReadReport))\n            {\n                OnPropertyChanged(nameof(CanViewCodAccounting));\n        OnPropertyChanged(nameof(CanViewSalesSettlement));", StringComparison.Ordinal));
 
-        StringAssert.Contains(host, "workspaceTabs.Items[53]");
+        StringAssert.Contains(host, "workspaceTabs.Items[WorkspaceSlots.SalesSettlement]");
         StringAssert.Contains(host, "SalesSettlementReconciliationService");
         StringAssert.Contains(host, "SalesSettlementNavigationRequested");
         StringAssert.Contains(bootstrap, "WireSalesSettlementReconciliationWorkspace()");

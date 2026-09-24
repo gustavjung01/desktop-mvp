@@ -27,9 +27,9 @@ public partial class MainWindow
             app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
 
-        while (workspaceTabs.Items.Count <= 56)
+        while (workspaceTabs.Items.Count <= WorkspaceSlots.PayrollFoundation)
             workspaceTabs.Items.Add(new TabItem());
-        workspaceTabs.Items[56] = new TabItem { Content = view };
+        workspaceTabs.Items[WorkspaceSlots.PayrollFoundation] = new TabItem { Content = view };
 
         _payrollFoundationShellWired = true;
     }

@@ -115,7 +115,7 @@ public sealed class WorkforceLeaveLot4Tests
             StringAssert.Contains(workforce, permission);
 
         StringAssert.Contains(leaveShell, "SetSelectedNavigation(\"workforce.leave\")");
-        StringAssert.Contains(leaveShell, "SelectedWorkspaceIndex == 54");
+        StringAssert.Contains(leaveShell, "SelectedWorkspaceIndex == WorkspaceSlots.Leave");
         StringAssert.Contains(shell, "Click=\"Leave_OnClick\"");
         StringAssert.Contains(shell, "Tag=\"{Binding IsLeaveSelected}\"");
         Assert.IsFalse(shell.Contains("IsEnabled=\"False\" ToolTip=\"Sẽ được triển khai ở Lô 5\"><TextBlock Text=\"Nghỉ và đơn nghỉ\"", StringComparison.Ordinal));

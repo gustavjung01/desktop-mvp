@@ -22,7 +22,7 @@ public sealed partial class ShellViewModel
         }
 
         WorkspaceMessage = string.Empty;
-        SelectedWorkspaceIndex = 53;
+        SelectedWorkspaceIndex = WorkspaceSlots.SalesSettlement;
         return Task.CompletedTask;
     }
 }

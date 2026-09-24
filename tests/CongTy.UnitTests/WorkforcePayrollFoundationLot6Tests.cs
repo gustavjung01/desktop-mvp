@@ -105,7 +105,7 @@ public sealed class WorkforcePayrollFoundationLot6Tests
         StringAssert.Contains(shellXaml, "Click=\"PayrollFoundation_OnClick\"");
         StringAssert.Contains(shellXaml, "Tag=\"{Binding IsPayrollFoundationSelected}\"");
         StringAssert.Contains(shell, "SetSelectedNavigation(\"workforce.payroll\")");
-        StringAssert.Contains(shell, "SelectedWorkspaceIndex == 56");
+        StringAssert.Contains(shell, "SelectedWorkspaceIndex == WorkspaceSlots.PayrollFoundation");
         StringAssert.Contains(wire, "new PayrollFoundationService(");
         StringAssert.Contains(wire, "new PayrollFoundationView(new PayrollFoundationViewModel(");
         StringAssert.Contains(hostWire, "WirePayrollFoundationWorkspace();");

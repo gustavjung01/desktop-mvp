@@ -26,9 +26,9 @@ public partial class MainWindow
         var view = new SalesSettlementReconciliationView(_salesSettlementViewModel);
         view.NavigationRequested += SalesSettlementNavigationRequested;
 
-        while (workspaceTabs.Items.Count <= 53)
+        while (workspaceTabs.Items.Count <= WorkspaceSlots.SalesSettlement)
             workspaceTabs.Items.Add(new TabItem());
-        workspaceTabs.Items[53] = new TabItem { Content = view };
+        workspaceTabs.Items[WorkspaceSlots.SalesSettlement] = new TabItem { Content = view };
 
         _salesSettlementShellWired = true;
     }
