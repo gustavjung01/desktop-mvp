@@ -25,9 +25,7 @@ public sealed partial class ShellViewModel
 
     public bool CanViewWorkforceTimesheet =>
         _access.HasPermission("core.attendance.self.read")
-        || _access.HasPermission("core.attendance.read")
-        || _access.HasPermission("core.attendance.reconcile")
-        || _access.HasPermission("core.attendance.lock");
+        || _access.HasPermission("core.attendance.read");
 
     public bool CanViewWorkforceOvertime =>
         _access.HasPermission("core.overtime.self-request")
