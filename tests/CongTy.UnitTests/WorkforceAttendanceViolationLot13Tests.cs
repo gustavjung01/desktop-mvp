@@ -123,13 +123,15 @@ public sealed class WorkforceAttendanceViolationLot13Tests
                      "Vi phạm và giải trình",
                      "GIẢI TRÌNH",
                      "KẾT LUẬN HỒ SƠ",
-                     "Chấp nhận giải trình",
                      "Xác nhận vi phạm",
                      "không sửa sự kiện chấm công",
                      "không tự điều chỉnh thu nhập",
                  })
             StringAssert.Contains(view, label);
 
+        var viewModel = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "AttendanceViolationViewModel.cs");
+        StringAssert.Contains(viewModel, "Chấp nhận giải trình");
+        StringAssert.Contains(view, "ItemsSource=\"{Binding OutcomeOptions}\"");
         StringAssert.Contains(view, "ItemsSource=\"{Binding Rows}\"");
         StringAssert.Contains(view, "Click=\"StartReview_OnClick\"");
         StringAssert.Contains(view, "Click=\"SubmitConclusion_OnClick\"");
