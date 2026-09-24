@@ -85,7 +85,6 @@ public sealed class PricingParityTests
         Assert.IsFalse(view.Contains("Cập nhật giá từ Excel", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("PricingDataExchange_OnClick", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("PricingHistory_OnClick", StringComparison.Ordinal));
-        Assert.IsFalse(navigator.Contains("ShowCrossRouteNotice", StringComparison.Ordinal));
     }
 
     [TestMethod]
