@@ -74,6 +74,18 @@ public sealed class EmployeeDirectoryReadParityTests
         StringAssert.Contains(view, "Click=\"Create_OnClick\"");
         StringAssert.Contains(view, "Click=\"Edit_OnClick\"");
         StringAssert.Contains(view, "Content=\"{Binding ToggleActionText}\"");
+
+        Assert.IsFalse(
+            view.Contains(
+                "<ScrollViewer VerticalScrollBarVisibility=\"Auto\"\n                      HorizontalScrollBarVisibility=\"Disabled\">\n            <StackPanel Margin=\"0,0,4,12\">",
+                StringComparison.Ordinal),
+            "Danh mục nhân sự không được cuộn toàn bộ workspace.");
+
+        StringAssert.Contains(view, "<RowDefinition Height=\"*\" />");
+        StringAssert.Contains(view, "<Border Grid.Row=\"5\" Margin=\"0,10,0,0\" Style=\"{StaticResource OfficeCardStyle}\">");
+        StringAssert.Contains(view, "<DataGrid Grid.Row=\"1\"");
+        StringAssert.Contains(view, "ScrollViewer.VerticalScrollBarVisibility=\"Auto\"");
+        StringAssert.Contains(view, "ScrollViewer.CanContentScroll=\"True\"");
     }
 
     [TestMethod]

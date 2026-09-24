@@ -350,3 +350,21 @@ Audit compare 4 commit xác nhận:
 Vì vậy chỉ rebaseline `webAppTree`
 `e5b6a7b90fc748c8477e6269e1bdfbab6db8fecc` →
 `d59ee4eb239e207079c292685c479ebbd336bf0b`.
+
+
+## Rebaseline 2026-09-24 — Workforce policy onboarding drift trong lúc sửa scroll Danh mục nhân sự
+
+Trong lúc PR Desktop sửa bố cục cuộn của **Danh mục nhân sự**, `NPP-Platform/main` tiến từ
+`921ba8ccf50341a5078794eb5403b40231e57d32` tới
+`9e2cd0eaaaf3f6bad53d8fefe229afe9fd37cb7c` qua PR Web #1173.
+
+Audit compare exact 1 commit xác nhận:
+- chỉ đổi các workspace Web hiện hữu `workforce/employees` và `workforce/policies` cùng test/CSS;
+- không thêm/xóa `page.tsx` hoặc Next `route.ts`, nên snapshot giữ nguyên **83 screens / 331 Web routes**;
+- không đổi backend route tree, permission catalog, server registry, shared contracts hoặc canonical Idempotency-Key source;
+- thay đổi Web bổ sung luồng áp dụng chính sách làm việc ngay hoặc theo ngày; đây là nghiệp vụ Workforce riêng, không thuộc phạm vi PR chỉ sửa scroll của Danh mục nhân sự.
+
+Vì vậy PR này chỉ rebaseline `webAppTree`
+`d59ee4eb239e207079c292685c479ebbd336bf0b` →
+`5a8a22c45a0580155df2a3c99df49601703c06e1`,
+không tự kéo thêm nghiệp vụ Chính sách làm việc vào Desktop, không sửa Web/backend/DB/migration.
