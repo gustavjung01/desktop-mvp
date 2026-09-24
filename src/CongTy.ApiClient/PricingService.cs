@@ -22,6 +22,7 @@ public interface IPricingService
     Task<IReadOnlyList<CustomerData>> ListCustomersAsync(CancellationToken cancellationToken = default);
     Task<PricingResolutionData> ResolveAsync(PricingResolveRequest request, CancellationToken cancellationToken = default);
     Task<PricingOfficialRowsData> ExportOfficialPricingAsync(string idempotencyKey, CancellationToken cancellationToken = default);
+    Task<PricingAdjustmentResultData> AdjustPricingAsync(PricingAdjustmentRequest request, string idempotencyKey, CancellationToken cancellationToken = default);
 }
 
 public sealed class PricingService(
@@ -109,6 +110,17 @@ public sealed class PricingService(
         apiClient.PostIdempotentDataAsync<PricingExportRequest, PricingOfficialRowsData>(
             "/api/file-operations/pricing/export",
             new PricingExportRequest("xlsx"),
+            Key(idempotencyKey),
+            RequireToken(),
+            cancellationToken);
+
+    public Task<PricingAdjustmentResultData> AdjustPricingAsync(
+        PricingAdjustmentRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default) =>
+        apiClient.PostIdempotentDataAsync<PricingAdjustmentRequest, PricingAdjustmentResultData>(
+            "/api/pricing/import",
+            request,
             Key(idempotencyKey),
             RequireToken(),
             cancellationToken);

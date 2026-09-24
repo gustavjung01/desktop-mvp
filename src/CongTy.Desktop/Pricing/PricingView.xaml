@@ -142,7 +142,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Bảng giá tổng hợp">
+            <TabItem Header="Điều chỉnh giá">
                 <Grid Margin="0,8,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
@@ -150,8 +150,8 @@
                     </Grid.RowDefinitions>
                     <Border Style="{StaticResource OfficeCardHeaderStyle}">
                         <StackPanel>
-                            <TextBlock Text="Bảng giá tổng hợp" FontSize="15" FontWeight="SemiBold"/>
-                            <TextBlock Margin="0,3,0,0" Text="Xem và đối chiếu giá bán của từng sản phẩm theo từng bảng giá." Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="Điều chỉnh giá" FontSize="15" FontWeight="SemiBold"/>
+                            <TextBlock Margin="0,3,0,0" Text="Xem giá hiện tại, điều chỉnh trực tiếp hoặc bằng file và chọn thời điểm áp dụng." Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </Border>
 
@@ -159,8 +159,9 @@
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}" Click="PricingDataExchange_OnClick" Content="Cập nhật giá từ Excel"/>
-                                <Button Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="PricingHistory_OnClick" Content="Lịch sử cập nhật giá"/>
+                                <Button Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanWrite}" Click="OpenAdjustment_OnClick" Content="Điều chỉnh trực tiếp"/>
+                                <Button Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="DownloadAdjustmentTemplate_OnClick" Content="Tải file mẫu"/>
+                                <Button Margin="8,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanWrite}" Click="ImportAdjustmentFile_OnClick" Content="Nhập từ file"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
                                 <StackPanel Width="260">
@@ -255,6 +256,104 @@
                 </Grid>
             </TabItem>
         </TabControl>
+
+        <Grid Panel.ZIndex="110" Background="Transparent" Visibility="{Binding IsAdjustmentOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Background="{DynamicResource TextPrimaryBrush}" Opacity="0.28" />
+            <Border Width="1040" MaxHeight="740" Padding="16" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource OfficeCardBodyStyle}">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{Binding AdjustmentTitle}" FontSize="18" FontWeight="SemiBold"/>
+                        <TextBlock Margin="0,4,0,0" Text="{Binding AdjustmentDescription}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1" Margin="0,14,0,12" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <UniformGrid Columns="4">
+                                <StackPanel Margin="0,0,6,10">
+                                    <TextBlock Text="Bảng giá"/>
+                                    <ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding AdjustmentPriceListOptions}" DisplayMemberPath="Label" SelectedValuePath="Id" SelectedValue="{Binding AdjustmentPriceListId, Mode=TwoWay}"/>
+                                </StackPanel>
+                                <StackPanel Margin="6,0,6,10" Visibility="{Binding IsAdjustmentDirectMode, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Loại điều chỉnh"/>
+                                    <ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding AdjustmentOptions}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding AdjustmentType, Mode=TwoWay}"/>
+                                </StackPanel>
+                                <StackPanel Margin="6,0,6,10">
+                                    <TextBlock Text="Thời điểm áp dụng"/>
+                                    <ComboBox Margin="0,4,0,0" Style="{StaticResource OfficeComboBoxStyle}" ItemsSource="{Binding AdjustmentApplyModes}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding AdjustmentApplyMode, Mode=TwoWay}"/>
+                                </StackPanel>
+                                <StackPanel Margin="6,0,0,10" Visibility="{Binding AdjustmentScheduled, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="Ngày áp dụng"/>
+                                    <TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding AdjustmentApplyAt, UpdateSourceTrigger=PropertyChanged}" ToolTip="Ví dụ: 24/09/2026 17:30"/>
+                                </StackPanel>
+                            </UniformGrid>
+
+                            <Grid Margin="0,0,0,8" Visibility="{Binding IsAdjustmentDirectMode, Converter={StaticResource BoolToVisibility}}">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Tìm SKU hoặc sản phẩm"/>
+                                    <TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding AdjustmentSearch, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Margin="8,18,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="AdjustmentSelectVisible_OnClick" Content="Chọn kết quả"/>
+                                <Button Grid.Column="2" Margin="8,18,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" Click="AdjustmentClearSelection_OnClick" Content="Bỏ chọn"/>
+                            </Grid>
+
+                            <TextBlock Margin="0,0,0,6" Text="{Binding AdjustmentSelectionSummary}" FontWeight="SemiBold"/>
+                            <TextBlock Margin="0,0,0,8" Text="{Binding AdjustmentFileName}" Foreground="{DynamicResource TextSecondaryBrush}" Visibility="{Binding IsAdjustmentFileMode, Converter={StaticResource BoolToVisibility}}"/>
+
+                            <Border Style="{StaticResource OfficeCardBodyStyle}">
+                                <DataGrid MinHeight="250" MaxHeight="360" Style="{StaticResource OfficeDataGridStyle}" ItemsSource="{Binding AdjustmentRows}" CanUserAddRows="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="" Width="42">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding Selected, Mode=TwoWay}" IsEnabled="{Binding DataContext.IsAdjustmentDirectMode, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120"/>
+                                        <DataGridTextColumn Header="Sản phẩm" Binding="{Binding ProductName}" Width="*"/>
+                                        <DataGridTextColumn Header="Quy cách" Binding="{Binding VariantName}" Width="170"/>
+                                        <DataGridTextColumn Header="Hiện tại" Binding="{Binding CurrentValue}" Width="145"/>
+                                        <DataGridTemplateColumn Header="Giá mới" Width="145">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding NewAmount, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding DataContext.AdjustmentUsesPerSkuPrice, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Xem trước" Binding="{Binding PreviewStatus}" Width="115"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding AdjustmentUsesSharedValue, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding AdjustmentSharedValueLabel}"/>
+                                <TextBox Margin="0,4,0,0" Width="280" HorizontalAlignment="Left" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding AdjustmentSharedValue, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10,0,0" Visibility="{Binding IsAdjustmentDirectMode, Converter={StaticResource BoolToVisibility}}">
+                                <UniformGrid Columns="2">
+                                    <StackPanel Margin="0,0,6,0">
+                                        <TextBlock Text="Số lượng từ"/>
+                                        <TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding AdjustmentMinQuantity, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="6,0,0,0">
+                                        <TextBlock Text="Số lượng đến"/>
+                                        <TextBox Margin="0,4,0,0" Style="{StaticResource OfficeTextBoxStyle}" Text="{Binding AdjustmentMaxQuantity, UpdateSourceTrigger=PropertyChanged}" ToolTip="Để trống nếu không giới hạn"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                                <TextBlock Margin="0,10,0,0" Text="Ghi chú"/>
+                                <TextBox Margin="0,4,0,0" MinHeight="54" Style="{StaticResource OfficeTextBoxStyle}" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding AdjustmentNote, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}" Click="AdjustmentCancel_OnClick" Content="Đóng"/>
+                        <Button Margin="8,0,0,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanWrite}" Click="AdjustmentConfirm_OnClick" Content="{Binding AdjustmentConfirmText}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
 
         <Grid Panel.ZIndex="100" Background="Transparent" Visibility="{Binding IsEditorOpen, Converter={StaticResource BoolToVisibility}}">
             <Border Background="{DynamicResource TextPrimaryBrush}" Opacity="0.28" />

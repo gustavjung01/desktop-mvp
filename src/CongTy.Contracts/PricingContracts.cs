@@ -187,6 +187,34 @@ public sealed record PricingResolveRequest(
     [property: JsonPropertyName("manualReason")] string? ManualReason);
 
 
+public sealed record PricingAdjustmentItemRequest(
+    [property: JsonPropertyName("priceListCode")] string PriceListCode,
+    [property: JsonPropertyName("sku")] string Sku,
+    [property: JsonPropertyName("adjustmentType")] string AdjustmentType,
+    [property: JsonPropertyName("amountMinor")] string? AmountMinor,
+    [property: JsonPropertyName("rateBps")] int? RateBps,
+    [property: JsonPropertyName("minQuantity")] string MinQuantity,
+    [property: JsonPropertyName("maxQuantity")] string? MaxQuantity,
+    [property: JsonPropertyName("sourceKind")] string SourceKind,
+    [property: JsonPropertyName("externalRuleCode")] string ExternalRuleCode,
+    [property: JsonPropertyName("note")] string? Note,
+    [property: JsonPropertyName("isActive")] bool IsActive);
+
+public sealed record PricingAdjustmentRequest(
+    [property: JsonPropertyName("matchBySku")] bool MatchBySku,
+    [property: JsonPropertyName("replaceFrom")] bool ReplaceFrom,
+    [property: JsonPropertyName("applyAt")] string? ApplyAt,
+    [property: JsonPropertyName("sourceBatchId")] string SourceBatchId,
+    [property: JsonPropertyName("items")] IReadOnlyList<PricingAdjustmentItemRequest> Items);
+
+public sealed record PricingAdjustmentResultData
+{
+    [JsonPropertyName("itemsCreated")] public int ItemsCreated { get; init; }
+    [JsonPropertyName("itemsUpdated")] public int ItemsUpdated { get; init; }
+    [JsonPropertyName("itemsReplaced")] public int ItemsReplaced { get; init; }
+    [JsonPropertyName("totalItems")] public int TotalItems { get; init; }
+}
+
 public sealed record PricingExportRequest(
     [property: JsonPropertyName("format")] string Format);
 

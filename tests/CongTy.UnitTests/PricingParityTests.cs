@@ -26,11 +26,13 @@ public sealed class PricingParityTests
         var state = ReadRepoFile("src", "CongTy.Desktop", "Pricing", "PricingViewModel.State.cs");
         var loading = ReadRepoFile("src", "CongTy.Desktop", "Pricing", "PricingViewModel.LoadingChannelsLists.cs");
         var items = ReadRepoFile("src", "CongTy.Desktop", "Pricing", "PricingViewModel.ItemsResolver.cs");
+        var adjustment = ReadRepoFile("src", "CongTy.Desktop", "Pricing", "PricingViewModel.Adjustment.cs");
+        var contracts = ReadRepoFile("src", "CongTy.Contracts", "PricingContracts.cs");
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");
         var window = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
         var app = ReadRepoFile("src", "CongTy.Desktop", "App.xaml.cs");
 
-        var tabs = new[] { "Header=\"Kênh bán\"", "Header=\"Danh mục giá\"", "Header=\"Giá sản phẩm\"", "Header=\"Bảng giá tổng hợp\"", "Header=\"Kiểm tra giá áp dụng\"" };
+        var tabs = new[] { "Header=\"Kênh bán\"", "Header=\"Danh mục giá\"", "Header=\"Giá sản phẩm\"", "Header=\"Điều chỉnh giá\"", "Header=\"Kiểm tra giá áp dụng\"" };
         var previous = -1;
         foreach (var tab in tabs)
         {
@@ -52,6 +54,14 @@ public sealed class PricingParityTests
         StringAssert.Contains(service, "/api/price-lists");
         StringAssert.Contains(service, "/api/pricing/resolve");
         StringAssert.Contains(service, "/api/file-operations/pricing/export");
+        StringAssert.Contains(service, "/api/pricing/import");
+        StringAssert.Contains(contracts, "JsonPropertyName(\"replaceFrom\")");
+        StringAssert.Contains(contracts, "JsonPropertyName(\"applyAt\")");
+        StringAssert.Contains(adjustment, "ReplaceFrom: true");
+        StringAssert.Contains(adjustment, "SourceBatchId: operationKey");
+        StringAssert.Contains(adjustment, "KeyFor(intent)");
+        StringAssert.Contains(adjustment, "CompleteIntent(intent)");
+        StringAssert.Contains(adjustment, "PRICE_FILE_ADJUSTMENT");
 
         StringAssert.Contains(shell, "\"catalog.pricing\" => \"Giá bán và khuyến mãi\"");
         StringAssert.Contains(shell, "NavigatePricingAsync");
@@ -69,9 +79,12 @@ public sealed class PricingParityTests
         Assert.IsLessThan(view.IndexOf("Tìm sản phẩm hoặc SKU", StringComparison.Ordinal), view.IndexOf("SKU đang bán", StringComparison.Ordinal));
         Assert.IsLessThan(view.IndexOf("x:Name=\"OverviewGrid\"", StringComparison.Ordinal), view.IndexOf("Tìm sản phẩm hoặc SKU", StringComparison.Ordinal));
 
-        var navigator = ReadRepoFile("src", "CongTy.Desktop", "Pricing", "PricingOperationsNavigator.cs");
-        StringAssert.Contains(navigator, "/operations/data-exchange?tab=pricing");
-        StringAssert.Contains(navigator, "/operations/import-export-history?definitionKey=pricing-items");
+        StringAssert.Contains(view, "Content=\"Điều chỉnh trực tiếp\"");
+        StringAssert.Contains(view, "Content=\"Tải file mẫu\"");
+        StringAssert.Contains(view, "Content=\"Nhập từ file\"");
+        Assert.IsFalse(view.Contains("Cập nhật giá từ Excel", StringComparison.Ordinal));
+        Assert.IsFalse(view.Contains("PricingDataExchange_OnClick", StringComparison.Ordinal));
+        Assert.IsFalse(view.Contains("PricingHistory_OnClick", StringComparison.Ordinal));
         Assert.IsFalse(navigator.Contains("ShowCrossRouteNotice", StringComparison.Ordinal));
     }
 

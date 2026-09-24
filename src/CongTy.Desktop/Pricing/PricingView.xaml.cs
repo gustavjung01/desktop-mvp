@@ -65,15 +65,37 @@ public partial class PricingView : UserControl
     private async void Resolve_OnClick(object sender, RoutedEventArgs e) => await _viewModel.ResolveAsync();
     private void EditorCancel_OnClick(object sender, RoutedEventArgs e) => _viewModel.CloseEditor();
     private async void EditorSave_OnClick(object sender, RoutedEventArgs e) => await _viewModel.SaveEditorAsync();
-    private void PricingDataExchange_OnClick(object sender, RoutedEventArgs e)
+    private async void OpenAdjustment_OnClick(object sender, RoutedEventArgs e) =>
+        await _viewModel.OpenDirectAdjustmentAsync();
+
+    private void DownloadAdjustmentTemplate_OnClick(object sender, RoutedEventArgs e)
     {
-        if (!PricingOperationsNavigator.TryOpenDataExchange(out var error)) _viewModel.ReportExternalNavigationError(error);
+        var dialog = new SaveFileDialog
+        {
+            FileName = "mau-dieu-chinh-gia.xlsx",
+            Filter = "Tệp Excel (*.xlsx)|*.xlsx",
+            AddExtension = true,
+            DefaultExt = ".xlsx"
+        };
+        if (dialog.ShowDialog() == true) _viewModel.ExportAdjustmentTemplate(dialog.FileName);
     }
 
-    private void PricingHistory_OnClick(object sender, RoutedEventArgs e)
+    private async void ImportAdjustmentFile_OnClick(object sender, RoutedEventArgs e)
     {
-        if (!PricingOperationsNavigator.TryOpenImportHistory(out var error)) _viewModel.ReportExternalNavigationError(error);
+        var dialog = new OpenFileDialog
+        {
+            Title = "Chọn file điều chỉnh giá",
+            Filter = "Tệp Excel hoặc CSV (*.xlsx;*.csv)|*.xlsx;*.csv",
+            Multiselect = false,
+            CheckFileExists = true
+        };
+        if (dialog.ShowDialog() == true) await _viewModel.OpenFileAdjustmentAsync(dialog.FileName);
     }
+
+    private void AdjustmentSelectVisible_OnClick(object sender, RoutedEventArgs e) => _viewModel.SelectVisibleAdjustmentRows();
+    private void AdjustmentClearSelection_OnClick(object sender, RoutedEventArgs e) => _viewModel.ClearAdjustmentSelection();
+    private void AdjustmentCancel_OnClick(object sender, RoutedEventArgs e) => _viewModel.CloseAdjustment();
+    private async void AdjustmentConfirm_OnClick(object sender, RoutedEventArgs e) => await _viewModel.ApplyAdjustmentAsync();
 
     private void RebuildOverviewColumns()
     {
