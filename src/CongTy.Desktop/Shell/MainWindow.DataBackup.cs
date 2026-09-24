@@ -52,12 +52,12 @@ public partial class MainWindow
         desktopAppView.PrintTemplatesRequested += SettingsPrintTemplatesRequested;
         desktopAppView.AppearanceRequested += SettingsAppearanceRequested;
 
-        while (workspaceTabs.Items.Count <= 54)
+        while (workspaceTabs.Items.Count <= WorkspaceSlots.DesktopApp)
             workspaceTabs.Items.Add(new TabItem());
         workspaceTabs.Items[47] = new TabItem { Content = dataBackupView };
         workspaceTabs.Items[48] = new TabItem { Content = printView };
         workspaceTabs.Items[49] = new TabItem { Content = appearanceView };
-        workspaceTabs.Items[54] = new TabItem { Content = desktopAppView };
+        workspaceTabs.Items[WorkspaceSlots.DesktopApp] = new TabItem { Content = desktopAppView };
 
         _dataBackupShellWired = true;
     }

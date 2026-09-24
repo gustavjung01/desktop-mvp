@@ -8,7 +8,7 @@ public sealed partial class ShellViewModel
     private bool _workScheduleSelectionObserverAttached;
 
     public bool CanReadWorkSchedules => _access.HasPermission(WorkScheduleReadPermission);
-    public bool IsWorkScheduleSelected => SelectedWorkspaceIndex == 53;
+    public bool IsWorkScheduleSelected => SelectedWorkspaceIndex == WorkspaceSlots.WorkSchedule;
 
     internal void InitializeWorkScheduleShell() => EnsureWorkScheduleSelectionObserver();
 
@@ -25,7 +25,7 @@ public sealed partial class ShellViewModel
         }
 
         WorkspaceMessage = string.Empty;
-        SelectedWorkspaceIndex = 53;
+        SelectedWorkspaceIndex = WorkspaceSlots.WorkSchedule;
         return Task.CompletedTask;
     }
 

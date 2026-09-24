@@ -3,9 +3,9 @@
   "name": "SCREEN_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "efa215eda16ead7dfa6480fb5d11ffd9f37bccd1",
+    "baselineRevision": "921ba8ccf50341a5078794eb5403b40231e57d32",
     "fingerprints": {
-      "webAppTree": "e5b6a7b90fc748c8477e6269e1bdfbab6db8fecc"
+      "webAppTree": "d59ee4eb239e207079c292685c479ebbd336bf0b"
     }
   },
   "snapshot": {

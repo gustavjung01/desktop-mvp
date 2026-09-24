@@ -333,3 +333,20 @@ Vì vậy PR updater chỉ rebaseline fingerprint `webAppTree`
 `4b9df64b76532a790f2ffcd7ccf166474dc13f10` →
 `e5b6a7b90fc748c8477e6269e1bdfbab6db8fecc`, không tự kéo Pricing/Workforce feature vào phạm vi updater,
 không sửa Web/backend/DB/migration và không deploy production.
+
+
+## Rebaseline 2026-09-24 — Workforce attendance method UI drift trong lúc sửa Desktop shell
+
+Trong lúc PR Desktop sửa collision workspace chạy CI, `NPP-Platform/main` đã tiến từ
+`efa215eda16ead7dfa6480fb5d11ffd9f37bccd1` tới
+`921ba8ccf50341a5078794eb5403b40231e57d32`.
+
+Audit compare 4 commit xác nhận:
+- Web chỉ sửa các workspace Workforce hiện hữu: Chấm công, Điều chỉnh công và Chính sách làm việc;
+- không thêm/xóa `page.tsx` hoặc Next `route.ts`, nên snapshot giữ nguyên **83 screens / 331 Web routes**;
+- backend thay đổi service/migration 158 cho tổ hợp phương thức chấm công, nhưng không đổi `npp-core/api/src/routes`, permission catalog, server registry, shared contracts hoặc canonical Idempotency-Key source;
+- PR Desktop hiện tại chỉ sửa shell routing/index collision, không kéo nghiệp vụ Chấm công/Chính sách mới vào phạm vi.
+
+Vì vậy chỉ rebaseline `webAppTree`
+`e5b6a7b90fc748c8477e6269e1bdfbab6db8fecc` →
+`d59ee4eb239e207079c292685c479ebbd336bf0b`.

@@ -27,9 +27,9 @@ public partial class MainWindow
             app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
 
-        while (workspaceTabs.Items.Count <= 53)
+        while (workspaceTabs.Items.Count <= WorkspaceSlots.WorkSchedule)
             workspaceTabs.Items.Add(new TabItem());
-        workspaceTabs.Items[53] = new TabItem { Content = view };
+        workspaceTabs.Items[WorkspaceSlots.WorkSchedule] = new TabItem { Content = view };
 
         _workScheduleShellWired = true;
     }

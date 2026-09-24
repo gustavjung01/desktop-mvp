@@ -8,7 +8,7 @@ public sealed partial class ShellViewModel
     private bool _userDirectorySelectionObserverAttached;
 
     public bool CanViewUserDirectory => _access.HasPermission(UserDirectoryReadPermission);
-    public bool IsUserDirectorySelected => SelectedWorkspaceIndex == 53;
+    public bool IsUserDirectorySelected => SelectedWorkspaceIndex == WorkspaceSlots.UserDirectory;
 
     internal void InitializeUserDirectoryShell() => EnsureUserDirectorySelectionObserver();
 
@@ -25,7 +25,7 @@ public sealed partial class ShellViewModel
         }
 
         WorkspaceMessage = string.Empty;
-        SelectedWorkspaceIndex = 53;
+        SelectedWorkspaceIndex = WorkspaceSlots.UserDirectory;
         return Task.CompletedTask;
     }
 
