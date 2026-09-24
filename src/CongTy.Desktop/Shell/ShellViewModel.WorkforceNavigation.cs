@@ -65,8 +65,7 @@ public sealed partial class ShellViewModel
         || _access.HasPermission("core.work-schedule.manage");
 
     public bool CanViewWorkforcePolicies =>
-        _access.HasPermission("core.work-policy.read")
-        || _access.HasPermission("core.work-policy.manage");
+        _access.HasPermission("core.work-policy.read");
 
     public bool CanViewWorkforce =>
         CanViewWorkforceAttendance

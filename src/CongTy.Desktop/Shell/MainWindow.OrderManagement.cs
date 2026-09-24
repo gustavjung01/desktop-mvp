@@ -28,6 +28,7 @@ public partial class MainWindow
         WireAccessRolesWorkspace();
         WireEmployeeDirectoryWorkspace();
         WireWorkScheduleWorkspace();
+        WireWorkPolicyWorkspace();
         WireLeaveWorkspace();
         WireOvertimeCloseoutWorkspace();
         WirePayrollFoundationWorkspace();
