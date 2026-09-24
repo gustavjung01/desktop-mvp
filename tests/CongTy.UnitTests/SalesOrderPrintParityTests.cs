@@ -43,7 +43,11 @@ public sealed class SalesOrderPrintParityTests
         StringAssert.Contains(source, "ShowTax(version)");
         StringAssert.Contains(source, "DocumentPrintTemplateRuntime.Shows(template, column.Key)");
         StringAssert.Contains(source, "BuildMetaTable");
+        StringAssert.Contains(source, "MetaPairCell");
         StringAssert.Contains(source, "BuildTotals");
+        StringAssert.Contains(source, "document.Background = Brushes.White");
+        StringAssert.Contains(source, "table.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) })");
+        Assert.IsFalse(source.Contains("new TableColumn { Width = new GridLength(88) }", StringComparison.Ordinal));
         StringAssert.Contains(source, "GridUnitType.Star");
         StringAssert.Contains(source, "MoneyNumber(line.UnitPrice)");
         StringAssert.Contains(source, "MoneyNumber(line.LineTotal)");

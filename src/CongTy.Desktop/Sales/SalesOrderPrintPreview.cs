@@ -119,6 +119,7 @@ internal static class SalesOrderPrintPreview
         DocumentPrintTemplateData template)
     {
         var document = DocumentPrintTemplateRuntime.CreateDocument(template, baseFontSize: 10.5, padding: PrintPadding);
+        document.Background = Brushes.White;
         AppendOrder(document, order, version, template, false);
         return document;
     }
@@ -128,6 +129,7 @@ internal static class SalesOrderPrintPreview
         DocumentPrintTemplateData template)
     {
         var document = DocumentPrintTemplateRuntime.CreateDocument(template, baseFontSize: 10.5, padding: PrintPadding);
+        document.Background = Brushes.White;
         for (var index = 0; index < items.Count; index++)
         {
             var item = items[index];
@@ -206,7 +208,7 @@ internal static class SalesOrderPrintPreview
         }
 
         DocumentPrintTemplateRuntime.AddSignatures(document, template, "Người lập", "Kho giao hàng", "Khách hàng");
-        var footerMargin = Math.Clamp(120 - (version.Lines?.Length ?? 0) * 5, 12, 90);
+        var footerMargin = Math.Clamp(230 - (version.Lines?.Length ?? 0) * 5, 16, 190);
         document.Blocks.Add(new Paragraph(new Run($"{customer.ToUpperInvariant()} - {documentDate}"))
         {
             Margin = new Thickness(0, footerMargin, 0, 0),
@@ -274,7 +276,7 @@ internal static class SalesOrderPrintPreview
             FontSize = isHeader ? 10 : 10.5
         })
         {
-            Background = isHeader ? Brushes.Gainsboro : Brushes.Transparent,
+            Background = isHeader ? Brushes.Gainsboro : Brushes.White,
             BorderBrush = Brushes.LightGray,
             BorderThickness = new Thickness(0.65),
             Padding = new Thickness(5, 5, 5, 5)
@@ -288,10 +290,11 @@ internal static class SalesOrderPrintPreview
         var items = source.Where(item => DocumentPrintTemplateRuntime.Shows(template, item.Key)).ToList();
         if (items.Count == 0) return null;
 
+        // FlowDocument co bốn cột (label/value/label/value) có thể bó hai cột value
+        // thành vài pixel khi page viewer scale trang. Dùng hai ô 50/50, mỗi ô tự chứa
+        // label + value để giữ đúng bố cục Web và không bao giờ rơi chữ thành cột dọc.
         var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 0, 0, 10) };
-        table.Columns.Add(new TableColumn { Width = new GridLength(88) });
         table.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
-        table.Columns.Add(new TableColumn { Width = new GridLength(88) });
         table.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
 
         var group = new TableRowGroup();
@@ -299,45 +302,54 @@ internal static class SalesOrderPrintPreview
         {
             var first = items[index++];
             var row = new TableRow();
+
             if (first.Full)
             {
-                row.Cells.Add(MetaCell(first.Label, false));
-                var valueCell = MetaCell(first.Value, true);
-                valueCell.ColumnSpan = 3;
-                row.Cells.Add(valueCell);
+                var fullCell = MetaPairCell(first.Label, first.Value);
+                fullCell.ColumnSpan = 2;
+                row.Cells.Add(fullCell);
+                group.Rows.Add(row);
+                continue;
+            }
+
+            row.Cells.Add(MetaPairCell(first.Label, first.Value));
+            if (index < items.Count && !items[index].Full)
+            {
+                var second = items[index++];
+                row.Cells.Add(MetaPairCell(second.Label, second.Value));
             }
             else
             {
-                row.Cells.Add(MetaCell(first.Label, false));
-                row.Cells.Add(MetaCell(first.Value, true));
-                if (index < items.Count && !items[index].Full)
-                {
-                    var second = items[index++];
-                    row.Cells.Add(MetaCell(second.Label, false));
-                    row.Cells.Add(MetaCell(second.Value, true));
-                }
-                else
-                {
-                    row.Cells.Add(MetaCell(string.Empty, false));
-                    row.Cells.Add(MetaCell(string.Empty, true));
-                }
+                row.Cells.Add(MetaPairCell(string.Empty, string.Empty));
             }
+
             group.Rows.Add(row);
         }
+
         table.RowGroups.Add(group);
         return table;
     }
 
-    private static TableCell MetaCell(string value, bool bold)
+    private static TableCell MetaPairCell(string label, string value)
     {
-        var run = new Run(Display(value, string.Empty));
-        if (bold) run.FontWeight = FontWeights.SemiBold;
-        else run.Foreground = Brushes.DimGray;
-        return new TableCell(new Paragraph(run) { Margin = new Thickness(0), FontSize = 10.5 })
+        var paragraph = new Paragraph
         {
+            Margin = new Thickness(0),
+            FontSize = 10.5
+        };
+
+        if (!string.IsNullOrWhiteSpace(label))
+        {
+            paragraph.Inlines.Add(new Run(label + "   ") { Foreground = Brushes.DimGray });
+            paragraph.Inlines.Add(new Bold(new Run(Display(value, string.Empty))));
+        }
+
+        return new TableCell(paragraph)
+        {
+            Background = Brushes.White,
             BorderBrush = Brushes.LightGray,
             BorderThickness = new Thickness(0, 0, 0, 0.65),
-            Padding = new Thickness(0, 3, 8, 4)
+            Padding = new Thickness(0, 3, 14, 4)
         };
     }
 

@@ -39,3 +39,15 @@ Sửa trong `SalesOrderPrintPreview`:
 - preview zoom mặc định 95%.
 
 Không sửa Web/backend/DB/API contract.
+
+
+## Hotfix sau kiểm tra ảnh thực tế
+
+Ảnh preview thực tế sau lần parity đầu cho thấy meta 4 cột của FlowDocument bị co hai cột value xuống vài pixel khi page viewer scale trang, làm `NHÀ ĐẬU` và `24/09/2026` rơi từng ký tự theo chiều dọc.
+
+Hotfix:
+- meta đổi sang table 2 cột 50/50; mỗi cell chứa cả label + value;
+- field full-width dùng `ColumnSpan=2`;
+- nền trang/body đặt trắng thay vì transparent;
+- footer được đẩy sát đáy hơn cho đơn ngắn;
+- không đổi card tổng, API hay dữ liệu.
