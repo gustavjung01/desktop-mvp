@@ -116,8 +116,8 @@ public sealed class WorkforceTimesheetLot11Tests
         StringAssert.Contains(viewModel, "Từ khóa nhân sự tối đa 80 ký tự");
         StringAssert.Contains(viewModel, "var view = IsMonthlyView ? \"monthly\" : \"employee\"");
         StringAssert.Contains(viewModel, "data.Scope.SelfOnly");
-        StringAssert.Contains(viewModel, "data.Pagination.HasPrevious");
-        StringAssert.Contains(viewModel, "data.Pagination.HasNext");
+        StringAssert.Contains(viewModel, "_data?.Pagination.HasPrevious");
+        StringAssert.Contains(viewModel, "_data?.Pagination.HasNext");
         StringAssert.Contains(viewModel, "AttendanceTimesheetMonthData");
         Assert.IsFalse(viewModel.Contains("Idempotency-Key", StringComparison.OrdinalIgnoreCase));
     }
@@ -132,8 +132,6 @@ public sealed class WorkforceTimesheetLot11Tests
                      "KỲ ĐANG XEM",
                      "PHẠM VI",
                      "SỐ NHÂN SỰ",
-                     "Theo ngày",
-                     "Theo tháng",
                      "Ngày phải làm",
                      "Nghỉ và phép",
                      "Cần xử lý",
@@ -147,6 +145,8 @@ public sealed class WorkforceTimesheetLot11Tests
                  })
             StringAssert.Contains(view, label);
 
+        StringAssert.Contains(view, "Content=\"{Binding DailyViewLabel}\"");
+        StringAssert.Contains(view, "Content=\"{Binding MonthlyViewLabel}\"");
         StringAssert.Contains(view, "Grid.Row=\"4\"");
         StringAssert.Contains(view, "FrozenColumnCount=\"1\"");
         StringAssert.Contains(view, "ScrollViewer.HorizontalScrollBarVisibility=\"Auto\"");
