@@ -47,6 +47,7 @@ public sealed class OrderManagementViewModel : INotifyPropertyChanged
     private readonly OrderManagementQueryService _service;
     private readonly IAccessStateService _access;
     private readonly List<SalesOrderData> _orders=[];
+    private readonly List<SalesOrderData> _summaryOrders=[];
     private readonly List<SalesOrderData> _filtered=[];
     private readonly HashSet<string> _selectedIds=new(StringComparer.Ordinal);
     private bool _isLoaded;
@@ -259,6 +260,7 @@ public sealed class OrderManagementViewModel : INotifyPropertyChanged
 
     private void ApplyFilters()
     {
+        _summaryOrders.Clear();
         _filtered.Clear();
         if(!TryBuildRange(out var from,out var to))
         {
@@ -279,8 +281,6 @@ public sealed class OrderManagementViewModel : INotifyPropertyChanged
         var term=Search.Trim();
         foreach(var order in _orders)
         {
-            var stage=OrderManagementPresentation.WorkStage(order);
-            if(StageFilter!="all"&&stage!=StageFilter)continue;
             var payment=OrderManagementPresentation.PaymentBucket(order);
             if(PaymentFilter!="all"&&payment!=PaymentFilter)continue;
             var lane=OrderManagementPresentation.DeliveryLane(order);
@@ -295,7 +295,10 @@ public sealed class OrderManagementViewModel : INotifyPropertyChanged
                 var haystack=$"{order.Number} {order.CustomerCode} {order.CustomerName} {order.WalkInDisplayName} {order.WalkInPhone} {order.WarehouseCode} {order.WarehouseName}";
                 if(!haystack.Contains(term,StringComparison.OrdinalIgnoreCase))continue;
             }
-            _filtered.Add(order);
+
+            _summaryOrders.Add(order);
+            var stage=OrderManagementPresentation.WorkStage(order);
+            if(StageFilter=="all"||stage==StageFilter)_filtered.Add(order);
         }
 
         _filtered.Sort((a,b)=>Nullable.Compare(OrderManagementPresentation.CreatedAtValue(b),OrderManagementPresentation.CreatedAtValue(a)));
@@ -350,14 +353,15 @@ public sealed class OrderManagementViewModel : INotifyPropertyChanged
         return from is null||to is null||from<=to;
     }
 
-    private int CountStage(string stage)=>_orders.Count(x=>OrderManagementPresentation.WorkStage(x)==stage);
+    private int CountStage(string stage)=>_summaryOrders.Count(x=>OrderManagementPresentation.WorkStage(x)==stage);
 
     private string SumStage(string stage)
     {
         decimal total=0;
-        foreach(var order in _orders.Where(x=>OrderManagementPresentation.WorkStage(x)==stage))
+        foreach(var order in _summaryOrders.Where(x=>OrderManagementPresentation.WorkStage(x)==stage))
         {
-            if(decimal.TryParse(OrderManagementPresentation.ActiveVersion(order)?.Total,NumberStyles.Number,CultureInfo.InvariantCulture,out var value))total+=value;
+            var amount=OrderManagementPresentation.ActiveVersion(order)?.Total ?? order.Total ?? "0";
+            if(decimal.TryParse(amount,NumberStyles.Number,CultureInfo.InvariantCulture,out var value))total+=value;
         }
         return SalesPresentation.Money(total.ToString(CultureInfo.InvariantCulture));
     }

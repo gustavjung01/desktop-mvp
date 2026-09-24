@@ -11,6 +11,7 @@ namespace CongTy.Desktop.Sales;
 
 internal static class SalesOrderPrintPreview
 {
+    private static readonly Thickness PrintPadding = new(24, 18, 24, 24);
     public static void Show(
         Window? owner,
         SalesOrderData order,
@@ -37,7 +38,7 @@ internal static class SalesOrderPrintPreview
         try
         {
             var document = BuildBatchDocument(items, template);
-            var viewer = new FlowDocumentPageViewer { Document = document, Margin = new Thickness(8) };
+            var viewer = CreateViewer(document);
             var printButton = new Button { Content = "In…", MinWidth = 90, Margin = new Thickness(4) };
             var closeButton = new Button { Content = "Đóng", MinWidth = 90, Margin = new Thickness(4) };
             var actions = new StackPanel
@@ -55,10 +56,10 @@ internal static class SalesOrderPrintPreview
             var window = new Window
             {
                 Title = $"Xem trước in · {items.Count:N0} đơn",
-                Width = 980,
-                Height = 760,
-                MinWidth = 760,
-                MinHeight = 560,
+                Width = 1120,
+                Height = 840,
+                MinWidth = 860,
+                MinHeight = 640,
                 Content = layout,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner
             };
@@ -81,7 +82,7 @@ internal static class SalesOrderPrintPreview
         DocumentPrintTemplateData template)
     {
         var document = BuildDocument(order, version, template);
-        var viewer = new FlowDocumentPageViewer { Document = document, Margin = new Thickness(8) };
+        var viewer = CreateViewer(document);
         var printButton = new Button { Content = "In…", MinWidth = 90, Margin = new Thickness(4) };
         var closeButton = new Button { Content = "Đóng", MinWidth = 90, Margin = new Thickness(4) };
         var actions = new StackPanel
@@ -99,10 +100,10 @@ internal static class SalesOrderPrintPreview
         var window = new Window
         {
             Title = $"Xem trước in · {SalesPresentation.Number(order.Number)}",
-            Width = 980,
-            Height = 760,
-            MinWidth = 760,
-            MinHeight = 560,
+            Width = 1120,
+            Height = 840,
+            MinWidth = 860,
+            MinHeight = 640,
             Content = layout,
             WindowStartupLocation = WindowStartupLocation.CenterOwner
         };
@@ -117,7 +118,7 @@ internal static class SalesOrderPrintPreview
         SalesOrderVersionData version,
         DocumentPrintTemplateData template)
     {
-        var document = DocumentPrintTemplateRuntime.CreateDocument(template);
+        var document = DocumentPrintTemplateRuntime.CreateDocument(template, baseFontSize: 10.5, padding: PrintPadding);
         AppendOrder(document, order, version, template, false);
         return document;
     }
@@ -126,7 +127,7 @@ internal static class SalesOrderPrintPreview
         IReadOnlyList<(SalesOrderData Order, SalesOrderVersionData Version)> items,
         DocumentPrintTemplateData template)
     {
-        var document = DocumentPrintTemplateRuntime.CreateDocument(template);
+        var document = DocumentPrintTemplateRuntime.CreateDocument(template, baseFontSize: 10.5, padding: PrintPadding);
         for (var index = 0; index < items.Count; index++)
         {
             var item = items[index];
@@ -150,80 +151,84 @@ internal static class SalesOrderPrintPreview
             fallbackHeading: "Hưng Phát",
             breakPageBefore: pageBreak);
 
+        document.Blocks.Add(new Paragraph
+        {
+            FontSize = 1,
+            Margin = new Thickness(0, 0, 0, 8),
+            BorderBrush = Brushes.Black,
+            BorderThickness = new Thickness(0, 0, 0, 2)
+        });
+
         var customer = version.CustomerMode == "WALK_IN"
             ? Display(version.WalkInDisplayName, "Khách vãng lai")
             : Display(version.CustomerName);
         var customerCode = version.CustomerMode == "WALK_IN" ? "Khách vãng lai" : Display(version.CustomerCode);
         var phone = version.CustomerMode == "WALK_IN" ? version.WalkInPhone : version.CustomerAddress?.Phone;
+        var documentDate = Date(version.ConfirmedAt ?? version.CreatedAt);
+        var weight = string.IsNullOrWhiteSpace(version.TotalWeightKg)
+            ? "Chưa đủ dữ liệu"
+            : $"{SalesPresentation.Quantity(version.TotalWeightKg)} kg";
 
-        AddInfoIf(document, template, "customer", "Khách hàng", customer);
-        AddInfoIf(document, template, "customer_code", "Mã khách", customerCode);
-        AddInfoIf(document, template, "phone", "Điện thoại", Display(phone));
-        AddInfoIf(document, template, "document_date", "Ngày đơn", Date(version.ConfirmedAt ?? version.CreatedAt));
-        AddInfoIf(document, template, "address", "Địa chỉ", Address(version.CustomerAddress));
-        AddInfoIf(document, template, "warehouse", "Kho", JoinCodeName(version.WarehouseCode, version.WarehouseName));
-        AddInfoIf(
-            document,
+        var meta = BuildMetaTable(
             template,
-            "delivery_method",
-            "Hình thức giao nhận",
-            version.DeliveryMode == "PICKUP"
-                ? "Mua tại quầy"
-                : version.DeliveryExecutionMode == "MANUAL" ? "Giao thủ công" : "Giao theo chuyến");
-        AddInfoIf(document, template, "collection_policy", "Thanh toán", SalesPresentation.CollectionPolicy(version.CollectionPolicy));
-        AddInfoIf(document, template, "requested_delivery_date", "Ngày giao dự kiến", Date(version.RequestedDeliveryDate));
-        if (DocumentPrintTemplateRuntime.Shows(template, "total_weight"))
-        {
-            AddInfo(
-                document,
-                "Tổng khối lượng",
-                string.IsNullOrWhiteSpace(version.TotalWeightKg)
-                    ? "Chưa đủ dữ liệu"
-                    : $"{SalesPresentation.Quantity(version.TotalWeightKg)} kg");
-        }
+            [
+                new("customer", "Khách hàng", customer, false),
+                new("document_date", "Ngày đơn", documentDate, false),
+                new("total_weight", "Khối lượng", weight, true),
+                new("customer_code", "Mã khách", customerCode, false),
+                new("phone", "Điện thoại", Display(phone), false),
+                new("address", "Địa chỉ", Address(version.CustomerAddress), true),
+                new("warehouse", "Kho", JoinCodeName(version.WarehouseCode, version.WarehouseName), false),
+                new("delivery_method", "Hình thức giao nhận", version.DeliveryMode == "PICKUP"
+                    ? "Mua tại quầy"
+                    : version.DeliveryExecutionMode == "MANUAL" ? "Giao thủ công" : "Giao theo chuyến", false),
+                new("collection_policy", "Thanh toán", SalesPresentation.CollectionPolicy(version.CollectionPolicy), false),
+                new("requested_delivery_date", "Ngày giao dự kiến", Date(version.RequestedDeliveryDate), false)
+            ]);
+        if (meta is not null) document.Blocks.Add(meta);
 
         var lines = BuildLines(version, template);
         if (lines is not null) document.Blocks.Add(lines);
 
-        var totals = new List<string>();
-        if (DocumentPrintTemplateRuntime.Shows(template, "total_subtotal"))
-            totals.Add($"Tạm tính: {SalesPresentation.Money(version.Subtotal)}");
-        if (ShowDiscount(version) && DocumentPrintTemplateRuntime.Shows(template, "total_discount"))
-            totals.Add($"Tổng chiết khấu: {SalesPresentation.Money(version.DiscountTotal)}");
-        if (ShowTax(version) && DocumentPrintTemplateRuntime.Shows(template, "total_tax"))
-            totals.Add($"Tổng thuế: {SalesPresentation.Money(version.TaxTotal)}");
-        if (DocumentPrintTemplateRuntime.Shows(template, "total_total"))
-            totals.Add($"TỔNG CỘNG: {SalesPresentation.Money(version.Total)}");
-        if (totals.Count > 0)
+        var totals = BuildTotals(version, template);
+        if (totals is not null) document.Blocks.Add(totals);
+
+        if (DocumentPrintTemplateRuntime.Shows(template, "note") && !string.IsNullOrWhiteSpace(version.Note))
         {
-            document.Blocks.Add(new Paragraph(new Run(string.Join("\n", totals)))
+            document.Blocks.Add(new Paragraph
             {
-                TextAlignment = TextAlignment.Right,
                 Margin = new Thickness(0, 10, 0, 0),
-                FontWeight = FontWeights.Bold,
-                FontSize = 13
+                Padding = new Thickness(8, 6, 8, 6),
+                BorderBrush = Brushes.LightGray,
+                BorderThickness = new Thickness(1),
+                Inlines = { new Bold(new Run("Ghi chú: ")), new Run(version.Note.Trim()) }
             });
         }
 
-        if (DocumentPrintTemplateRuntime.Shows(template, "note") && !string.IsNullOrWhiteSpace(version.Note))
-            document.Blocks.Add(new Paragraph(new Run($"Ghi chú: {version.Note.Trim()}")) { Margin = new Thickness(0, 10, 0, 0) });
-
         DocumentPrintTemplateRuntime.AddSignatures(document, template, "Người lập", "Kho giao hàng", "Khách hàng");
+        var footerMargin = Math.Clamp(120 - (version.Lines?.Length ?? 0) * 5, 12, 90);
+        document.Blocks.Add(new Paragraph(new Run($"{customer.ToUpperInvariant()} - {documentDate}"))
+        {
+            Margin = new Thickness(0, footerMargin, 0, 0),
+            TextAlignment = TextAlignment.Center,
+            FontSize = 8,
+            Foreground = Brushes.DimGray
+        });
     }
 
     private static Table? BuildLines(SalesOrderVersionData version, DocumentPrintTemplateData template)
     {
-        var columns = new List<(string Key, string Header, Func<SalesOrderLineData, string> Value)>
+        var columns = new List<PrintColumn>
         {
-            ("line_no", "STT", line => line.LineNumber.ToString(CultureInfo.InvariantCulture)),
-            ("line_item", "Tên sản phẩm", line => Display(line.ItemName)),
-            ("line_sku", "SKU", line => Display(line.Sku)),
-            ("line_quantity", "Số lượng", line => SalesPresentation.Quantity(line.Quantity)),
-            ("line_unit", "ĐVT", line => Display(line.UnitName ?? line.UnitCode)),
-            ("line_unit_price", "Đơn giá", line => SalesPresentation.Money(line.UnitPrice)),
-            ("line_discount", "Chiết khấu", line => SalesPresentation.Money(line.DiscountAmount)),
-            ("line_tax", "Thuế", line => SalesPresentation.Money(line.TaxAmount)),
-            ("line_total", "Thành tiền", line => SalesPresentation.Money(line.LineTotal))
+            new("line_no", "STT", 0.65, TextAlignment.Center, line => line.LineNumber.ToString(CultureInfo.InvariantCulture)),
+            new("line_item", "Tên sản phẩm", 4.2, TextAlignment.Left, line => Display(line.ItemName), true),
+            new("line_sku", "SKU", 1.8, TextAlignment.Left, line => Display(line.Sku)),
+            new("line_quantity", "SL", 0.9, TextAlignment.Right, line => SalesPresentation.Quantity(line.Quantity)),
+            new("line_unit", "ĐVT", 1.05, TextAlignment.Center, line => Display(line.UnitName ?? line.UnitCode)),
+            new("line_unit_price", "Đơn giá", 1.55, TextAlignment.Right, line => MoneyNumber(line.UnitPrice)),
+            new("line_discount", "CK", 1.35, TextAlignment.Right, line => MoneyNumber(line.DiscountAmount)),
+            new("line_tax", "Thuế", 1.25, TextAlignment.Right, line => MoneyNumber(line.TaxAmount)),
+            new("line_total", "Thành tiền", 1.65, TextAlignment.Right, line => MoneyNumber(line.LineTotal), true)
         }
         .Where(column => DocumentPrintTemplateRuntime.Shows(template, column.Key))
         .Where(column => column.Key != "line_discount" || ShowDiscount(version))
@@ -232,17 +237,25 @@ internal static class SalesOrderPrintPreview
 
         if (columns.Count == 0) return null;
 
-        var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 14, 0, 0) };
-        foreach (var _ in columns) table.Columns.Add(new TableColumn());
+        var table = new Table
+        {
+            CellSpacing = 0,
+            Margin = new Thickness(0, 2, 0, 8)
+        };
+        foreach (var column in columns)
+            table.Columns.Add(new TableColumn { Width = new GridLength(column.Weight, GridUnitType.Star) });
+
         var group = new TableRowGroup();
         var header = new TableRow();
-        foreach (var column in columns) header.Cells.Add(Cell(column.Header, true));
+        foreach (var column in columns)
+            header.Cells.Add(LineCell(column.Header, column.Alignment, bold: true, isHeader: true));
         group.Rows.Add(header);
 
         foreach (var line in (version.Lines ?? []).OrderBy(item => item.LineNumber))
         {
             var row = new TableRow();
-            foreach (var column in columns) row.Cells.Add(Cell(column.Value(line), column.Key == "line_total"));
+            foreach (var column in columns)
+                row.Cells.Add(LineCell(column.Value(line), column.Alignment, column.Bold));
             group.Rows.Add(row);
         }
 
@@ -250,34 +263,164 @@ internal static class SalesOrderPrintPreview
         return table;
     }
 
-    private static TableCell Cell(string value, bool bold = false)
+    private static TableCell LineCell(string value, TextAlignment alignment, bool bold = false, bool isHeader = false)
     {
         var run = new Run(Display(value));
         if (bold) run.FontWeight = FontWeights.SemiBold;
-        return new TableCell(new Paragraph(run) { Margin = new Thickness(0) })
+        return new TableCell(new Paragraph(run)
         {
-            BorderBrush = Brushes.Gray,
-            BorderThickness = new Thickness(0.5),
-            Padding = new Thickness(5)
+            Margin = new Thickness(0),
+            TextAlignment = alignment,
+            FontSize = isHeader ? 10 : 10.5
+        })
+        {
+            Background = isHeader ? Brushes.Gainsboro : Brushes.Transparent,
+            BorderBrush = Brushes.LightGray,
+            BorderThickness = new Thickness(0.65),
+            Padding = new Thickness(5, 5, 5, 5)
         };
     }
 
-    private static void AddInfoIf(
-        FlowDocument document,
+    private static Table? BuildMetaTable(
         DocumentPrintTemplateData template,
-        string key,
-        string label,
-        string? value)
+        IReadOnlyList<PrintMeta> source)
     {
-        if (DocumentPrintTemplateRuntime.Shows(template, key)) AddInfo(document, label, value);
+        var items = source.Where(item => DocumentPrintTemplateRuntime.Shows(template, item.Key)).ToList();
+        if (items.Count == 0) return null;
+
+        var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 0, 0, 10) };
+        table.Columns.Add(new TableColumn { Width = new GridLength(88) });
+        table.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
+        table.Columns.Add(new TableColumn { Width = new GridLength(88) });
+        table.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
+
+        var group = new TableRowGroup();
+        for (var index = 0; index < items.Count;)
+        {
+            var first = items[index++];
+            var row = new TableRow();
+            if (first.Full)
+            {
+                row.Cells.Add(MetaCell(first.Label, false));
+                var valueCell = MetaCell(first.Value, true);
+                valueCell.ColumnSpan = 3;
+                row.Cells.Add(valueCell);
+            }
+            else
+            {
+                row.Cells.Add(MetaCell(first.Label, false));
+                row.Cells.Add(MetaCell(first.Value, true));
+                if (index < items.Count && !items[index].Full)
+                {
+                    var second = items[index++];
+                    row.Cells.Add(MetaCell(second.Label, false));
+                    row.Cells.Add(MetaCell(second.Value, true));
+                }
+                else
+                {
+                    row.Cells.Add(MetaCell(string.Empty, false));
+                    row.Cells.Add(MetaCell(string.Empty, true));
+                }
+            }
+            group.Rows.Add(row);
+        }
+        table.RowGroups.Add(group);
+        return table;
     }
 
-    private static void AddInfo(FlowDocument document, string label, string? value) =>
-        document.Blocks.Add(new Paragraph
+    private static TableCell MetaCell(string value, bool bold)
+    {
+        var run = new Run(Display(value, string.Empty));
+        if (bold) run.FontWeight = FontWeights.SemiBold;
+        else run.Foreground = Brushes.DimGray;
+        return new TableCell(new Paragraph(run) { Margin = new Thickness(0), FontSize = 10.5 })
         {
-            Margin = new Thickness(0, 1, 0, 1),
-            Inlines = { new Bold(new Run($"{label}: ")), new Run(Display(value)) }
-        });
+            BorderBrush = Brushes.LightGray,
+            BorderThickness = new Thickness(0, 0, 0, 0.65),
+            Padding = new Thickness(0, 3, 8, 4)
+        };
+    }
+
+    private static Table? BuildTotals(SalesOrderVersionData version, DocumentPrintTemplateData template)
+    {
+        var rows = new List<PrintTotal>();
+        if (DocumentPrintTemplateRuntime.Shows(template, "total_subtotal"))
+            rows.Add(new("Tạm tính", $"{MoneyNumber(version.Subtotal)} ₫", false));
+        if (ShowDiscount(version) && DocumentPrintTemplateRuntime.Shows(template, "total_discount"))
+            rows.Add(new("Chiết khấu", $"{MoneyNumber(version.DiscountTotal)} ₫", false));
+        if (ShowTax(version) && DocumentPrintTemplateRuntime.Shows(template, "total_tax"))
+            rows.Add(new("Thuế", $"{MoneyNumber(version.TaxTotal)} ₫", false));
+        if (DocumentPrintTemplateRuntime.Shows(template, "total_total"))
+            rows.Add(new("TỔNG CỘNG", $"{MoneyNumber(version.Total)} ₫", true));
+        if (rows.Count == 0) return null;
+
+        var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 2, 0, 0) };
+        table.Columns.Add(new TableColumn { Width = new GridLength(4.2, GridUnitType.Star) });
+        table.Columns.Add(new TableColumn { Width = new GridLength(1.25, GridUnitType.Star) });
+        table.Columns.Add(new TableColumn { Width = new GridLength(1.55, GridUnitType.Star) });
+        var group = new TableRowGroup();
+
+        foreach (var item in rows)
+        {
+            var row = new TableRow();
+            row.Cells.Add(new TableCell(new Paragraph { Margin = new Thickness(0) }));
+            row.Cells.Add(TotalCell(item.Label, TextAlignment.Left, item.Emphasis));
+            row.Cells.Add(TotalCell(item.Value, TextAlignment.Right, true, item.Emphasis));
+            group.Rows.Add(row);
+        }
+
+        table.RowGroups.Add(group);
+        return table;
+    }
+
+    private static TableCell TotalCell(
+        string value,
+        TextAlignment alignment,
+        bool bold,
+        bool topRule = false)
+    {
+        var run = new Run(value);
+        if (bold) run.FontWeight = FontWeights.Bold;
+        return new TableCell(new Paragraph(run)
+        {
+            Margin = new Thickness(0),
+            TextAlignment = alignment,
+            FontSize = topRule ? 12.5 : 10.5
+        })
+        {
+            BorderBrush = Brushes.Black,
+            BorderThickness = topRule ? new Thickness(0, 1.5, 0, 0) : new Thickness(0),
+            Padding = new Thickness(3, topRule ? 7 : 3, 3, 3)
+        };
+    }
+
+    private static FlowDocumentPageViewer CreateViewer(FlowDocument document) =>
+        new()
+        {
+            Document = document,
+            Margin = new Thickness(8),
+            Zoom = 95,
+            MinZoom = 50,
+            MaxZoom = 180
+        };
+
+    private static string MoneyNumber(string? value)
+    {
+        if (!decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var amount))
+            return string.IsNullOrWhiteSpace(value) ? "0" : value.Trim();
+        return amount.ToString("N0", CultureInfo.GetCultureInfo("vi-VN"));
+    }
+
+    private sealed record PrintColumn(
+        string Key,
+        string Header,
+        double Weight,
+        TextAlignment Alignment,
+        Func<SalesOrderLineData, string> Value,
+        bool Bold = false);
+
+    private sealed record PrintMeta(string Key, string Label, string Value, bool Full);
+    private sealed record PrintTotal(string Label, string Value, bool Emphasis);
 
     private static string Address(SalesOrderAddressData? address)
     {
@@ -327,7 +470,7 @@ internal static class SalesOrderPrintPreview
             var dialog = new PrintDialog();
             DocumentPrintTemplateRuntime.PrepareDialog(dialog, template);
             if (dialog.ShowDialog() != true) return;
-            DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template);
+            DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template, PrintPadding);
             dialog.PrintDocument(
                 ((IDocumentPaginatorSource)document).DocumentPaginator,
                 $"Phiếu xuất kho {SalesPresentation.Number(number)}");
@@ -350,7 +493,7 @@ internal static class SalesOrderPrintPreview
             var dialog = new PrintDialog();
             DocumentPrintTemplateRuntime.PrepareDialog(dialog, template);
             if (dialog.ShowDialog() != true) return;
-            DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template);
+            DocumentPrintTemplateRuntime.ApplyPrintableArea(document, dialog, template, PrintPadding);
             dialog.PrintDocument(
                 ((IDocumentPaginatorSource)document).DocumentPaginator,
                 $"Phiếu xuất kho · {count:N0} đơn");

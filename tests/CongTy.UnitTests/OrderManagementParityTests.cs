@@ -63,6 +63,17 @@ public sealed class OrderManagementParityTests
     }
 
     [TestMethod]
+    public void ViewModel_CardSummaryUsesListTotalFallbackAndNonStageFilters()
+    {
+        var source=ReadRepoFile("src","CongTy.Desktop","Sales","OrderManagementViewModel.cs");
+        StringAssert.Contains(source,"private readonly List<SalesOrderData> _summaryOrders=[]");
+        StringAssert.Contains(source,"_summaryOrders.Add(order)");
+        StringAssert.Contains(source,"CountStage(string stage)=>_summaryOrders.Count");
+        StringAssert.Contains(source,"ActiveVersion(order)?.Total ?? order.Total ?? \"0\"");
+        StringAssert.Contains(source,"if(StageFilter==\"all\"||stage==StageFilter)_filtered.Add(order)");
+    }
+
+    [TestMethod]
     public void Query_LoadsAllSalesOrderPagesWithoutBackendChange()
     {
         var source=ReadRepoFile("src","CongTy.Desktop","Sales","OrderManagementQueryService.cs");

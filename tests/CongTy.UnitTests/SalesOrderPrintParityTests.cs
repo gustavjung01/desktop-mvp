@@ -42,6 +42,15 @@ public sealed class SalesOrderPrintParityTests
         StringAssert.Contains(source, "ShowDiscount(version)");
         StringAssert.Contains(source, "ShowTax(version)");
         StringAssert.Contains(source, "DocumentPrintTemplateRuntime.Shows(template, column.Key)");
+        StringAssert.Contains(source, "BuildMetaTable");
+        StringAssert.Contains(source, "BuildTotals");
+        StringAssert.Contains(source, "GridUnitType.Star");
+        StringAssert.Contains(source, "MoneyNumber(line.UnitPrice)");
+        StringAssert.Contains(source, "MoneyNumber(line.LineTotal)");
+        StringAssert.Contains(source, "Zoom = 95");
+        StringAssert.Contains(source, "PrintPadding");
+        StringAssert.Contains(source, "\"Khối lượng\"");
+        Assert.IsFalse(source.Contains("\"Tổng khối lượng\"", StringComparison.Ordinal));
         Assert.IsFalse(source.Contains("DefaultColumnWidth", StringComparison.Ordinal));
         Assert.IsFalse(source.Contains("double.PositiveInfinity", StringComparison.Ordinal));
     }
