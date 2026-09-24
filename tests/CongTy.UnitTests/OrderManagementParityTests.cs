@@ -57,8 +57,8 @@ public sealed class OrderManagementParityTests
     {
         var view=ReadRepoFile("src","CongTy.Desktop","Sales","OrderManagementView.xaml");
         StringAssert.Contains(view,"x:Key=\"StageSummaryButtonStyle\"");
-        StringAssert.Contains(view,"Background=\"{DynamicResource CardHeaderBrush}\"");
-        StringAssert.Contains(view,"BorderBrush=\"{DynamicResource CardFrameBrush}\"");
+        StringAssert.Contains(view,"<Setter Property=\"Background\" Value=\"{DynamicResource CardHeaderBrush}\" />");
+        StringAssert.Contains(view,"<Setter Property=\"BorderBrush\" Value=\"{DynamicResource CardFrameBrush}\" />");
         StringAssert.Contains(view,"CornerRadius=\"8\"");
         StringAssert.Contains(view,"<DockPanel LastChildFill=\"False\">");
         StringAssert.Contains(view,"DockPanel.Dock=\"Right\" Text=\"{Binding ActiveCount}\"");
