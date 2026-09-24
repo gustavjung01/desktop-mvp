@@ -299,7 +299,7 @@
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforceAdjustments, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 4"><TextBlock Text="Điều chỉnh công" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsEmployeeDirectorySelected}" Visibility="{Binding CanViewEmployeeDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="EmployeeDirectory_OnClick"><TextBlock Text="Danh mục nhân sự" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsWorkScheduleSelected}" Visibility="{Binding CanViewWorkforceSchedules, Converter={StaticResource BooleanToVisibilityConverter}}" Click="WorkSchedules_OnClick"><TextBlock Text="Ca / lịch làm việc" /></Button>
-                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Visibility="{Binding CanViewWorkforcePolicies, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="False" ToolTip="Sẽ được triển khai ở Lô 2"><TextBlock Text="Chính sách làm việc" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsWorkPolicySelected}" Visibility="{Binding CanViewWorkforcePolicies, Converter={StaticResource BooleanToVisibilityConverter}}" Click="WorkPolicies_OnClick"><TextBlock Text="Chính sách làm việc" /></Button>
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="AccessMenuTemplate">

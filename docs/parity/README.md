@@ -368,3 +368,16 @@ Vì vậy PR này chỉ rebaseline `webAppTree`
 `d59ee4eb239e207079c292685c479ebbd336bf0b` →
 `5a8a22c45a0580155df2a3c99df49601703c06e1`,
 không tự kéo thêm nghiệp vụ Chính sách làm việc vào Desktop, không sửa Web/backend/DB/migration.
+
+
+## Rebaseline 2026-09-24 — Workforce same-day policy audit action
+
+Desktop Lô 9 audit lại Công Ty tại `NPP-Platform/main@af4acc24bc411d3206d07256f6119472068c01c3` sau khi CI phát hiện route-tree fingerprint drift.
+
+Audit report exact-head xác nhận:
+- inventory giữ nguyên 83 screens / 331 web routes / 92 API source files / 436 endpoint candidates / 233 permissions / 322 mutation candidates;
+- snapshot hash của API source, endpoint candidate, mutation candidate và permission đều không đổi;
+- shared contracts, server registry, access tree và canonical idempotency implementation không đổi;
+- chỉ `npp-core/api/src/routes/workforce.js` thay đổi để ghi đúng audit action cho cập nhật policy/assignment cùng ngày; không thêm endpoint hoặc permission mới.
+
+Vì vậy chỉ rebaseline `apiRoutesTree` từ `6d3fa036f5f69c03983dd7107d9179791bf81573` sang `45c6a931a7772c4aea9714b28139476bc5ded0a7` trong các manifest có theo dõi fingerprint này.
