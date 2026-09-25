@@ -9,7 +9,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Workforce;
 
-public sealed class AttendanceAdjustmentViewModel : INotifyPropertyChanged
+public sealed partial class AttendanceAdjustmentViewModel : INotifyPropertyChanged
 {
     private const string SelfAdjustPermission = "core.attendance.self-adjust-request";
     private const string ManagePermission = "core.attendance.adjust";
@@ -103,6 +103,7 @@ public sealed class AttendanceAdjustmentViewModel : INotifyPropertyChanged
             DirectEmployees.Clear();
             SelectedReview = null;
             SelectedDirectEmployee = null;
+            ResetManualAttendanceState();
             SelectedBranch = null;
             SelectedLockBranch = null;
             SetMessage(string.Empty, false);
@@ -240,6 +241,7 @@ public sealed class AttendanceAdjustmentViewModel : INotifyPropertyChanged
         {
             if (!SetField(ref _selectedDirectEmployee, value)) return;
             OnPropertyChanged(nameof(CanSubmitDirect));
+            OnPropertyChanged(nameof(CanSubmitQuick));
         }
     }
 
@@ -1072,6 +1074,7 @@ public sealed class AttendanceAdjustmentViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanPagePrevious));
         OnPropertyChanged(nameof(CanPageNext));
         OnPropertyChanged(nameof(CanSubmitOwn));
+        OnPropertyChanged(nameof(CanSubmitQuick));
         OnPropertyChanged(nameof(CanSubmitDirect));
         OnPropertyChanged(nameof(CanApprove));
         OnPropertyChanged(nameof(CanReject));
