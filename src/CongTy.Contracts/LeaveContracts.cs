@@ -51,6 +51,15 @@ public sealed record LeaveSelectedEmployeeData
     [JsonPropertyName("branchId")] public string? BranchId { get; init; }
 }
 
+public sealed record LeaveEmployeeData
+{
+    [JsonPropertyName("id")] public string Id { get; init; } = string.Empty;
+    [JsonPropertyName("code")] public string Code { get; init; } = string.Empty;
+    [JsonPropertyName("name")] public string Name { get; init; } = string.Empty;
+    [JsonPropertyName("branchId")] public string? BranchId { get; init; }
+    [JsonPropertyName("branchName")] public string? BranchName { get; init; }
+}
+
 public sealed record LeavePaginationData
 {
     [JsonPropertyName("limit")] public int Limit { get; init; } = 50;
@@ -65,6 +74,7 @@ public sealed record LeaveRequestCapabilitiesData
     [JsonPropertyName("selfOnly")] public bool SelfOnly { get; init; }
     [JsonPropertyName("canSubmitOwn")] public bool CanSubmitOwn { get; init; }
     [JsonPropertyName("canApprove")] public bool CanApprove { get; init; }
+    [JsonPropertyName("canSubmitManual")] public bool CanSubmitManual { get; init; }
     [JsonPropertyName("canManageTypes")] public bool CanManageTypes { get; init; }
 }
 
@@ -86,9 +96,12 @@ public sealed record LeaveRequestData
     [JsonPropertyName("day_part")] public string DayPart { get; init; } = "FULL_DAY";
     [JsonPropertyName("reason")] public string Reason { get; init; } = string.Empty;
     [JsonPropertyName("attachment_reference")] public string? AttachmentReference { get; init; }
+    [JsonPropertyName("attachment_url")] public string? AttachmentUrl { get; init; }
+    [JsonPropertyName("request_source")] public string RequestSource { get; init; } = "SELF_SERVICE";
+    [JsonPropertyName("manual_approver_name")] public string? ManualApproverName { get; init; }
     [JsonPropertyName("status")] public string Status { get; init; } = "SUBMITTED";
     [JsonPropertyName("requested_by_actor_id")] public string RequestedByActorId { get; init; } = string.Empty;
-    [JsonPropertyName("requested_by_employee_id")] public string RequestedByEmployeeId { get; init; } = string.Empty;
+    [JsonPropertyName("requested_by_employee_id")] public string? RequestedByEmployeeId { get; init; }
     [JsonPropertyName("reviewed_by_actor_id")] public string? ReviewedByActorId { get; init; }
     [JsonPropertyName("review_reason")] public string? ReviewReason { get; init; }
     [JsonPropertyName("reviewed_at")] public string? ReviewedAt { get; init; }
@@ -144,6 +157,7 @@ public sealed record LeaveRequestListResponseData
 {
     [JsonPropertyName("selectedEmployee")] public LeaveSelectedEmployeeData? SelectedEmployee { get; init; }
     [JsonPropertyName("branches")] public LeaveBranchData[] Branches { get; init; } = [];
+    [JsonPropertyName("employees")] public LeaveEmployeeData[] Employees { get; init; } = [];
     [JsonPropertyName("balanceAsOfDate")] public string? BalanceAsOfDate { get; init; }
     [JsonPropertyName("leaveBalances")] public LeaveBalanceData[] LeaveBalances { get; init; } = [];
     [JsonPropertyName("balanceEntries")] public LeaveBalanceEntryData[] BalanceEntries { get; init; } = [];
@@ -174,6 +188,30 @@ public sealed record SubmitLeaveRequestRequest
     [JsonPropertyName("dayPart")] public string DayPart { get; init; } = "FULL_DAY";
     [JsonPropertyName("reason")] public string Reason { get; init; } = string.Empty;
     [JsonPropertyName("attachmentReference")] public string? AttachmentReference { get; init; }
+}
+
+public sealed record SubmitManualLeaveRequest
+{
+    [JsonPropertyName("employeeId")] public string EmployeeId { get; init; } = string.Empty;
+    [JsonPropertyName("leaveTypeId")] public string LeaveTypeId { get; init; } = string.Empty;
+    [JsonPropertyName("dateFrom")] public string DateFrom { get; init; } = string.Empty;
+    [JsonPropertyName("dateTo")] public string DateTo { get; init; } = string.Empty;
+    [JsonPropertyName("dayPart")] public string DayPart { get; init; } = "FULL_DAY";
+    [JsonPropertyName("reason")] public string Reason { get; init; } = string.Empty;
+    [JsonPropertyName("attachmentReference")] public string? AttachmentReference { get; init; }
+    [JsonPropertyName("paperApproved")] public bool PaperApproved { get; init; }
+    [JsonPropertyName("manualApproverName")] public string? ManualApproverName { get; init; }
+    [JsonPropertyName("manualApprovedDate")] public string? ManualApprovedDate { get; init; }
+}
+
+public sealed record LeaveAttachmentUploadData
+{
+    [JsonPropertyName("objectKey")] public string ObjectKey { get; init; } = string.Empty;
+    [JsonPropertyName("publicUrl")] public string PublicUrl { get; init; } = string.Empty;
+    [JsonPropertyName("fileName")] public string FileName { get; init; } = string.Empty;
+    [JsonPropertyName("mimeType")] public string MimeType { get; init; } = string.Empty;
+    [JsonPropertyName("byteSize")] public long ByteSize { get; init; }
+    [JsonPropertyName("checksumSha256")] public string ChecksumSha256 { get; init; } = string.Empty;
 }
 
 public sealed record ReviewLeaveRequestRequest

@@ -46,6 +46,9 @@ public partial class AttendanceAdjustmentView : UserControl
     private async void SubmitOwn_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.SubmitOwnAsync();
 
+    private async void SubmitQuick_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SubmitQuickAttendanceAsync();
+
     private async void SubmitDirect_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.SubmitDirectAsync();
 

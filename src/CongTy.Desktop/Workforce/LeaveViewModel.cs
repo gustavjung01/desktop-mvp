@@ -121,6 +121,7 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
         RequestFromDate = today;
         RequestToDate = today;
         BalanceEffectiveDate = today;
+        InitializeManualLeaveDefaults(today);
 
         _access.Changed += (_, _) => RunOnUiThread(ResetForAccessChange);
     }
@@ -154,6 +155,12 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
     public bool CanApprove =>
         _requestCapabilities.CanApprove
         && _access.HasPermission(LeaveApprovePermission);
+
+    public bool CanSubmitManual =>
+        _requestCapabilities.CanSubmitManual
+        && _access.HasPermission(LeaveApprovePermission);
+
+    public bool ShowManualPanel => CanSubmitManual;
 
     public bool CanManageTypes =>
         (_typeCapabilities.CanManage || _requestCapabilities.CanManageTypes || _balanceCapabilities.CanManage)
@@ -545,6 +552,7 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
         _leaveTypes.AddRange(response.LeaveTypes ?? []);
 
         var requestTypeId = SelectedRequestType?.Value;
+        var manualTypeId = SelectedManualLeaveType?.Value;
         var balanceTypeId = SelectedBalanceLeaveType?.Value;
 
         LeaveTypeRows.Clear();
@@ -569,6 +577,8 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
 
         SelectedRequestType = RequestLeaveTypeOptions.FirstOrDefault(item => item.Value == requestTypeId)
             ?? RequestLeaveTypeOptions.FirstOrDefault();
+        SelectedManualLeaveType = RequestLeaveTypeOptions.FirstOrDefault(item => item.Value == manualTypeId)
+            ?? RequestLeaveTypeOptions.FirstOrDefault();
         SelectedBalanceLeaveType = BalanceLeaveTypeOptions.FirstOrDefault(item => item.Value == balanceTypeId)
             ?? BalanceLeaveTypeOptions.FirstOrDefault();
 
@@ -587,6 +597,7 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
         _requests.AddRange(response.Requests ?? []);
         _balances.Clear();
         _balances.AddRange(response.LeaveBalances ?? []);
+        ApplyManualEmployees(response.Employees ?? []);
 
         BalanceAsOfText = LeavePresentation.DateText(response.BalanceAsOfDate ?? CanonicalDate(ToDate ?? WorkSchedulePresentation.BusinessToday()));
 
@@ -638,8 +649,9 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
                 LeavePresentation.RequestPeriod(item),
                 LeavePresentation.DayPartLabel(item.DayPart),
                 LeavePresentation.StatusLabel(item.Status),
-                item.Reason,
+                LeavePresentation.ReasonDetails(item),
                 reviewText,
+                !string.IsNullOrWhiteSpace(item.AttachmentUrl),
                 CanApprove && string.Equals(item.Status, "SUBMITTED", StringComparison.Ordinal),
                 canSelfCancel || canManagerCancel));
         }
@@ -767,6 +779,8 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
         BalanceEntryRows.Clear();
         LeaveTypeRows.Clear();
         RequestLeaveTypeOptions.Clear();
+        ManualEmployeeOptions.Clear();
+        ResetManualLeaveState();
         BalanceEmployeeOptions.Clear();
         BalanceLeaveTypeOptions.Clear();
         BranchOptions.Clear();
@@ -789,11 +803,15 @@ public sealed partial class LeaveViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(CanViewLeave));
         OnPropertyChanged(nameof(CanSubmitOwn));
         OnPropertyChanged(nameof(CanApprove));
+        OnPropertyChanged(nameof(CanSubmitManual));
+        OnPropertyChanged(nameof(ShowManualPanel));
+        OnPropertyChanged(nameof(CanSubmitManualRequest));
         OnPropertyChanged(nameof(CanManageTypes));
         OnPropertyChanged(nameof(CanManageBalances));
         OnPropertyChanged(nameof(SelfOnly));
         OnPropertyChanged(nameof(ShowScopedFilters));
         OnPropertyChanged(nameof(CanSubmitRequest));
+        OnPropertyChanged(nameof(CanSubmitManualRequest));
         OnPropertyChanged(nameof(CanSaveType));
         RebuildRequestRowsIfLoaded();
     }
