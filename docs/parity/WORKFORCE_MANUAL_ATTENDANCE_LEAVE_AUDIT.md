@@ -59,3 +59,16 @@ Ngày audit/triển khai: 2026-09-25.
 Không sửa Web/backend/DB/migration. Migration `159_workforce_manual_attendance_leave` thuộc backend/deploy và không được Desktop tự thực hiện.
 Không thay đổi permission contract hiện hành.
 Không deploy production trong lô Desktop này.
+
+
+## Parity gate rebaseline
+
+Update #1175 làm Web tree và Workforce route surface thay đổi có chủ đích. Sau khi audit đúng hai Next runtime routes và hai Core mutation candidates mới, Desktop rebaseline parity inventory tại cùng Web SHA `aa310c87658da48915ac7cab9ab70b90dbde87bc`:
+
+- screen surfaces: 83 — không đổi;
+- Web routes: 333;
+- backend API source files: 92 — không đổi;
+- endpoint candidates: 438;
+- permissions: 233 — không đổi;
+- mutation candidates: 324.
+- `/api/workforce/leave/requests/manual` và `/api/workforce/leave/attachments` đã có typed Desktop mapping trong lô này; Next runtime routes tương ứng vẫn `not_applicable` cho Desktop vì Desktop gọi Core API trực tiếp.
