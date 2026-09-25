@@ -95,9 +95,9 @@ public sealed class SalesOrderPrintParityTests
                 var lines = tables.Single(table =>
                     table.RowGroups.SelectMany(group => group.Rows).Count() == 9
                     && table.Columns.Count == 6);
-                Assert.IsTrue(lines.Columns[1].Width.Value > lines.Columns[0].Width.Value * 5d,
+                Assert.IsGreaterThan(lines.Columns[0].Width.Value * 5d, lines.Columns[1].Width.Value,
                     "Tên sản phẩm phải rộng hơn cột STT đủ lớn để tránh wrap làm tràn trang.");
-                Assert.IsTrue(lines.Columns[1].Width.Value > lines.Columns[5].Width.Value * 2d,
+                Assert.IsGreaterThan(lines.Columns[5].Width.Value * 2d, lines.Columns[1].Width.Value,
                     "Tên sản phẩm phải ưu tiên chiều rộng hơn cột thành tiền.");
 
                 var paginator = ((IDocumentPaginatorSource)document).DocumentPaginator;
