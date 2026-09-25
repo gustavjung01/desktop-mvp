@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -29,8 +31,37 @@ public partial class LeaveView : UserControl
     private async void NextPage_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.NextPageAsync();
 
+    private void SelectManualAttachment_OnClick(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Chọn chứng từ phiếu nghỉ",
+            Filter = "Chứng từ nghỉ (*.jpg;*.jpeg;*.png;*.webp;*.pdf)|*.jpg;*.jpeg;*.png;*.webp;*.pdf",
+            Multiselect = false,
+            CheckFileExists = true
+        };
+        if (dialog.ShowDialog() == true)
+            ViewModel.SelectManualAttachment(dialog.FileName);
+    }
+
+    private void ClearManualAttachment_OnClick(object sender, RoutedEventArgs e) =>
+        ViewModel.ClearManualAttachment();
+
+    private async void SubmitManualLeave_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SubmitManualLeaveAsync();
+
     private async void SubmitRequest_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.SubmitRequestAsync();
+
+    private void OpenAttachment_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: LeaveRequestRowView row }) return;
+        var raw = row.Source.AttachmentUrl?.Trim();
+        if (!Uri.TryCreate(raw, UriKind.Absolute, out var uri)
+            || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+            return;
+        Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+    }
 
     private void ReviewRequest_OnClick(object sender, RoutedEventArgs e)
     {

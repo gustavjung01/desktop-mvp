@@ -113,7 +113,7 @@ public sealed class WorkforceAttendanceAdjustmentLot12Tests
                      "KỲ CÔNG ĐÃ KHÓA",
                      "LỊCH SỬ XỬ LÝ",
                      "GỬI YÊU CẦU CỦA TÔI",
-                     "ĐIỀU CHỈNH TRỰC TIẾP",
+                     "CHẤM CÔNG TAY VÀ ĐIỀU CHỈNH CÔNG",
                      "KHÓA KỲ CÔNG",
                      "XỬ LÝ YÊU CẦU",
                      "DUYỆT",

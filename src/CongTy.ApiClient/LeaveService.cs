@@ -1,3 +1,4 @@
+using System.IO;
 using CongTy.Contracts;
 
 namespace CongTy.ApiClient;
@@ -22,6 +23,16 @@ public interface ILeaveService
         CancellationToken cancellationToken = default);
     Task<LeaveRequestData> SubmitLeaveRequestAsync(
         SubmitLeaveRequestRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default);
+    Task<LeaveRequestData> SubmitManualLeaveRequestAsync(
+        SubmitManualLeaveRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default);
+    Task<LeaveAttachmentUploadData> UploadLeaveAttachmentAsync(
+        byte[] content,
+        string fileName,
+        string contentType,
         string idempotencyKey,
         CancellationToken cancellationToken = default);
     Task<LeaveRequestData> ReviewLeaveRequestAsync(
@@ -115,6 +126,42 @@ public sealed class LeaveService(
             idempotencyKey,
             RequireToken(),
             cancellationToken);
+
+    public Task<LeaveRequestData> SubmitManualLeaveRequestAsync(
+        SubmitManualLeaveRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default) =>
+        apiClient.PostIdempotentDataAsync<SubmitManualLeaveRequest, LeaveRequestData>(
+            "/api/workforce/leave/requests/manual",
+            request,
+            idempotencyKey,
+            RequireToken(),
+            cancellationToken);
+
+    public Task<LeaveAttachmentUploadData> UploadLeaveAttachmentAsync(
+        byte[] content,
+        string fileName,
+        string contentType,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default)
+    {
+        var safeFileName = Path.GetFileName(fileName?.Trim() ?? string.Empty);
+        if (string.IsNullOrWhiteSpace(safeFileName))
+            throw new ArgumentException("Tên chứng từ nghỉ không hợp lệ.", nameof(fileName));
+
+        var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["x-file-name"] = Uri.EscapeDataString(safeFileName)
+        };
+        return apiClient.PutBytesIdempotentDataAsync<LeaveAttachmentUploadData>(
+            "/api/workforce/leave/attachments",
+            content,
+            contentType,
+            idempotencyKey,
+            RequireToken(),
+            cancellationToken,
+            headers);
+    }
 
     public Task<LeaveRequestData> ReviewLeaveRequestAsync(
         ReviewLeaveRequestRequest request,
