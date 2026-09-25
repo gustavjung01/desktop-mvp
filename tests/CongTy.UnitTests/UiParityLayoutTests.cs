@@ -76,7 +76,7 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(xaml, "Click=\"OpenCustomerAddressLocation_OnClick\"");
         StringAssert.Contains(xaml, "Click=\"PreviewCustomerMedia_OnClick\"");
         StringAssert.Contains(xaml, "ItemsSource=\"{Binding BulkSourceRows}\"");
-        StringAssert.Contains(xaml, "Header=\"{Binding ToggleAction}\"");
+        StringAssert.Contains(xaml, "Content=\"{Binding ToggleAction}\"");
         StringAssert.Contains(xaml, "Visibility=\"{Binding CanSetDefault, Converter={StaticResource BooleanToVisibilityConverter}}\"");
         StringAssert.Contains(xaml, "Visibility=\"{Binding HasLocation, Converter={StaticResource BooleanToVisibilityConverter}}\"");
     }
@@ -223,7 +223,7 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
-    public void DenseTables_UseSingleRowActionMenuInsteadOfButtonClusters()
+    public void DenseTables_UseDirectRowActionsWithoutLegacyMenus()
     {
         var customer = ReadRepoFile("src", "CongTy.Desktop", "Partners", "PartnerView.xaml");
         var organization = ReadRepoFile("src", "CongTy.Desktop", "Organization", "InternalOrganizationView.xaml");
@@ -244,8 +244,8 @@ public sealed class UiParityLayoutTests
         Assert.IsFalse(customer.Contains("Header=\"Thao tác\" Width=\"255\"", StringComparison.Ordinal));
         Assert.IsFalse(organization.Contains("Header=\"Thao tác\" Width=\"190\"", StringComparison.Ordinal));
         Assert.IsFalse(organization.Contains("Header=\"Thao tác\" Width=\"250\"", StringComparison.Ordinal));
-        StringAssert.Contains(customer, "Style=\"{StaticResource OfficeRowContextMenuStyle}\"");
-        StringAssert.Contains(organization, "Style=\"{StaticResource OfficeRowContextMenuStyle}\"");
+        Assert.IsFalse(customer.Contains("Style=\"{StaticResource OfficeRowContextMenuStyle}\"", StringComparison.Ordinal), "Customer không còn context menu action legacy.");
+        Assert.IsFalse(organization.Contains("Style=\"{StaticResource OfficeRowContextMenuStyle}\"", StringComparison.Ordinal), "Organization không còn context menu action legacy.");
     }
 
     [TestMethod]
