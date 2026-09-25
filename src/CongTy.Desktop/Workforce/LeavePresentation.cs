@@ -50,6 +50,23 @@ public static class LeavePresentation
             ? DateText(request.DateFrom)
             : $"{DateText(request.DateFrom)} – {DateText(request.DateTo)}";
 
+    public static string RequestSourceLabel(string? value) =>
+        string.Equals(value, "MANUAL_PAPER", StringComparison.OrdinalIgnoreCase)
+            ? "Phiếu giấy / nhập thủ công"
+            : "Phiếu điện tử";
+
+    public static string ReasonDetails(LeaveRequestData request)
+    {
+        var details = new List<string> { RequestSourceLabel(request.RequestSource) };
+        if (string.Equals(request.RequestSource, "MANUAL_PAPER", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(request.ManualApproverName))
+            details.Add($"Duyệt trên giấy: {request.ManualApproverName}");
+        if (!string.IsNullOrWhiteSpace(request.AttachmentUrl)
+            || !string.IsNullOrWhiteSpace(request.AttachmentReference))
+            details.Add("Có chứng từ");
+        return $"{request.Reason}\n{string.Join(" · ", details)}";
+    }
+
     public static string LeaveTypeBadges(LeaveTypeData type)
     {
         var values = new List<string>
@@ -81,6 +98,7 @@ public sealed record LeaveRequestRowView(
     string StatusText,
     string ReasonText,
     string ReviewText,
+    bool HasAttachment,
     bool CanReview,
     bool CanCancel);
 

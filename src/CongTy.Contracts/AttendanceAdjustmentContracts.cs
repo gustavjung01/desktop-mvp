@@ -113,10 +113,11 @@ public sealed record ReviewAttendanceAdjustmentRequest(
 
 public sealed record DirectAttendanceAdjustmentRequest(
     [property: JsonPropertyName("employeeId")] string EmployeeId,
-    [property: JsonPropertyName("workDate")] string WorkDate,
+    [property: JsonPropertyName("workDate")] string? WorkDate,
     [property: JsonPropertyName("requestedCheckInAt")] string? RequestedCheckInAt,
     [property: JsonPropertyName("requestedCheckOutAt")] string? RequestedCheckOutAt,
-    [property: JsonPropertyName("reason")] string Reason);
+    [property: JsonPropertyName("reason")] string Reason,
+    [property: JsonPropertyName("recordNowAction")] string? RecordNowAction = null);
 
 public sealed record CreateAttendancePeriodLockRequest(
     [property: JsonPropertyName("periodStart")] string PeriodStart,

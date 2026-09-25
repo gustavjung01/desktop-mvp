@@ -400,9 +400,9 @@
                             Style="{StaticResource OfficeCardStyle}"
                             Visibility="{Binding ShowDirectPanel, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel>
-                            <TextBlock Text="ĐIỀU CHỈNH TRỰC TIẾP" Style="{StaticResource AdjustmentSectionTitleStyle}" />
+                            <TextBlock Text="CHẤM CÔNG TAY VÀ ĐIỀU CHỈNH CÔNG" Style="{StaticResource AdjustmentSectionTitleStyle}" />
                             <TextBlock Margin="0,4,0,9"
-                                       Text="Chọn đúng nhân sự rồi ghi nhận giờ công. Không dùng tài khoản quản lý để chấm thay cho nhân sự."
+                                       Text="Quản lý chọn đúng nhân sự. Chấm công tay luôn lấy giờ hiện tại từ máy chủ; chỉ phần điều chỉnh bên dưới mới nhập giờ."
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextWrapping="Wrap" />
 
@@ -410,6 +410,44 @@
                             <ComboBox ItemsSource="{Binding DirectEmployees}"
                                       SelectedItem="{Binding SelectedDirectEmployee, Mode=TwoWay}"
                                       DisplayMemberPath="Label" />
+
+                            <TextBlock Margin="0,12,0,4"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Text="Chấm công tay theo giờ hệ thống" />
+                            <TextBlock Margin="0,0,0,7"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Text="Không nhập giờ thay cho nhân sự. Máy chủ tự ghi nhận thời điểm hiện tại."
+                                       TextWrapping="Wrap" />
+
+                            <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="Thao tác" />
+                            <ComboBox ItemsSource="{Binding QuickActionOptions}"
+                                      SelectedItem="{Binding SelectedQuickAction, Mode=TwoWay}"
+                                      DisplayMemberPath="Label" />
+
+                            <TextBlock Margin="0,8,0,4" FontWeight="SemiBold" Text="Lý do chấm tay" />
+                            <TextBox MinHeight="58"
+                                     MaxLength="1000"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Text="{Binding QuickReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <Button Margin="0,9,0,0"
+                                    HorizontalAlignment="Right"
+                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                    IsEnabled="{Binding CanSubmitQuick}"
+                                    Click="SubmitQuick_OnClick"
+                                    Content="{Binding QuickSubmitLabel}" />
+
+                            <Separator Margin="0,14,0,12" />
+                            <TextBlock Margin="0,0,0,4"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Text="Điều chỉnh giờ đã ghi nhận" />
+                            <TextBlock Margin="0,0,0,8"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Text="Chỉ dùng khi cần sửa lại giờ công theo chứng từ hoặc xác nhận của quản lý."
+                                       TextWrapping="Wrap" />
 
                             <TextBlock Margin="0,8,0,4" FontWeight="SemiBold" Text="Ngày công" />
                             <DatePicker SelectedDate="{Binding DirectDate, Mode=TwoWay}" />
