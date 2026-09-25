@@ -158,7 +158,7 @@ public sealed class WorkforceManualAttendanceLeaveParityTests
         StringAssert.Contains(audit, "/api/workforce/leave/requests/manual");
         StringAssert.Contains(audit, "/api/workforce/leave/attachments");
         StringAssert.Contains(audit, "canonical Idempotency-Key");
-        StringAssert.Contains(audit, "không sửa Web/backend/DB/migration");
+        StringAssert.Contains(audit, "Không sửa Web/backend/DB/migration");
         StringAssert.Contains(audit, "không deploy production");
     }
 
