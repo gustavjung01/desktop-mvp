@@ -104,9 +104,6 @@ public partial class PartnerView : UserControl
     private void OpenCustomerRowActions_OnClick(object sender, RoutedEventArgs e) =>
         OpenRowActions(sender, _viewModel.CanWriteCustomers);
 
-    private void OpenCustomerAddressRowActions_OnClick(object sender, RoutedEventArgs e) =>
-        OpenRowActions(sender, _viewModel.CanWriteCustomers);
-
     private void OpenCustomerGroupRowActions_OnClick(object sender, RoutedEventArgs e) =>
         OpenRowActions(sender, _viewModel.CanWriteCustomers);
 

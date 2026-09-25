@@ -159,7 +159,7 @@ public sealed class WorkScheduleLot3Tests
 
         var workforce = SliceTemplate(menu, "WorkforceMenuTemplate");
         StringAssert.Contains(workforce, "Click=\"Attendance_OnClick\"");
-        Assert.IsFalse(workforce.Contains("ToolTip=\"Sẽ được triển khai ở Lô 2\"><TextBlock Text=\"Ca / lịch làm việc\"", StringComparison.Ordinal));
+        Assert.IsFalse(workforce.Contains("ToolTip=\"Sẽ được triển khai ở Lô 2\"><TextBlock Text=\"Ca và lịch làm việc\"", StringComparison.Ordinal));
     }
 
     [TestMethod]

@@ -16,9 +16,13 @@ public partial class SalesOperationsView : UserControl
     }
 
     public event EventHandler? SalesOrdersRequested;
+    public event EventHandler? CustomerOnboardingRequested;
 
     private void OpenSalesOrders_OnClick(object sender, RoutedEventArgs e) =>
         SalesOrdersRequested?.Invoke(this, EventArgs.Empty);
+
+    private void OpenCustomerOnboarding_OnClick(object sender, RoutedEventArgs e) =>
+        CustomerOnboardingRequested?.Invoke(this, EventArgs.Empty);
 
     private async void SalesOperationsView_OnPreviewKeyDown(object sender, KeyEventArgs e)
     {

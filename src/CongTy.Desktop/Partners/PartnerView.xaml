@@ -440,27 +440,34 @@
                                                             <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Điện thoại" Binding="{Binding Phone}" Width="115" />
                                                             <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Mặc định" Binding="{Binding DefaultText}" Width="82" />
                                                             <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Trạng thái" Binding="{Binding Status}" Width="105" />
-                                                            <DataGridTemplateColumn Header="Thao tác" Width="92">
+                                                            <DataGridTemplateColumn Header="Thao tác" Width="330">
                                                                 <DataGridTemplateColumn.CellTemplate>
                                                                     <DataTemplate>
-                                                                        <Button VerticalAlignment="Center" Style="{StaticResource OfficeRowActionButtonStyle}"
-                                                                                Tag="{Binding Id}"
-                                                                                Click="OpenCustomerAddressRowActions_OnClick"
-                                                                                Content="Thao tác ▾">
-                                                                            <Button.ContextMenu>
-                                                                                <ContextMenu Style="{StaticResource OfficeRowContextMenuStyle}">
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="Sửa" CommandParameter="write" Click="EditCustomerAddress_OnClick" />
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="Đặt mặc định" CommandParameter="write"
-                                                                                              Visibility="{Binding CanSetDefault, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                                                              Click="SetDefaultCustomerAddress_OnClick" />
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="Mở định vị"
-                                                                                              Visibility="{Binding HasLocation, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                                                              Click="OpenCustomerAddressLocation_OnClick" />
-                                                                                    <Separator />
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="{Binding ToggleAction}" CommandParameter="write" Click="ToggleCustomerAddress_OnClick" />
-                                                                                </ContextMenu>
-                                                                            </Button.ContextMenu>
-                                                                        </Button>
+                                                                        <WrapPanel VerticalAlignment="Center">
+                                                                            <Button Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                    Tag="{Binding Id}"
+                                                                                    IsEnabled="{Binding DataContext.CanWriteCustomers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                                                    Click="EditCustomerAddress_OnClick"
+                                                                                    Content="Sửa" />
+                                                                            <Button Margin="4,0,0,0"
+                                                                                    Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                    Tag="{Binding Id}"
+                                                                                    IsEnabled="{Binding DataContext.CanWriteCustomers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                                                    Visibility="{Binding CanSetDefault, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                    Click="SetDefaultCustomerAddress_OnClick"
+                                                                                    Content="Đặt mặc định" />
+                                                                            <Button Margin="4,0,0,0"
+                                                                                    Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                    Visibility="{Binding HasLocation, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                    Click="OpenCustomerAddressLocation_OnClick"
+                                                                                    Content="Mở định vị" />
+                                                                            <Button Margin="4,0,0,0"
+                                                                                    Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                    Tag="{Binding Id}"
+                                                                                    IsEnabled="{Binding DataContext.CanWriteCustomers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                                                    Click="ToggleCustomerAddress_OnClick"
+                                                                                    Content="{Binding ToggleAction}" />
+                                                                        </WrapPanel>
                                                                     </DataTemplate>
                                                                 </DataGridTemplateColumn.CellTemplate>
                                                             </DataGridTemplateColumn>
@@ -1279,30 +1286,37 @@
                                                                     <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Điện thoại" Binding="{Binding Phone}" Width="115" />
                                                                     <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Mặc định" Binding="{Binding DefaultText}" Width="80" />
                                                                     <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Trạng thái" Binding="{Binding Status}" Width="105" />
-                                                                    <DataGridTemplateColumn Header="Thao tác" Width="92">
-                                                                <DataGridTemplateColumn.CellTemplate>
-                                                                    <DataTemplate>
-                                                                        <Button VerticalAlignment="Center" Style="{StaticResource OfficeRowActionButtonStyle}"
-                                                                                Tag="{Binding Id}"
-                                                                                Click="OpenCustomerAddressRowActions_OnClick"
-                                                                                Content="Thao tác ▾">
-                                                                            <Button.ContextMenu>
-                                                                                <ContextMenu Style="{StaticResource OfficeRowContextMenuStyle}">
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="Sửa" CommandParameter="write" Click="EditCustomerAddress_OnClick" />
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="Đặt mặc định" CommandParameter="write"
-                                                                                              Visibility="{Binding CanSetDefault, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                                                              Click="SetDefaultCustomerAddress_OnClick" />
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="Mở định vị"
-                                                                                              Visibility="{Binding HasLocation, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                                                              Click="OpenCustomerAddressLocation_OnClick" />
-                                                                                    <Separator />
-                                                                                    <MenuItem Style="{StaticResource OfficeRowMenuItemStyle}" Header="{Binding ToggleAction}" CommandParameter="write" Click="ToggleCustomerAddress_OnClick" />
-                                                                                </ContextMenu>
-                                                                            </Button.ContextMenu>
-                                                                        </Button>
-                                                                    </DataTemplate>
-                                                                </DataGridTemplateColumn.CellTemplate>
-                                                            </DataGridTemplateColumn>
+                                                                    <DataGridTemplateColumn Header="Thao tác" Width="330">
+                                                                        <DataGridTemplateColumn.CellTemplate>
+                                                                            <DataTemplate>
+                                                                                <WrapPanel VerticalAlignment="Center">
+                                                                                    <Button Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                            Tag="{Binding Id}"
+                                                                                            IsEnabled="{Binding DataContext.CanWriteCustomers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                                                            Click="EditCustomerAddress_OnClick"
+                                                                                            Content="Sửa" />
+                                                                                    <Button Margin="4,0,0,0"
+                                                                                            Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                            Tag="{Binding Id}"
+                                                                                            IsEnabled="{Binding DataContext.CanWriteCustomers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                                                            Visibility="{Binding CanSetDefault, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                            Click="SetDefaultCustomerAddress_OnClick"
+                                                                                            Content="Đặt mặc định" />
+                                                                                    <Button Margin="4,0,0,0"
+                                                                                            Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                            Visibility="{Binding HasLocation, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                            Click="OpenCustomerAddressLocation_OnClick"
+                                                                                            Content="Mở định vị" />
+                                                                                    <Button Margin="4,0,0,0"
+                                                                                            Style="{StaticResource OfficeRowActionButtonStyle}"
+                                                                                            Tag="{Binding Id}"
+                                                                                            IsEnabled="{Binding DataContext.CanWriteCustomers, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                                                            Click="ToggleCustomerAddress_OnClick"
+                                                                                            Content="{Binding ToggleAction}" />
+                                                                                </WrapPanel>
+                                                                            </DataTemplate>
+                                                                        </DataGridTemplateColumn.CellTemplate>
+                                                                    </DataGridTemplateColumn>
                                                                 </DataGrid.Columns>
                                                             </DataGrid>
                                                         </StackPanel>

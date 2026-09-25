@@ -86,6 +86,23 @@ public sealed class SalesOperationsParityTests
     }
 
     [TestMethod]
+    public void View_OpensCanonicalCustomerOnboardingWorkspace()
+    {
+        var view = ReadRepoFile("src", "CongTy.Desktop", "Sales", "SalesOperationsView.xaml");
+        var viewCode = ReadRepoFile("src", "CongTy.Desktop", "Sales", "SalesOperationsView.xaml.cs");
+        var shellCode = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml.cs");
+
+        StringAssert.Contains(view, "IsEnabled=\"{Binding CanReadOnboarding}\"");
+        StringAssert.Contains(view, "Click=\"OpenCustomerOnboarding_OnClick\"");
+        Assert.IsFalse(view.Contains("Màn xử lý mã khách sẽ được nối ở lô nghiệp vụ riêng.", StringComparison.Ordinal));
+        StringAssert.Contains(viewCode, "CustomerOnboardingRequested");
+        StringAssert.Contains(viewCode, "OpenCustomerOnboarding_OnClick");
+        StringAssert.Contains(shellCode, "_salesOperationsView.CustomerOnboardingRequested += SalesOperationsView_OnCustomerOnboardingRequested");
+        StringAssert.Contains(shellCode, "SalesOperationsView_OnCustomerOnboardingRequested");
+        StringAssert.Contains(shellCode, "NavigateCustomerOnboardingAsync");
+    }
+
+    [TestMethod]
     public void Shell_WiresUi53WithoutImplementingLaterWorkspaces()
     {
         var shell = ReadRepoFile("src", "CongTy.Desktop", "Shell", "ShellViewModel.cs");

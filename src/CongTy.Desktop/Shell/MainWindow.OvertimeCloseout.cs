@@ -45,7 +45,7 @@ public partial class MainWindow
         if (!_viewModel.IsOvertimeCloseoutSelected) return;
 
         SetShellHeaderText(nameof(ShellViewModel.HeaderKicker), "NHÂN SỰ");
-        SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Tăng ca & chốt công");
+        SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Tăng ca và chốt công");
         SetShellHeaderText(
             nameof(ShellViewModel.PageSubtitle),
             "Quản lý tăng ca theo phê duyệt và chốt kỳ công thành đầu vào sạch cho tính lương.");

@@ -190,8 +190,7 @@ public sealed class InternalOrganizationViewModel : INotifyPropertyChanged
         _access.HasPermission("core.organization.read")
         || CanReadBranches
         || CanReadWarehouses
-        || CanReadLocations
-        || CanReadEmployees;
+        || CanReadLocations;
 
     public int BranchTotal => _branches.Count;
     public int BranchActive => _branches.Count(item => item.IsActive);
@@ -752,16 +751,12 @@ public sealed class InternalOrganizationViewModel : INotifyPropertyChanged
             var locationsTask = CanReadLocations
                 ? _service.ListLocationsAsync(cancellationToken)
                 : Task.FromResult<IReadOnlyList<WarehouseLocationData>>([]);
-            var employeesTask = CanReadEmployees
-                ? _service.ListEmployeesAsync(cancellationToken)
-                : Task.FromResult<IReadOnlyList<EmployeeData>>([]);
 
-            await Task.WhenAll(branchesTask, warehousesTask, locationsTask, employeesTask).ConfigureAwait(true);
+            await Task.WhenAll(branchesTask, warehousesTask, locationsTask).ConfigureAwait(true);
 
             Replace(_branches, await branchesTask.ConfigureAwait(true));
             Replace(_warehouses, await warehousesTask.ConfigureAwait(true));
             Replace(_locations, await locationsTask.ConfigureAwait(true));
-            Replace(_employees, await employeesTask.ConfigureAwait(true));
 
             _isLoaded = true;
             OnPropertyChanged(nameof(IsLoaded));

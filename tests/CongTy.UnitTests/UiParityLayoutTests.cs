@@ -76,7 +76,7 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(xaml, "Click=\"OpenCustomerAddressLocation_OnClick\"");
         StringAssert.Contains(xaml, "Click=\"PreviewCustomerMedia_OnClick\"");
         StringAssert.Contains(xaml, "ItemsSource=\"{Binding BulkSourceRows}\"");
-        StringAssert.Contains(xaml, "Header=\"{Binding ToggleAction}\"");
+        StringAssert.Contains(xaml, "Content=\"{Binding ToggleAction}\"");
         StringAssert.Contains(xaml, "Visibility=\"{Binding CanSetDefault, Converter={StaticResource BooleanToVisibilityConverter}}\"");
         StringAssert.Contains(xaml, "Visibility=\"{Binding HasLocation, Converter={StaticResource BooleanToVisibilityConverter}}\"");
     }
@@ -223,21 +223,29 @@ public sealed class UiParityLayoutTests
     }
 
     [TestMethod]
-    public void DenseTables_UseSingleRowActionMenuInsteadOfButtonClusters()
+    public void DenseTables_UseDirectRowActionsWithoutLegacyMenus()
     {
         var customer = ReadRepoFile("src", "CongTy.Desktop", "Partners", "PartnerView.xaml");
         var organization = ReadRepoFile("src", "CongTy.Desktop", "Organization", "InternalOrganizationView.xaml");
 
-        Assert.AreEqual(2, CountOccurrences(customer, "Content=\"Thao tác ▾\""), "Khách hàng/Nhóm khách hàng/Nhà cung cấp dùng action trực tiếp như Web; menu còn lại thuộc địa chỉ hồ sơ chưa đến lượt re-audit.");
-        Assert.AreEqual(1, CountOccurrences(organization, "Content=\"Thao tác ▾\""), "UI-2.2/UI-2.3 dùng action trực tiếp như Web; menu còn lại chỉ thuộc màn Nhân sự chưa đến lượt re-audit.");
+        Assert.AreEqual(0, CountOccurrences(customer, "Content=\"Thao tác ▾\""), "Các action khách hàng, nhóm, nhà cung cấp và địa chỉ đều phải trực tiếp như Web.");
+        StringAssert.Contains(customer, "Click=\"EditCustomerAddress_OnClick\"");
+        StringAssert.Contains(customer, "Click=\"SetDefaultCustomerAddress_OnClick\"");
+        StringAssert.Contains(customer, "Click=\"OpenCustomerAddressLocation_OnClick\"");
+        StringAssert.Contains(customer, "Click=\"ToggleCustomerAddress_OnClick\"");
+        Assert.AreEqual(0, CountOccurrences(organization, "Content=\"Thao tác ▾\""), "Organization không còn menu action legacy.");
+        Assert.IsFalse(organization.Contains("Header=\"Nhân sự\"", StringComparison.Ordinal), "Nhân sự đã có workspace riêng và không được lặp lại trong Organization.");
+        var organizationViewModel = ReadRepoFile("src", "CongTy.Desktop", "Organization", "InternalOrganizationViewModel.cs");
+        Assert.IsFalse(organizationViewModel.Contains("var employeesTask = CanReadEmployees", StringComparison.Ordinal), "Organization không được tải danh mục nhân sự legacy.");
+        Assert.IsFalse(organizationViewModel.Contains("|| CanReadEmployees;", StringComparison.Ordinal), "Quyền xem Nhân sự không được mở route Organization.");
         Assert.IsFalse(customer.Contains("Header=\"Hành động\" Width=\"330\"", StringComparison.Ordinal));
         Assert.IsFalse(customer.Contains("Header=\"Hành động\" Width=\"430\"", StringComparison.Ordinal));
         Assert.IsFalse(customer.Contains("Header=\"Thao tác\" Width=\"190\"", StringComparison.Ordinal));
         Assert.IsFalse(customer.Contains("Header=\"Thao tác\" Width=\"255\"", StringComparison.Ordinal));
         Assert.IsFalse(organization.Contains("Header=\"Thao tác\" Width=\"190\"", StringComparison.Ordinal));
         Assert.IsFalse(organization.Contains("Header=\"Thao tác\" Width=\"250\"", StringComparison.Ordinal));
-        StringAssert.Contains(customer, "Style=\"{StaticResource OfficeRowContextMenuStyle}\"");
-        StringAssert.Contains(organization, "Style=\"{StaticResource OfficeRowContextMenuStyle}\"");
+        Assert.IsFalse(customer.Contains("Style=\"{StaticResource OfficeRowContextMenuStyle}\"", StringComparison.Ordinal), "Customer không còn context menu action legacy.");
+        Assert.IsFalse(organization.Contains("Style=\"{StaticResource OfficeRowContextMenuStyle}\"", StringComparison.Ordinal), "Organization không còn context menu action legacy.");
     }
 
     [TestMethod]
