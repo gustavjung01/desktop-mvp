@@ -23,7 +23,7 @@ Ngày audit: 2026-09-25.
 
 3. Organization legacy:
    - Web Organization chỉ sở hữu Chi nhánh / Kho hàng / Vị trí trong sơ đồ kho.
-   - Desktop bỏ tab **Nhân sự** legacy khỏi host Organization; Danh mục nhân sự tiếp tục thuộc workspace Workforce riêng.
+   - Desktop bỏ tab **Nhân sự** legacy khỏi host Organization, ngừng tải danh mục nhân sự trong refresh Organization; Danh mục nhân sự tiếp tục thuộc workspace Workforce riêng.
 
 4. Ngôn ngữ Workforce:
    - chuẩn hóa theo Web: **Tăng ca và chốt công**, **Xử lý vi phạm chấm công**, **Ca và lịch làm việc**.

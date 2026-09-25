@@ -440,7 +440,7 @@
                                                             <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Điện thoại" Binding="{Binding Phone}" Width="115" />
                                                             <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Mặc định" Binding="{Binding DefaultText}" Width="82" />
                                                             <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Trạng thái" Binding="{Binding Status}" Width="105" />
-                                                                                                                        <DataGridTemplateColumn Header="Thao tác" Width="330">
+                                                            <DataGridTemplateColumn Header="Thao tác" Width="330">
                                                                 <DataGridTemplateColumn.CellTemplate>
                                                                     <DataTemplate>
                                                                         <WrapPanel VerticalAlignment="Center">
@@ -1286,7 +1286,7 @@
                                                                     <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Điện thoại" Binding="{Binding Phone}" Width="115" />
                                                                     <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Mặc định" Binding="{Binding DefaultText}" Width="80" />
                                                                     <DataGridTextColumn ElementStyle="{StaticResource OfficeGridTextStyle}" Header="Trạng thái" Binding="{Binding Status}" Width="105" />
-                                                                                                                                        <DataGridTemplateColumn Header="Thao tác" Width="330">
+                                                                    <DataGridTemplateColumn Header="Thao tác" Width="330">
                                                                         <DataGridTemplateColumn.CellTemplate>
                                                                             <DataTemplate>
                                                                                 <WrapPanel VerticalAlignment="Center">

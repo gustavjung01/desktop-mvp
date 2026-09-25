@@ -235,6 +235,9 @@ public sealed class UiParityLayoutTests
         StringAssert.Contains(customer, "Click=\"ToggleCustomerAddress_OnClick\"");
         Assert.AreEqual(0, CountOccurrences(organization, "Content=\"Thao tác ▾\""), "Organization không còn menu action legacy.");
         Assert.IsFalse(organization.Contains("Header=\"Nhân sự\"", StringComparison.Ordinal), "Nhân sự đã có workspace riêng và không được lặp lại trong Organization.");
+        var organizationViewModel = ReadRepoFile("src", "CongTy.Desktop", "Organization", "InternalOrganizationViewModel.cs");
+        Assert.IsFalse(organizationViewModel.Contains("var employeesTask = CanReadEmployees", StringComparison.Ordinal), "Organization không được tải danh mục nhân sự legacy.");
+        Assert.IsFalse(organizationViewModel.Contains("|| CanReadEmployees;", StringComparison.Ordinal), "Quyền xem Nhân sự không được mở route Organization.");
         Assert.IsFalse(customer.Contains("Header=\"Hành động\" Width=\"330\"", StringComparison.Ordinal));
         Assert.IsFalse(customer.Contains("Header=\"Hành động\" Width=\"430\"", StringComparison.Ordinal));
         Assert.IsFalse(customer.Contains("Header=\"Thao tác\" Width=\"190\"", StringComparison.Ordinal));
