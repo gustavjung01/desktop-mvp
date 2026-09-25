@@ -3,46 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <Style x:Key="StageSummaryButtonStyle" TargetType="Button">
-            <Setter Property="MinHeight" Value="0" />
-            <Setter Property="Padding" Value="10,6" />
-            <Setter Property="Background" Value="{DynamicResource CardHeaderBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource CardFrameBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Card"
-                                Padding="{TemplateBinding Padding}"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource RowHoverBrush}" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Card" Property="Opacity" Value="0.55" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </UserControl.Resources>
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -55,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <UniformGrid Grid.Row="0" Columns="5" Margin="0,0,0,8">
-            <Button Margin="0,0,4,0" Tag="active" Click="StageCard_OnClick" Style="{StaticResource StageSummaryButtonStyle}">
+            <Button Margin="0,0,4,0" Tag="active" Click="StageCard_OnClick" Style="{StaticResource OfficeSummaryButtonStyle}">
                 <DockPanel LastChildFill="False">
                     <StackPanel DockPanel.Dock="Left">
                         <TextBlock Text="Đang xử lý" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" />
@@ -64,7 +24,7 @@
                     <TextBlock DockPanel.Dock="Right" Text="{Binding ActiveCount}" Margin="10,0,0,0" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </DockPanel>
             </Button>
-            <Button Margin="2,0" Tag="preparing" Click="StageCard_OnClick" Style="{StaticResource StageSummaryButtonStyle}">
+            <Button Margin="2,0" Tag="preparing" Click="StageCard_OnClick" Style="{StaticResource OfficeSummaryButtonStyle}">
                 <DockPanel LastChildFill="False">
                     <StackPanel DockPanel.Dock="Left">
                         <TextBlock Text="Đang chuẩn bị" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" />
@@ -73,7 +33,7 @@
                     <TextBlock DockPanel.Dock="Right" Text="{Binding PreparingCount}" Margin="10,0,0,0" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </DockPanel>
             </Button>
-            <Button Margin="2,0" Tag="waiting_delivery" Click="StageCard_OnClick" Style="{StaticResource StageSummaryButtonStyle}">
+            <Button Margin="2,0" Tag="waiting_delivery" Click="StageCard_OnClick" Style="{StaticResource OfficeSummaryButtonStyle}">
                 <DockPanel LastChildFill="False">
                     <StackPanel DockPanel.Dock="Left">
                         <TextBlock Text="Chờ giao" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" />
@@ -82,7 +42,7 @@
                     <TextBlock DockPanel.Dock="Right" Text="{Binding WaitingDeliveryCount}" Margin="10,0,0,0" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </DockPanel>
             </Button>
-            <Button Margin="2,0" Tag="completed" Click="StageCard_OnClick" Style="{StaticResource StageSummaryButtonStyle}">
+            <Button Margin="2,0" Tag="completed" Click="StageCard_OnClick" Style="{StaticResource OfficeSummaryButtonStyle}">
                 <DockPanel LastChildFill="False">
                     <StackPanel DockPanel.Dock="Left">
                         <TextBlock Text="Đã hoàn thành" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" />
@@ -91,7 +51,7 @@
                     <TextBlock DockPanel.Dock="Right" Text="{Binding CompletedCount}" Margin="10,0,0,0" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </DockPanel>
             </Button>
-            <Button Margin="4,0,0,0" Tag="cancelled" Click="StageCard_OnClick" Style="{StaticResource StageSummaryButtonStyle}">
+            <Button Margin="4,0,0,0" Tag="cancelled" Click="StageCard_OnClick" Style="{StaticResource OfficeSummaryButtonStyle}">
                 <DockPanel LastChildFill="False">
                     <StackPanel DockPanel.Dock="Left">
                         <TextBlock Text="Đã hủy" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" />

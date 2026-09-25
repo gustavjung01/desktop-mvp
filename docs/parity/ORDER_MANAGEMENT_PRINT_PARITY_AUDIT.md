@@ -51,3 +51,21 @@ Hotfix:
 - nền trang/body đặt trắng thay vì transparent;
 - footer được đẩy sát đáy hơn cho đơn ngắn;
 - không đổi card tổng, API hay dữ liệu.
+
+
+## Lô 2 — hardening UI/print regression (2026-09-25)
+
+Baseline Desktop: `b0a2357363b66f790219343b351caacaca364d54`.
+Web authority giữ nguyên: `af4acc24bc411d3206d07256f6119472068c01c3`.
+
+- Card stage của Quản lý đơn bỏ style cục bộ `StageSummaryButtonStyle`, dùng shared `OfficeSummaryButtonStyle` trong theme chung để hover/border/padding không drift riêng khỏi các summary card Desktop.
+- Bổ sung runtime regression test cho Phiếu xuất kho:
+  - dựng `FlowDocument` thật trên STA;
+  - fixture 8 dòng tương đương lỗi ảnh thực tế;
+  - kiểm A4 + print padding;
+  - kiểm meta là hai cột Star 50/50 và full field span 2;
+  - kiểm cột tên sản phẩm giữ tỷ lệ rộng hơn cột số;
+  - chạy paginator thật và bắt buộc fixture nằm một trang.
+- Giữ các source-contract assertions cũ như lớp gate bổ sung, nhưng không còn dựa riêng vào việc tìm chuỗi source để bảo vệ layout.
+
+Không sửa Web/backend/DB/API contract hoặc nghiệp vụ in.

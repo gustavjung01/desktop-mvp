@@ -53,18 +53,20 @@ public sealed class OrderManagementParityTests
     }
 
     [TestMethod]
-    public void View_SummaryCardsReuseHorizontalSalesCardPattern()
+    public void View_SummaryCardsReuseSharedInteractiveOfficePattern()
     {
         var view=ReadRepoFile("src","CongTy.Desktop","Sales","OrderManagementView.xaml");
-        StringAssert.Contains(view,"x:Key=\"StageSummaryButtonStyle\"");
-        StringAssert.Contains(view,"<Setter Property=\"Background\" Value=\"{DynamicResource CardHeaderBrush}\" />");
-        StringAssert.Contains(view,"<Setter Property=\"BorderBrush\" Value=\"{DynamicResource CardFrameBrush}\" />");
-        StringAssert.Contains(view,"CornerRadius=\"8\"");
+        var controls=ReadRepoFile("src","CongTy.Desktop","Themes","Controls.xaml");
+        StringAssert.Contains(controls,"x:Key=\"OfficeSummaryButtonStyle\"");
+        StringAssert.Contains(controls,"<Setter Property=\"Background\" Value=\"{DynamicResource CardHeaderBrush}\" />");
+        StringAssert.Contains(controls,"<Setter Property=\"BorderBrush\" Value=\"{DynamicResource CardFrameBrush}\" />");
+        StringAssert.Contains(controls,"CornerRadius=\"8\"");
+        Assert.AreEqual(5,CountOccurrences(view,"Style=\"{StaticResource OfficeSummaryButtonStyle}\""));
+        Assert.IsFalse(view.Contains("x:Key=\"StageSummaryButtonStyle\"",StringComparison.Ordinal));
         StringAssert.Contains(view,"<DockPanel LastChildFill=\"False\">");
         StringAssert.Contains(view,"DockPanel.Dock=\"Right\" Text=\"{Binding ActiveCount}\"");
         StringAssert.Contains(view,"Text=\"{Binding ActiveValue}\" FontSize=\"10\"");
         StringAssert.Contains(view,"Margin=\"2,0\" Tag=\"preparing\"");
-        Assert.IsFalse(view.Contains("Tag=\"active\" Click=\"StageCard_OnClick\" Style=\"{StaticResource OfficeSecondaryButtonStyle}\"",StringComparison.Ordinal));
     }
 
     [TestMethod]
@@ -125,6 +127,18 @@ public sealed class OrderManagementParityTests
         StringAssert.Contains(host,"new OrderManagementView()");
         StringAssert.Contains(host,"workspaceTabs.Items[37]");
         StringAssert.Contains(xaml,"Click=\"OrderManagement_OnClick\"");
+    }
+
+    private static int CountOccurrences(string source,string value)
+    {
+        var count=0;
+        var index=0;
+        while((index=source.IndexOf(value,index,StringComparison.Ordinal))>=0)
+        {
+            count++;
+            index+=value.Length;
+        }
+        return count;
     }
 
     private static string ReadRepoFile(params string[] parts)
