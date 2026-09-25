@@ -153,7 +153,8 @@ public sealed class CompanyApiClient(
         string contentType,
         string idempotencyKey,
         string? bearerToken = null,
-        CancellationToken cancellationToken = default) =>
+        CancellationToken cancellationToken = default,
+        IReadOnlyDictionary<string, string>? headers = null) =>
         SendBytesDataAsync<TResponse>(
             HttpMethod.Put,
             relativePath,
@@ -161,6 +162,7 @@ public sealed class CompanyApiClient(
             payload,
             contentType,
             idempotencyKey,
+            headers,
             cancellationToken);
 
     public Task<TResponse> DeleteIdempotentDataAsync<TResponse>(
@@ -254,6 +256,7 @@ public sealed class CompanyApiClient(
         byte[] payload,
         string contentType,
         string idempotencyKey,
+        IReadOnlyDictionary<string, string>? headers,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(payload);
@@ -270,6 +273,16 @@ public sealed class CompanyApiClient(
         using var request = CreateRequest(method, relativePath, bearerToken, idempotencyKey, null);
         request.Content = new ByteArrayContent(payload);
         request.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType.Trim());
+
+        if (headers is not null)
+        {
+            foreach (var pair in headers)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key) || string.IsNullOrWhiteSpace(pair.Value)) continue;
+                if (!request.Headers.TryAddWithoutValidation(pair.Key, pair.Value))
+                    request.Content.Headers.TryAddWithoutValidation(pair.Key, pair.Value);
+            }
+        }
 
         using var response = await HttpClient.SendAsync(
             request,

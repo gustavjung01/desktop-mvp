@@ -150,6 +150,111 @@
 
                             <Border Margin="0,10,0,0"
                                     Style="{StaticResource OfficeCardStyle}"
+                                    Visibility="{Binding ShowManualPanel, Converter={StaticResource BoolToVisibility}}">
+                                <StackPanel>
+                                    <TextBlock Text="GHI NHẬN PHIẾU NGHỈ GIẤY" FontSize="10" FontWeight="Bold" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               Text="Quản lý / HR ghi nhận phiếu giấy cho đúng nhân sự và đúng trạng thái đã duyệt."
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap" />
+
+                                    <WrapPanel Margin="0,9,0,0">
+                                        <StackPanel Width="280" Margin="0,0,10,8">
+                                            <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Nhân sự" />
+                                            <ComboBox ItemsSource="{Binding ManualEmployeeOptions}"
+                                                      DisplayMemberPath="Label"
+                                                      SelectedItem="{Binding SelectedManualEmployee, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Width="280" Margin="0,0,10,8">
+                                            <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Chế độ nghỉ" />
+                                            <ComboBox ItemsSource="{Binding RequestLeaveTypeOptions}"
+                                                      DisplayMemberPath="Label"
+                                                      SelectedItem="{Binding SelectedManualLeaveType, Mode=TwoWay}" />
+                                            <TextBlock Margin="0,3,0,0"
+                                                       Text="{Binding ManualTypeHint}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <StackPanel Width="145" Margin="0,0,10,8">
+                                            <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Từ ngày" />
+                                            <DatePicker SelectedDate="{Binding ManualFromDate, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Width="145" Margin="0,0,10,8">
+                                            <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Đến ngày" />
+                                            <DatePicker SelectedDate="{Binding ManualToDate, Mode=TwoWay}" />
+                                        </StackPanel>
+                                        <StackPanel Width="170" Margin="0,0,10,8">
+                                            <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Phần ngày" />
+                                            <ComboBox ItemsSource="{Binding DayPartOptions}"
+                                                      DisplayMemberPath="Label"
+                                                      SelectedItem="{Binding SelectedManualDayPart, Mode=TwoWay}" />
+                                        </StackPanel>
+                                    </WrapPanel>
+
+                                    <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Lý do nghỉ" />
+                                    <TextBox MinHeight="58"
+                                             MaxLength="1000"
+                                             AcceptsReturn="True"
+                                             TextWrapping="Wrap"
+                                             Text="{Binding ManualReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                    <Grid Margin="0,8,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                Click="SelectManualAttachment_OnClick"
+                                                Content="CHỌN ẢNH / PDF" />
+                                        <TextBlock Grid.Column="1"
+                                                   Margin="10,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding ManualAttachmentDisplay}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <Button Grid.Column="2"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                Visibility="{Binding HasManualAttachment, Converter={StaticResource BoolToVisibility}}"
+                                                Click="ClearManualAttachment_OnClick"
+                                                Content="BỎ CHỨNG TỪ" />
+                                    </Grid>
+                                    <TextBlock Margin="0,4,0,0"
+                                               Text="JPG, PNG, WebP hoặc PDF; tối đa 10 MB. Chế độ yêu cầu chứng từ sẽ không cho gửi nếu chưa chọn file."
+                                               FontSize="11"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap" />
+
+                                    <CheckBox Margin="0,10,0,0"
+                                              IsChecked="{Binding PaperApproved, Mode=TwoWay}"
+                                              Content="Phiếu giấy đã được duyệt" />
+
+                                    <WrapPanel Margin="0,8,0,0"
+                                               Visibility="{Binding PaperApproved, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel Width="280" Margin="0,0,10,8">
+                                            <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Người duyệt" />
+                                            <TextBox MaxLength="150"
+                                                     Text="{Binding ManualApproverName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                        <StackPanel Width="170" Margin="0,0,10,8">
+                                            <TextBlock Style="{StaticResource LeaveFieldLabelStyle}" Text="Ngày duyệt" />
+                                            <DatePicker SelectedDate="{Binding ManualApprovedDate, Mode=TwoWay}" />
+                                        </StackPanel>
+                                    </WrapPanel>
+
+                                    <Button Margin="0,10,0,0"
+                                            HorizontalAlignment="Right"
+                                            Style="{StaticResource OfficePrimaryButtonStyle}"
+                                            IsEnabled="{Binding CanSubmitManualRequest}"
+                                            Click="SubmitManualLeave_OnClick"
+                                            Content="GHI NHẬN PHIẾU GIẤY" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Margin="0,10,0,0"
+                                    Style="{StaticResource OfficeCardStyle}"
                                     Visibility="{Binding CanSubmitOwn, Converter={StaticResource BoolToVisibility}}">
                                 <StackPanel>
                                     <TextBlock Text="TẠO ĐƠN NGHỈ" FontSize="10" FontWeight="Bold" />
@@ -234,12 +339,18 @@
                                             <DataGridTextColumn Header="Thời gian" Binding="{Binding PeriodText}" Width="1.1*" ElementStyle="{StaticResource LeaveCellTextStyle}" />
                                             <DataGridTextColumn Header="Phần ngày" Binding="{Binding DayPartText}" Width="0.9*" ElementStyle="{StaticResource LeaveCellTextStyle}" />
                                             <DataGridTextColumn Header="Trạng thái" Binding="{Binding StatusText}" Width="0.85*" ElementStyle="{StaticResource LeaveCellTextStyle}" />
-                                            <DataGridTextColumn Header="Lý do" Binding="{Binding ReasonText}" Width="1.35*" ElementStyle="{StaticResource LeaveCellTextStyle}" />
-                                            <DataGridTextColumn Header="Ý kiến / hủy" Binding="{Binding ReviewText}" Width="1.2*" ElementStyle="{StaticResource LeaveCellTextStyle}" />
-                                            <DataGridTemplateColumn Header="Thao tác" Width="1.1*">
+                                            <DataGridTextColumn Header="Lý do / nguồn" Binding="{Binding ReasonText}" Width="1.65*" ElementStyle="{StaticResource LeaveCellTextStyle}" />
+                                            <DataGridTextColumn Header="Ý kiến / hủy" Binding="{Binding ReviewText}" Width="1.15*" ElementStyle="{StaticResource LeaveCellTextStyle}" />
+                                            <DataGridTemplateColumn Header="Thao tác" Width="1.55*">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <WrapPanel VerticalAlignment="Center">
+                                                            <Button Margin="0,0,5,0"
+                                                                    Padding="7,3"
+                                                                    Tag="{Binding}"
+                                                                    Visibility="{Binding HasAttachment, Converter={StaticResource BoolToVisibility}}"
+                                                                    Click="OpenAttachment_OnClick"
+                                                                    Content="Chứng từ" />
                                                             <Button Margin="0,0,5,0"
                                                                     Padding="7,3"
                                                                     Tag="{Binding}"
@@ -251,7 +362,7 @@
                                                                     IsEnabled="{Binding CanCancel}"
                                                                     Click="OpenCancel_OnClick"
                                                                     Content="Hủy" />
-                                                        </StackPanel>
+                                                        </WrapPanel>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
