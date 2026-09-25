@@ -20,7 +20,7 @@ public sealed partial class ShellViewModel
 
         if (!CanReadWorkSchedules)
         {
-            WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Ca / lịch làm việc.";
+            WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Ca và lịch làm việc.";
             return Task.CompletedTask;
         }
 
@@ -38,7 +38,7 @@ public sealed partial class ShellViewModel
         {
             OnPropertyChanged(nameof(CanReadWorkSchedules));
             if (!CanReadWorkSchedules && IsWorkScheduleSelected)
-                WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Ca / lịch làm việc.";
+                WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Ca và lịch làm việc.";
         };
         _workScheduleSelectionObserverAttached = true;
     }

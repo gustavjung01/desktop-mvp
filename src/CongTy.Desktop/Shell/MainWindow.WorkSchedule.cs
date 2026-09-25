@@ -45,7 +45,7 @@ public partial class MainWindow
         if (!_viewModel.IsWorkScheduleSelected) return;
 
         SetShellHeaderText(nameof(ShellViewModel.HeaderKicker), "NHÂN SỰ");
-        SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Ca / lịch làm việc");
+        SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Ca và lịch làm việc");
         SetShellHeaderText(
             nameof(ShellViewModel.PageSubtitle),
             "Xem và điều chỉnh lịch làm việc tương lai theo chính sách đã áp dụng.");

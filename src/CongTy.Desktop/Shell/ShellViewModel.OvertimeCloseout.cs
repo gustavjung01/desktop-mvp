@@ -19,7 +19,7 @@ public sealed partial class ShellViewModel
 
         if (!CanOpenOvertimeCloseoutWorkspace)
         {
-            WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Tăng ca & chốt công.";
+            WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Tăng ca và chốt công.";
             return Task.CompletedTask;
         }
 
@@ -37,7 +37,7 @@ public sealed partial class ShellViewModel
         {
             OnPropertyChanged(nameof(CanOpenOvertimeCloseoutWorkspace));
             if (!CanOpenOvertimeCloseoutWorkspace && IsOvertimeCloseoutSelected)
-                WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Tăng ca & chốt công.";
+                WorkspaceMessage = "Tài khoản chưa được cấp quyền xem Tăng ca và chốt công.";
         };
         _overtimeCloseoutSelectionObserverAttached = true;
     }

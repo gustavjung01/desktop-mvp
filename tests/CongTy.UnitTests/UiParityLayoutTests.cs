@@ -228,8 +228,13 @@ public sealed class UiParityLayoutTests
         var customer = ReadRepoFile("src", "CongTy.Desktop", "Partners", "PartnerView.xaml");
         var organization = ReadRepoFile("src", "CongTy.Desktop", "Organization", "InternalOrganizationView.xaml");
 
-        Assert.AreEqual(2, CountOccurrences(customer, "Content=\"Thao tác ▾\""), "Khách hàng/Nhóm khách hàng/Nhà cung cấp dùng action trực tiếp như Web; menu còn lại thuộc địa chỉ hồ sơ chưa đến lượt re-audit.");
-        Assert.AreEqual(1, CountOccurrences(organization, "Content=\"Thao tác ▾\""), "UI-2.2/UI-2.3 dùng action trực tiếp như Web; menu còn lại chỉ thuộc màn Nhân sự chưa đến lượt re-audit.");
+        Assert.AreEqual(0, CountOccurrences(customer, "Content=\"Thao tác ▾\""), "Các action khách hàng, nhóm, nhà cung cấp và địa chỉ đều phải trực tiếp như Web.");
+        StringAssert.Contains(customer, "Click=\"EditCustomerAddress_OnClick\"");
+        StringAssert.Contains(customer, "Click=\"SetDefaultCustomerAddress_OnClick\"");
+        StringAssert.Contains(customer, "Click=\"OpenCustomerAddressLocation_OnClick\"");
+        StringAssert.Contains(customer, "Click=\"ToggleCustomerAddress_OnClick\"");
+        Assert.AreEqual(0, CountOccurrences(organization, "Content=\"Thao tác ▾\""), "Organization không còn menu action legacy.");
+        Assert.IsFalse(organization.Contains("Header=\"Nhân sự\"", StringComparison.Ordinal), "Nhân sự đã có workspace riêng và không được lặp lại trong Organization.");
         Assert.IsFalse(customer.Contains("Header=\"Hành động\" Width=\"330\"", StringComparison.Ordinal));
         Assert.IsFalse(customer.Contains("Header=\"Hành động\" Width=\"430\"", StringComparison.Ordinal));
         Assert.IsFalse(customer.Contains("Header=\"Thao tác\" Width=\"190\"", StringComparison.Ordinal));

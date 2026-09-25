@@ -203,8 +203,8 @@
                             <Button Grid.Column="1"
                                     VerticalAlignment="Top"
                                     Style="{StaticResource OfficeMiniButtonStyle}"
-                                    IsEnabled="False"
-                                    ToolTip="Màn xử lý mã khách sẽ được nối ở lô nghiệp vụ riêng."
+                                    IsEnabled="{Binding CanReadOnboarding}"
+                                    Click="OpenCustomerOnboarding_OnClick"
                                     Content="Mở màn xử lý" />
                         </Grid>
                         <TextBlock Grid.Row="1"

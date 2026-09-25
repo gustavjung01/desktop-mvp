@@ -9,7 +9,7 @@ public sealed class WorkforceNavigationLot0Tests
         var xaml = ReadRepoFile("src", "CongTy.Desktop", "Shell", "MainWindow.xaml");
         var workforce = SliceTemplate(xaml, "WorkforceMenuTemplate");
         var access = SliceTemplate(xaml, "AccessMenuTemplate");
-        var labels = new[] { "Chấm công", "Bảng công", "Tăng ca &amp; chốt công", "Tính lương", "Nghỉ và đơn nghỉ", "Xử lý vi phạm công", "Điều chỉnh công", "Danh mục nhân sự", "Ca / lịch làm việc", "Chính sách làm việc" };
+        var labels = new[] { "Chấm công", "Bảng công", "Tăng ca và chốt công", "Tính lương", "Nghỉ và đơn nghỉ", "Xử lý vi phạm chấm công", "Điều chỉnh công", "Danh mục nhân sự", "Ca và lịch làm việc", "Chính sách làm việc" };
 
         var previous = -1;
         foreach (var label in labels)

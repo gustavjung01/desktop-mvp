@@ -160,7 +160,7 @@ public sealed class WorkforceOvertimeCloseoutLot5Tests
         StringAssert.Contains(shell, "SelectedWorkspaceIndex == WorkspaceSlots.OvertimeCloseout");
         StringAssert.Contains(xaml, "Click=\"OvertimeCloseout_OnClick\"");
         StringAssert.Contains(xaml, "Tag=\"{Binding IsOvertimeCloseoutSelected}\"");
-        Assert.IsFalse(xaml.Contains("IsEnabled=\"False\" ToolTip=\"Sẽ được triển khai ở Lô 6\"><TextBlock Text=\"Tăng ca &amp; chốt công\"", StringComparison.Ordinal));
+        Assert.IsFalse(xaml.Contains("IsEnabled=\"False\" ToolTip=\"Sẽ được triển khai ở Lô 6\"><TextBlock Text=\"Tăng ca và chốt công\"", StringComparison.Ordinal));
         StringAssert.Contains(wire, "new OvertimeCloseoutService(");
         StringAssert.Contains(wire, "new OvertimeCloseoutView(new OvertimeCloseoutViewModel(");
         StringAssert.Contains(hostWire, "WireOvertimeCloseoutWorkspace();");

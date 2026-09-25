@@ -129,6 +129,7 @@ public partial class MainWindow : Window
         grossMarginReportingView.CostingRequested += GrossMarginView_OnCostingRequested;
         SalesOperationsHost.Content = _salesOperationsView;
         _salesOperationsView.SalesOrdersRequested += SalesOperationsView_OnSalesOrdersRequested;
+        _salesOperationsView.CustomerOnboardingRequested += SalesOperationsView_OnCustomerOnboardingRequested;
         ManagementProposalHost.Content = managementProposalView;
         InventoryHost.Content = inventoryView;
         FulfillmentHost.Content = fulfillmentView;
@@ -737,6 +738,9 @@ public partial class MainWindow : Window
 
     private async void SalesOperationsView_OnSalesOrdersRequested(object? sender, EventArgs e) =>
         await _viewModel.NavigateSalesAsync();
+
+    private async void SalesOperationsView_OnCustomerOnboardingRequested(object? sender, EventArgs e) =>
+        await _viewModel.NavigateCustomerOnboardingAsync();
 
     private async void Sales_OnClick(object sender, RoutedEventArgs e)
     {

@@ -159,7 +159,7 @@ public sealed class WorkforceAttendanceViolationLot13Tests
 
         StringAssert.Contains(xaml, "Click=\"AttendanceViolation_OnClick\"");
         StringAssert.Contains(xaml, "Tag=\"{Binding IsAttendanceViolationSelected}\"");
-        Assert.IsFalse(xaml.Contains("ToolTip=\"Sẽ được triển khai ở Lô 4\"><TextBlock Text=\"Xử lý vi phạm công\"", StringComparison.Ordinal));
+        Assert.IsFalse(xaml.Contains("ToolTip=\"Sẽ được triển khai ở Lô 4\"><TextBlock Text=\"Xử lý vi phạm chấm công\"", StringComparison.Ordinal));
         StringAssert.Contains(shell, "workforce.violations");
         StringAssert.Contains(host, "WorkspaceSlots.AttendanceViolation");
     }
