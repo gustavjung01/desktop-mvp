@@ -12,10 +12,11 @@ public sealed class EmployeeDirectoryReadParityTests
     {
         var service = ReadRepoFile("src", "CongTy.ApiClient", "EmployeeDirectoryReadService.cs");
 
-        StringAssert.Contains(service, "\"/api/employees?limit=1000&offset=0\"");
+        StringAssert.Contains(service, "ListAllAsync<EmployeeDirectoryData>(\"/api/employees\", cancellationToken)");
+        StringAssert.Contains(service, "$\"{path}{separator}limit={limit}&offset={offset}\"");
         StringAssert.Contains(service, "\"/api/employees/{Uri.EscapeDataString(employeeId.Trim())}\"");
         StringAssert.Contains(service, "\"/api/branches?limit=1000&offset=0\"");
-        StringAssert.Contains(service, "GetDataAsync<EmployeeDirectoryData[]>");
+        StringAssert.Contains(service, "GetDataAsync<T[]>");
         StringAssert.Contains(service, "GetDataAsync<EmployeeDirectoryBranchData[]>");
         Assert.IsFalse(service.Contains("Post", StringComparison.Ordinal));
         Assert.IsFalse(service.Contains("Patch", StringComparison.Ordinal));
