@@ -65,13 +65,13 @@ public sealed partial class TimesheetViewModel
     public bool CanOperateSelectedDayNow =>
         SelectedDay is not null
         && SelectedIsToday
-        && _data?.Capabilities.CanManage == true
-        && (SelectedDay.PeriodLock is null || _data.Capabilities.CanLock);
+        && _data is { Capabilities.CanManage: true } data
+        && (SelectedDay.PeriodLock is null || data.Capabilities.CanLock);
 
     public bool CanAdjustSelectedDay =>
         SelectedDay is not null
-        && _data?.Capabilities.CanManage == true
-        && (SelectedDay.PeriodLock is null || _data.Capabilities.CanLock);
+        && _data is { Capabilities.CanManage: true } data
+        && (SelectedDay.PeriodLock is null || data.Capabilities.CanLock);
 
     public bool CanUseDayActionButtons => CanOperateSelectedDayNow && !IsDayActionBusy;
     public bool CanToggleDayAdjustment => CanAdjustSelectedDay && !IsDayActionBusy;

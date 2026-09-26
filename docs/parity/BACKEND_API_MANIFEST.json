@@ -3,10 +3,10 @@
   "name": "BACKEND_API_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "aa310c87658da48915ac7cab9ab70b90dbde87bc",
+    "baselineRevision": "384c58186067d0bc4bc0705c6442d33775df6695",
     "fingerprints": {
-      "apiRoutesTree": "5a02f9329fa1a2e5221e8d9f5fd66c2472d49b9e",
-      "serverBlob": "e55ed7274eb8b2e6cf4564c8d999bb7161508531",
+      "apiRoutesTree": "9aff836438feb8c7e0b1688bb1756d8198fd7ad9",
+      "serverBlob": "ef8e0b2c898a6d51ddcb2e494adeca769d83931b",
       "contractsJsBlob": "41c6d4676951ac66c95708e62b136c5bc13b2acb",
       "contractsTypesBlob": "87722433f55681df66dce40c5179caf153c29380",
       "idempotencyBlob": "faba39af51fd81d0b8d778b20f669a17825da3f7"
@@ -14,16 +14,16 @@
   },
   "snapshot": {
     "apiRouteSources": {
-      "count": 92,
-      "sha256": "4ee306769554074cf46fe09ed7050f8941b91094325f3fca7dba114ea7b1dabb"
+      "count": 93,
+      "sha256": "a81490d232781d4b55d7bda20f7b4715d776b7ce30b63e18c4b9f114e647fdc4"
     },
     "endpointCandidates": {
-      "count": 438,
-      "sha256": "9e1f09d11300067cd0f4656edeb41ce5ccd5f5b58451cec79faa0a997487f4c2"
+      "count": 441,
+      "sha256": "f5394b8464b891f0656c49499a8a05ef8f3d80fe4179ff0567357f0cc06c86de"
     },
     "mutationCandidates": {
-      "count": 324,
-      "sha256": "060af91d16abddb201c8059d9f24af477ac9492680fb9b0cfd5a1606b1e2a7d2"
+      "count": 327,
+      "sha256": "230128ebf474ebca76baf05e64c58611031feedfbba6164eb2ee9d58c560c4ca"
     }
   },
   "authorityOwner": "Công Ty backend",
