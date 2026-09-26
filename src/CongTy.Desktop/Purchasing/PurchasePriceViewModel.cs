@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Purchasing;
 
-public sealed class PurchasePriceViewModel : INotifyPropertyChanged
+public sealed partial class PurchasePriceViewModel : INotifyPropertyChanged
 {
     private const string Read = "core.supplier-purchase-price.read";
     private const string Manage = "core.supplier-purchase-price.manage";

@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Logistics;
 
-public sealed class CustomerReturnViewModel : INotifyPropertyChanged
+public sealed partial class CustomerReturnViewModel : INotifyPropertyChanged
 {
     private const int IntentCacheLimit = 256;
     private const string ReadDenied = "Tài khoản chưa được cấp quyền xem Hàng khách trả.";

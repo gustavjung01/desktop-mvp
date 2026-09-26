@@ -138,10 +138,17 @@
                                            FontSize="17"
                                            FontWeight="SemiBold" />
                             </StackPanel>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding ProgressText}"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding IsNotBusy}"
+                                        Visibility="{Binding HasSelectedTrip, Converter={StaticResource BoolToVisibility}}"
+                                        Click="ExportXlsx_OnClick"
+                                        Content="Xuất Excel" />
+                                <TextBlock Text="{Binding ProgressText}"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
                         </Grid>
 
                         <ItemsControl ItemsSource="{Binding Attempts}">

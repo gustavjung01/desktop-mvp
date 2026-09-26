@@ -8,7 +8,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Accounting;
 
-public sealed class CustomerReturnCreditViewModel : INotifyPropertyChanged
+public sealed partial class CustomerReturnCreditViewModel : INotifyPropertyChanged
 {
     private const string ReadPermission = "core.customer-return-credit.read";
     private const string AllocatePermission = "core.customer-return-credit.allocate";

@@ -9,7 +9,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Accounting;
 
-public sealed class CustomerPaymentViewModel : INotifyPropertyChanged
+public sealed partial class CustomerPaymentViewModel : INotifyPropertyChanged
 {
     private const string ReadPermission = "core.customer-payment.read";
     private const string CreatePermission = "core.customer-payment.create";

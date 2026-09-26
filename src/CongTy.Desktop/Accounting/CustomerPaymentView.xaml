@@ -201,11 +201,17 @@
                             <TextBlock Text="Lịch sử thu tiền"
                                        FontSize="17"
                                        FontWeight="SemiBold" />
-                            <Button HorizontalAlignment="Right"
-                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                    IsEnabled="{Binding CanRead}"
-                                    Click="Refresh_OnClick"
-                                    Content="Cập nhật dữ liệu" />
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanRead}"
+                                        Click="ExportXlsx_OnClick"
+                                        Content="Xuất Excel" />
+                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanRead}"
+                                        Click="Refresh_OnClick"
+                                        Content="Cập nhật dữ liệu" />
+                            </StackPanel>
                         </Grid>
                         <DataGrid Margin="0,8,0,0"
                                   MinHeight="430"

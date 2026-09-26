@@ -72,6 +72,26 @@ public static class OfficeDataExportFile
             fileName);
     }
 
+    public static ApiDownloadFile Csv(
+        string fileName,
+        IReadOnlyList<string> headers,
+        IReadOnlyList<IReadOnlyList<string>> rows)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine(string.Join(",", headers.Select(CsvCell)));
+        foreach (var row in rows)
+        {
+            var values = Enumerable.Range(0, headers.Count)
+                .Select(index => CsvCell(index < row.Count ? row[index] : string.Empty));
+            builder.AppendLine(string.Join(",", values));
+        }
+
+        return new ApiDownloadFile(
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: true).GetBytes(builder.ToString()),
+            "text/csv; charset=utf-8",
+            fileName);
+    }
+
     public static string DateLabel(string? value)
     {
         var text = value?.Trim() ?? string.Empty;

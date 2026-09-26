@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Purchasing;
 
-public sealed class SupplierReturnViewModel : INotifyPropertyChanged
+public sealed partial class SupplierReturnViewModel : INotifyPropertyChanged
 {
     private const string Read = "core.supplier-return.read";
     private const string Create = "core.supplier-return.create";

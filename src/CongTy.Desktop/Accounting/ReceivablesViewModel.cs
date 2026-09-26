@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Accounting;
 
-public sealed class ReceivablesViewModel : INotifyPropertyChanged
+public sealed partial class ReceivablesViewModel : INotifyPropertyChanged
 {
     private const string ReadPermission = "core.receivable.read";
     private const string ReadDenied = "Tài khoản chưa được cấp quyền xem Công nợ phải thu.";

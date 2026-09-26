@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Purchasing;
 
-public sealed class GoodsReceiptViewModel : INotifyPropertyChanged
+public sealed partial class GoodsReceiptViewModel : INotifyPropertyChanged
 {
     private const string Read = "core.goods-receipt.read";
     private const string Create = "core.goods-receipt.create";
