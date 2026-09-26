@@ -223,11 +223,18 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         get => _selectedTabIndex;
         set
         {
-            if (!SetField(ref _selectedTabIndex, Math.Clamp(value, 0, 4))) return;
+            if (!SetField(ref _selectedTabIndex, Math.Clamp(value, 0, 5))) return;
             ClearPendingImport();
             SetMessage(string.Empty);
+            OnPropertyChanged(nameof(IsOfficeFormsTab));
+            OnPropertyChanged(nameof(CanRefresh));
+            if (!IsOfficeFormsTab && _access.Current.IsAuthenticated && CanOpen)
+                _ = EnsureLoadedAsync();
         }
     }
+
+    public bool IsOfficeFormsTab => SelectedTabIndex == 5;
+    public bool CanRefresh => CanOpen && !IsOfficeFormsTab && !IsBusy;
 
     public string? PendingKind
     {
@@ -331,13 +338,13 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
 
     public async Task EnsureLoadedAsync()
     {
-        if (_loaded || IsBusy || !CanOpen) return;
+        if (_loaded || IsBusy || !CanOpen || IsOfficeFormsTab) return;
         await RefreshAsync();
     }
 
     public async Task RefreshAsync()
     {
-        if (IsBusy || !CanOpen) return;
+        if (IsBusy || !CanOpen || IsOfficeFormsTab) return;
         Begin();
         try
         {
@@ -1129,7 +1136,8 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
             nameof(CanImportPricing), nameof(CanExportStocktake), nameof(CanImportStocktake), nameof(CanQuotation),
             nameof(CanMovements), nameof(CanUseProductExport), nameof(CanUseProductImport), nameof(CanUsePricingExport),
             nameof(CanUsePricingImport), nameof(CanUseStocktakeExport), nameof(CanUseStocktakeImport), nameof(CanUseQuotation),
-            nameof(CanUseQuotationExport), nameof(CanUseMovements), nameof(CanLoadMoreMovements), nameof(CanConfirmImport)
+            nameof(CanUseQuotationExport), nameof(CanUseMovements), nameof(CanLoadMoreMovements), nameof(CanConfirmImport),
+            nameof(IsOfficeFormsTab), nameof(CanRefresh)
         }) OnPropertyChanged(name);
     }
 
