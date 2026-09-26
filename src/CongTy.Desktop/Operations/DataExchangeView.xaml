@@ -1,6 +1,7 @@
 <UserControl x:Class="CongTy.Desktop.Operations.DataExchangeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:operations="clr-namespace:CongTy.Desktop.Operations"
              Loaded="DataExchangeView_OnLoaded">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
@@ -46,7 +47,7 @@
                         Content="Lịch sử nhập/xuất" />
                 <Button Margin="8,0,0,0"
                         Style="{StaticResource OfficeSecondaryButtonStyle}"
-                        IsEnabled="{Binding CanOpen}"
+                        IsEnabled="{Binding CanRefresh}"
                         Click="Refresh_OnClick"
                         Content="Làm mới" />
             </StackPanel>
@@ -462,6 +463,9 @@
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Biểu mẫu văn phòng">
+                <operations:OfficeFormsLibraryView />
             </TabItem>
         </TabControl>
     </Grid>

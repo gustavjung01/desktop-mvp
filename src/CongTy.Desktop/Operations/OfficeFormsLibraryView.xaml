@@ -1,0 +1,118 @@
+<UserControl x:Class="CongTy.Desktop.Operations.OfficeFormsLibraryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </UserControl.Resources>
+
+    <Grid Margin="0,8,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource OfficeCardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock FontSize="18" FontWeight="SemiBold" Text="Biểu mẫu văn phòng" />
+                    <TextBlock Margin="0,5,0,0"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap"
+                               Text="Thư viện biểu mẫu trống để điền, in, ký hoặc gửi ngoài hệ thống. Không lấy số liệu khách hàng, Nhà cung cấp, hàng hóa, tồn kho hay nhân sự hiện tại." />
+                    <WrapPanel Margin="0,10,0,0">
+                        <TextBlock Margin="0,0,16,0"><Run FontWeight="SemiBold" Text="Xuất dữ liệu:" /><Run Text=" số liệu thật theo màn đang xem." /></TextBlock>
+                        <TextBlock Margin="0,0,16,0"><Run FontWeight="SemiBold" Text="File mẫu nhập liệu:" /><Run Text=" dùng để nhập/cập nhật hàng loạt." /></TextBlock>
+                        <TextBlock><Run FontWeight="SemiBold" Text="Biểu mẫu văn phòng:" /><Run Text=" file trống độc lập." /></TextBlock>
+                    </WrapPanel>
+                </StackPanel>
+                <Border Grid.Column="1" Margin="16,0,0,0" Padding="12,8" Background="{DynamicResource AccentSoftBrush}" CornerRadius="10" VerticalAlignment="Top">
+                    <TextBlock FontWeight="SemiBold" Text="{Binding CountText}" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Margin="0,10,0,10" Style="{StaticResource OfficeCardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1.2*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,10,0">
+                    <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="Tìm biểu mẫu" />
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Tìm theo tên, mục đích hoặc nhóm nghiệp vụ" />
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="Nhóm nghiệp vụ" />
+                    <ComboBox ItemsSource="{Binding GroupFilters}"
+                              DisplayMemberPath="Display"
+                              SelectedItem="{Binding SelectedGroup, Mode=TwoWay}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <DataGrid ItemsSource="{Binding FormsView}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserAddRows="False"
+                      HeadersVisibility="Column"
+                      Style="{StaticResource OfficeDataGridStyle}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nhóm" Width="1.15*" Binding="{Binding GroupName}" />
+                    <DataGridTextColumn Header="Biểu mẫu" Width="1.65*" Binding="{Binding Name}" />
+                    <DataGridTextColumn Header="Mục đích" Width="2.2*" Binding="{Binding Purpose}" />
+                    <DataGridTextColumn Header="Loại file" Width="0.8*" Binding="{Binding Formats}" />
+                    <DataGridTemplateColumn Header="Thao tác" Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,2">
+                                    <Button Margin="0,0,6,0"
+                                            Padding="10,5"
+                                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                            Visibility="{Binding HasXlsx, Converter={StaticResource BoolToVisibility}}"
+                                            Tag="{Binding}"
+                                            Click="DownloadXlsx_OnClick"
+                                            Content="Tải Excel" />
+                                    <Button Padding="10,5"
+                                            Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                            Visibility="{Binding HasPdf, Converter={StaticResource BoolToVisibility}}"
+                                            Tag="{Binding}"
+                                            Click="PreviewPdf_OnClick"
+                                            Content="Xem / In PDF" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       Text="Không có biểu mẫu phù hợp với tìm kiếm hoặc nhóm đang chọn.">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FormsView.IsEmpty}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+
+        <TextBlock Grid.Row="3"
+                   Margin="2,10,2,0"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
+                   Text="{Binding Notice}"
+                   TextWrapping="Wrap" />
+    </Grid>
+</UserControl>
