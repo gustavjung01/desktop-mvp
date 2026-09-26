@@ -54,6 +54,12 @@
                                       SelectedValue="{Binding SelectedWarehouseId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         </StackPanel>
                         <Button Margin="4,20,0,8"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}"
+                                Click="ExportXlsx_OnClick"
+                                Content="Xuất Excel" />
+                        <Button Margin="8,20,0,8"
                                 Style="{StaticResource OfficePrimaryButtonStyle}"
                                 IsEnabled="{Binding IsNotBusy}"
                                 Click="Apply_OnClick"

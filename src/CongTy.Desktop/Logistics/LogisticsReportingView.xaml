@@ -63,6 +63,12 @@
                                 Click="DeliveryAttempts_OnClick"
                                 Content="Kết quả lần giao" />
                         <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}"
+                                Click="ExportXlsx_OnClick"
+                                Content="Xuất Excel" />
+                        <Button Margin="0,0,8,0"
                                 Style="{StaticResource OfficePrimaryButtonStyle}"
                                 IsEnabled="{Binding IsNotBusy}"
                                 Click="ApplyFilters_OnClick"

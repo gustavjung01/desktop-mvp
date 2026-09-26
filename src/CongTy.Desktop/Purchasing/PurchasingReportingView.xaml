@@ -4,6 +4,7 @@
              Focusable="True"
              PreviewKeyDown="PurchasingReportingView_OnPreviewKeyDown">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <Style x:Key="ReportCellTextStyle"
                TargetType="TextBlock"
                BasedOn="{StaticResource OfficeGridTextStyle}">
@@ -75,6 +76,12 @@
                     <StackPanel Grid.Column="2"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Bottom">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanApply}"
+                                Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}"
+                                Click="ExportXlsx_OnClick"
+                                Content="Xuất Excel" />
                         <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
                                 IsEnabled="{Binding CanApply}"
                                 Click="Reset_OnClick"
