@@ -53,6 +53,7 @@ public sealed class WorkforceTimesheetQuickActionsIssue85Lot1Tests
     {
         var view = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "TimesheetView.xaml");
         var codeBehind = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "TimesheetView.xaml.cs");
+        var quick = ReadRepoFile("src", "CongTy.Desktop", "Workforce", "TimesheetViewModel.QuickActions.cs");
 
         foreach (var label in new[]
                  {
