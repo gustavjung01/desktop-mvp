@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -42,23 +43,22 @@ public partial class OpeningBalanceView : UserControl
     private void BackToLookup_OnClick(object sender, RoutedEventArgs e) =>
         BackToLookupRequested?.Invoke();
 
-    private void DownloadTemplate_OnClick(object sender, RoutedEventArgs e)
+    private async void DownloadTemplate_OnClick(object sender, RoutedEventArgs e)
     {
         var dialog = new SaveFileDialog
         {
             Title = "Lưu tệp mẫu tồn đầu kỳ",
-            Filter = "Tệp CSV (*.csv)|*.csv",
-            DefaultExt = ".csv",
+            Filter = "Excel (*.xlsx)|*.xlsx|CSV (*.csv)|*.csv",
+            DefaultExt = ".xlsx",
             AddExtension = true,
-            FileName = "mau-ton-dau-ky.csv"
+            FileName = "mau-ton-dau-ky.xlsx"
         };
 
         if (dialog.ShowDialog(Window.GetWindow(this)) != true) return;
-
-        File.WriteAllText(
-            dialog.FileName,
-            $"\uFEFF{OpeningBalanceCsv.TemplateText}",
-            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        var file = string.Equals(Path.GetExtension(dialog.FileName), ".csv", StringComparison.OrdinalIgnoreCase)
+            ? OfficeDataExportFile.TemplateCsv("mau-ton-dau-ky.csv", "SKU", "Số lượng", "Vị trí")
+            : OfficeDataExportFile.TemplateXlsx("mau-ton-dau-ky.xlsx", "Tồn đầu kỳ", "SKU", "Số lượng", "Vị trí");
+        await File.WriteAllBytesAsync(dialog.FileName, file.Content);
     }
 
     private async void ChooseFile_OnClick(object sender, RoutedEventArgs e) =>
@@ -69,7 +69,7 @@ public partial class OpeningBalanceView : UserControl
         var dialog = new OpenFileDialog
         {
             Title = "Chọn tệp tồn đầu kỳ",
-            Filter = "Tệp CSV (*.csv)|*.csv",
+            Filter = "Excel hoặc CSV (*.xlsx;*.csv)|*.xlsx;*.csv|Excel (*.xlsx)|*.xlsx|CSV (*.csv)|*.csv",
             Multiselect = false,
             CheckFileExists = true
         };

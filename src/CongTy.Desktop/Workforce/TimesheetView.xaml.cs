@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using CongTy.Contracts;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -99,4 +100,7 @@ public sealed class TimesheetAdjustmentRequestedEventArgs(
 {
     public string? EmployeeId { get; } = employeeId;
     public string WorkDate { get; } = workDate;
+
+    private async void ExportTimesheet_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(this, () => ViewModel.ExportTimesheetAsync());
 }

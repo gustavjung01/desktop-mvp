@@ -3,6 +3,8 @@ using System.Windows.Media;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using CongTy.Desktop.Operations;
+using CongTy.ApiClient;
 
 namespace CongTy.Desktop.Partners;
 
@@ -531,4 +533,24 @@ public partial class PartnerView : UserControl
             "Xác nhận trạng thái",
             MessageBoxButton.YesNo,
             MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+    private async void ExportCustomers_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => Task.FromResult<ApiDownloadFile?>(_viewModel.ExportCustomers()));
+
+    private async void ExportSuppliers_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => Task.FromResult<ApiDownloadFile?>(_viewModel.ExportSuppliers()));
+
+    private async void DownloadCustomerTemplateXlsx_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => Task.FromResult<ApiDownloadFile?>(PartnerViewModel.CustomerTemplate("xlsx")));
+
+    private async void DownloadCustomerTemplateCsv_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => Task.FromResult<ApiDownloadFile?>(PartnerViewModel.CustomerTemplate("csv")));
 }

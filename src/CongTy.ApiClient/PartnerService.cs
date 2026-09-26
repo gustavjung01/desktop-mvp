@@ -62,11 +62,8 @@ public sealed class PartnerService(
     IAuthenticatedSessionAccessor sessionAccessor,
     ICanonicalIdempotencyKeyProvider idempotencyKeys) : IPartnerService
 {
-    public async Task<IReadOnlyList<CustomerData>> ListCustomersAsync(CancellationToken cancellationToken = default) =>
-        await apiClient.GetDataAsync<CustomerData[]>(
-            "/api/customers?limit=1000&offset=0",
-            RequireToken(),
-            cancellationToken).ConfigureAwait(false);
+    public Task<IReadOnlyList<CustomerData>> ListCustomersAsync(CancellationToken cancellationToken = default) =>
+        ListAllAsync<CustomerData>("/api/customers", cancellationToken);
 
     public async Task<IReadOnlyList<CustomerGroupData>> ListCustomerGroupsAsync(CancellationToken cancellationToken = default) =>
         await apiClient.GetDataAsync<CustomerGroupData[]>(
@@ -353,11 +350,8 @@ public sealed class PartnerService(
         return data.Wards;
     }
 
-    public async Task<IReadOnlyList<SupplierData>> ListSuppliersAsync(CancellationToken cancellationToken = default) =>
-        await apiClient.GetDataAsync<SupplierData[]>(
-            "/api/suppliers?limit=1000&offset=0",
-            RequireToken(),
-            cancellationToken).ConfigureAwait(false);
+    public Task<IReadOnlyList<SupplierData>> ListSuppliersAsync(CancellationToken cancellationToken = default) =>
+        ListAllAsync<SupplierData>("/api/suppliers", cancellationToken);
 
     public Task<SupplierData> CreateSupplierAsync(
         SupplierCreateRequest request,
@@ -499,6 +493,28 @@ public sealed class PartnerService(
             request,
             RequireToken(),
             cancellationToken);
+
+    private async Task<IReadOnlyList<T>> ListAllAsync<T>(
+        string path,
+        CancellationToken cancellationToken)
+    {
+        const int limit = 1000;
+        const int maxPages = 200;
+        var rows = new List<T>();
+        for (var page = 0; page < maxPages; page++)
+        {
+            var offset = rows.Count;
+            var separator = path.Contains('?') ? '&' : '?';
+            var batch = await apiClient.GetDataAsync<T[]>(
+                $"{path}{separator}limit={limit}&offset={offset}",
+                RequireToken(),
+                cancellationToken).ConfigureAwait(false);
+            rows.AddRange(batch);
+            if (batch.Length < limit) return rows;
+        }
+
+        throw new InvalidOperationException("Danh sách danh mục vượt giới hạn xuất an toàn 200.000 dòng.");
+    }
 
     private string RequireToken() =>
         string.IsNullOrWhiteSpace(sessionAccessor.CurrentToken)

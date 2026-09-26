@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Operations;
+using CongTy.ApiClient;
 
 namespace CongTy.Desktop.Access;
 
@@ -72,4 +74,9 @@ public partial class EmployeeDirectoryView : UserControl
 
     private void CloseEditor_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.CloseEditor();
+
+    private async void ExportEmployees_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => Task.FromResult<ApiDownloadFile?>(ViewModel.ExportEmployees()));
 }

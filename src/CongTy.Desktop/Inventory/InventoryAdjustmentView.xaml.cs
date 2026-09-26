@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using CongTy.Desktop.Printing;
 using Microsoft.Win32;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -150,23 +151,22 @@ public partial class InventoryAdjustmentView : UserControl
         InventoryAdjustmentPrintPreview.Print(adjustment, template);
     }
 
-    private void DownloadBulkTemplate_OnClick(object sender, RoutedEventArgs e)
+    private async void DownloadBulkTemplate_OnClick(object sender, RoutedEventArgs e)
     {
         var dialog = new SaveFileDialog
         {
             Title = "Lưu tệp mẫu điều chỉnh tồn",
-            Filter = "CSV (*.csv)|*.csv",
-            FileName = "mau-dieu-chinh-ton-hang-loat.csv",
+            Filter = "Excel (*.xlsx)|*.xlsx|CSV (*.csv)|*.csv",
+            FileName = "mau-dieu-chinh-ton-hang-loat.xlsx",
             AddExtension = true,
-            DefaultExt = ".csv"
+            DefaultExt = ".xlsx"
         };
 
         if (dialog.ShowDialog() != true) return;
-
-        File.WriteAllText(
-            dialog.FileName,
-            InventoryAdjustmentBulkFile.TemplateCsv,
-            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        var file = string.Equals(Path.GetExtension(dialog.FileName), ".csv", StringComparison.OrdinalIgnoreCase)
+            ? OfficeDataExportFile.TemplateCsv("mau-dieu-chinh-ton-hang-loat.csv", "SKU", "Tồn thực tế")
+            : OfficeDataExportFile.TemplateXlsx("mau-dieu-chinh-ton-hang-loat.xlsx", "Mẫu điều chỉnh tồn", "SKU", "Tồn thực tế");
+        await File.WriteAllBytesAsync(dialog.FileName, file.Content);
     }
 
     private void ChooseBulkFile_OnClick(object sender, RoutedEventArgs e)

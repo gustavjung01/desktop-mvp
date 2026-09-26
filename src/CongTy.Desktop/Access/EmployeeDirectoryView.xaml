@@ -63,6 +63,11 @@
                         <Button Margin="0,0,8,0"
                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
                                 IsEnabled="{Binding CanViewEmployees}"
+                                Click="ExportEmployees_OnClick"
+                                Content="XUẤT EXCEL" />
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanViewEmployees}"
                                 Click="Refresh_OnClick"
                                 Content="{Binding RefreshText}" />
                         <Button Margin="0,0,8,0"

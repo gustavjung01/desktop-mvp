@@ -33,11 +33,17 @@
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextWrapping="Wrap" />
                     </StackPanel>
-                    <Button Grid.Column="1"
-                            Style="{StaticResource OfficeSecondaryButtonStyle}"
-                            IsEnabled="{Binding CanRefresh}"
-                            Click="Refresh_OnClick"
-                            Content="LÀM MỚI" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanRefresh}"
+                                Click="ExportOvertime_OnClick"
+                                Content="XUẤT EXCEL" />
+                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanRefresh}"
+                                Click="Refresh_OnClick"
+                                Content="LÀM MỚI" />
+                    </StackPanel>
                 </Grid>
 
                 <Border Margin="0,10,0,0"

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -85,4 +86,9 @@ public partial class WorkScheduleView : UserControl
 
     private async void RunBulk_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.RunBulkAsync();
+
+    private async void ExportSchedules_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => ((WorkScheduleViewModel)DataContext).ExportSchedulesAsync());
 }

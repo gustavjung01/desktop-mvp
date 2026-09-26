@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Operations;
+using CongTy.ApiClient;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -40,4 +42,10 @@ public partial class AttendanceView : UserControl
 
     private void ClearQr_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.ClearQrToken();
+
+    private async void ExportAttendance_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => Task.FromResult<ApiDownloadFile?>(
+                ((AttendanceViewModel)DataContext).ExportTodayAttendance()));
 }

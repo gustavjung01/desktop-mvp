@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -49,4 +50,9 @@ public partial class AttendanceViolationView : UserControl
 
     private async void SubmitConclusion_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.SubmitConclusionAsync();
+
+    private async void ExportViolations_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => ((AttendanceViolationViewModel)DataContext).ExportViolationsAsync());
 }

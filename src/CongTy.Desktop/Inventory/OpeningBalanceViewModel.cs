@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using CongTy.ApiClient;
 using CongTy.Contracts;
+using CongTy.Desktop.Partners;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -231,15 +232,17 @@ public sealed partial class OpeningBalanceViewModel : INotifyPropertyChanged
         }
 
         ResetDraftRows();
-        if (!string.Equals(Path.GetExtension(path), ".csv", StringComparison.OrdinalIgnoreCase))
+        var extension = Path.GetExtension(path).ToLowerInvariant();
+        if (extension is not ".csv" and not ".xlsx")
         {
-            SetErrorMessage("Chỉ nhận tệp CSV UTF-8. Trong Excel, chọn “Lưu thành CSV UTF-8” rồi tải lại.");
+            SetErrorMessage("Chỉ nhận tệp Excel .xlsx hoặc CSV.");
             return false;
         }
 
         try
         {
-            var parsed = OpeningBalanceCsv.Parse(await File.ReadAllTextAsync(path).ConfigureAwait(true));
+            var matrix = await SpreadsheetMatrixReader.ReadAsync(path).ConfigureAwait(true);
+            var parsed = OpeningBalanceCsv.ParseMatrix(matrix);
             if (parsed.Count == 0)
             {
                 SetErrorMessage("Tệp cần đúng mẫu và có ít nhất một dòng dữ liệu. Hai cột bắt buộc là SKU và Số lượng.");
@@ -262,7 +265,7 @@ public sealed partial class OpeningBalanceViewModel : INotifyPropertyChanged
         }
         catch
         {
-            SetErrorMessage("Không đọc được tệp CSV. Hãy lưu lại dưới dạng CSV UTF-8 rồi thử lại.");
+            SetErrorMessage("Không đọc được tệp Excel/CSV. Hãy tải lại file mẫu rồi thử lại.");
             return false;
         }
     }
@@ -296,7 +299,7 @@ public sealed partial class OpeningBalanceViewModel : INotifyPropertyChanged
 
         if (!HasRows)
         {
-            SetErrorMessage("Chọn tệp CSV trước khi kiểm tra.");
+            SetErrorMessage("Chọn tệp Excel/CSV trước khi kiểm tra.");
             return false;
         }
 

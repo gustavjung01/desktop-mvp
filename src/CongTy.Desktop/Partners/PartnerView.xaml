@@ -186,13 +186,18 @@
                                                 <TextBlock Text="DANH SÁCH" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
                                                 <TextBlock Text="Khách hàng" Margin="0,3,0,0" FontSize="17" FontWeight="SemiBold" />
                                             </StackPanel>
-                                            <Border Grid.Column="1"
-                                                    Padding="9,5"
-                                                    CornerRadius="7"
-                                                    VerticalAlignment="Center"
-                                                    Background="{DynamicResource SurfaceMutedBrush}">
-                                                <TextBlock Text="{Binding CustomerVisibleSummary, Mode=OneWay}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                            </Border>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Margin="0,0,8,0"
+                                                        Style="{StaticResource SecondaryButtonStyle}"
+                                                        IsEnabled="{Binding CanReadCustomers}"
+                                                        Click="ExportCustomers_OnClick"
+                                                        Content="Xuất Excel" />
+                                                <Border Padding="9,5"
+                                                        CornerRadius="7"
+                                                        Background="{DynamicResource SurfaceMutedBrush}">
+                                                    <TextBlock Text="{Binding CustomerVisibleSummary, Mode=OneWay}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                </Border>
+                                            </StackPanel>
                                         </Grid>
 
                                         <Grid Grid.Row="1">
@@ -550,6 +555,14 @@
 
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                                 <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                        Click="DownloadCustomerTemplateXlsx_OnClick"
+                                                        IsEnabled="{Binding IsNotBusy}"
+                                                        Content="Tải mẫu Excel" />
+                                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                        Click="DownloadCustomerTemplateCsv_OnClick"
+                                                        IsEnabled="{Binding IsNotBusy}"
+                                                        Content="Tải mẫu CSV" />
+                                                <Button Style="{StaticResource SecondaryButtonStyle}"
                                                         Click="ChooseBulkFile_OnClick"
                                                         IsEnabled="{Binding IsNotBusy}"
                                                         Content="Chọn tệp .xlsx / .csv" />
@@ -677,6 +690,14 @@
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                        Click="DownloadCustomerTemplateXlsx_OnClick"
+                                                        IsEnabled="{Binding IsNotBusy}"
+                                                        Content="Tải mẫu Excel" />
+                                                <Button Style="{StaticResource SecondaryButtonStyle}"
+                                                        Click="DownloadCustomerTemplateCsv_OnClick"
+                                                        IsEnabled="{Binding IsNotBusy}"
+                                                        Content="Tải mẫu CSV" />
                                                 <Button Style="{StaticResource SecondaryButtonStyle}"
                                                         Click="ChooseBulkFile_OnClick"
                                                         IsEnabled="{Binding IsNotBusy}"
@@ -1404,13 +1425,19 @@
                                               SelectedValuePath="Id"
                                               SelectedValue="{Binding SupplierStatus}" />
                                 </StackPanel>
-                                <Button Grid.Column="2"
-                                        VerticalAlignment="Bottom"
-                                        Margin="0,0,0,8"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Click="Refresh_OnClick"
-                                        IsEnabled="{Binding IsNotBusy}"
-                                        Content="Cập nhật dữ liệu" />
+                                <StackPanel Grid.Column="2"
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Bottom"
+                                            Margin="0,0,0,8">
+                                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                                            Click="ExportSuppliers_OnClick"
+                                            IsEnabled="{Binding CanReadSuppliers}"
+                                            Content="Xuất Excel" />
+                                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                                            Click="Refresh_OnClick"
+                                            IsEnabled="{Binding IsNotBusy}"
+                                            Content="Cập nhật dữ liệu" />
+                                </StackPanel>
                             </Grid>
                         </Border>
 
