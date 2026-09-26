@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Accounting;
 
@@ -47,6 +48,15 @@ public partial class CodAccountingView : UserControl
 
     private async void Accept_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.AcceptAsync();
+
+    private async void PrintReconciliation_OnClick(object sender, RoutedEventArgs e)
+    {
+        var handover = _viewModel.SelectedHandover;
+        if (handover is null) return;
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "COD_RECONCILIATION");
+        if (template is null) return;
+        ActualDocumentPrintPreview.PrintCodReconciliation(Window.GetWindow(this), handover, template);
+    }
 
     private async void ReverseAcceptance_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.ReverseAcceptanceAsync();

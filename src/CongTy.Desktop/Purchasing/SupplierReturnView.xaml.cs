@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Purchasing;
 
@@ -43,12 +44,9 @@ public partial class SupplierReturnView : UserControl
         if ((sender as FrameworkElement)?.Tag is not SupplierReturnRow row) return;
         var item = await _viewModel.GetForPrintAsync(row).ConfigureAwait(true);
         if (item is null) return;
-        var dialog = new PrintDialog();
-        if (dialog.ShowDialog() != true) return;
-        var document = SupplierReturnPrintPreview.Create(item);
-        dialog.PrintDocument(
-            ((System.Windows.Documents.IDocumentPaginatorSource)document).DocumentPaginator,
-            $"Phiếu trả nhà cung cấp {item.DocumentNumber ?? string.Empty}");
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "SUPPLIER_RETURN");
+        if (template is null) return;
+        SupplierReturnPrintPreview.Print(Window.GetWindow(this), item, template);
     }
 
     private void Submit_OnClick(object sender, RoutedEventArgs e) => BeginAction(sender, "submit");

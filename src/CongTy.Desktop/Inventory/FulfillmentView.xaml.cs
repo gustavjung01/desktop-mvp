@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -45,6 +46,15 @@ public partial class FulfillmentView : UserControl
 
     private async void AutoAllocateOrder_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.AutoAllocateOrderAsync();
+
+    private async void PrintPicking_OnClick(object sender, RoutedEventArgs e)
+    {
+        var order = _viewModel.SelectedOrder;
+        if (order is null || !order.CanPrint) return;
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "FULFILLMENT_PICKING");
+        if (template is null) return;
+        ActualDocumentPrintPreview.PrintFulfillmentPicking(Window.GetWindow(this), order.Items, template);
+    }
 
     private async void AllocateQuantity_OnClick(object sender, RoutedEventArgs e)
     {

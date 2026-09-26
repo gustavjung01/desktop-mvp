@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
 using CongTy.Desktop.Operations;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -12,6 +13,7 @@ public partial class ManualInboundView : UserControl
 {
     private readonly ManualInboundViewModel _viewModel;
     private CancellationTokenSource? _searchCancellation;
+    private ManualInboundHistoryRow? _historyPrintSource;
 
     public ManualInboundView(ManualInboundViewModel viewModel)
     {
@@ -195,6 +197,7 @@ public partial class ManualInboundView : UserControl
     {
         if ((sender as FrameworkElement)?.DataContext is ManualInboundHistoryRow row)
         {
+            _historyPrintSource = row;
             await _viewModel.OpenHistoryDetailAsync(row);
         }
     }
@@ -213,6 +216,17 @@ public partial class ManualInboundView : UserControl
     private async void Reverse_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.ReverseAsync();
 
-    private void CloseHistoryDetail_OnClick(object sender, RoutedEventArgs e) =>
+    private async void PrintHistoryDetail_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_historyPrintSource is null || _viewModel.HistoryDetail is null) return;
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "MANUAL_INBOUND");
+        if (template is null) return;
+        ActualDocumentPrintPreview.PrintManualInbound(Window.GetWindow(this), _historyPrintSource.Data, _viewModel.HistoryDetail, template);
+    }
+
+    private void CloseHistoryDetail_OnClick(object sender, RoutedEventArgs e)
+    {
+        _historyPrintSource = null;
         _viewModel.CloseHistoryDetail();
+    }
 }

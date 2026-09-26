@@ -128,6 +128,7 @@ public sealed class SupplierPaymentViewModel : INotifyPropertyChanged
 
     public bool HasMessage => !string.IsNullOrWhiteSpace(Message);
     public bool HasSelectedPayment => _selectedPayment is not null;
+    public SupplierPaymentData? SelectedPayment => _selectedPayment;
     public bool ShowEmptyPayments => _loaded && !IsBusy && Payments.Count == 0;
     public string DetailEmptyText => HasSelectedPayment ? string.Empty : "Chọn một phiếu thanh toán để xem chi tiết.";
     public string AllocationEmptyText => AllocationHistory.Count == 0 ? "Chưa có phân bổ." : string.Empty;

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Logistics;
 
@@ -38,6 +39,15 @@ public partial class CustomerReturnView : UserControl
 
     private async void Cancel_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.CancelAsync();
+
+    private async void Print_OnClick(object sender, RoutedEventArgs e)
+    {
+        var item = _viewModel.SelectedReturn;
+        if (item is null || !string.Equals(item.Status, "received", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(item.Number)) return;
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "CUSTOMER_RETURN");
+        if (template is null) return;
+        ActualDocumentPrintPreview.PrintCustomerReturn(Window.GetWindow(this), item, template);
+    }
 
     private void TripReconciliation_OnClick(object sender, RoutedEventArgs e) =>
         TripReconciliationRequested?.Invoke();

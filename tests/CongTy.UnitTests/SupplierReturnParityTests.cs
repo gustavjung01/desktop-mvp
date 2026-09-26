@@ -140,7 +140,9 @@ public sealed class SupplierReturnParityTests
             "Visibility=\"{Binding ActionReasonRequired, Converter={StaticResource BoolToVisibility}}\"");
         Assert.IsFalse(view.Contains("<UniformGrid", StringComparison.Ordinal));
 
-        StringAssert.Contains(code, "SupplierReturnPrintPreview.Create(item)");
+        StringAssert.Contains(code, "DocumentPrintTemplateRuntime.LoadForPrintAsync");
+        StringAssert.Contains(code, "\"SUPPLIER_RETURN\"");
+        StringAssert.Contains(code, "SupplierReturnPrintPreview.Print");
         StringAssert.Contains(code, "OpenCreateFromReceiptAsync(string receiptId)");
         StringAssert.Contains(code, "BeginCreateAsync(receiptId)");
         StringAssert.Contains(code, "BeginAction(sender, \"submit\")");

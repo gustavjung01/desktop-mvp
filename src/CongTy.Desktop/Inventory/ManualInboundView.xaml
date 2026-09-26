@@ -908,10 +908,15 @@
                                        FontWeight="SemiBold"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                        <Button Grid.Column="1"
-                                Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                Click="CloseHistoryDetail_OnClick"
-                                Content="Đóng" />
+                        <WrapPanel Grid.Column="1">
+                            <Button Margin="0,0,8,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Click="PrintHistoryDetail_OnClick"
+                                    Content="In / PDF" />
+                            <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    Click="CloseHistoryDetail_OnClick"
+                                    Content="Đóng" />
+                        </WrapPanel>
                     </Grid>
 
                     <TextBlock Margin="0,10,0,0"
