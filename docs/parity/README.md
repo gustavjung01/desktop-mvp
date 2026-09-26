@@ -381,3 +381,27 @@ Audit report exact-head xác nhận:
 - chỉ `npp-core/api/src/routes/workforce.js` thay đổi để ghi đúng audit action cho cập nhật policy/assignment cùng ngày; không thêm endpoint hoặc permission mới.
 
 Vì vậy chỉ rebaseline `apiRoutesTree` từ `6d3fa036f5f69c03983dd7107d9179791bf81573` sang `45c6a931a7772c4aea9714b28139476bc5ded0a7` trong các manifest có theo dõi fingerprint này.
+
+## Rebaseline 2026-09-26 — Issue #85 Lô 1 và Web #1190
+
+Trong CI của Desktop Issue #85 Lô 1, `NPP-Platform/main` đã ở
+`384c58186067d0bc4bc0705c6442d33775df6695`, trong khi parity baseline Desktop còn khóa tại
+`aa310c87658da48915ac7cab9ab70b90dbde87bc`.
+
+Audit diff nguồn xác nhận:
+
+- inventory người dùng giữ nguyên **83 screens / 333 Web routes**; Web app tree đổi do
+  Issue #1190 Lô 1–5 (in/PDF, export, file mẫu, thư viện biểu mẫu) và cập nhật Workforce hiện hữu;
+- permission catalog giữ nguyên **233 permissions**;
+- shared contracts và canonical Idempotency-Key implementation không đổi;
+- backend inventory tăng **92 → 93 API source files**, **438 → 441 endpoint candidates**,
+  **324 → 327 mutation candidates**;
+- nguồn API mới là `retail-owner-notifications.js`; server chỉ đăng ký route notification Retail.
+  Đây không phải Desktop Công Ty contract của Lô 1;
+- `workforce.js` có managed manual attendance/bulk hiện hành. Lô 1 chỉ dùng canonical
+  `POST /api/workforce/attendance/manual` cho popup Bảng công; bulk attendance và các phần #1190 còn lại
+  vẫn được xử lý ở đúng lô Issue #85, không bị coi là đã triển khai bởi rebaseline này;
+- `manual-sales-orders.js` chỉ tích hợp notification Retail, không tạo Desktop business flow mới.
+
+Rebaseline này chỉ cập nhật metadata parity theo source đã audit để gate tiếp tục theo dõi drift.
+Không sửa Web/backend/DB/migration và không deploy production.

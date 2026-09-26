@@ -133,6 +133,12 @@ public sealed record AttendanceRecordRequest(
     [property: JsonPropertyName("exitReason")] string? ExitReason = null,
     [property: JsonPropertyName("note")] string? Note = null);
 
+public sealed record ManagedManualAttendanceRequest(
+    [property: JsonPropertyName("employeeId")] string EmployeeId,
+    [property: JsonPropertyName("action")] string Action,
+    [property: JsonPropertyName("exitReason")] string? ExitReason = null,
+    [property: JsonPropertyName("note")] string? Note = null);
+
 public sealed record CreateAttendancePointRequest(
     [property: JsonPropertyName("branchId")] string BranchId);
 

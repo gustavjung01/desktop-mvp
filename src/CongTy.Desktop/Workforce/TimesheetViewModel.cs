@@ -8,7 +8,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Workforce;
 
-public sealed class TimesheetViewModel : INotifyPropertyChanged
+public sealed partial class TimesheetViewModel : INotifyPropertyChanged
 {
     private const string SelfReadPermission = "core.attendance.self.read";
     private const string ReadPermission = "core.attendance.read";
@@ -31,9 +31,15 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
 
     public TimesheetViewModel(
         ITimesheetService service,
+        IAttendanceService attendanceService,
+        IAttendanceAdjustmentService adjustmentService,
+        ICanonicalIdempotencyKeyProvider idempotencyKeys,
         IAccessStateService access)
     {
         _service = service;
+        _attendanceService = attendanceService;
+        _adjustmentService = adjustmentService;
+        _idempotencyKeys = idempotencyKeys;
         _access = access;
 
         var today = WorkSchedulePresentation.BusinessToday();
@@ -365,6 +371,7 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
     {
         if (day is null) return;
         SelectedDay = day;
+        PrepareDayActions(day);
         DayEvents.Clear();
         foreach (var item in day.Events.OrderBy(item => item.OccurredAt, StringComparer.Ordinal))
         {
@@ -389,6 +396,7 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
     public void CloseDay()
     {
         SelectedDay = null;
+        ResetDayActions();
         DayEvents.Clear();
         OnPropertyChanged(nameof(NoDayEvents));
     }
@@ -642,6 +650,7 @@ public sealed class TimesheetViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(AdjustmentActionText));
         OnPropertyChanged(nameof(AdjustmentTargetEmployeeId));
         OnPropertyChanged(nameof(AdjustmentTargetWorkDate));
+        RaiseDayActionState();
     }
 
     private void RaiseAll()
