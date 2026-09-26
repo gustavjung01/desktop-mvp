@@ -92,6 +92,9 @@ public partial class TimesheetView : UserControl
 
     private void CloseDayDetail_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.CloseDay();
+
+    private async void ExportTimesheet_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(this, () => ViewModel.ExportTimesheetAsync());
 }
 
 public sealed class TimesheetAdjustmentRequestedEventArgs(
@@ -100,7 +103,4 @@ public sealed class TimesheetAdjustmentRequestedEventArgs(
 {
     public string? EmployeeId { get; } = employeeId;
     public string WorkDate { get; } = workDate;
-
-    private async void ExportTimesheet_OnClick(object sender, RoutedEventArgs e) =>
-        await OfficeExportDialog.RunAsync(this, () => ViewModel.ExportTimesheetAsync());
 }
