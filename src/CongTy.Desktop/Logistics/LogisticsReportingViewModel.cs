@@ -8,7 +8,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Logistics;
 
-public sealed class LogisticsReportingViewModel : INotifyPropertyChanged
+public sealed partial class LogisticsReportingViewModel : INotifyPropertyChanged
 {
     private readonly ILogisticsReportingService _service;
     private readonly IAccessStateService _access;

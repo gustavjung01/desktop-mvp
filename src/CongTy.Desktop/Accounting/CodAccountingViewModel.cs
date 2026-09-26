@@ -8,7 +8,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Accounting;
 
-public sealed class CodAccountingViewModel : INotifyPropertyChanged
+public sealed partial class CodAccountingViewModel : INotifyPropertyChanged
 {
     private const int IntentCacheLimit = 256;
     private const string ReadDenied = "Tài khoản chưa được cấp quyền xem COD và đối soát.";

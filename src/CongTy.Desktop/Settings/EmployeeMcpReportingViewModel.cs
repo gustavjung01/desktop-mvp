@@ -6,7 +6,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Settings;
 
-public sealed class EmployeeMcpReportingViewModel : INotifyPropertyChanged
+public sealed partial class EmployeeMcpReportingViewModel : INotifyPropertyChanged
 {
     private const string ReadPermission = "core.reporting.employee-mcp.read";
 

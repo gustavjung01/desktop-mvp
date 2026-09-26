@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CongTy.Contracts;
@@ -64,8 +65,12 @@ public sealed record LogisticsReportingTripData
 {
     [JsonPropertyName("tripId")] public string TripId { get; init; } = string.Empty;
     [JsonPropertyName("tripNumber")] public string TripNumber { get; init; } = string.Empty;
+    [JsonPropertyName("warehouseId")] public string WarehouseId { get; init; } = string.Empty;
     [JsonPropertyName("warehouseCode")] public string WarehouseCode { get; init; } = string.Empty;
     [JsonPropertyName("warehouseName")] public string WarehouseName { get; init; } = string.Empty;
+    [JsonPropertyName("deliveryRouteId")] public string? DeliveryRouteId { get; init; }
+    [JsonPropertyName("routeCode")] public string? RouteCode { get; init; }
+    [JsonPropertyName("routeName")] public string? RouteName { get; init; }
     [JsonPropertyName("vehicleCode")] public string? VehicleCode { get; init; }
     [JsonPropertyName("licensePlate")] public string? LicensePlate { get; init; }
     [JsonPropertyName("driverCode")] public string? DriverCode { get; init; }
@@ -82,6 +87,29 @@ public sealed record LogisticsReportingTripData
     [JsonPropertyName("rescheduledCount")] public string RescheduledCount { get; init; } = "0";
     [JsonPropertyName("onTimeFullRatePercent")] public string? OnTimeFullRatePercent { get; init; }
     [JsonPropertyName("pendingResultCount")] public string PendingResultCount { get; init; } = "0";
+    [JsonPropertyName("tripDurationMinutes")] public string? TripDurationMinutes { get; init; }
+}
+
+public sealed record LogisticsReportingAttemptData
+{
+    [JsonPropertyName("attemptId")] public string AttemptId { get; init; } = string.Empty;
+    [JsonPropertyName("tripId")] public string TripId { get; init; } = string.Empty;
+    [JsonPropertyName("tripNumber")] public string TripNumber { get; init; } = string.Empty;
+    [JsonPropertyName("tripStopId")] public string TripStopId { get; init; } = string.Empty;
+    [JsonPropertyName("stopSequence")] public JsonElement StopSequence { get; init; }
+    [JsonPropertyName("plannedArrivalAt")] public string? PlannedArrivalAt { get; init; }
+    [JsonPropertyName("deliveryOrderId")] public string DeliveryOrderId { get; init; } = string.Empty;
+    [JsonPropertyName("deliveryOrderNumber")] public string? DeliveryOrderNumber { get; init; }
+    [JsonPropertyName("customerCodeSnapshot")] public string CustomerCodeSnapshot { get; init; } = string.Empty;
+    [JsonPropertyName("customerNameSnapshot")] public string CustomerNameSnapshot { get; init; } = string.Empty;
+    [JsonPropertyName("driverProfileId")] public string DriverProfileId { get; init; } = string.Empty;
+    [JsonPropertyName("driverCode")] public string DriverCode { get; init; } = string.Empty;
+    [JsonPropertyName("driverName")] public string DriverName { get; init; } = string.Empty;
+    [JsonPropertyName("result")] public string Result { get; init; } = string.Empty;
+    [JsonPropertyName("reasonCode")] public string? ReasonCode { get; init; }
+    [JsonPropertyName("attemptedAt")] public string AttemptedAt { get; init; } = string.Empty;
+    [JsonPropertyName("rescheduledFor")] public string? RescheduledFor { get; init; }
+    [JsonPropertyName("onTime")] public bool? OnTime { get; init; }
 }
 
 public sealed record LogisticsReportingExceptionData
@@ -113,6 +141,7 @@ public sealed record LogisticsReportingDashboardData
     [JsonPropertyName("vehicles")] public LogisticsReportingActorData[] Vehicles { get; init; } = [];
     [JsonPropertyName("failureReasons")] public LogisticsReportingFailureReasonData[] FailureReasons { get; init; } = [];
     [JsonPropertyName("trips")] public LogisticsReportingTripData[] Trips { get; init; } = [];
+    [JsonPropertyName("attempts")] public LogisticsReportingAttemptData[] Attempts { get; init; } = [];
     [JsonPropertyName("reconciliation")] public LogisticsReportingReconciliationData Reconciliation { get; init; } = new();
     [JsonPropertyName("dataQuality")] public LogisticsReportingDataQualityData DataQuality { get; init; } = new();
 }

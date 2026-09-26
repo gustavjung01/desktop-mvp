@@ -46,16 +46,47 @@ public sealed record AgingPartyData
     [JsonPropertyName("maxOverdueDays")] public string? MaxOverdueDays { get; init; }
 }
 
+public sealed record AgingDocumentData
+{
+    [JsonPropertyName("receivableDocumentId")] public string? ReceivableDocumentId { get; init; }
+    [JsonPropertyName("payableDocumentId")] public string? PayableDocumentId { get; init; }
+    [JsonPropertyName("customerId")] public string? CustomerId { get; init; }
+    [JsonPropertyName("customerCode")] public string? CustomerCode { get; init; }
+    [JsonPropertyName("customerName")] public string? CustomerName { get; init; }
+    [JsonPropertyName("supplierId")] public string? SupplierId { get; init; }
+    [JsonPropertyName("supplierCode")] public string? SupplierCode { get; init; }
+    [JsonPropertyName("supplierName")] public string? SupplierName { get; init; }
+    [JsonPropertyName("warehouseId")] public string WarehouseId { get; init; } = string.Empty;
+    [JsonPropertyName("warehouseCode")] public string WarehouseCode { get; init; } = string.Empty;
+    [JsonPropertyName("sourceDocumentType")] public string SourceDocumentType { get; init; } = string.Empty;
+    [JsonPropertyName("sourceDocumentId")] public string SourceDocumentId { get; init; } = string.Empty;
+    [JsonPropertyName("sourceDocumentNumber")] public string SourceDocumentNumber { get; init; } = string.Empty;
+    [JsonPropertyName("sourceDocumentDate")] public string SourceDocumentDate { get; init; } = string.Empty;
+    [JsonPropertyName("collectionPolicy")] public string? CollectionPolicy { get; init; }
+    [JsonPropertyName("paymentMethodSnapshot")] public string? PaymentMethodSnapshot { get; init; }
+    [JsonPropertyName("paymentTermDaysSnapshot")] public string? PaymentTermDaysSnapshot { get; init; }
+    [JsonPropertyName("dueDate")] public string? DueDate { get; init; }
+    [JsonPropertyName("currencyCode")] public string CurrencyCode { get; init; } = string.Empty;
+    [JsonPropertyName("originalAmount")] public string OriginalAmount { get; init; } = "0";
+    [JsonPropertyName("allocatedAmount")] public string AllocatedAmount { get; init; } = "0";
+    [JsonPropertyName("remainingAmount")] public string RemainingAmount { get; init; } = "0";
+    [JsonPropertyName("ageDays")] public string? AgeDays { get; init; }
+    [JsonPropertyName("overdueDays")] public string? OverdueDays { get; init; }
+    [JsonPropertyName("ageBucket")] public string AgeBucket { get; init; } = string.Empty;
+}
+
 public sealed record AgingReceivableData
 {
     [JsonPropertyName("summary")] public AgingBucketData[] Summary { get; init; } = [];
     [JsonPropertyName("customers")] public AgingPartyData[] Customers { get; init; } = [];
+    [JsonPropertyName("documents")] public AgingDocumentData[] Documents { get; init; } = [];
 }
 
 public sealed record AgingPayableData
 {
     [JsonPropertyName("summary")] public AgingBucketData[] Summary { get; init; } = [];
     [JsonPropertyName("suppliers")] public AgingPartyData[] Suppliers { get; init; } = [];
+    [JsonPropertyName("documents")] public AgingDocumentData[] Documents { get; init; } = [];
 }
 
 public sealed record AgingDashboardData

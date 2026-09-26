@@ -7,7 +7,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Accounting;
 
-public sealed class AgingReportingViewModel : INotifyPropertyChanged
+public sealed partial class AgingReportingViewModel : INotifyPropertyChanged
 {
     private const string ReadDenied = "Tài khoản chưa được cấp quyền xem Tuổi nợ.";
 

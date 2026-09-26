@@ -6,7 +6,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Purchasing;
 
-public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
+public sealed partial class PurchasingReportingViewModel : INotifyPropertyChanged
 {
     private const string PurchaseOrderRead = "core.purchase-order.read";
     private const string GoodsReceiptRead = "core.goods-receipt.read";
@@ -49,6 +49,7 @@ public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
 
     public bool CanRead => _access.HasPermission("core.reporting.purchasing.read");
     public bool CanApply => CanRead && !IsBusy;
+    public bool HasReport => _report is not null;
     public bool CanOpenPurchaseOrders => _access.HasPermission(PurchaseOrderRead);
     public bool CanOpenGoodsReceipts => _access.HasPermission(GoodsReceiptRead);
 
@@ -268,7 +269,8 @@ public sealed class PurchasingReportingViewModel : INotifyPropertyChanged
             nameof(EffectiveStatesText),
             nameof(CurrencyCountText),
             nameof(GeneratedAtText),
-            nameof(LineageText)
+            nameof(LineageText),
+            nameof(HasReport)
         })
         {
             OnPropertyChanged(property);

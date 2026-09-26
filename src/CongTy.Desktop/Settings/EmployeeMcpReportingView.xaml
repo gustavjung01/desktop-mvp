@@ -85,6 +85,12 @@
                     <StackPanel Grid.Column="1" Margin="12,0,0,0" Orientation="Horizontal" VerticalAlignment="Top">
                         <Button Margin="0,0,8,0"
                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanApply}"
+                                Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}"
+                                Click="ExportXlsx_OnClick"
+                                Content="Xuất Excel" />
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
                                 IsEnabled="{Binding DataContext.CanViewEmployeeDirectory, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 Click="EmployeeDirectory_OnClick"
                                 ToolTip="Mở Danh mục nhân sự"
