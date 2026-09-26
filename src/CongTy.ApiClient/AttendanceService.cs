@@ -10,6 +10,10 @@ public interface IAttendanceService
         AttendanceRecordRequest request,
         string idempotencyKey,
         CancellationToken cancellationToken = default);
+    Task<AttendanceRecordResultData> RecordManagedManualAsync(
+        ManagedManualAttendanceRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default);
     Task<AttendancePointData> CreatePointAsync(
         CreateAttendancePointRequest request,
         string idempotencyKey,
@@ -42,6 +46,17 @@ public sealed class AttendanceService(
         CancellationToken cancellationToken = default) =>
         apiClient.PostIdempotentDataAsync<AttendanceRecordRequest, AttendanceRecordResultData>(
             "/api/workforce/attendance/record",
+            request,
+            idempotencyKey,
+            RequireToken(),
+            cancellationToken);
+
+    public Task<AttendanceRecordResultData> RecordManagedManualAsync(
+        ManagedManualAttendanceRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken = default) =>
+        apiClient.PostIdempotentDataAsync<ManagedManualAttendanceRequest, AttendanceRecordResultData>(
+            "/api/workforce/attendance/manual",
             request,
             idempotencyKey,
             RequireToken(),

@@ -69,6 +69,14 @@
                            Foreground="{DynamicResource DangerBrush}"
                            TextWrapping="Wrap" />
             </Border>
+            <Border Margin="0,6,0,0"
+                    Padding="10"
+                    Style="{StaticResource OfficeCardStyle}"
+                    Visibility="{Binding HasNotice, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="{Binding NoticeMessage}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </Border>
             <TextBlock Margin="0,6,0,0"
                        HorizontalAlignment="Center"
                        Text="Đang tải Bảng công…"
@@ -410,6 +418,132 @@
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>
+                            <Border Margin="0,0,0,10" Padding="10" Style="{StaticResource OfficeCardStyle}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="THAO TÁC NHANH" FontSize="10" FontWeight="Bold" />
+                                            <TextBlock Margin="0,4,12,0"
+                                                       Text="{Binding DayQuickHint}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                Visibility="{Binding CanAdjustSelectedDay, Converter={StaticResource BoolToVisibility}}"
+                                                IsEnabled="{Binding CanToggleDayAdjustment}"
+                                                Click="ToggleDayAdjustment_OnClick"
+                                                Content="{Binding DayAdjustmentToggleText}" />
+                                    </Grid>
+
+                                    <WrapPanel Margin="0,9,0,0"
+                                               Visibility="{Binding CanOperateSelectedDayNow, Converter={StaticResource BoolToVisibility}}">
+                                        <Button Margin="0,0,8,6"
+                                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                Visibility="{Binding ShowQuickCheckIn, Converter={StaticResource BoolToVisibility}}"
+                                                IsEnabled="{Binding CanUseDayActionButtons}"
+                                                Click="QuickCheckIn_OnClick"
+                                                Content="CHẤM VÀO" />
+                                        <Button Margin="0,0,8,6"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                Visibility="{Binding ShowQuickExitAndEndWork, Converter={StaticResource BoolToVisibility}}"
+                                                IsEnabled="{Binding CanUseDayActionButtons}"
+                                                Click="ToggleQuickExit_OnClick"
+                                                Content="RA NGOÀI" />
+                                        <Button Margin="0,0,8,6"
+                                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                Visibility="{Binding ShowQuickExitAndEndWork, Converter={StaticResource BoolToVisibility}}"
+                                                IsEnabled="{Binding CanUseDayActionButtons}"
+                                                Click="QuickEndWork_OnClick"
+                                                Content="KẾT THÚC LÀM VIỆC" />
+                                        <Button Margin="0,0,8,6"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                Visibility="{Binding ShowQuickExternalActions, Converter={StaticResource BoolToVisibility}}"
+                                                IsEnabled="{Binding CanUseDayActionButtons}"
+                                                Click="QuickReturn_OnClick"
+                                                Content="QUAY LẠI" />
+                                        <Button Margin="0,0,8,6"
+                                                Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                Visibility="{Binding ShowQuickExternalActions, Converter={StaticResource BoolToVisibility}}"
+                                                IsEnabled="{Binding CanUseDayActionButtons}"
+                                                Click="QuickEndExternalWork_OnClick"
+                                                Content="KẾT THÚC CÔNG VIỆC BÊN NGOÀI" />
+                                    </WrapPanel>
+
+                                    <TextBlock Margin="0,6,0,0"
+                                               Text="Ngày làm việc đã có đủ giờ vào và giờ ra."
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Visibility="{Binding ShowQuickComplete, Converter={StaticResource BoolToVisibility}}" />
+
+                                    <Border Margin="0,8,0,0"
+                                            Padding="9"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding ShowQuickExitPanel, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Mục đích ra ngoài" FontWeight="SemiBold" />
+                                            <ComboBox Margin="0,5,0,0"
+                                                      Width="260"
+                                                      HorizontalAlignment="Left"
+                                                      ItemsSource="{Binding QuickExitReasons}"
+                                                      SelectedItem="{Binding SelectedQuickExitReason, Mode=TwoWay}"
+                                                      DisplayMemberPath="Label" />
+                                            <TextBox Margin="0,6,0,0"
+                                                     MaxLength="1024"
+                                                     Text="{Binding QuickExitNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     ToolTip="Ghi rõ lý do"
+                                                     Visibility="{Binding ShowQuickExitNote, Converter={StaticResource BoolToVisibility}}" />
+                                            <Button Margin="0,8,0,0"
+                                                    HorizontalAlignment="Left"
+                                                    Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                    IsEnabled="{Binding CanSubmitQuickExit}"
+                                                    Click="SubmitQuickExit_OnClick"
+                                                    Content="GHI NHẬN RA NGOÀI" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Margin="0,8,0,0"
+                                            Padding="9"
+                                            Style="{StaticResource OfficeCardStyle}"
+                                            Visibility="{Binding ShowDayAdjustmentEditor, Converter={StaticResource BoolToVisibility}}">
+                                        <StackPanel>
+                                            <TextBlock Text="SỬA GIỜ VÀO / RA" FontWeight="SemiBold" />
+                                            <WrapPanel Margin="0,7,0,0">
+                                                <StackPanel Width="125" Margin="0,0,8,6">
+                                                    <TextBlock Text="Giờ vào" />
+                                                    <TextBox Margin="0,4,0,0"
+                                                             MaxLength="5"
+                                                             Text="{Binding DayAdjustmentCheckIn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             ToolTip="HH:mm" />
+                                                </StackPanel>
+                                                <StackPanel Width="125" Margin="0,0,8,6">
+                                                    <TextBlock Text="Giờ ra" />
+                                                    <TextBox Margin="0,4,0,0"
+                                                             MaxLength="5"
+                                                             Text="{Binding DayAdjustmentCheckOut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             ToolTip="HH:mm" />
+                                                </StackPanel>
+                                                <StackPanel Width="360" Margin="0,0,8,6">
+                                                    <TextBlock Text="Lý do" />
+                                                    <TextBox Margin="0,4,0,0"
+                                                             MaxLength="1000"
+                                                             Text="{Binding DayAdjustmentReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             ToolTip="Ví dụ: xác nhận theo thực tế công việc" />
+                                                </StackPanel>
+                                                <Button Margin="0,18,0,6"
+                                                        Style="{StaticResource OfficePrimaryButtonStyle}"
+                                                        IsEnabled="{Binding CanSaveDayAdjustment}"
+                                                        Click="SaveDayAdjustment_OnClick"
+                                                        Content="{Binding DayAdjustmentSaveText}" />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
                             <UniformGrid Columns="5">
                                 <Border Margin="0,0,6,6" Padding="8" Style="{StaticResource OfficeCardStyle}"><StackPanel><TextBlock Text="Ngày" /><TextBlock Text="{Binding DayDateText}" FontWeight="SemiBold" /></StackPanel></Border>
                                 <Border Margin="0,0,6,6" Padding="8" Style="{StaticResource OfficeCardStyle}"><StackPanel><TextBlock Text="Trạng thái" /><TextBlock Text="{Binding DayStatusText}" FontWeight="SemiBold" TextWrapping="Wrap" /></StackPanel></Border>

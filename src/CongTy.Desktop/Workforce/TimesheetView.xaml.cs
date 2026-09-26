@@ -51,6 +51,30 @@ public partial class TimesheetView : UserControl
     private void MonthDay_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.OpenDay((sender as FrameworkElement)?.Tag as AttendanceTimesheetDayData);
 
+    private async void QuickCheckIn_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SubmitQuickAttendanceAsync("CHECK_IN");
+
+    private void ToggleQuickExit_OnClick(object sender, RoutedEventArgs e) =>
+        ViewModel.ToggleQuickExit();
+
+    private async void QuickEndWork_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SubmitQuickAttendanceAsync("CHECK_OUT");
+
+    private async void QuickReturn_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SubmitQuickAttendanceAsync("RETURN");
+
+    private async void QuickEndExternalWork_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SubmitQuickAttendanceAsync("END_EXTERNAL_WORK");
+
+    private async void SubmitQuickExit_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SubmitQuickExitAsync();
+
+    private void ToggleDayAdjustment_OnClick(object sender, RoutedEventArgs e) =>
+        ViewModel.ToggleDayAdjustment();
+
+    private async void SaveDayAdjustment_OnClick(object sender, RoutedEventArgs e) =>
+        await ViewModel.SaveDayAdjustmentAsync();
+
     private void OpenAdjustment_OnClick(object sender, RoutedEventArgs e)
     {
         var workDate = ViewModel.AdjustmentTargetWorkDate;

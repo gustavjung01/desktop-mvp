@@ -19,11 +19,16 @@ public partial class MainWindow
         _viewModel.InitializeTimesheetShell();
 
         var app = (CongTy.Desktop.App)Application.Current;
-        var service = new TimesheetService(
-            app.ResolveRequired<CompanyApiClient>(),
-            app.ResolveRequired<IAuthenticatedSessionAccessor>());
+        var apiClient = app.ResolveRequired<CompanyApiClient>();
+        var session = app.ResolveRequired<IAuthenticatedSessionAccessor>();
+        var service = new TimesheetService(apiClient, session);
+        var attendanceService = new AttendanceService(apiClient, session);
+        var adjustmentService = new AttendanceAdjustmentService(apiClient, session);
         var view = new TimesheetView(new TimesheetViewModel(
             service,
+            attendanceService,
+            adjustmentService,
+            app.ResolveRequired<ICanonicalIdempotencyKeyProvider>(),
             app.ResolveRequired<IAccessStateService>()));
         view.AdjustmentRequested += Timesheet_AdjustmentRequested;
         view.ViolationRequested += Timesheet_ViolationRequested;
