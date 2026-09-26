@@ -1,5 +1,3 @@
-using CongTy.Contracts;
-
 namespace CongTy.UnitTests;
 
 [TestClass]
@@ -44,7 +42,7 @@ public sealed class WorkforceTimesheetQuickActionsIssue85Lot1Tests
         StringAssert.Contains(quick, "_dayMutationKeys.TryGetValue(slot, out var existing)");
         StringAssert.Contains(quick, "_dayMutationKeys.Remove(slot)");
         StringAssert.Contains(quick, "_idempotencyKeys.Create(operation)");
-        StringAssert.Contains(quick, "SelectedDay.PeriodLock is null || _data.Capabilities.CanLock");
+        StringAssert.Contains(quick, "SelectedDay.PeriodLock is null || data.Capabilities.CanLock");
         StringAssert.Contains(quick, "selectedDate.Date == WorkSchedulePresentation.BusinessToday()");
         Assert.IsFalse(quick.Contains("DateTime.Now", StringComparison.Ordinal));
         Assert.IsFalse(quick.Contains("DateTimeOffset.Now", StringComparison.Ordinal));
@@ -68,10 +66,10 @@ public sealed class WorkforceTimesheetQuickActionsIssue85Lot1Tests
                      "GHI NHẬN RA NGOÀI",
                      "SỬA GIỜ VÀO / RA",
                      "Lý do",
-                     "LƯU ĐIỀU CHỈNH",
                  })
             StringAssert.Contains(view, label);
 
+        StringAssert.Contains(quick, "\"LƯU ĐIỀU CHỈNH\"");
         StringAssert.Contains(view, "MaxLength=\"1024\"");
         StringAssert.Contains(view, "MaxLength=\"1000\"");
         StringAssert.Contains(codeBehind, "SubmitQuickAttendanceAsync(\"CHECK_IN\")");
