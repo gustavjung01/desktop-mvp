@@ -54,11 +54,17 @@
                            Foreground="{DynamicResource TextSecondaryBrush}"
                            TextWrapping="Wrap" />
             </StackPanel>
-            <Button Grid.Column="1"
-                    Style="{StaticResource OfficePrimaryButtonStyle}"
-                    IsEnabled="{Binding CanLoad}"
-                    Click="Refresh_OnClick"
-                    Content="CẬP NHẬT BẢNG CÔNG" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Margin="0,0,8,0"
+                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                        IsEnabled="{Binding CanLoad}"
+                        Click="ExportTimesheet_OnClick"
+                        Content="XUẤT EXCEL" />
+                <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                        IsEnabled="{Binding CanLoad}"
+                        Click="Refresh_OnClick"
+                        Content="CẬP NHẬT BẢNG CÔNG" />
+            </StackPanel>
         </Grid>
 
         <StackPanel Grid.Row="1" Margin="0,10,0,0">

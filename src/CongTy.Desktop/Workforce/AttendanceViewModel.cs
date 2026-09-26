@@ -11,7 +11,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Workforce;
 
-public sealed class AttendanceViewModel : INotifyPropertyChanged
+public sealed partial class AttendanceViewModel : INotifyPropertyChanged
 {
     private const string SelfReadPermission = "core.attendance.self.read";
     private const string SelfRecordPermission = "core.attendance.self.record";

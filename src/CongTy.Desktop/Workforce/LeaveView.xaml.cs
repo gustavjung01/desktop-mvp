@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -113,4 +114,9 @@ public partial class LeaveView : UserControl
 
     private async void SaveType_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.SaveTypeAsync();
+
+    private async void ExportLeave_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => ((LeaveViewModel)DataContext).ExportLeaveAsync());
 }

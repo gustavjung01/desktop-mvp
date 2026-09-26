@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using CongTy.Contracts;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -91,6 +92,9 @@ public partial class TimesheetView : UserControl
 
     private void CloseDayDetail_OnClick(object sender, RoutedEventArgs e) =>
         ViewModel.CloseDay();
+
+    private async void ExportTimesheet_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(this, () => ViewModel.ExportTimesheetAsync());
 }
 
 public sealed class TimesheetAdjustmentRequestedEventArgs(

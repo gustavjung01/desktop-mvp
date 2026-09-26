@@ -416,6 +416,40 @@ public static class OpeningBalanceCsv
         return result;
     }
 
+    public static IReadOnlyList<OpeningBalanceCsvRowData> ParseMatrix(IReadOnlyList<string[]> matrix)
+    {
+        if (matrix.Count < 2) return [];
+        var headers = matrix[0]
+            .Select(header => Aliases.TryGetValue((header ?? string.Empty).Trim(), out var alias) ? alias : (header ?? string.Empty).Trim())
+            .ToArray();
+        if (!headers.Contains("sku", StringComparer.Ordinal)
+            || !headers.Contains("sourceQuantity", StringComparer.Ordinal))
+        {
+            return [];
+        }
+
+        var result = new List<OpeningBalanceCsvRowData>();
+        foreach (var cells in matrix.Skip(1).Where(row => row.Any(cell => !string.IsNullOrWhiteSpace(cell))))
+        {
+            var values = new Dictionary<string, string>(StringComparer.Ordinal);
+            for (var index = 0; index < headers.Length; index++)
+                values[headers[index]] = index < cells.Length ? cells[index] : string.Empty;
+
+            string Get(string key) => values.TryGetValue(key, out var value) ? value : string.Empty;
+            result.Add(new OpeningBalanceCsvRowData(
+                Get("sku"),
+                Get("sourceQuantity"),
+                Get("locationCode"),
+                Get("lotCode"),
+                Get("manufacturedDate"),
+                Get("expiryDate"),
+                Get("supplierLotReference"),
+                Get("sourceLineReference")));
+        }
+
+        return result;
+    }
+
     private static char DelimiterFor(string line)
     {
         var best = ',';

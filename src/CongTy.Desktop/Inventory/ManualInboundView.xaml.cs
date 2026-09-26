@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -155,19 +156,22 @@ public partial class ManualInboundView : UserControl
     private async void Confirm_OnClick(object sender, RoutedEventArgs e) =>
         await _viewModel.ConfirmAsync();
 
-    private void DownloadTemplate_OnClick(object sender, RoutedEventArgs e)
+    private async void DownloadTemplate_OnClick(object sender, RoutedEventArgs e)
     {
         var dialog = new SaveFileDialog
         {
             Title = "Lưu tệp mẫu Nhập kho thủ công",
-            Filter = "CSV (*.csv)|*.csv",
-            FileName = "mau-nhap-kho-thu-cong.csv",
+            Filter = "Excel (*.xlsx)|*.xlsx|CSV (*.csv)|*.csv",
+            FileName = "mau-nhap-kho-thu-cong.xlsx",
             AddExtension = true,
-            DefaultExt = ".csv"
+            DefaultExt = ".xlsx"
         };
 
         if (dialog.ShowDialog() != true) return;
-        File.WriteAllText(dialog.FileName, ManualInboundFile.TemplateCsv, new UTF8Encoding(false));
+        var file = string.Equals(Path.GetExtension(dialog.FileName), ".csv", StringComparison.OrdinalIgnoreCase)
+            ? OfficeDataExportFile.TemplateCsv("mau-nhap-kho-thu-cong.csv", "SKU", "Số lượng", "Giá vốn")
+            : OfficeDataExportFile.TemplateXlsx("mau-nhap-kho-thu-cong.xlsx", "Nhập kho thủ công", "SKU", "Số lượng", "Giá vốn");
+        await File.WriteAllBytesAsync(dialog.FileName, file.Content);
     }
 
     private void ChooseFile_OnClick(object sender, RoutedEventArgs e)

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Workforce;
 
@@ -73,4 +74,9 @@ public partial class OvertimeCloseoutView : UserControl
         if (sender is Button { Tag: AttendancePeriodRowView row })
             await ViewModel.ViewPayrollAsync(row);
     }
+
+    private async void ExportOvertime_OnClick(object sender, RoutedEventArgs e) =>
+        await OfficeExportDialog.RunAsync(
+            this,
+            () => ((OvertimeCloseoutViewModel)DataContext).ExportOvertimeAsync());
 }

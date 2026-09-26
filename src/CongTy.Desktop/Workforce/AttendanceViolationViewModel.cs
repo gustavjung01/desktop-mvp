@@ -9,7 +9,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Workforce;
 
-public sealed class AttendanceViolationViewModel : INotifyPropertyChanged
+public sealed partial class AttendanceViolationViewModel : INotifyPropertyChanged
 {
     private const string SelfReadPermission = "core.attendance.self.read";
     private const string ReadPermission = "core.attendance.read";

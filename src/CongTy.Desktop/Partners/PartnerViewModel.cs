@@ -11,7 +11,7 @@ using CongTy.Contracts;
 
 namespace CongTy.Desktop.Partners;
 
-public sealed class PartnerViewModel : INotifyPropertyChanged
+public sealed partial class PartnerViewModel : INotifyPropertyChanged
 {
     private const string CustomerRead = "core.customer.read";
     private const string CustomerWrite = "core.customer.write";

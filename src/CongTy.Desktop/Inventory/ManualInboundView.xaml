@@ -356,7 +356,7 @@
                                         <Button Margin="0,0,8,0"
                                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
                                                 Click="DownloadTemplate_OnClick"
-                                                Content="Tải mẫu CSV" />
+                                                Content="Tải mẫu Excel/CSV" />
                                         <Button Style="{StaticResource OfficePrimaryButtonStyle}"
                                                 Click="ChooseFile_OnClick"
                                                 Content="Chọn tệp Excel/CSV" />
