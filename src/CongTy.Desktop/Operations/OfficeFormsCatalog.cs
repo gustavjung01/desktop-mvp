@@ -23,7 +23,7 @@ internal sealed record OfficeFormDefinition(
     public string Formats => HasXlsx && HasPdf ? "Excel + PDF" : HasXlsx ? "Excel" : "PDF";
 }
 
-internal sealed record OfficeFormGroupFilter(string Key, string Display);
+public sealed record OfficeFormGroupFilter(string Key, string Display);
 
 internal static class OfficeFormsCatalog
 {
