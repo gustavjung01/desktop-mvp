@@ -74,6 +74,7 @@ public sealed class Issue85Lot3ActualDocumentPrintParityTests
         StringAssert.Contains(fulfillment, "PackedBaseQuantity");
         StringAssert.Contains(runtime, "\"SUPPLIER_PAYMENT\"");
         StringAssert.Contains(runtime, "\"CUSTOMER_REFUND\"");
+        StringAssert.Contains(runtime, "documentType, \"CUSTOMER_PAYMENT\"");
     }
 
     [TestMethod]
@@ -84,6 +85,15 @@ public sealed class Issue85Lot3ActualDocumentPrintParityTests
         StringAssert.Contains(source, "DocumentPrintTemplateRuntime.AddHeader");
         StringAssert.Contains(source, "DocumentPrintTemplateRuntime.Shows");
         StringAssert.Contains(source, "DocumentPrintTemplateRuntime.AddSignatures");
+        foreach (var webLabel in new[]
+        {
+            "Lý do trả", "Đề nghị trả", "Tổng đề nghị trả", "Lô / vị trí", "Ngày giao dự kiến", "Cần cấp",
+            "Ngày chi", "Hình thức thanh toán", "Mã giao dịch", "SỐ TIỀN ĐÃ CHI",
+            "Khoản giảm công nợ nguồn", "Phương thức hoàn", "Nơi nhận / tài khoản nhận", "SỐ TIỀN HOÀN",
+            "Thời điểm bàn giao", "Tổng phải bàn giao", "Tổng đã bàn giao"
+        })
+            StringAssert.Contains(source, webLabel);
+        StringAssert.Contains(source, "activeAcceptance?.DifferenceAmount");
         Assert.IsFalse(source.Contains("Idempotency", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(source.Contains("PostAsync", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(source.Contains("PatchAsync", StringComparison.OrdinalIgnoreCase));

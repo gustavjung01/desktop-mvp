@@ -49,16 +49,16 @@ internal static class ActualDocumentPrintPreview
         [
             new PrintColumn<SupplierReturnLineData>("line_no", "STT", (line, _) => line.LineNumber.ToString(Vi), true),
             new("line_item", "Sản phẩm / SKU", (line, _) => Product(line.SourceItemName, line.SourceSku)),
-            new("line_reason", "Lý do", (line, _) => Dash(string.IsNullOrWhiteSpace(line.ReasonNote) ? line.ReasonCode : line.ReasonNote)),
+            new("line_reason", "Lý do trả", (line, _) => Dash(string.IsNullOrWhiteSpace(line.ReasonNote) ? line.ReasonCode : line.ReasonNote)),
             new("line_quantity", "SL trả", (line, _) => Number(line.ReturnQuantity), true),
             new("line_unit", "ĐVT", (line, _) => Dash(line.SourceUnitCode)),
             new("line_lot", "Lô", (line, _) => Dash(line.LotCode))
         ]);
-        AddTotals(document, template, [new("total_quantity", "Tổng số lượng trả", Number(item.ReturnQuantityTotal))]);
+        AddTotals(document, template, [new("total_quantity", "Tổng số lượng trả", Number(item.ReturnQuantityTotal), true)]);
         var note = item.Status.ToLowerInvariant() switch
         {
-            "reversed" => JoinNote(item.Note, string.IsNullOrWhiteSpace(item.ReversalReason) ? "ĐÃ ĐẢO" : $"ĐÃ ĐẢO — {item.ReversalReason}"),
-            "cancelled" => JoinNote(item.Note, string.IsNullOrWhiteSpace(item.CancellationReason) ? "ĐÃ HỦY" : $"ĐÃ HỦY — {item.CancellationReason}"),
+            "reversed" => string.IsNullOrWhiteSpace(item.ReversalReason) ? "ĐÃ ĐẢO" : $"ĐÃ ĐẢO — {item.ReversalReason}",
+            "cancelled" => string.IsNullOrWhiteSpace(item.CancellationReason) ? "ĐÃ HỦY" : $"ĐÃ HỦY — {item.CancellationReason}",
             _ => item.Note
         };
         AddNote(document, template, note);
@@ -79,16 +79,16 @@ internal static class ActualDocumentPrintPreview
         [
             new PrintColumn<CustomerReturnLineData>("line_no", "STT", (line, _) => line.LineNumber.ToString(Vi), true),
             new("line_item", "Sản phẩm / SKU", (line, _) => Product(line.ItemName, line.Sku)),
-            new("line_reason", "Lý do", (line, _) => CustomerReturnReason(line.ReasonCode, line.ReasonNote)),
-            new("line_requested", "Yêu cầu", (line, _) => Number(line.RequestedBaseQuantity), true),
+            new("line_reason", "Lý do trả", (line, _) => CustomerReturnReason(line.ReasonCode, line.ReasonNote)),
+            new("line_requested", "Đề nghị trả", (line, _) => Number(line.RequestedBaseQuantity), true),
             new("line_accepted", "Thực nhận", (line, _) => Number(line.AcceptedBaseQuantity), true),
             new("line_unit", "ĐVT", (line, _) => Dash(line.UnitCode)),
-            new("line_lot", "Lô", (line, _) => Dash(line.LotCode))
+            new("line_lot", "Lô / vị trí", (line, _) => LotLocation(line.LotCode, line.LocationCode))
         ]);
         AddTotals(document, template,
         [
-            new("total_requested", "Tổng yêu cầu", Sum(item.Lines.Select(line => line.RequestedBaseQuantity))),
-            new("total_accepted", "Tổng thực nhận", Sum(item.Lines.Select(line => line.AcceptedBaseQuantity)))
+            new("total_requested", "Tổng đề nghị trả", Number(item.RequestedBaseQuantity)),
+            new("total_accepted", "Tổng thực nhận", Number(item.AcceptedBaseQuantity), true)
         ]);
         AddNote(document, template, item.Note);
         DocumentPrintTemplateRuntime.AddSignatures(document, template, "Khách hàng / Người giao", "Thủ kho", "Người kiểm nhận");
@@ -104,14 +104,14 @@ internal static class ActualDocumentPrintPreview
         [
             new("customer", "Khách hàng", Party(first.CustomerCode, first.CustomerName)),
             new("warehouse", "Kho xử lý", Party(first.WarehouseCode, first.WarehouseName)),
-            new("sales_channel", "Kênh bán", Party(first.SalesChannelCode, first.SalesChannelName)),
-            new("delivery_date", "Ngày giao yêu cầu", Date(first.RequestedDeliveryDate))
+            new("sales_channel", "Kênh bán", First(first.SalesChannelName, first.SalesChannelCode)),
+            new("delivery_date", "Ngày giao dự kiến", Date(first.RequestedDeliveryDate))
         ]);
         AddTable(document, template, items.OrderBy(item => item.LineNumber).ToArray(),
         [
             new PrintColumn<FulfillmentWorkItemData>("line_no", "STT", (item, _) => item.LineNumber.ToString(Vi), true),
             new("line_item", "Sản phẩm / SKU", (item, _) => Product(item.ItemName, item.Sku)),
-            new("line_ordered", "SL đặt", (item, _) => Number(item.OrderedBaseQuantity), true),
+            new("line_ordered", "Cần cấp", (item, _) => Number(item.OrderedBaseQuantity), true),
             new("line_allocated", "Đã phân bổ", (item, _) => Number(item.AllocatedBaseQuantity), true),
             new("line_picked", "Đã soạn", (item, _) => Number(item.PickedBaseQuantity), true),
             new("line_packed", "Đã đóng gói", (item, _) => Number(item.PackedBaseQuantity), true),
@@ -129,19 +129,19 @@ internal static class ActualDocumentPrintPreview
         [
             new("supplier", "Nhà cung cấp", Party(payment.SupplierCode, payment.SupplierName)),
             new("paying_unit", "Đơn vị chi", Party(payment.WarehouseCode, payment.WarehouseName)),
-            new("payment_date", "Ngày thanh toán", Date(payment.PaymentDate)),
-            new("payment_method", "Phương thức", PaymentMethod(payment.PaymentMethod)),
-            new("bank_reference", "Tham chiếu ngân hàng", Dash(payment.ExternalReference)),
+            new("payment_date", "Ngày chi", Dash(payment.PaymentDate)),
+            new("payment_method", "Hình thức thanh toán", PaymentMethod(payment.PaymentMethod)),
+            new("bank_reference", "Mã giao dịch", Dash(payment.ExternalReference)),
             new("recorded_by", "Người ghi nhận", Dash(payment.PostedBy))
         ]);
         AddTotals(document, template,
         [
-            new("total_paid", "Tổng tiền chi", Money(payment.OriginalAmount, payment.CurrencyCode), true),
+            new("total_paid", "SỐ TIỀN ĐÃ CHI", Money(payment.OriginalAmount, payment.CurrencyCode), true),
             new("total_allocated", "Đã phân bổ", Money(payment.AllocatedAmount, payment.CurrencyCode)),
             new("total_unallocated", "Chưa phân bổ", Money(payment.RemainingAmount, payment.CurrencyCode))
         ]);
         var note = payment.Status.Equals("reversed", StringComparison.OrdinalIgnoreCase)
-            ? JoinNote(payment.Note, string.IsNullOrWhiteSpace(payment.ReversalReason) ? "ĐÃ ĐẢO" : $"ĐÃ ĐẢO — {payment.ReversalReason}")
+            ? string.IsNullOrWhiteSpace(payment.ReversalReason) ? "ĐÃ ĐẢO" : $"ĐÃ ĐẢO — {payment.ReversalReason}"
             : payment.Note;
         AddNote(document, template, note);
         DocumentPrintTemplateRuntime.AddSignatures(document, template, "Người lập phiếu", "Kế toán / Thủ quỹ", "Nhà cung cấp / Người nhận");
@@ -155,13 +155,13 @@ internal static class ActualDocumentPrintPreview
         [
             new("customer", "Khách hàng", Party(refund.CustomerCode, refund.CustomerName)),
             new("warehouse", "Đơn vị hoàn", Party(refund.WarehouseCode, refund.WarehouseName)),
-            new("source_credit", "Khoản giảm nguồn", Dash(refund.SourceCreditNumber)),
+            new("source_credit", "Khoản giảm công nợ nguồn", Dash(refund.SourceCreditNumber)),
             new("refund_date", "Ngày hoàn", DateTimeText(refund.PostedAt)),
-            new("refund_method", "Phương thức", PaymentMethod(refund.RefundMethod)),
-            new("destination", "Nơi nhận", Dash(refund.DestinationReference)),
+            new("refund_method", "Phương thức hoàn", PaymentMethod(refund.RefundMethod)),
+            new("destination", "Nơi nhận / tài khoản nhận", Dash(refund.DestinationReference)),
             new("transaction_reference", "Tham chiếu giao dịch", Dash(refund.ExternalReference))
         ]);
-        AddTotals(document, template, [new("total_refund", "Số tiền hoàn", Money(refund.Amount, refund.CurrencyCode), true)]);
+        AddTotals(document, template, [new("total_refund", "SỐ TIỀN HOÀN", Money(refund.Amount, refund.CurrencyCode), true)]);
         var note = string.IsNullOrWhiteSpace(refund.ReversalId)
             ? refund.Reason
             : JoinNote(refund.Reason, string.IsNullOrWhiteSpace(refund.ReversalReason) ? "ĐÃ ĐẢO" : $"ĐÃ ĐẢO — {refund.ReversalReason}");
@@ -175,10 +175,10 @@ internal static class ActualDocumentPrintPreview
         var document = Begin(template, "BIÊN BẢN ĐỐI SOÁT COD", null, "Đối chiếu tiền thu hộ bàn giao về Công Ty", CodStatus(handover.Status));
         AddFields(document, template,
         [
-            new("trip", "Chuyến giao", Dash(handover.TripNumber)),
+            new("trip", "Chuyến giao", string.IsNullOrWhiteSpace(handover.TripNumber) ? "Chưa có số chuyến" : handover.TripNumber),
             new("warehouse", "Kho", Party(handover.WarehouseCode, handover.WarehouseName)),
             new("driver", "Tài xế", Party(handover.DriverCode, handover.DriverName)),
-            new("handover_at", "Bàn giao lúc", DateTimeText(handover.HandedOverAt))
+            new("handover_at", "Thời điểm bàn giao", DateTimeText(handover.HandedOverAt))
         ]);
         AddTable(document, template, handover.Lines,
         [
@@ -187,15 +187,17 @@ internal static class ActualDocumentPrintPreview
             new("line_expected", "Đang giữ", (line, _) => Money(line.ExpectedAmount, "VND"), true),
             new("line_handed_over", "Bàn giao", (line, _) => Money(line.HandedOverAmount, "VND"), true)
         ]);
-        var accepted = handover.Acceptance is { } acceptance && string.IsNullOrWhiteSpace(acceptance.ReversalId)
-            ? Money(acceptance.AcceptedAmount, "VND")
-            : "Chưa xác nhận";
+        var activeAcceptance = handover.Acceptance is { } acceptance && string.IsNullOrWhiteSpace(acceptance.ReversalId)
+            ? acceptance
+            : null;
+        var accepted = activeAcceptance is null ? "Chưa xác nhận" : Money(activeAcceptance.AcceptedAmount, "VND");
+        var acceptedDifference = activeAcceptance?.DifferenceAmount ?? handover.DifferenceAmount;
         AddTotals(document, template,
         [
-            new("expected_total", "Tổng đang giữ", Money(handover.ExpectedTotal, "VND")),
-            new("handed_over_total", "Tổng bàn giao", Money(handover.HandedOverTotal, "VND"), true),
-            new("accepted_total", "Công Ty thực nhận", accepted),
-            new("difference_total", "Chênh lệch", Money(handover.DifferenceAmount, "VND"))
+            new("expected_total", "Tổng phải bàn giao", Money(handover.ExpectedTotal, "VND")),
+            new("handed_over_total", "Tổng đã bàn giao", Money(handover.HandedOverTotal, "VND")),
+            new("accepted_total", "Công Ty thực nhận", accepted, true),
+            new("difference_total", "Chênh lệch", Money(acceptedDifference, "VND"))
         ]);
         var note = JoinNote(handover.Reason, handover.Note);
         if (!string.IsNullOrWhiteSpace(handover.ReversalId))
@@ -339,10 +341,13 @@ internal static class ActualDocumentPrintPreview
         var item = Dash(name); var code = Dash(sku);
         return item == code ? item : $"{item} · {code}";
     }
-    private static string Party(string? code, string? name)
+    private static string Party(string? code, string? name) => $"{Dash(code)} — {Dash(name)}";
+    private static string First(string? preferred, string? fallback) =>
+        !string.IsNullOrWhiteSpace(preferred) ? preferred.Trim() : Dash(fallback);
+    private static string LotLocation(string? lotCode, string? locationCode)
     {
-        var parts = new[] { code?.Trim(), name?.Trim() }.Where(value => !string.IsNullOrWhiteSpace(value)).ToArray();
-        return parts.Length == 0 ? "—" : string.Join(" — ", parts);
+        var parts = new[] { lotCode?.Trim(), locationCode?.Trim() }.Where(value => !string.IsNullOrWhiteSpace(value)).ToArray();
+        return parts.Length == 0 ? "—" : string.Join(" · ", parts);
     }
     private static string JoinDistinct(IEnumerable<string?> values)
     {
@@ -352,7 +357,7 @@ internal static class ActualDocumentPrintPreview
     private static string JoinNote(string? first, string? second)
     {
         var parts = new[] { first?.Trim(), second?.Trim() }.Where(value => !string.IsNullOrWhiteSpace(value)).ToArray();
-        return string.Join(Environment.NewLine, parts);
+        return string.Join(" — ", parts);
     }
     private static string Sum(IEnumerable<string?> values) => values.Sum(Decimal).ToString("#,0.######", Vi);
     private static string Number(string? value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var number) ? number.ToString("#,0.######", Vi) : Dash(value);
@@ -364,13 +369,16 @@ internal static class ActualDocumentPrintPreview
     private static decimal Decimal(string? value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var number) ? number : 0m;
     private static string Date(string? value)
     {
-        if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var dateTime)) return dateTime.ToString("dd/MM/yyyy", Vi);
-        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var dateOnly)) return dateOnly.ToString("dd/MM/yyyy", Vi);
+        if (DateOnly.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var dateOnly))
+            return dateOnly.ToString("dd/MM/yyyy", Vi);
+        if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var dateTime))
+            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dateTime, "SE Asia Standard Time").ToString("dd/MM/yyyy", Vi);
         return Dash(value);
     }
     private static string DateTimeText(string? value)
     {
-        if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var dateTime)) return dateTime.ToLocalTime().ToString("dd/MM/yyyy HH:mm", Vi);
+        if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var dateTime))
+            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dateTime, "SE Asia Standard Time").ToString("dd/MM/yyyy HH:mm", Vi);
         return Date(value);
     }
     private static string Dash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim();
