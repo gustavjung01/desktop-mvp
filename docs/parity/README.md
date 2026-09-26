@@ -405,3 +405,18 @@ Audit diff nguồn xác nhận:
 
 Rebaseline này chỉ cập nhật metadata parity theo source đã audit để gate tiếp tục theo dõi drift.
 Không sửa Web/backend/DB/migration và không deploy production.
+
+
+## Final audit 2026-09-26 — Desktop Issue #85 Lô 7
+
+Final parity/hardening audit chạy trên Desktop `main@5299bd3bad2a3558c0d49b04b858d33d1d579b2f`
+và Web `main@999f8eaac3d2c584016e9e41ca3a3d043affa3f2`.
+
+Compare từ Web baseline Issue #85 `384c58186067d0bc4bc0705c6442d33775df6695` đến live Web chỉ thay đổi
+`retail/web/app/retail-workspace.tsx` và test Retail tương ứng; Công Ty Web/API/permission/idempotency source
+của #1190 không đổi. Vì vậy năm parity manifest vẫn hợp lệ và **không được đổi baseline SHA chỉ để cập nhật ngày**.
+CI parity baseline hiện hành tiếp tục PASS.
+
+Lô 7 chỉ harden Desktop: logical Idempotency-Key của quick attendance phân biệt work date, refresh sau mutation
+khôi phục đúng employee/day selection, và export Workforce/Master không fallback raw internal enum.
+Chi tiết: `docs/parity/ISSUE_85_LOT7_FINAL_HARDENING_AUDIT.md`.
