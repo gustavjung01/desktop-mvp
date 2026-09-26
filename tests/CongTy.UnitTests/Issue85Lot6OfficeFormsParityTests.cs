@@ -10,9 +10,9 @@ public sealed class Issue85Lot6OfficeFormsParityTests
     {
         var source = Read("src", "CongTy.Desktop", "Operations", "OfficeFormsCatalog.cs");
 
-        Assert.AreEqual(35, Regex.Matches(source, @"new OfficeFormDefinition\(").Count);
-        Assert.AreEqual(13, Regex.Matches(source, @"\bXlsx:\s").Count);
-        Assert.AreEqual(29, Regex.Matches(source, @"\bPdf:\s").Count);
+        Assert.HasCount(35, Regex.Matches(source, @"new OfficeFormDefinition\("));
+        Assert.HasCount(13, Regex.Matches(source, @"\bXlsx:\s"));
+        Assert.HasCount(29, Regex.Matches(source, @"\bPdf:\s"));
 
         foreach (var name in new[]
         {
