@@ -23,7 +23,11 @@
                         <TextBlock Margin="0,3,0,0" Text="Nhận hàng khách trả có đối chiếu" FontSize="17" FontWeight="SemiBold" />
                         <TextBlock Margin="0,3,0,0" Text="Yêu cầu trả hoặc giao thất bại không tự hoàn kho. Kho phải xác nhận số lượng thực nhận." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
                     </StackPanel>
-                    <Button Grid.Column="1" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="Refresh_OnClick" Content="{Binding RefreshButtonText}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Margin="0,0,8,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="ExportXlsx_OnClick" Content="Xuất Excel" />
+                        <Button Margin="0,0,8,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="ExportCsv_OnClick" Content="Xuất CSV" />
+                        <Button Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="Refresh_OnClick" Content="{Binding RefreshButtonText}" />
+                    </StackPanel>
                 </Grid>
             </Border>
 

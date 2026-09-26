@@ -88,6 +88,8 @@
                 <TextBlock Margin="12,0,0,0" Text="{Binding SelectionText}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Margin="0,0,6,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="ExportXlsx_OnClick" Content="Xuất Excel" />
+                <Button Margin="0,0,6,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="ExportCsv_OnClick" Content="Xuất CSV" />
                 <Button Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="Refresh_OnClick" Content="Cập nhật dữ liệu" />
                 <Button Margin="6,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="SelectAll_OnClick" Content="Chọn tất cả" />
                 <Button Margin="6,0,0,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding IsNotBusy}" Click="ClearSelection_OnClick" Content="Bỏ chọn" />

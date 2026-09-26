@@ -31,7 +31,10 @@
                     <StackPanel>
                         <Grid>
                             <TextBlock Text="Khoản giảm công nợ từ hàng khách trả" FontSize="17" FontWeight="SemiBold" />
-                            <Button HorizontalAlignment="Right" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanRead}" Click="Refresh_OnClick" Content="Cập nhật dữ liệu" />
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                <Button Margin="0,0,8,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanRead}" Click="ExportXlsx_OnClick" Content="Xuất Excel" />
+                                <Button Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanRead}" Click="Refresh_OnClick" Content="Cập nhật dữ liệu" />
+                            </StackPanel>
                         </Grid>
                         <DataGrid Margin="0,8,0,0" MinHeight="560" MaxHeight="760" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="48" ItemsSource="{Binding Credits}" SelectedItem="{Binding SelectedCreditRow}" SelectionChanged="Credits_OnSelectionChanged">
                             <DataGrid.Columns>

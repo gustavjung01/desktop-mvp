@@ -104,11 +104,17 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
-                        <Button Grid.Column="1"
-                                Style="{StaticResource OfficeSecondaryButtonStyle}"
-                                IsEnabled="{Binding CanRefresh}"
-                                Click="Refresh_OnClick"
-                                Content="{Binding RefreshText}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Margin="0,0,8,0"
+                                    Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding CanRefresh}"
+                                    Click="ExportXlsx_OnClick"
+                                    Content="Xuất Excel" />
+                            <Button Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                    IsEnabled="{Binding CanRefresh}"
+                                    Click="Refresh_OnClick"
+                                    Content="{Binding RefreshText}" />
+                        </StackPanel>
                     </Grid>
 
                     <DataGrid Grid.Row="1"

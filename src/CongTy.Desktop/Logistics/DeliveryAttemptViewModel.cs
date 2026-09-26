@@ -6,7 +6,7 @@ using CongTy.ApiClient;
 
 namespace CongTy.Desktop.Logistics;
 
-public sealed class DeliveryAttemptViewModel : INotifyPropertyChanged
+public sealed partial class DeliveryAttemptViewModel : INotifyPropertyChanged
 {
     private const string ReadDenied = "Tài khoản chưa được cấp quyền xem Kết quả lần giao.";
 

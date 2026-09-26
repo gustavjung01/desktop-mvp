@@ -39,7 +39,7 @@ public sealed class OrderManagementRow : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 }
 
-public sealed class OrderManagementViewModel : INotifyPropertyChanged
+public sealed partial class OrderManagementViewModel : INotifyPropertyChanged
 {
     private const string ReadPermission="core.sales-order.read";
     private static readonly TimeSpan VietnamOffset=TimeSpan.FromHours(7);

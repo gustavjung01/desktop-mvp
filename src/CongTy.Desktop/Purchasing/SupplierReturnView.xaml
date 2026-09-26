@@ -37,6 +37,16 @@
                         <Button Margin="0,0,8,0"
                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
                                 IsEnabled="{Binding CanRead}"
+                                Click="ExportXlsx_OnClick"
+                                Content="Xuất Excel" />
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanRead}"
+                                Click="ExportCsv_OnClick"
+                                Content="Xuất CSV" />
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                IsEnabled="{Binding CanRead}"
                                 Click="Refresh_OnClick"
                                 Content="{Binding RefreshButtonText}" />
                         <Button Style="{StaticResource OfficePrimaryButtonStyle}"

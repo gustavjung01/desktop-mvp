@@ -45,7 +45,10 @@
                             <TextBlock Text="Số dư theo nhà cung cấp" FontSize="16" FontWeight="SemiBold"/>
                             <TextBlock Margin="0,3,0,0" Text="Theo dõi số dư, phần còn mở và khoản đã quá hạn theo từng loại tiền tệ." Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
-                        <Button Grid.Column="1" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanRefresh}" Click="Refresh_OnClick" Content="{Binding RefreshText}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Margin="0,0,8,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanRefresh}" Click="ExportXlsx_OnClick" Content="Xuất Excel"/>
+                            <Button Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanRefresh}" Click="Refresh_OnClick" Content="{Binding RefreshText}"/>
+                        </StackPanel>
                     </Grid>
                     <DataGrid Grid.Row="1" Margin="0,8,0,0" MinHeight="190" MaxHeight="300" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="42" ItemsSource="{Binding Balances}">
                         <DataGrid.Columns>
