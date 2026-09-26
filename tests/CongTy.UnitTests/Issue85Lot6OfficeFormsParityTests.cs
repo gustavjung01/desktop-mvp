@@ -82,8 +82,8 @@ public sealed class Issue85Lot6OfficeFormsParityTests
         StringAssert.Contains(code, "DataExchangeFileHelper.Write");
         StringAssert.Contains(code, "\"xlsx\"");
         StringAssert.Contains(print, "DocumentPrintTemplateRuntime.CreateDocument");
-        StringAssert.Contains(print, "DocumentPrintTemplateRuntime.AddHeader");
-        StringAssert.Contains(print, "DocumentPrintTemplateRuntime.AddSignatures");
+        StringAssert.Contains(print, "AddOfficeHeader");
+        StringAssert.Contains(print, "AddOfficeSignatures");
         StringAssert.Contains(print, "In / lưu PDF");
     }
 
