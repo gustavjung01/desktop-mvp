@@ -36,11 +36,11 @@ public sealed class Issue85Lot7FinalHardeningTests
         var source = Read("src", "CongTy.Desktop", "Operations", "OfficeDataExportFile.cs");
 
         StringAssert.Contains(source, "private static string UnknownEnumLabel");
-        StringAssert.Contains(source, "? "—" : "Cần kiểm tra"");
-        StringAssert.Contains(source, ""OFF" => "Ngày nghỉ"");
-        StringAssert.Contains(source, "_ => "Ngày khác"");
-        Assert.IsFalse(source.Contains("_ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim()", StringComparison.Ordinal));
-        Assert.IsFalse(source.Contains("_ => string.IsNullOrWhiteSpace(value) ? "Chưa giải trình" : value.Trim()", StringComparison.Ordinal));
+        StringAssert.Contains(source, "? \"—\" : \"Cần kiểm tra\"");
+        StringAssert.Contains(source, "\"OFF\" => \"Ngày nghỉ\"");
+        StringAssert.Contains(source, "_ => \"Ngày khác\"");
+        Assert.IsFalse(source.Contains("_ => string.IsNullOrWhiteSpace(value) ? \"—\" : value.Trim()", StringComparison.Ordinal));
+        Assert.IsFalse(source.Contains("_ => string.IsNullOrWhiteSpace(value) ? \"Chưa giải trình\" : value.Trim()", StringComparison.Ordinal));
     }
 
     [TestMethod]
