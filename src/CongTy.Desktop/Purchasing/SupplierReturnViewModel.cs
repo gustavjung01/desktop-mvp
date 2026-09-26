@@ -759,7 +759,7 @@ public sealed class SupplierReturnViewModel : INotifyPropertyChanged
                 SupplierReturnPresentation.Number(item.LineCount.ToString(System.Globalization.CultureInfo.InvariantCulture)),
                 SupplierReturnPresentation.Number(item.ReturnQuantityTotal),
                 CanRead,
-                CanRead,
+                CanRead && item.Status != "draft" && !string.IsNullOrWhiteSpace(item.DocumentNumber),
                 item.Status == "draft" && CanUpdate,
                 item.Status == "draft" && CanSubmit,
                 item.Status == "pending_approval" && CanApprove,

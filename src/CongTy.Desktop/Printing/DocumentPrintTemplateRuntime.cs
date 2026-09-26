@@ -194,7 +194,7 @@ internal static class DocumentPrintTemplateRuntime
         {
             DocumentType = documentType,
             TemplateCode = templateCode,
-            PageSize = string.Equals(documentType, "CUSTOMER_PAYMENT", StringComparison.OrdinalIgnoreCase) ? "A5" : "A4",
+            PageSize = documentType is "CUSTOMER_PAYMENT" or "SUPPLIER_PAYMENT" or "CUSTOMER_REFUND" ? "A5" : "A4",
             FontSizePercent = 100,
             VisibleFieldKeys = ["*"],
             HeadingVisible = true,

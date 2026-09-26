@@ -311,11 +311,23 @@
 
                             <Border Grid.Column="2" Style="{StaticResource OfficeCardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="Đối chiếu và xác nhận" FontSize="16" FontWeight="SemiBold" />
-                                    <TextBlock Margin="0,6,0,0"
-                                               Text="{Binding SelectedHandoverTitle}"
-                                               FontWeight="SemiBold"
-                                               TextWrapping="Wrap" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Đối chiếu và xác nhận" FontSize="16" FontWeight="SemiBold" />
+                                            <TextBlock Margin="0,6,0,0"
+                                                       Text="{Binding SelectedHandoverTitle}"
+                                                       FontWeight="SemiBold"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Margin="8,0,0,0"
+                                                VerticalAlignment="Top"
+                                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                                Visibility="{Binding HasSelectedHandover, Converter={StaticResource BoolToVisibility}}"
+                                                Click="PrintReconciliation_OnClick"
+                                                Content="In / PDF" />
+                                    </Grid>
 
                                     <Grid Margin="0,8,0,0" Visibility="{Binding HasSelectedHandover, Converter={StaticResource BoolToVisibility}}">
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>

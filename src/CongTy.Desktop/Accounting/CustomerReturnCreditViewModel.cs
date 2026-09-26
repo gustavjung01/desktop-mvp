@@ -239,6 +239,9 @@ public sealed class CustomerReturnCreditViewModel : INotifyPropertyChanged
         if (success) { RefundAmount = string.Empty; DestinationReference = string.Empty; ExternalReference = string.Empty; RefundReason = string.Empty; }
     }
 
+    public CustomerRefundData? GetRefundForPrint(CustomerReturnCreditRefundRow row) =>
+        _selectedCredit?.Refunds.FirstOrDefault(refund => string.Equals(refund.Id, row.Id, StringComparison.Ordinal));
+
     public async Task ReverseRefundAsync(CustomerReturnCreditRefundRow row)
     {
         if (!row.CanReverse || !CanReverseRefund) return;

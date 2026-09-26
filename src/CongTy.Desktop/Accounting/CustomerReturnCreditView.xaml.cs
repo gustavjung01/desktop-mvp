@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using CongTy.Desktop.Printing;
 
 namespace CongTy.Desktop.Accounting;
 
@@ -25,6 +26,16 @@ public partial class CustomerReturnCreditView : UserControl
 
     private async void Allocate_OnClick(object sender, RoutedEventArgs e) => await ViewModel.AllocateAsync();
     private async void Refund_OnClick(object sender, RoutedEventArgs e) => await ViewModel.CreateRefundAsync();
+
+    private async void PrintRefund_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { DataContext: CustomerReturnCreditRefundRow row }) return;
+        var refund = ViewModel.GetRefundForPrint(row);
+        if (refund is null) return;
+        var template = await DocumentPrintTemplateRuntime.LoadForPrintAsync(Window.GetWindow(this), "CUSTOMER_REFUND");
+        if (template is null) return;
+        ActualDocumentPrintPreview.PrintCustomerRefund(Window.GetWindow(this), refund, template);
+    }
 
     private async void ReverseRefund_OnClick(object sender, RoutedEventArgs e)
     {

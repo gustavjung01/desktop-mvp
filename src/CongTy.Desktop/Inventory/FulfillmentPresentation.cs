@@ -22,7 +22,15 @@ public sealed record FulfillmentOrderRow(
     string Status,
     string StatusBucket,
     IReadOnlyList<FulfillmentWorkItemData> Items,
-    string SearchText);
+    string SearchText)
+{
+    public bool CanPrint =>
+        !string.IsNullOrWhiteSpace(Items.FirstOrDefault()?.OrderNumber)
+        && Items.Any(item =>
+            FulfillmentPresentation.IsPositive(item.AllocatedBaseQuantity)
+            || FulfillmentPresentation.IsPositive(item.PickedBaseQuantity)
+            || FulfillmentPresentation.IsPositive(item.PackedBaseQuantity));
+}
 
 public sealed class FulfillmentProductRow : INotifyPropertyChanged
 {

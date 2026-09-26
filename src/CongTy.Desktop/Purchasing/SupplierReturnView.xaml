@@ -121,7 +121,7 @@
                                         <DataTemplate>
                                             <WrapPanel VerticalAlignment="Center">
                                                 <Button Margin="0,0,4,0" Style="{StaticResource OfficeMiniButtonStyle}" Visibility="{Binding CanView, Converter={StaticResource BoolToVisibility}}" Tag="{Binding}" Click="View_OnClick" Content="Xem" />
-                                                <Button Margin="0,0,4,0" Style="{StaticResource OfficeMiniButtonStyle}" Visibility="{Binding CanPrint, Converter={StaticResource BoolToVisibility}}" Tag="{Binding}" Click="Print_OnClick" Content="In" />
+                                                <Button Margin="0,0,4,0" Style="{StaticResource OfficeMiniButtonStyle}" Visibility="{Binding CanPrint, Converter={StaticResource BoolToVisibility}}" Tag="{Binding}" Click="Print_OnClick" Content="In / PDF" />
                                                 <Button Margin="0,0,4,0" Style="{StaticResource OfficeMiniButtonStyle}" Visibility="{Binding CanEdit, Converter={StaticResource BoolToVisibility}}" Tag="{Binding}" Click="Edit_OnClick" Content="Sửa" />
                                                 <Button Margin="0,0,4,0" Style="{StaticResource OfficeMiniButtonStyle}" Visibility="{Binding CanSubmit, Converter={StaticResource BoolToVisibility}}" Tag="{Binding}" Click="Submit_OnClick" Content="Gửi duyệt" />
                                                 <Button Margin="0,0,4,0" Style="{StaticResource OfficeMiniButtonStyle}" Visibility="{Binding CanApprove, Converter={StaticResource BoolToVisibility}}" Tag="{Binding}" Click="Approve_OnClick" Content="Duyệt" />

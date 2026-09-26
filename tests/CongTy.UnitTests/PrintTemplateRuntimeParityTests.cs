@@ -33,7 +33,14 @@ public sealed class PrintTemplateRuntimeParityTests
             (["src", "CongTy.Desktop", "Inventory", "TransferView.xaml.cs"], "\"INVENTORY_TRANSFER\""),
             (["src", "CongTy.Desktop", "Inventory", "StocktakeView.xaml.cs"], "\"STOCKTAKE\""),
             (["src", "CongTy.Desktop", "Logistics", "TripDispatchView.xaml.cs"], "\"DELIVERY_TRIP\""),
-            (["src", "CongTy.Desktop", "Logistics", "TripReconciliationView.xaml.cs"], "\"TRIP_RECONCILIATION\"")
+            (["src", "CongTy.Desktop", "Logistics", "TripReconciliationView.xaml.cs"], "\"TRIP_RECONCILIATION\""),
+            (["src", "CongTy.Desktop", "Inventory", "ManualInboundView.xaml.cs"], "\"MANUAL_INBOUND\""),
+            (["src", "CongTy.Desktop", "Purchasing", "SupplierReturnView.xaml.cs"], "\"SUPPLIER_RETURN\""),
+            (["src", "CongTy.Desktop", "Logistics", "CustomerReturnView.xaml.cs"], "\"CUSTOMER_RETURN\""),
+            (["src", "CongTy.Desktop", "Inventory", "FulfillmentView.xaml.cs"], "\"FULFILLMENT_PICKING\""),
+            (["src", "CongTy.Desktop", "Accounting", "SupplierPaymentView.xaml.cs"], "\"SUPPLIER_PAYMENT\""),
+            (["src", "CongTy.Desktop", "Accounting", "CustomerReturnCreditView.xaml.cs"], "\"CUSTOMER_REFUND\""),
+            (["src", "CongTy.Desktop", "Accounting", "CodAccountingView.xaml.cs"], "\"COD_RECONCILIATION\"")
         };
 
         foreach (var item in expected)
@@ -116,7 +123,10 @@ public sealed class PrintTemplateRuntimeParityTests
         Assert.IsFalse(stocktake.Contains("PrintVisual", StringComparison.Ordinal));
 
         var supplierReturn = ReadRepoFile("src", "CongTy.Desktop", "Purchasing", "SupplierReturnPrintPreview.cs");
-        Assert.IsFalse(supplierReturn.Contains("DocumentPrintTemplateRuntime", StringComparison.Ordinal));
+        var actualDocuments = ReadRepoFile("src", "CongTy.Desktop", "Printing", "ActualDocumentPrintPreview.cs");
+        StringAssert.Contains(supplierReturn, "ActualDocumentPrintPreview.PrintSupplierReturn");
+        StringAssert.Contains(actualDocuments, "DocumentPrintTemplateRuntime.AddHeader");
+        StringAssert.Contains(actualDocuments, "DocumentPrintTemplateRuntime.Shows");
     }
 
     private static string ReadRepoFile(params string[] parts)

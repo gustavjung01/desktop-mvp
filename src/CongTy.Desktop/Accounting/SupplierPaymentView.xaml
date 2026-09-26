@@ -136,7 +136,15 @@
 
             <Border Margin="0,12,0,16" Style="{StaticResource OfficeCardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Chi tiết và phân bổ" FontSize="16" FontWeight="SemiBold" />
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                        <TextBlock Text="Chi tiết và phân bổ" FontSize="16" FontWeight="SemiBold" />
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Visibility="{Binding HasSelectedPayment, Converter={StaticResource BoolToVisibility}}"
+                                Click="Print_OnClick"
+                                Content="In / PDF" />
+                    </Grid>
                     <TextBlock Margin="0,10,0,0"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextSecondaryBrush}"

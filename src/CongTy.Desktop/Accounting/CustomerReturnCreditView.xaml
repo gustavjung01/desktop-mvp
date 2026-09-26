@@ -128,7 +128,12 @@
                                     <DataGridTextColumn Header="Trạng thái" Binding="{Binding Status}" Width="0.8*" ElementStyle="{StaticResource CreditCellTextStyle}" />
                                     <DataGridTemplateColumn Header="" Width="Auto">
                                         <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate><Button Padding="8,4" IsEnabled="{Binding CanReverse}" Click="ReverseRefund_OnClick" Content="Đảo hoàn tiền" /></DataTemplate>
+                                            <DataTemplate>
+                                                <WrapPanel>
+                                                    <Button Margin="0,0,5,0" Padding="8,4" Click="PrintRefund_OnClick" Content="In / PDF" />
+                                                    <Button Padding="8,4" IsEnabled="{Binding CanReverse}" Click="ReverseRefund_OnClick" Content="Đảo hoàn tiền" />
+                                                </WrapPanel>
+                                            </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
