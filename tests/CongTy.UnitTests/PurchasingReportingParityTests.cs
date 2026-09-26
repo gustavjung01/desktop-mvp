@@ -31,7 +31,7 @@ public sealed class PurchasingReportingParityTests
     }
 
     [TestMethod]
-    public void Ui_PreservesWebOrderWithoutInventedTabsOrExport()
+    public void Ui_PreservesWebOrderAndAddsWebReportExportWithoutInventedTabs()
     {
         var view = ReadRepoFile("src", "CongTy.Desktop", "Purchasing", "PurchasingReportingView.xaml");
 
@@ -77,7 +77,8 @@ public sealed class PurchasingReportingParityTests
         }
 
         Assert.IsFalse(view.Contains("<TabControl", StringComparison.Ordinal));
-        Assert.IsFalse(view.Contains("Xuất Excel", StringComparison.Ordinal));
+        StringAssert.Contains(view, "Xuất Excel");
+        StringAssert.Contains(view, "ExportXlsx_OnClick");
         Assert.IsFalse(view.Contains("Xuất CSV", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("purchasing.purchase_orders", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("receipt_date", StringComparison.Ordinal));
