@@ -115,7 +115,7 @@ public static class OfficeDataExportFile
         "PART_TIME" => "Bán thời gian",
         "TEMPORARY" => "Thời vụ",
         "OTHER" => "Khác",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string AttendanceAction(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -124,7 +124,7 @@ public static class OfficeDataExportFile
         "TEMP_EXIT" => "Ra ngoài",
         "RETURN" => "Quay lại nơi làm việc",
         "CHECK_OUT" => "Kết thúc làm việc",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string MovementReason(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -133,7 +133,7 @@ public static class OfficeDataExportFile
         "PERSONAL" => "Việc cá nhân",
         "BREAK" => "Nghỉ giữa ca",
         "OTHER" => "Lý do khác",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string AttendanceSource(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -143,7 +143,7 @@ public static class OfficeDataExportFile
         "MANUAL" => "Chấm công trực tiếp",
         "ADJUSTMENT" => "Điều chỉnh công",
         "SYSTEM" => "Hệ thống ghi nhận",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string Validation(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -151,7 +151,7 @@ public static class OfficeDataExportFile
         "VALID" => "Hợp lệ",
         "PENDING" => "Chờ xác minh",
         "INVALID" => "Không hợp lệ",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string LeaveStatus(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -160,7 +160,7 @@ public static class OfficeDataExportFile
         "APPROVED" => "Đã duyệt",
         "REJECTED" => "Từ chối",
         "CANCELLED" => "Đã hủy",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string LeavePart(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -168,7 +168,7 @@ public static class OfficeDataExportFile
         "FULL_DAY" => "Cả ngày",
         "FIRST_HALF" => "Nửa ca đầu",
         "SECOND_HALF" => "Nửa ca sau",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string OvertimeStatus(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -178,7 +178,7 @@ public static class OfficeDataExportFile
         "REJECTED" => "Từ chối",
         "ACTUAL_RECORDED" => "Đã ghi nhận thực tế",
         "CONFIRMED" => "Đã xác nhận giờ tính",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string ViolationStatus(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
@@ -186,24 +186,29 @@ public static class OfficeDataExportFile
         "EXPLANATION_SUBMITTED" => "Đã gửi giải trình",
         "UNDER_REVIEW" => "Đang xem xét",
         "RESOLVED" => "Đã kết luận",
-        _ => string.IsNullOrWhiteSpace(value) ? "Chưa giải trình" : value.Trim(),
+        _ => string.IsNullOrWhiteSpace(value) ? "Chưa giải trình" : "Cần kiểm tra",
     };
 
     public static string ViolationOutcome(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
     {
         "CONFIRMED" => "Xác nhận vi phạm",
         "EXCUSED" => "Chấp nhận giải trình",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
-    public static string ScheduleKind(string? value) =>
-        string.Equals(value, "WORK", StringComparison.OrdinalIgnoreCase) ? "Ngày làm việc" : "Ngày nghỉ";
+    public static string ScheduleKind(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
+    {
+        "WORK" => "Ngày làm việc",
+        "OFF" => "Ngày nghỉ",
+        "" => "—",
+        _ => "Cần kiểm tra",
+    };
 
     public static string ScheduleSource(string? value) => (value ?? string.Empty).ToUpperInvariant() switch
     {
         "OVERRIDE" => "Điều chỉnh riêng",
         "POLICY" => "Theo chính sách",
-        _ => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim(),
+        _ => UnknownEnumLabel(value),
     };
 
     public static string Weekday(int value) => value switch
@@ -215,8 +220,11 @@ public static class OfficeDataExportFile
         4 => "Thứ 5",
         5 => "Thứ 6",
         6 => "Thứ 7",
-        _ => value.ToString(CultureInfo.InvariantCulture),
+        _ => "Ngày khác",
     };
+
+    private static string UnknownEnumLabel(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "—" : "Cần kiểm tra";
 
     public static string ClockText(string? value)
     {

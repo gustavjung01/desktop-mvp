@@ -303,7 +303,7 @@ public sealed partial class TimesheetViewModel
             normalizedNote);
         var (slot, key) = StableDayMutationKey(
             "timesheet-attendance-quick-action",
-            payload);
+            new QuickAttendanceOperation(SelectedDay.WorkDate, payload));
 
         IsDayActionBusy = true;
         ErrorMessage = string.Empty;
@@ -357,8 +357,23 @@ public sealed partial class TimesheetViewModel
 
     private async Task ReloadAfterDayMutationAsync()
     {
+        var employeeId = SelectedDay?.Employee.Id;
+        var workDate = SelectedDay?.WorkDate;
         var offset = _data?.Pagination.Offset ?? 0;
+
         await LoadAsync(offset).ConfigureAwait(true);
+
+        if (string.IsNullOrWhiteSpace(employeeId) || string.IsNullOrWhiteSpace(workDate))
+            return;
+
+        var employee = EmployeeRows.FirstOrDefault(row =>
+            string.Equals(row.Source.Employee.Id, employeeId, StringComparison.Ordinal));
+        if (employee is null) return;
+
+        OpenEmployee(employee);
+        var day = employee.Source.Days.FirstOrDefault(item =>
+            string.Equals(item.WorkDate, workDate, StringComparison.Ordinal));
+        if (day is not null) OpenDay(day);
     }
 
     private (string Slot, string Key) StableDayMutationKey<T>(string operation, T payload)
@@ -452,6 +467,10 @@ public sealed partial class TimesheetViewModel
             return time.ToString("HH:mm", CultureInfo.InvariantCulture);
         throw new InvalidOperationException("Giờ không hợp lệ.");
     }
+
+    private sealed record QuickAttendanceOperation(
+        string WorkDate,
+        ManagedManualAttendanceRequest Payload);
 
     private void RaiseDayActionState()
     {
