@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CongTy.Contracts;
@@ -62,6 +63,7 @@ public sealed record LogisticsReportingFailureReasonData
 
 public sealed record LogisticsReportingTripData
 {
+    [JsonPropertyName("tripId")] public string TripId { get; init; } = string.Empty;
     [JsonPropertyName("tripNumber")] public string TripNumber { get; init; } = string.Empty;
     [JsonPropertyName("warehouseId")] public string WarehouseId { get; init; } = string.Empty;
     [JsonPropertyName("warehouseCode")] public string WarehouseCode { get; init; } = string.Empty;
@@ -90,12 +92,17 @@ public sealed record LogisticsReportingTripData
 
 public sealed record LogisticsReportingAttemptData
 {
+    [JsonPropertyName("attemptId")] public string AttemptId { get; init; } = string.Empty;
     [JsonPropertyName("tripId")] public string TripId { get; init; } = string.Empty;
     [JsonPropertyName("tripNumber")] public string TripNumber { get; init; } = string.Empty;
+    [JsonPropertyName("tripStopId")] public string TripStopId { get; init; } = string.Empty;
+    [JsonPropertyName("stopSequence")] public JsonElement StopSequence { get; init; }
     [JsonPropertyName("plannedArrivalAt")] public string? PlannedArrivalAt { get; init; }
+    [JsonPropertyName("deliveryOrderId")] public string DeliveryOrderId { get; init; } = string.Empty;
     [JsonPropertyName("deliveryOrderNumber")] public string? DeliveryOrderNumber { get; init; }
     [JsonPropertyName("customerCodeSnapshot")] public string CustomerCodeSnapshot { get; init; } = string.Empty;
     [JsonPropertyName("customerNameSnapshot")] public string CustomerNameSnapshot { get; init; } = string.Empty;
+    [JsonPropertyName("driverProfileId")] public string DriverProfileId { get; init; } = string.Empty;
     [JsonPropertyName("driverCode")] public string DriverCode { get; init; } = string.Empty;
     [JsonPropertyName("driverName")] public string DriverName { get; init; } = string.Empty;
     [JsonPropertyName("result")] public string Result { get; init; } = string.Empty;
