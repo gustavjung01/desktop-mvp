@@ -58,24 +58,21 @@ public sealed class DataExchangeParityTests
             "Sản phẩm và SKU",
             "Cập nhật giá bán theo SKU",
             "Nhập số kiểm kê thực tế",
-            "Báo giá",
             "Biến động tồn kho theo SKU",
+            "Biểu mẫu văn phòng",
             "Chọn tệp để nhập",
             "Tải mẫu Excel",
             "Tải mẫu CSV",
             "Xuất giá hiện tại Excel",
             "Kho kiểm kê",
             "Kiểm kê không thay đổi tồn ngay.",
-            "Tính báo giá",
-            "Kênh bán",
-            "Nhóm khách",
-            "Khách hàng",
             "Tồn hiện tại",
             "Đang giữ",
             "Khả dụng",
             "Xem thêm"
         }) StringAssert.Contains(view, text);
 
+        Assert.IsFalse(view.Contains("Header=\"Báo giá\"", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("backend", StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(view.Contains(">API<", StringComparison.Ordinal));
         Assert.IsFalse(view.Contains("NPP Core", StringComparison.OrdinalIgnoreCase));
@@ -127,7 +124,8 @@ public sealed class DataExchangeParityTests
         StringAssert.Contains(shell, "SelectedWorkspaceIndex = 44");
         StringAssert.Contains(host, "workspaceTabs.Items[44]");
         StringAssert.Contains(host, "\"DỮ LIỆU VẬN HÀNH\"");
-        StringAssert.Contains(host, "\"Nhập/xuất dữ liệu và báo giá\"");
+        StringAssert.Contains(host, "\"Nhập/xuất dữ liệu\"");
+        Assert.IsFalse(host.Contains("Nhập/xuất dữ liệu và báo giá", StringComparison.Ordinal));
         StringAssert.Contains(hook, "WireSupplierPaymentsWorkspace();");
         StringAssert.Contains(hook, "WireDataExchangeWorkspace();");
         StringAssert.Contains(xaml, "Text=\"Nhập/xuất dữ liệu\"");
