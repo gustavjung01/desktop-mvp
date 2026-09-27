@@ -14,6 +14,9 @@ public interface IDataExchangeService
     Task<IReadOnlyList<DataExchangeCustomerData>> ListCustomersAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<InventoryBalanceData>> ListBalancesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<DataExchangeProductVariantData>> ListVariantsAsync(string productId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ProductData>> ListQuotationProductsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<DataExchangeProductVariantData>> QueryQuotationVariantsAsync(IReadOnlyList<string> productIds, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<SalesOrderSkuSearchOptionData>> SearchQuotationSkuAsync(string search, CancellationToken cancellationToken = default);
     Task<DataExchangeOfficialRowsData> ExportProductsAsync(string format, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<DataExchangeProductImportResultData> ImportProductsAsync(string format, IReadOnlyList<Dictionary<string, string>> rows, string idempotencyKey, CancellationToken cancellationToken = default);
     Task<DataExchangeOfficialRowsData> ExportPricingAsync(string format, string idempotencyKey, CancellationToken cancellationToken = default);
@@ -37,6 +40,9 @@ public sealed class DataExchangeService(
     ICanonicalIdempotencyKeyProvider idempotencyKeys) : IDataExchangeService
 {
     private const int PageSize = 1000;
+    private const int QuotationProductPageSize = 1000;
+    private const int QuotationMaxProductOffset = 10_000;
+    private const int QuotationVariantBatchSize = 500;
 
     public async Task<IReadOnlyList<ProductData>> ListProductsAsync(CancellationToken cancellationToken = default) =>
         await ReadAllAsync<ProductData>("/api/products", cancellationToken).ConfigureAwait(false);
@@ -86,6 +92,51 @@ public sealed class DataExchangeService(
         GetArrayAsync<DataExchangeProductVariantData>(
             $"/api/products/{RequireId(productId, nameof(productId))}/variants",
             cancellationToken);
+
+    public async Task<IReadOnlyList<ProductData>> ListQuotationProductsAsync(CancellationToken cancellationToken = default)
+    {
+        var rows = new List<ProductData>();
+        for (var offset = 0; offset <= QuotationMaxProductOffset; offset += QuotationProductPageSize)
+        {
+            var page = await apiClient.GetDataAsync<ProductData[]>(
+                $"/api/products?active=true&limit={QuotationProductPageSize}&offset={offset}",
+                RequireToken(),
+                cancellationToken).ConfigureAwait(false);
+            rows.AddRange(page);
+            if (page.Length < QuotationProductPageSize) return rows;
+        }
+
+        throw new InvalidOperationException("Danh mục sản phẩm quá lớn để tải toàn bộ trong một lần. Hãy thu hẹp phạm vi báo giá.");
+    }
+
+    public async Task<IReadOnlyList<DataExchangeProductVariantData>> QueryQuotationVariantsAsync(
+        IReadOnlyList<string> productIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (productIds.Count is < 1 or > QuotationVariantBatchSize)
+            throw new ArgumentOutOfRangeException(nameof(productIds), $"Mỗi lần chỉ truy vấn tối đa {QuotationVariantBatchSize} sản phẩm.");
+
+        var ids = productIds.Select(id =>
+            Guid.TryParse(id, out _) ? id.Trim() : throw new ArgumentException("Mã sản phẩm không hợp lệ.", nameof(productIds))).ToArray();
+
+        return await apiClient.PostDataAsync<DataExchangeVariantQueryRequest, DataExchangeProductVariantData[]>(
+            "/api/products/variants/query",
+            new DataExchangeVariantQueryRequest(ids),
+            RequireToken(),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<SalesOrderSkuSearchOptionData>> SearchQuotationSkuAsync(
+        string search,
+        CancellationToken cancellationToken = default)
+    {
+        var term = search?.Trim() ?? string.Empty;
+        if (term.Length < 1) return [];
+        return await apiClient.GetDataAsync<SalesOrderSkuSearchOptionData[]>(
+            $"/api/sales-orders/sku-search?search={Uri.EscapeDataString(term)}&limit=30&offset=0",
+            RequireToken(),
+            cancellationToken).ConfigureAwait(false);
+    }
 
     public Task<DataExchangeOfficialRowsData> ExportProductsAsync(
         string format,

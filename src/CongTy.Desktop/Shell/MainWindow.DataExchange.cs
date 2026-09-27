@@ -49,7 +49,7 @@ public partial class MainWindow
         if (!_viewModel.IsDataExchangeSelected) return;
 
         SetShellHeaderText(nameof(ShellViewModel.HeaderKicker), "DỮ LIỆU VẬN HÀNH");
-        SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Nhập/xuất dữ liệu và báo giá");
+        SetShellHeaderText(nameof(ShellViewModel.PageTitle), "Nhập/xuất dữ liệu");
         SetShellHeaderText(
             nameof(ShellViewModel.PageSubtitle),
             "Nhập, kiểm tra và xuất dữ liệu theo từng nghiệp vụ.");

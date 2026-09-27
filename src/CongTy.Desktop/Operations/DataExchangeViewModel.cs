@@ -23,7 +23,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
     private const string StocktakeCreate = "core.stocktake.create";
     private const string StocktakeCount = "core.stocktake.count";
     private const string InventoryRead = "core.inventory.read";
-    private const string CustomerRead = "core.customer.read";
     private const int MovementPageSize = 500;
     private const int MovementExportPageSize = 1000;
     private const int MovementExportLimit = 100_000;
@@ -38,9 +37,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
     private ProductBrandData[] _brands = [];
     private ProductUnitData[] _units = [];
     private PriceListData[] _priceLists = [];
-    private SalesChannelData[] _channels = [];
-    private DataExchangeCustomerGroupData[] _groups = [];
-    private DataExchangeCustomerData[] _customers = [];
     private InventoryBalanceData[] _balances = [];
 
     private bool _loaded;
@@ -54,13 +50,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
     private string? _importOperationKey;
     private string _selectedPriceListId = string.Empty;
     private string _selectedWarehouseId = string.Empty;
-    private string _quotationScope = "all";
-    private string _quotationCategoryId = string.Empty;
-    private string _quotationSkus = string.Empty;
-    private string _quotationChannelId = string.Empty;
-    private string _quotationCustomerGroupId = string.Empty;
-    private string _quotationCustomerId = string.Empty;
-    private string _quotationQuantity = "1";
     private DataExchangeBalanceChoice? _selectedBalance;
     private bool _movementHasMore;
     private string _bulkField = "categoryCode";
@@ -85,7 +74,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
             IsBusy = false;
             ClearReferenceData();
             ClearPendingImport();
-            QuotationRows.Clear();
             MovementRows.Clear();
             SelectedBalance = null;
             Message = string.Empty;
@@ -99,13 +87,9 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
     public ObservableCollection<DataExchangeChoice> PriceLists { get; } = [];
     public ObservableCollection<DataExchangeChoice> Warehouses { get; } = [];
     public ObservableCollection<DataExchangeChoice> Categories { get; } = [];
-    public ObservableCollection<DataExchangeChoice> Channels { get; } = [];
-    public ObservableCollection<DataExchangeChoice> CustomerGroups { get; } = [];
-    public ObservableCollection<DataExchangeChoice> Customers { get; } = [];
     public ObservableCollection<DataExchangeChoice> Units { get; } = [];
     public ObservableCollection<DataExchangeBalanceChoice> BalanceChoices { get; } = [];
     public ObservableCollection<DataExchangeImportRow> PendingRows { get; } = [];
-    public ObservableCollection<DataExchangeQuotationRow> QuotationRows { get; } = [];
     public ObservableCollection<DataExchangeMovementRow> MovementRows { get; } = [];
     public ObservableCollection<DataExchangeExportColumn> ProductExportColumns { get; } = [];
 
@@ -135,13 +119,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         new("BẮT BUỘC", "Bắt buộc nhập")
     ];
 
-    public IReadOnlyList<DataExchangeChoice> QuotationScopes { get; } =
-    [
-        new("all", "Tất cả SKU đang bán"),
-        new("category", "Theo ngành hoặc nhóm"),
-        new("sku", "Danh sách SKU")
-    ];
-
     public IReadOnlyList<DataExchangeChoice> BulkFields { get; } =
     [
         new("categoryCode", "Loại sản phẩm"),
@@ -162,7 +139,7 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
 
     public bool CanOpen =>
         CanExportProducts || CanImportProducts || CanExportPricing || CanImportPricing
-        || CanExportStocktake || CanImportStocktake || CanQuotation || CanMovements;
+        || CanExportStocktake || CanImportStocktake || CanMovements;
 
     public bool CanExportProducts => _access.HasPermission(ProductRead) && _access.HasPermission(TrackingRead);
     public bool CanImportProducts => _access.HasPermission(ProductWrite) && _access.HasPermission(TrackingManage);
@@ -170,7 +147,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
     public bool CanImportPricing => _access.HasPermission(PriceWrite);
     public bool CanExportStocktake => _access.HasPermission(StocktakeRead);
     public bool CanImportStocktake => _access.HasPermission(StocktakeCreate) && _access.HasPermission(StocktakeCount);
-    public bool CanQuotation => _access.HasPermission(ProductRead) && _access.HasPermission(PriceRead);
     public bool CanMovements => _access.HasPermission(InventoryRead);
 
     public bool CanUseProductExport => CanExportProducts && !IsBusy;
@@ -179,8 +155,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
     public bool CanUsePricingImport => CanImportPricing && !IsBusy && !string.IsNullOrWhiteSpace(SelectedPriceListId);
     public bool CanUseStocktakeExport => CanExportStocktake && !IsBusy && !string.IsNullOrWhiteSpace(SelectedWarehouseId);
     public bool CanUseStocktakeImport => CanImportStocktake && !IsBusy;
-    public bool CanUseQuotation => CanQuotation && !IsBusy;
-    public bool CanUseQuotationExport => !IsBusy && QuotationRows.Count > 0;
     public bool CanUseMovements => CanMovements && !IsBusy && SelectedBalance is not null;
     public bool CanLoadMoreMovements => CanMovements && !IsBusy && MovementHasMore && SelectedBalance is not null;
     public bool CanConfirmImport => !IsBusy && PendingRows.Count > 0 && PendingKind switch
@@ -223,7 +197,7 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         get => _selectedTabIndex;
         set
         {
-            if (!SetField(ref _selectedTabIndex, Math.Clamp(value, 0, 5))) return;
+            if (!SetField(ref _selectedTabIndex, Math.Clamp(value, 0, 4))) return;
             ClearPendingImport();
             SetMessage(string.Empty);
             OnPropertyChanged(nameof(IsOfficeFormsTab));
@@ -233,7 +207,7 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool IsOfficeFormsTab => SelectedTabIndex == 5;
+    public bool IsOfficeFormsTab => SelectedTabIndex == 4;
     public bool CanRefresh => CanOpen && !IsOfficeFormsTab && !IsBusy;
 
     public string? PendingKind
@@ -281,26 +255,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanUseStocktakeExport));
         }
     }
-
-    public string QuotationScope
-    {
-        get => _quotationScope;
-        set
-        {
-            if (!SetField(ref _quotationScope, value ?? "all")) return;
-            OnPropertyChanged(nameof(IsQuotationCategoryScope));
-            OnPropertyChanged(nameof(IsQuotationSkuScope));
-        }
-    }
-
-    public bool IsQuotationCategoryScope => QuotationScope == "category";
-    public bool IsQuotationSkuScope => QuotationScope == "sku";
-    public string QuotationCategoryId { get => _quotationCategoryId; set => SetField(ref _quotationCategoryId, value ?? string.Empty); }
-    public string QuotationSkus { get => _quotationSkus; set => SetField(ref _quotationSkus, value ?? string.Empty); }
-    public string QuotationChannelId { get => _quotationChannelId; set => SetField(ref _quotationChannelId, value ?? string.Empty); }
-    public string QuotationCustomerGroupId { get => _quotationCustomerGroupId; set => SetField(ref _quotationCustomerGroupId, value ?? string.Empty); }
-    public string QuotationCustomerId { get => _quotationCustomerId; set => SetField(ref _quotationCustomerId, value ?? string.Empty); }
-    public string QuotationQuantity { get => _quotationQuantity; set => SetField(ref _quotationQuantity, value ?? string.Empty); }
 
     public DataExchangeBalanceChoice? SelectedBalance
     {
@@ -362,22 +316,7 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
             }
 
             if (_access.HasPermission(PriceRead) || CanImportPricing)
-            {
-                var priceTask = _service.ListPriceListsAsync();
-                var channelTask = _service.ListSalesChannelsAsync();
-                await Task.WhenAll(priceTask, channelTask);
-                _priceLists = [.. await priceTask];
-                _channels = [.. await channelTask];
-            }
-
-            if (_access.HasPermission(CustomerRead))
-            {
-                var groupTask = _service.ListCustomerGroupsAsync();
-                var customerTask = _service.ListCustomersAsync();
-                await Task.WhenAll(groupTask, customerTask);
-                _groups = [.. await groupTask];
-                _customers = [.. await customerTask];
-            }
+                _priceLists = [.. await _service.ListPriceListsAsync()];
 
             if (_access.HasPermission(InventoryRead))
                 _balances = [.. await _service.ListBalancesAsync()];
@@ -617,97 +556,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         {
             IsBusy = false;
         }
-    }
-
-    public async Task BuildQuotationAsync()
-    {
-        if (!CanUseQuotation) return;
-        Begin();
-        try
-        {
-            var quantity = ExactQuantity(QuotationQuantity, "Số lượng", 6);
-            var manualSkus = QuotationSkus
-                .Split([' ', ',', ';', '\r', '\n', '\t'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(value => value.ToUpperInvariant())
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            var selectedProducts = _products.Where(product => product.IsActive);
-            if (QuotationScope == "category")
-            {
-                if (string.IsNullOrWhiteSpace(QuotationCategoryId))
-                    throw new InvalidOperationException("Chọn ngành hoặc nhóm sản phẩm.");
-                selectedProducts = selectedProducts.Where(product => product.CategoryId == QuotationCategoryId);
-            }
-
-            var variants = await Task.WhenAll(selectedProducts.Select(product => _service.ListVariantsAsync(product.Id)));
-            var skus = variants.SelectMany(items => items)
-                .Where(variant => variant.IsActive && variant.IsSellable
-                    && (QuotationScope != "sku" || manualSkus.Contains(variant.Sku)))
-                .Select(variant => variant.Sku.Trim().ToUpperInvariant())
-                .Where(value => value.Length > 0)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(value => value, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-
-            if (QuotationScope == "sku")
-            {
-                var found = skus.ToHashSet(StringComparer.OrdinalIgnoreCase);
-                var missing = manualSkus.Where(sku => !found.Contains(sku)).ToArray();
-                if (missing.Length > 0)
-                    throw new InvalidOperationException($"Không tìm thấy SKU đang bán: {string.Join(", ", missing)}.");
-            }
-
-            if (skus.Length == 0) throw new InvalidOperationException("Không có SKU phù hợp để lập báo giá.");
-            if (skus.Length > 1000) throw new InvalidOperationException("Báo giá tối đa 1.000 SKU mỗi lần.");
-
-            var request = new DataExchangeQuotationRequest(
-                skus,
-                quantity,
-                "VND",
-                EmptyToNull(QuotationChannelId),
-                EmptyToNull(QuotationCustomerGroupId),
-                EmptyToNull(QuotationCustomerId),
-                "tabular");
-            var fingerprint = string.Join("|", skus) + $"|{quantity}|{QuotationChannelId}|{QuotationCustomerGroupId}|{QuotationCustomerId}";
-            var key = OperationKey("quotation", "quotation", fingerprint);
-            var result = await _service.BuildQuotationAsync(request, key);
-
-            QuotationRows.Clear();
-            foreach (var row in result.Rows)
-            {
-                QuotationRows.Add(new DataExchangeQuotationRow(
-                    ReadJson(row, "sku"),
-                    ReadJson(row, "skuName"),
-                    ReadJson(row, "productName"),
-                    ReadJson(row, "quantity"),
-                    ReadJson(row, "unitPriceMinor"),
-                    ReadJson(row, "lineTotalMinor"),
-                    ReadJson(row, "priceListCode"),
-                    ReadJson(row, "currencyCode")));
-            }
-            CompleteOperation("quotation");
-            OnPropertyChanged(nameof(CanUseQuotationExport));
-            SetMessage($"Đã tính giá cho {QuotationRows.Count} SKU.");
-        }
-        catch (Exception exception)
-        {
-            Fail(exception, "Không tính được báo giá.");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    public void ExportQuotation(string format, string filePath)
-    {
-        if (QuotationRows.Count == 0) throw new InvalidOperationException("Hãy tính báo giá trước khi xuất file.");
-        var rows = QuotationRows.Select(row => new[]
-        {
-            row.Sku, row.ProductName, row.SkuName, row.Quantity, row.CurrencyCode, row.UnitPrice, row.LineTotal, row.PriceListCode
-        }).ToArray();
-        DataExchangeFileHelper.Write(filePath, "Báo giá", DataExchangePresentation.QuotationColumns, rows, format);
-        SetMessage($"Đã xuất {rows.Length} dòng báo giá.");
     }
 
     public async Task LoadMovementsAsync(bool append)
@@ -974,9 +822,6 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         Replace(Units, _units.Where(item => item.IsActive).OrderBy(item => item.Code).Select(item => new DataExchangeChoice(item.Code.ToUpperInvariant(), $"{item.Name} — {item.Code}")));
         Replace(Categories, _categories.Where(item => item.IsActive).OrderBy(item => item.Code).Select(item => new DataExchangeChoice(item.Id, $"{item.Code} · {item.Name}")));
         Replace(PriceLists, _priceLists.Where(item => item.IsActive).OrderBy(item => item.Code).Select(item => new DataExchangeChoice(item.Id, $"{item.Code} · {item.Name}")));
-        Replace(Channels, _channels.Where(item => item.IsActive).OrderBy(item => item.Code).Select(item => new DataExchangeChoice(item.Id, $"{item.Code} · {item.Name}")));
-        Replace(CustomerGroups, _groups.Where(item => item.IsActive).OrderBy(item => item.Code).Select(item => new DataExchangeChoice(item.Id, $"{item.Code} · {item.Name}")));
-        Replace(Customers, _customers.Where(item => item.IsActive).OrderBy(item => item.Code).Select(item => new DataExchangeChoice(item.Id, $"{item.Code} · {item.Name}")));
 
         var warehouseMap = _balances
             .GroupBy(item => item.WarehouseId)
@@ -1010,16 +855,10 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         _brands = [];
         _units = [];
         _priceLists = [];
-        _channels = [];
-        _groups = [];
-        _customers = [];
         _balances = [];
         PriceLists.Clear();
         Warehouses.Clear();
         Categories.Clear();
-        Channels.Clear();
-        CustomerGroups.Clear();
-        Customers.Clear();
         Units.Clear();
         BalanceChoices.Clear();
         SelectedPriceListId = string.Empty;
@@ -1133,10 +972,10 @@ public sealed partial class DataExchangeViewModel : INotifyPropertyChanged
         foreach (var name in new[]
         {
             nameof(CanOpen), nameof(CanExportProducts), nameof(CanImportProducts), nameof(CanExportPricing),
-            nameof(CanImportPricing), nameof(CanExportStocktake), nameof(CanImportStocktake), nameof(CanQuotation),
+            nameof(CanImportPricing), nameof(CanExportStocktake), nameof(CanImportStocktake),
             nameof(CanMovements), nameof(CanUseProductExport), nameof(CanUseProductImport), nameof(CanUsePricingExport),
-            nameof(CanUsePricingImport), nameof(CanUseStocktakeExport), nameof(CanUseStocktakeImport), nameof(CanUseQuotation),
-            nameof(CanUseQuotationExport), nameof(CanUseMovements), nameof(CanLoadMoreMovements), nameof(CanConfirmImport),
+            nameof(CanUsePricingImport), nameof(CanUseStocktakeExport), nameof(CanUseStocktakeImport),
+            nameof(CanUseMovements), nameof(CanLoadMoreMovements), nameof(CanConfirmImport),
             nameof(IsOfficeFormsTab), nameof(CanRefresh)
         }) OnPropertyChanged(name);
     }

@@ -23,7 +23,6 @@ public static class DataExchangePresentation
 
     public static readonly string[] PricingColumns = ["sku", "amountMinor"];
     public static readonly string[] StocktakeColumns = ["warehouseCode", "locationCode", "sku", "lotCode", "actualCount"];
-    public static readonly string[] QuotationColumns = ["sku", "productName", "skuName", "quantity", "currencyCode", "unitPriceMinor", "lineTotalMinor", "priceListCode"];
 
     public static readonly IReadOnlyDictionary<string, string> Labels =
         new Dictionary<string, string>(StringComparer.Ordinal)
@@ -323,16 +322,6 @@ public sealed class DataExchangeImportRow : INotifyPropertyChanged
     private void OnPropertyChanged([CallerMemberName] string? name = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
-
-public sealed record DataExchangeQuotationRow(
-    string Sku,
-    string SkuName,
-    string ProductName,
-    string Quantity,
-    string UnitPrice,
-    string LineTotal,
-    string PriceListCode,
-    string CurrencyCode);
 
 public sealed record DataExchangeMovementRow(
     string Id,
