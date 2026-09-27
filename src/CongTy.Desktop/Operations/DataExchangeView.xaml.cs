@@ -126,29 +126,6 @@ public partial class DataExchangeView : UserControl
         if (path is not null) await ViewModel.ExportStocktakeAsync(format, path);
     }
 
-    private async void BuildQuotation_OnClick(object sender, RoutedEventArgs e) =>
-        await ViewModel.BuildQuotationAsync();
-
-    private void QuotationExportXlsx_OnClick(object sender, RoutedEventArgs e) =>
-        ExportQuotation("xlsx");
-
-    private void QuotationExportCsv_OnClick(object sender, RoutedEventArgs e) =>
-        ExportQuotation("csv");
-
-    private void ExportQuotation(string format)
-    {
-        var path = SavePath(format, $"bao-gia.{format}");
-        if (path is null) return;
-        try
-        {
-            ViewModel.ExportQuotation(format, path);
-        }
-        catch (Exception exception)
-        {
-            MessageBox.Show(Window.GetWindow(this), exception.Message, "Báo giá", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-    }
-
     private async void LoadMovements_OnClick(object sender, RoutedEventArgs e) =>
         await ViewModel.LoadMovementsAsync(append: false);
 

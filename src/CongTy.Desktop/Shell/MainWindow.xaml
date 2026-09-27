@@ -228,6 +228,10 @@
                                         Tag="{Binding IsManagementProposalsSelected}"
                                         Visibility="{Binding CanViewManagementProposals, Converter={StaticResource BooleanToVisibilityConverter}}"
                                         Click="ManagementProposals_OnClick"><TextBlock Text="Đề xuất" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}"
+                                        Tag="{Binding IsSalesQuotationSelected}"
+                                        Visibility="{Binding CanViewSalesQuotation, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Click="SalesQuotation_OnClick"><TextBlock Text="Báo giá" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsSalesOrdersSelected}" Visibility="{Binding CanViewSales, Converter={StaticResource BooleanToVisibilityConverter}}" Click="Sales_OnClick"><TextBlock Text="Đơn bán hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsOrderManagementSelected}" Visibility="{Binding CanViewOrderManagement, Converter={StaticResource BooleanToVisibilityConverter}}" Click="OrderManagement_OnClick"><TextBlock Text="Quản lý đơn hàng" /></Button>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCustomerOnboardingSelected}" Visibility="{Binding CanViewCustomerOnboarding, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CustomerOnboarding_OnClick"><TextBlock Text="Mở/liên kết mã khách" /></Button>

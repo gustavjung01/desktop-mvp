@@ -99,8 +99,8 @@ public sealed class Issue85Lot6OfficeFormsParityTests
         foreach (var token in new[] { "/api/", "PostAsync", "PatchAsync", "Idempotency", "CustomerId", "SupplierId", "EmployeeId" })
             Assert.IsFalse(combined.Contains(token, StringComparison.OrdinalIgnoreCase), token);
 
-        StringAssert.Contains(vm, "Math.Clamp(value, 0, 5)");
-        StringAssert.Contains(vm, "public bool IsOfficeFormsTab => SelectedTabIndex == 5;");
+        StringAssert.Contains(vm, "Math.Clamp(value, 0, 4)");
+        StringAssert.Contains(vm, "public bool IsOfficeFormsTab => SelectedTabIndex == 4;");
         StringAssert.Contains(vm, "if (_loaded || IsBusy || !CanOpen || IsOfficeFormsTab) return;");
         StringAssert.Contains(vm, "if (IsBusy || !CanOpen || IsOfficeFormsTab) return;");
         StringAssert.Contains(vm, "public bool CanRefresh => CanOpen && !IsOfficeFormsTab && !IsBusy;");

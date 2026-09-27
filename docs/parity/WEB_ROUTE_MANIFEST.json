@@ -3,15 +3,15 @@
   "name": "WEB_ROUTE_MANIFEST",
   "source": {
     "repository": "binhnxwjfjxm/NPP-Platform",
-    "baselineRevision": "384c58186067d0bc4bc0705c6442d33775df6695",
+    "baselineRevision": "d0c5a6d27883af0e65238306a7f3dd63b569d271",
     "fingerprints": {
-      "webAppTree": "65213c22cae645c0db2c6ce932f8bb11025aed2c"
+      "webAppTree": "54e18c9d8de5f9e462c08d98f1a48d4d1a0c4fd8"
     }
   },
   "snapshot": {
     "webRoutes": {
-      "count": 333,
-      "sha256": "2eef06854e607f020ef80f369b48efc2b1c751b4dd3cfc94c8de0e569099fe16"
+      "count": 334,
+      "sha256": "93450c1e74eb5c3bbeb5a6aa611997be42b127bd4efd0e2b4eae4af1bef21f4f"
     }
   },
   "discovery": {

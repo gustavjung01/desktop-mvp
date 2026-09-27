@@ -971,6 +971,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "sales.gross-margin" => "Lãi gộp",
         "sales.operations" => "Tiếp nhận và xử lý nhu cầu bán hàng",
         "sales.proposals" => "Gửi đề xuất lên Admin",
+        "sales.quotations" => "Báo giá",
         "sales.orders" => "Đơn bán hàng",
         "inventory.reporting" => "Báo cáo tồn kho",
         "inventory.fulfillment" => "Chuẩn bị hàng",
@@ -1020,6 +1021,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "sales.gross-margin" => "Đối chiếu doanh thu thuần đã ghi nhận với dữ liệu giá vốn theo đúng chứng từ kho; hàng khách trả đã nhận được đảo cả doanh thu và giá vốn hàng bán.",
         "sales.operations" => "Tập trung đơn và nhu cầu mua từ các nguồn, xử lý mã khách, kiểm tra và chuyển thành đơn bán hàng chính thức.",
         "sales.proposals" => "Chỉ cần nêu rõ tiêu đề và nội dung cần quyết định. Thông tin liên quan có thể bổ sung khi thật sự cần.",
+        "sales.quotations" => "Chọn khách hàng, phạm vi hàng hóa và điều kiện bán; hệ thống tính đúng mức giá đang có hiệu lực.",
         "sales.orders" => "Đơn nhiều nguồn, trạng thái xử lý, chuẩn bị hàng, giao hàng và thanh toán",
         "inventory.reporting" => "Tổng quan, tồn hiện tại, luân chuyển, chậm luân chuyển, lô và các điểm cần kiểm tra",
         "inventory.fulfillment" => "Phân bổ số lượng phù hợp cho từng đơn; phần chưa phân bổ vẫn để dành cho quyết định tiếp theo.",
@@ -1065,6 +1067,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
         "sales.gross-margin" => "BÁN HÀNG",
         "sales.operations" => "ĐIỀU HÀNH BÁN HÀNG",
         "sales.proposals" => "ĐỀ XUẤT QUẢN TRỊ",
+        "sales.quotations" => "BÁN HÀNG",
         "inventory.fulfillment" => "KHO VÀ HOÀN TẤT ĐƠN",
         "inventory.transfer" => "TỒN KHO & LÔ HÀNG",
         "inventory.stocktake" => "TỒN KHO & LÔ HÀNG",
@@ -1123,6 +1126,7 @@ public sealed partial class ShellViewModel : INotifyPropertyChanged
     public bool IsGrossMarginSelected => _selectedNavigationKey == "sales.gross-margin";
     public bool IsSalesOperationsSelected => _selectedNavigationKey == "sales.operations";
     public bool IsManagementProposalsSelected => _selectedNavigationKey == "sales.proposals";
+    public bool IsSalesQuotationSelected => _selectedNavigationKey == "sales.quotations";
     public bool IsSalesOrdersSelected => _selectedNavigationKey == "sales.orders";
     public bool IsInventoryReportingSelected => _selectedNavigationKey == "inventory.reporting";
     public bool IsInventoryFulfillmentSelected => _selectedNavigationKey == "inventory.fulfillment";

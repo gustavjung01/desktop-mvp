@@ -136,6 +136,9 @@ public sealed record DataExchangePricingImportRequest(
     [property: JsonPropertyName("sourceBatchId")] string SourceBatchId,
     [property: JsonPropertyName("items")] IReadOnlyList<DataExchangePricingImportItemRequest> Items);
 
+public sealed record DataExchangeVariantQueryRequest(
+    [property: JsonPropertyName("productIds")] IReadOnlyList<string> ProductIds);
+
 public sealed record DataExchangeQuotationRequest(
     [property: JsonPropertyName("skus")] IReadOnlyList<string> Skus,
     [property: JsonPropertyName("quantity")] string Quantity,

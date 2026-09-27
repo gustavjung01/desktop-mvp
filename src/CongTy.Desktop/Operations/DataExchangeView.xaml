@@ -352,68 +352,6 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Báo giá">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="0,8,0,0">
-                        <Border Style="{StaticResource OfficeCardStyle}">
-                            <StackPanel>
-                                <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Style="{StaticResource DataExchangeSectionTitleStyle}" Text="Báo giá" />
-                                        <TextBlock Style="{StaticResource DataExchangeHintStyle}" Text="Chọn phạm vi hàng hóa và khách hàng; hệ thống tự tìm mức giá đang áp dụng cho từng SKU." />
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                        <Button Margin="4,0" Style="{StaticResource OfficePrimaryButtonStyle}" IsEnabled="{Binding CanUseQuotation}" Click="BuildQuotation_OnClick" Content="Tính báo giá" />
-                                        <Button Margin="4,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanUseQuotationExport}" Click="QuotationExportXlsx_OnClick" Content="Xuất Excel" />
-                                        <Button Margin="4,0" Style="{StaticResource OfficeSecondaryButtonStyle}" IsEnabled="{Binding CanUseQuotationExport}" Click="QuotationExportCsv_OnClick" Content="Xuất CSV" />
-                                    </StackPanel>
-                                </Grid>
-                                <Grid Margin="0,14,0,0">
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,0,8,4" FontWeight="SemiBold" Text="Phạm vi" />
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Margin="4,0,8,4" FontWeight="SemiBold" Text="Kênh bán" />
-                                    <TextBlock Grid.Row="0" Grid.Column="2" Margin="4,0,0,4" FontWeight="SemiBold" Text="Số lượng" />
-                                    <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,8,10" ItemsSource="{Binding QuotationScopes}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding QuotationScope, Mode=TwoWay}" />
-                                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="4,0,8,10" ItemsSource="{Binding Channels}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding QuotationChannelId, Mode=TwoWay}" />
-                                    <TextBox Grid.Row="1" Grid.Column="2" Margin="4,0,0,10" Text="{Binding QuotationQuantity, UpdateSourceTrigger=PropertyChanged}" />
-                                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,8,0" Visibility="{Binding IsQuotationCategoryScope, Converter={StaticResource BoolToVisibility}}">
-                                        <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="Ngành hoặc nhóm" />
-                                        <ComboBox ItemsSource="{Binding Categories}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding QuotationCategoryId, Mode=TwoWay}" />
-                                    </StackPanel>
-                                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,10" Visibility="{Binding IsQuotationSkuScope, Converter={StaticResource BoolToVisibility}}">
-                                        <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="SKU" />
-                                        <TextBox Text="{Binding QuotationSkus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Ví dụ: SP001-LE, SP002-THUNG" />
-                                    </StackPanel>
-                                    <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,10,8,0">
-                                        <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="Nhóm khách" />
-                                        <ComboBox ItemsSource="{Binding CustomerGroups}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding QuotationCustomerGroupId, Mode=TwoWay}" />
-                                    </StackPanel>
-                                    <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="4,10,0,0">
-                                        <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="Khách hàng" />
-                                        <ComboBox ItemsSource="{Binding Customers}" DisplayMemberPath="Display" SelectedValuePath="Id" SelectedValue="{Binding QuotationCustomerId, Mode=TwoWay}" />
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-                        <Border Margin="0,12,0,0" Style="{StaticResource OfficeCardStyle}">
-                            <DataGrid Height="390" ItemsSource="{Binding QuotationRows}" Style="{StaticResource OfficeDataGridStyle}" AutoGenerateColumns="False" IsReadOnly="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="SKU" Width="1.2*" Binding="{Binding Sku}" />
-                                    <DataGridTextColumn Header="Tên SKU / quy cách" Width="1.8*" Binding="{Binding SkuName}" />
-                                    <DataGridTextColumn Header="Sản phẩm" Width="2*" Binding="{Binding ProductName}" />
-                                    <DataGridTextColumn Header="SL" Width="0.8*" Binding="{Binding Quantity}" />
-                                    <DataGridTextColumn Header="Giá áp dụng" Width="1.1*" Binding="{Binding UnitPrice}" />
-                                    <DataGridTextColumn Header="Thành tiền" Width="1.2*" Binding="{Binding LineTotal}" />
-                                    <DataGridTextColumn Header="Bảng giá" Width="1*" Binding="{Binding PriceListCode}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
             <TabItem Header="Biến động kho">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,8,0,0">
