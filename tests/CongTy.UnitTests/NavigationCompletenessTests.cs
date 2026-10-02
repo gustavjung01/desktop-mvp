@@ -47,7 +47,7 @@ public sealed class NavigationCompletenessTests
         StringAssert.Contains(mcp, "DataContext.CanViewEmployeeDirectory");
         StringAssert.Contains(mcp, "Click=\"EmployeeDirectory_OnClick\"");
         StringAssert.Contains(mcpCode, "EmployeeDirectoryRequested");
-        StringAssert.Contains(mcpShell, "McpRoutesEmployeeDirectoryRequested");
+        StringAssert.Contains(mcpShell, "EmployeeMcpReportingEmployeeDirectoryRequested");
         StringAssert.Contains(mcpShell, "NavigateEmployeeDirectoryAsync");
         StringAssert.Contains(mcpShell, "ApplyEmployeeDirectoryHeader");
         Assert.IsFalse(mcp.Contains("sẽ được nối khi phần Quản trị hệ thống được triển khai", StringComparison.Ordinal));

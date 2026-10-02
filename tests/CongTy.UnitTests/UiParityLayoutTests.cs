@@ -1355,9 +1355,11 @@ public sealed class UiParityLayoutTests
             ("Lịch sử thay đổi", "AuditHistory_OnClick"),
             ("Lịch sử nhập/xuất", "ImportExportHistory_OnClick"),
             ("Thiết lập chung", "DataBackup_OnClick"),
-            ("MCP và tuyến", "McpRoutes_OnClick"),
+            ("MCP và tuyến", "McpRouteSettings_OnClick"),
+            ("Nội dung đặt hàng", "CustomerOrderingContent_OnClick"),
             ("Vai trò và phân quyền", "AccessRoles_OnClick"),
             ("Danh mục nhân sự", "EmployeeDirectory_OnClick"),
+            ("Hiệu suất nhân viên thị trường", "EmployeeMcpReporting_OnClick"),
             ("Người dùng", "UserDirectory_OnClick")
         };
 
