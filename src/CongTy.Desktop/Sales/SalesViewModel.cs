@@ -45,6 +45,7 @@ public sealed class SalesViewModel : INotifyPropertyChanged
     private string _editorBaselineFingerprint=string.Empty;
     private string _editorPricingAt=string.Empty;
     private string? _preferredAddressId;
+    private CancellationTokenSource? _addressLoadCts;
 
     private SalesOrderEntrySettingsData? _entrySettings;
     private SalesOrderData? _selectedOrder;
@@ -334,6 +335,7 @@ public sealed class SalesViewModel : INotifyPropertyChanged
     {
         _editorMode=EditorMode.None; _editingOrderId=null; _editingVersion=null; _saveKey=null; _confirmKey=null; _entrySettingsKey=null; _quickCustomerKey=null;
         _editorBaselineFingerprint=string.Empty; _editorPricingAt=string.Empty; PricingMismatchMessage=string.Empty; CloseInventoryHistory();
+        _addressLoadCts?.Cancel(); _addressLoadCts?.Dispose(); _addressLoadCts=null;
         ClearDraftLines(); SkuRows.Clear(); _skuOptions.Clear(); SelectedDraftLine=null; CloseQuickCustomer(); RaiseEditorState(); RaiseDraftTotals();
     }
 
@@ -823,11 +825,18 @@ public sealed class SalesViewModel : INotifyPropertyChanged
 
     private async Task ReloadAddressesAsync(string customerId)
     {
+        _addressLoadCts?.Cancel();
+        _addressLoadCts?.Dispose();
+        _addressLoadCts=new CancellationTokenSource();
+        var token=_addressLoadCts.Token;
+        var expectedCustomerId=customerId;
+
         _addresses.Clear(); AddressOptions.Clear(); DraftAddressId=string.Empty;
         if(!IsEditorOpen||!IsExistingCustomer||!Guid.TryParse(customerId,out _))return;
         try
         {
-            var rows=await _service.ListCustomerAddressesAsync(customerId).ConfigureAwait(true);
+            var rows=await _service.ListCustomerAddressesAsync(customerId,token).ConfigureAwait(true);
+            if(token.IsCancellationRequested||!string.Equals(DraftCustomerId,expectedCustomerId,StringComparison.Ordinal))return;
             foreach(var row in rows.Where(a=>a.IsActive).OrderByDescending(a=>a.IsDefault).ThenBy(a=>a.Label))
             { _addresses.Add(row); AddressOptions.Add(new SalesLookupOption(row.Id,$"{row.Label} · {row.AddressLine1}, {row.Ward}, {row.Province}")); }
             var preferred=_preferredAddressId; _preferredAddressId=null;
@@ -835,7 +844,12 @@ public sealed class SalesViewModel : INotifyPropertyChanged
                 ?preferred
                 :_addresses.FirstOrDefault(a=>a.IsDefault)?.Id??_addresses.FirstOrDefault()?.Id??string.Empty;
         }
-        catch { _preferredAddressId=null; AddressOptions.Clear(); }
+        catch(OperationCanceledException) when(token.IsCancellationRequested){ }
+        catch
+        {
+            if(token.IsCancellationRequested||!string.Equals(DraftCustomerId,expectedCustomerId,StringComparison.Ordinal))return;
+            _preferredAddressId=null; AddressOptions.Clear();
+        }
     }
 
     private void BuildLookups()

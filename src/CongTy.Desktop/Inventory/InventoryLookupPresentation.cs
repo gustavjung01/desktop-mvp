@@ -49,6 +49,12 @@ public sealed record InventoryLookupHistoryRow(InventoryHistoryData Data)
     public string Quantity { get; init; } = string.Empty;
     public string StockAfter { get; init; } = string.Empty;
     public string DocumentNumber => Data.SourceDocumentNumber ?? Data.DocumentNumber ?? string.Empty;
+    public string SalesOrderNumber => Data.SalesOrderNumber ?? string.Empty;
+    public string CustomerName => Data.CustomerName ?? string.Empty;
+    public string CustomerCode => Data.CustomerCode ?? string.Empty;
+    public string Customer => string.IsNullOrWhiteSpace(CustomerName)
+        ? "—"
+        : string.IsNullOrWhiteSpace(CustomerCode) ? CustomerName : $"{CustomerName} · {CustomerCode}";
     public string Warehouse => $"{Data.WarehouseCode} · {Data.WarehouseName}";
     public bool HasDocument => !string.IsNullOrWhiteSpace(DocumentNumber);
 }
@@ -174,6 +180,7 @@ public static class InventoryLookupPresentation
         "MANUAL_INBOUND" => "Phiếu nhập kho",
         "STOCKTAKE" => "Phiếu kiểm kê",
         "INVENTORY_REVERSAL" => "Phiếu hoàn tác kho",
+        "CUSTOMER_RETURN" => "Phiếu khách trả hàng",
         _ => "Chứng từ kho"
     };
 
