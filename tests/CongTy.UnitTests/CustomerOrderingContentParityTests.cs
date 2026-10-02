@@ -85,6 +85,7 @@ public sealed class CustomerOrderingContentParityTests
 
         StringAssert.Contains(view, "MaxLength=\"80\"");
         StringAssert.Contains(view, "MaxLength=\"4000\"");
+        StringAssert.Contains(view, "UpdatedAtText, Mode=OneWay");
         StringAssert.Contains(code, "ProductImageProcessor.ToWebpAsync");
         StringAssert.Contains(shell, "Nội dung đặt hàng");
         StringAssert.Contains(shell, "Click=\"CustomerOrderingContent_OnClick\"");
