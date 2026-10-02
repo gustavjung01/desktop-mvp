@@ -90,6 +90,11 @@
                                            VerticalAlignment="Center"
                                            Text="50 dòng/trang"
                                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <Button Margin="0,0,8,0"
+                                        Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                        IsEnabled="{Binding CanOpenHistoryExport}"
+                                        Click="OpenHistoryExport_OnClick"
+                                        Content="Xuất lịch sử…" />
                                 <Button Style="{StaticResource OfficePrimaryButtonStyle}"
                                         IsEnabled="{Binding CanRefreshHistory}"
                                         Click="RefreshHistory_OnClick"
@@ -402,32 +407,41 @@
                                                             Binding="{Binding StockAfter}"
                                                             Width="115"
                                                             ElementStyle="{StaticResource LookupCellTextStyle}" />
-                                        <DataGridTemplateColumn Header="Mã chứng từ"
-                                                                Width="125">
+                                        <DataGridTemplateColumn Header="Đơn / chứng từ"
+                                                                Width="150">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Grid>
-                                                        <Button Style="{StaticResource OfficeMiniButtonStyle}"
-                                                                Visibility="{Binding HasDocument, Converter={StaticResource BoolToVisibility}}"
-                                                                Click="OpenHistoryDetail_OnClick"
-                                                                Content="{Binding DocumentNumber}" />
-                                                        <TextBlock Text="—"
-                                                                   VerticalAlignment="Center">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding HasDocument}" Value="False">
-                                                                            <Setter Property="Visibility" Value="Visible" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    </Grid>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding SalesOrderNumber}"
+                                                                   FontSize="10"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                        <Grid Margin="0,2,0,0">
+                                                            <Button Style="{StaticResource OfficeMiniButtonStyle}"
+                                                                    Visibility="{Binding HasDocument, Converter={StaticResource BoolToVisibility}}"
+                                                                    Click="OpenHistoryDetail_OnClick"
+                                                                    Content="{Binding DocumentNumber}" />
+                                                            <TextBlock Text="—"
+                                                                       VerticalAlignment="Center">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding HasDocument}" Value="False">
+                                                                                <Setter Property="Visibility" Value="Visible" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Grid>
+                                                    </StackPanel>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Khách hàng"
+                                                            Binding="{Binding Customer}"
+                                                            Width="1.15*"
+                                                            ElementStyle="{StaticResource LookupCellTextStyle}" />
                                         <DataGridTextColumn Header="Kho"
                                                             Binding="{Binding Warehouse}"
                                                             Width="1.2*"
@@ -446,6 +460,67 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
+
+        <Border Panel.ZIndex="21"
+                Background="#66000000"
+                Visibility="{Binding IsHistoryExportOpen, Converter={StaticResource BoolToVisibility}}">
+            <Border Width="600"
+                    Margin="40"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource OfficeCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="XUẤT LỊCH SỬ KHO"
+                                       FontSize="9.5"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="Chọn một hoặc nhiều SKU"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CloseHistoryExport_OnClick"
+                                Content="Đóng" />
+                    </Grid>
+                    <TextBlock Margin="0,12,0,0"
+                               Text="{Binding HistoryExportHint}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+                    <TextBox Margin="0,8,0,0"
+                             MinHeight="90"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             Style="{StaticResource OfficeTextBoxStyle}"
+                             Text="{Binding HistoryExportSkus, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Margin="0,5,0,0"
+                               Text="Mỗi SKU được xuất thành một sheet Excel riêng; dữ liệu lấy toàn bộ lịch sử trong kho đang xem."
+                               FontSize="10.5"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               TextWrapping="Wrap" />
+                    <StackPanel Margin="0,14,0,0"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right">
+                        <Button Margin="0,0,8,0"
+                                Style="{StaticResource OfficeSecondaryButtonStyle}"
+                                Click="CloseHistoryExport_OnClick"
+                                Content="Hủy" />
+                        <Button Style="{StaticResource OfficePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanExportHistory}"
+                                Click="ExportHistory_OnClick"
+                                Content="Xuất Excel" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
 
         <Border Panel.ZIndex="20"
                 Background="#66000000"
@@ -473,6 +548,21 @@
                                 Style="{StaticResource OfficeSecondaryButtonStyle}"
                                 Click="CloseHistoryDetail_OnClick"
                                 Content="Đóng" />
+                    </Grid>
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="ĐƠN BÁN HÀNG" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailSalesOrder}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="KHÁCH HÀNG" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <TextBlock Margin="0,3,0,0" Text="{Binding DetailCustomer}" TextWrapping="Wrap" />
+                        </StackPanel>
                     </Grid>
 
                     <Grid Margin="0,14,0,0">

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using CongTy.ApiClient;
 using CongTy.Contracts;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -12,6 +13,8 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
 {
     private const int PageSize = 100;
     private const int HistoryPageSize = 50;
+    private const int MaxHistoryExportSkus = 20;
+    private const int MaxHistoryExportRowsPerSku = 1_048_575;
 
     private readonly IInventoryService _service;
     private readonly IAccessStateService _access;
@@ -33,6 +36,8 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
     private bool _historyHasNext;
     private InventoryLookupHistoryRow? _selectedHistory;
     private bool _isHistoryDetailOpen;
+    private bool _isHistoryExportOpen;
+    private string _historyExportSkus = string.Empty;
 
     public InventoryLookupViewModel(IInventoryService service, IAccessStateService access)
     {
@@ -64,6 +69,32 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
     public bool HistoryHasNext => SelectedBalance is not null && _historyHasNext && IsNotBusy;
     public bool HasHistoryRows => HistoryRows.Count > 0;
     public bool HasNoHistoryRows => SelectedBalance is not null && !IsBusy && HistoryRows.Count == 0;
+    public bool CanOpenHistoryExport => SelectedBalance is not null && IsNotBusy;
+    public bool CanExportHistory => IsHistoryExportOpen && CanOpenHistoryExport && !string.IsNullOrWhiteSpace(HistoryExportSkus);
+
+    public bool IsHistoryExportOpen
+    {
+        get => _isHistoryExportOpen;
+        private set
+        {
+            if (!SetField(ref _isHistoryExportOpen, value)) return;
+            OnPropertyChanged(nameof(CanExportHistory));
+        }
+    }
+
+    public string HistoryExportSkus
+    {
+        get => _historyExportSkus;
+        set
+        {
+            if (!SetField(ref _historyExportSkus, value ?? string.Empty)) return;
+            OnPropertyChanged(nameof(CanExportHistory));
+        }
+    }
+
+    public string HistoryExportHint => SelectedBalance is null
+        ? string.Empty
+        : $"Kho {SelectedBalance.Data.WarehouseCode} · {SelectedBalance.Data.WarehouseName}. Nhập tối đa {MaxHistoryExportSkus} SKU, ngăn cách bằng dấu phẩy hoặc xuống dòng.";
 
     public string Message
     {
@@ -153,6 +184,8 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
 
     public string DetailDocumentType => InventoryLookupPresentation.DocumentType(SelectedHistory?.Data.SourceDocumentType);
     public string DetailDocumentNumber => SelectedHistory?.DocumentNumber ?? "Chi tiết chứng từ kho";
+    public string DetailSalesOrder => string.IsNullOrWhiteSpace(SelectedHistory?.SalesOrderNumber) ? "—" : SelectedHistory!.SalesOrderNumber;
+    public string DetailCustomer => SelectedHistory?.Customer ?? "—";
     public string DetailPostedAt => SelectedHistory?.PostedAt ?? "—";
     public string DetailEmployee => SelectedHistory?.Employee ?? "—";
     public string DetailMovement => SelectedHistory?.Movement ?? "—";
@@ -245,6 +278,118 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
         IsHistoryDetailOpen = false;
         SelectedHistory = null;
         RaiseDetail();
+    }
+
+    public void OpenHistoryExport()
+    {
+        if (!CanOpenHistoryExport || SelectedBalance is null) return;
+        HistoryExportSkus = SelectedBalance.Data.BaseSku;
+        IsHistoryExportOpen = true;
+        ClearMessage();
+    }
+
+    public void CloseHistoryExport()
+    {
+        IsHistoryExportOpen = false;
+        HistoryExportSkus = string.Empty;
+    }
+
+    public async Task<ApiDownloadFile?> ExportHistoryAsync(CancellationToken cancellationToken = default)
+    {
+        if (!CanExportHistory || SelectedBalance is null) return null;
+
+        var selected = SelectedBalance.Data;
+        var requestedSkus = HistoryExportSkus
+            .Split([',', ';', '\r', '\n', '\t', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (requestedSkus.Length is < 1 or > MaxHistoryExportSkus)
+        {
+            SetErrorMessage($"Hãy nhập từ 1 đến {MaxHistoryExportSkus} SKU để xuất lịch sử.");
+            return null;
+        }
+
+        var skuMap = new Dictionary<string, InventoryBalanceData>(StringComparer.OrdinalIgnoreCase);
+        foreach (var balance in _allBalances.Where(item => item.WarehouseId == selected.WarehouseId))
+        {
+            if (!string.IsNullOrWhiteSpace(balance.BaseSku)) skuMap.TryAdd(balance.BaseSku.Trim(), balance);
+            if (!string.IsNullOrWhiteSpace(balance.PackageSku)) skuMap.TryAdd(balance.PackageSku.Trim(), balance);
+        }
+
+        var resolved = new List<(string Sku, InventoryBalanceData Balance)>();
+        var seenVariants = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var sku in requestedSkus)
+        {
+            if (!skuMap.TryGetValue(sku, out var balance))
+            {
+                SetErrorMessage($"Không tìm thấy SKU “{sku}” trong kho đang xem.");
+                return null;
+            }
+            if (seenVariants.Add(balance.BaseVariantId)) resolved.Add((sku, balance));
+        }
+
+        SetBusy("history-export");
+        ClearMessage();
+        try
+        {
+            var headers = new[]
+            {
+                "Ngày ghi nhận", "SKU", "Khách hàng", "Mã khách hàng", "Đơn bán hàng", "Mã chứng từ",
+                "Loại chứng từ", "Thao tác", "Số lượng thay đổi", "Tồn kho", "Nhân viên", "Kho", "Vị trí", "Lô"
+            };
+            var sheets = new List<OfficeExportSheet>();
+            foreach (var item in resolved)
+            {
+                var history = await LoadAllHistoryForExportAsync(
+                    selected.WarehouseId,
+                    item.Balance.BaseVariantId,
+                    cancellationToken).ConfigureAwait(true);
+                var rows = history.Select(row => OfficeDataExportFile.Row(
+                    InventoryLookupPresentation.DateTimeText(row.PostedAt),
+                    item.Sku,
+                    row.CustomerName,
+                    row.CustomerCode,
+                    row.SalesOrderNumber,
+                    row.SourceDocumentNumber ?? row.DocumentNumber,
+                    InventoryLookupPresentation.DocumentType(row.SourceDocumentType),
+                    InventoryLookupPresentation.Movement(row.MovementType, row.BaseQuantityDelta),
+                    row.BaseQuantityDelta,
+                    row.StockAfter,
+                    string.IsNullOrWhiteSpace(row.PostedByName) ? "Hệ thống" : row.PostedByName,
+                    $"{row.WarehouseCode} · {row.WarehouseName}",
+                    row.LocationSummary,
+                    row.LotSummary)).ToArray();
+                sheets.Add(new OfficeExportSheet(item.Sku, headers, rows));
+            }
+
+            SetNotice($"Đã chuẩn bị lịch sử kho cho {sheets.Count} SKU.");
+            return OfficeDataExportFile.Xlsx($"Lich-su-kho-{DateTime.Today:yyyy-MM-dd}.xlsx", sheets.ToArray());
+        }
+        catch (Exception exception)
+        {
+            SetError(exception);
+            return null;
+        }
+        finally
+        {
+            SetBusy(null);
+        }
+    }
+
+    private async Task<IReadOnlyList<InventoryHistoryData>> LoadAllHistoryForExportAsync(
+        string warehouseId,
+        string baseVariantId,
+        CancellationToken cancellationToken)
+    {
+        var result = new List<InventoryHistoryData>();
+        for (var page = 0; ; page++)
+        {
+            var batch = await _service.ListHistoryAsync(warehouseId, baseVariantId, page, cancellationToken).ConfigureAwait(true);
+            result.AddRange(batch.Take(HistoryPageSize));
+            if (result.Count > MaxHistoryExportRowsPerSku)
+                throw new InvalidOperationException("Một SKU có quá nhiều lịch sử để xuất trong một sheet. Hãy thu hẹp dữ liệu cần đối chiếu.");
+            if (batch.Count <= HistoryPageSize) return result;
+        }
     }
 
     private async Task<bool> LoadBalancesAsync(bool preserveSelection)
@@ -396,6 +541,9 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(HistoryWarehouse));
         OnPropertyChanged(nameof(HistoryWarehouseTotal));
         OnPropertyChanged(nameof(CanRefreshHistory));
+        OnPropertyChanged(nameof(CanOpenHistoryExport));
+        OnPropertyChanged(nameof(CanExportHistory));
+        OnPropertyChanged(nameof(HistoryExportHint));
         RaiseHistoryPaging();
     }
 
@@ -410,6 +558,8 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
     {
         OnPropertyChanged(nameof(DetailDocumentType));
         OnPropertyChanged(nameof(DetailDocumentNumber));
+        OnPropertyChanged(nameof(DetailSalesOrder));
+        OnPropertyChanged(nameof(DetailCustomer));
         OnPropertyChanged(nameof(DetailPostedAt));
         OnPropertyChanged(nameof(DetailEmployee));
         OnPropertyChanged(nameof(DetailMovement));
@@ -437,6 +587,8 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
         RaisePage();
         RaiseHistoryPaging();
         OnPropertyChanged(nameof(CanRefreshHistory));
+        OnPropertyChanged(nameof(CanOpenHistoryExport));
+        OnPropertyChanged(nameof(CanExportHistory));
         OnPropertyChanged(nameof(HasNoHistoryRows));
     }
 
@@ -453,6 +605,8 @@ public sealed class InventoryLookupViewModel : INotifyPropertyChanged
         SelectedBalance = null;
         SelectedHistory = null;
         IsHistoryDetailOpen = false;
+        IsHistoryExportOpen = false;
+        HistoryExportSkus = string.Empty;
         Message = string.Empty;
         MessageIsError = false;
         ApplyFilterAndPage();

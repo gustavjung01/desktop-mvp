@@ -36,7 +36,7 @@ public static class OfficeDataExportFile
                 for (var column = 0; column < sheet.Headers.Count; column++)
                 {
                     var value = column < values.Count ? values[column] : string.Empty;
-                    worksheet.Cell(row + 2, column + 1).Value = GuardSpreadsheetText(value);
+                    worksheet.Cell(row + 2, column + 1).Value = GuardSpreadsheetText(FormatOfficeExportValue(value));
                 }
             }
 
@@ -226,6 +226,29 @@ public static class OfficeDataExportFile
     private static string UnknownEnumLabel(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "—" : "Cần kiểm tra";
 
+    public static string FormatOfficeExportValue(string? value)
+    {
+        var text = value ?? string.Empty;
+        var normalized = text.Trim();
+        if (normalized.Length == 0) return text;
+
+        var start = normalized[0] == '-' ? 1 : 0;
+        var dot = normalized.IndexOf('.', start);
+        if (dot <= start || dot == normalized.Length - 1 || normalized.IndexOf('.', dot + 1) >= 0) return text;
+
+        for (var index = start; index < normalized.Length; index++)
+        {
+            if (index == dot) continue;
+            if (!char.IsAsciiDigit(normalized[index])) return text;
+        }
+
+        var fraction = normalized[(dot + 1)..].TrimEnd('0');
+        var compact = fraction.Length == 0
+            ? normalized[..dot]
+            : normalized[..(dot + 1)] + fraction;
+        return compact == "-0" ? "0" : compact;
+    }
+
     public static string ClockText(string? value)
     {
         var text = value?.Trim() ?? string.Empty;
@@ -243,7 +266,7 @@ public static class OfficeDataExportFile
 
     private static string CsvCell(string? value)
     {
-        var safe = GuardSpreadsheetText(value);
+        var safe = GuardSpreadsheetText(FormatOfficeExportValue(value));
         return safe.Contains(',') || safe.Contains('"') || safe.Contains('\n') || safe.Contains('\r')
             ? "\"" + safe.Replace("\"", "\"\"") + "\""
             : safe;

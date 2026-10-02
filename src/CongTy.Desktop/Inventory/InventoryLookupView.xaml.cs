@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CongTy.Desktop.Operations;
 
 namespace CongTy.Desktop.Inventory;
 
@@ -22,6 +23,13 @@ public partial class InventoryLookupView : UserControl
 
     private async void InventoryLookupView_OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key == Key.Escape && _viewModel.IsHistoryExportOpen)
+        {
+            e.Handled = true;
+            _viewModel.CloseHistoryExport();
+            return;
+        }
+
         if (e.Key == Key.Escape && _viewModel.IsHistoryDetailOpen)
         {
             e.Handled = true;
@@ -66,6 +74,18 @@ public partial class InventoryLookupView : UserControl
         {
             await _viewModel.OpenHistoryAsync(row);
         }
+    }
+
+    private void OpenHistoryExport_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.OpenHistoryExport();
+
+    private void CloseHistoryExport_OnClick(object sender, RoutedEventArgs e) =>
+        _viewModel.CloseHistoryExport();
+
+    private async void ExportHistory_OnClick(object sender, RoutedEventArgs e)
+    {
+        await OfficeExportDialog.RunAsync(this, () => _viewModel.ExportHistoryAsync());
+        _viewModel.CloseHistoryExport();
     }
 
     private async void RefreshHistory_OnClick(object sender, RoutedEventArgs e) =>

@@ -46,6 +46,9 @@ public sealed record InventoryHistoryData
     [JsonPropertyName("source_document_number")] public string? SourceDocumentNumber { get; init; }
     [JsonPropertyName("document_number")] public string? DocumentNumber { get; init; }
     [JsonPropertyName("document_date")] public string? DocumentDate { get; init; }
+    [JsonPropertyName("customer_code")] public string? CustomerCode { get; init; }
+    [JsonPropertyName("customer_name")] public string? CustomerName { get; init; }
+    [JsonPropertyName("sales_order_number")] public string? SalesOrderNumber { get; init; }
     [JsonPropertyName("posted_at")] public string PostedAt { get; init; } = string.Empty;
     [JsonPropertyName("posted_by")] public string PostedBy { get; init; } = string.Empty;
     [JsonPropertyName("posted_by_name")] public string? PostedByName { get; init; }
