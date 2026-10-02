@@ -288,7 +288,8 @@
         <DataTemplate x:Key="CompanySettingsMenuTemplate">
             <StackPanel>
                                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsDataBackupSelected}" Visibility="{Binding CanViewDataBackup, Converter={StaticResource BooleanToVisibilityConverter}}" Click="DataBackup_OnClick"><TextBlock Text="Thiết lập chung" /></Button>
-                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsMcpRoutesSelected}" Visibility="{Binding CanViewMcpRoutes, Converter={StaticResource BooleanToVisibilityConverter}}" Click="McpRoutes_OnClick"><TextBlock Text="MCP và tuyến" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsMcpRouteSettingsSelected}" Visibility="{Binding CanViewMcpRouteSettings, Converter={StaticResource BooleanToVisibilityConverter}}" Click="McpRouteSettings_OnClick"><TextBlock Text="MCP và tuyến" /></Button>
+                                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsCustomerOrderingContentSelected}" Visibility="{Binding CanViewCustomerOrderingContent, Converter={StaticResource BooleanToVisibilityConverter}}" Click="CustomerOrderingContent_OnClick"><TextBlock Text="Nội dung đặt hàng" /></Button>
                             
             </StackPanel>
         </DataTemplate>
@@ -302,6 +303,7 @@
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsAttendanceViolationSelected}" Visibility="{Binding CanViewWorkforceViolations, Converter={StaticResource BooleanToVisibilityConverter}}" Click="AttendanceViolation_OnClick"><TextBlock Text="Xử lý vi phạm chấm công" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsAttendanceAdjustmentSelected}" Visibility="{Binding CanViewWorkforceAdjustments, Converter={StaticResource BooleanToVisibilityConverter}}" Click="AttendanceAdjustment_OnClick"><TextBlock Text="Điều chỉnh công" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsEmployeeDirectorySelected}" Visibility="{Binding CanViewEmployeeDirectory, Converter={StaticResource BooleanToVisibilityConverter}}" Click="EmployeeDirectory_OnClick"><TextBlock Text="Danh mục nhân sự" /></Button>
+                <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsEmployeeMcpReportingSelected}" Visibility="{Binding CanViewEmployeeMcpReporting, Converter={StaticResource BooleanToVisibilityConverter}}" Click="EmployeeMcpReporting_OnClick"><TextBlock Text="Hiệu suất nhân viên thị trường" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsWorkScheduleSelected}" Visibility="{Binding CanViewWorkforceSchedules, Converter={StaticResource BooleanToVisibilityConverter}}" Click="WorkSchedules_OnClick"><TextBlock Text="Ca và lịch làm việc" /></Button>
                 <Button Style="{StaticResource SidebarSubItemInteractiveStyle}" Tag="{Binding IsWorkPolicySelected}" Visibility="{Binding CanViewWorkforcePolicies, Converter={StaticResource BooleanToVisibilityConverter}}" Click="WorkPolicies_OnClick"><TextBlock Text="Chính sách làm việc" /></Button>
             </StackPanel>
@@ -657,7 +659,7 @@
                                     <TextBlock Text="☰" HorizontalAlignment="Center" />
                                     <StackPanel Grid.Column="1" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
                                         <TextBlock Text="Cài đặt Công Ty" FontWeight="SemiBold" />
-                                        <TextBlock Text="Thiết lập chung và MCP, tuyến" Style="{StaticResource NavHintTextStyle}" />
+                                        <TextBlock Text="Thiết lập chung, MCP, tuyến và nội dung đặt hàng" Style="{StaticResource NavHintTextStyle}" />
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="{Binding CompanySettingsChevron}" Style="{StaticResource NavChevronTextStyle}" Visibility="{Binding IsSidebarExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 </Grid>
