@@ -110,7 +110,8 @@ public sealed class InventoryLookupParityTests
             "Header=\"Nhân viên\"",
             "Header=\"Thao tác\"",
             "Header=\"Số lượng thay đổi\"",
-            "Header=\"Mã chứng từ\""
+            "Header=\"Đơn / chứng từ\"",
+            "Header=\"Khách hàng\""
         })
         {
             StringAssert.Contains(view, header);
