@@ -12,6 +12,11 @@ public sealed record CustomerOrderingHomeContentData
     [JsonPropertyName("updatedAt")] public string? UpdatedAt { get; init; }
 }
 
+public sealed record CustomerOrderingHomeContentEnvelopeData
+{
+    [JsonPropertyName("content")] public CustomerOrderingHomeContentData Content { get; init; } = new();
+}
+
 public sealed record CustomerOrderingHomeContentUpdateRequest
 {
     [JsonPropertyName("sectionTitle")] public string SectionTitle { get; init; } = string.Empty;

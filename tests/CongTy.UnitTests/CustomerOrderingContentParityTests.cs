@@ -39,6 +39,8 @@ public sealed class CustomerOrderingContentParityTests
         StringAssert.Contains(service, "\"/api/customer-ordering-home-content/banner\"");
         StringAssert.Contains(service, "PatchIdempotentDataAsync");
         StringAssert.Contains(service, "PutBytesIdempotentDataAsync");
+        StringAssert.Contains(service, "CustomerOrderingHomeContentEnvelopeData");
+        StringAssert.Contains(service, "return data.Content;");
         StringAssert.Contains(service, "\"image/webp\"");
         StringAssert.Contains(service, "idempotencyKeys.IsValid");
         Assert.IsFalse(service.Contains("MCP_API_SERVER_TOKEN", StringComparison.Ordinal));

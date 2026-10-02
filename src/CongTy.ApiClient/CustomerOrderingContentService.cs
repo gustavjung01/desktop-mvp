@@ -24,27 +24,31 @@ public sealed class CustomerOrderingContentService(
     private const string Banner = "/api/customer-ordering-home-content/banner";
     private const int MaxBannerBytes = 5 * 1024 * 1024;
 
-    public Task<CustomerOrderingHomeContentData> GetAsync(CancellationToken cancellationToken = default) =>
-        apiClient.GetDataAsync<CustomerOrderingHomeContentData>(
+    public async Task<CustomerOrderingHomeContentData> GetAsync(CancellationToken cancellationToken = default)
+    {
+        var data = await apiClient.GetDataAsync<CustomerOrderingHomeContentEnvelopeData>(
             Root,
             RequireToken(),
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+        return data.Content;
+    }
 
-    public Task<CustomerOrderingHomeContentData> SaveAsync(
+    public async Task<CustomerOrderingHomeContentData> SaveAsync(
         CustomerOrderingHomeContentUpdateRequest request,
         string idempotencyKey,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return apiClient.PatchIdempotentDataAsync<CustomerOrderingHomeContentUpdateRequest, CustomerOrderingHomeContentData>(
+        var data = await apiClient.PatchIdempotentDataAsync<CustomerOrderingHomeContentUpdateRequest, CustomerOrderingHomeContentEnvelopeData>(
             Root,
             request,
             Key(idempotencyKey),
             RequireToken(),
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+        return data.Content;
     }
 
-    public Task<CustomerOrderingHomeContentData> UploadBannerAsync(
+    public async Task<CustomerOrderingHomeContentData> UploadBannerAsync(
         byte[] webpBytes,
         string idempotencyKey,
         CancellationToken cancellationToken = default)
@@ -53,13 +57,14 @@ public sealed class CustomerOrderingContentService(
         if (webpBytes.Length is < 1 or > MaxBannerBytes)
             throw new InvalidOperationException("Ảnh WebP phải có dung lượng từ 1 byte đến 5 MB.");
 
-        return apiClient.PutBytesIdempotentDataAsync<CustomerOrderingHomeContentData>(
+        var data = await apiClient.PutBytesIdempotentDataAsync<CustomerOrderingHomeContentEnvelopeData>(
             Banner,
             webpBytes,
             "image/webp",
             Key(idempotencyKey),
             RequireToken(),
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+        return data.Content;
     }
 
     private string RequireToken() =>
